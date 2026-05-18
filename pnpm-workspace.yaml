@@ -60,7 +60,7 @@ catalog:
   '@types/spdx-expression-parse': 3.0.5
   '@types/validate-npm-package-name': 4.0.2
   '@types/which': 3.0.4
-  '@typescript/native-preview': 7.0.0-dev.20260415.1
+  '@typescript/native-preview': 7.0.0-dev.20260510.1
   '@vitest/coverage-v8': 4.0.3
   '@vitest/ui': 4.0.3
   '@yarnpkg/extensions': 2.0.6
@@ -101,8 +101,8 @@ catalog:
   normalize-package-data: 8.0.0
   npm-package-arg: 13.0.0
   out-url: 1.2.2
-  'oxfmt': 0.37.0
-  'oxlint': 1.52.0
+  'oxfmt': 0.48.0
+  'oxlint': 1.63.0
   pacote: 21.0.1
   read-yaml-file: 2.1.0
   semver: 7.7.4
@@ -111,7 +111,7 @@ catalog:
   spdx-expression-parse: 4.0.0
   streaming-iterables: 8.0.1
   tar: 7.5.1
-  taze: 19.6.0
+  taze: 19.11.0
   trash: 10.0.0
   tsx: 4.20.5
   type-coverage: 2.29.7
