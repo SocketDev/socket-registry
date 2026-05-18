@@ -1,7 +1,7 @@
 {
   "name": "@socketregistry/monorepo",
   "version": "1.0.0",
-  "packageManager": "pnpm@11.1.2",
+  "packageManager": "pnpm@11.0.8",
   "private": true,
   "license": "MIT",
   "description": "Monorepo for Socket.dev optimized package overrides",
@@ -53,7 +53,8 @@
     "update": "node scripts/update.mts",
     "update:external-tools": "node scripts/update-external-tools.mts",
     "validate-ci": "node scripts/testing/reproduce-ci-locally.mts",
-    "validate-packages": "node scripts/testing/validate-package-tests.mts"
+    "validate-packages": "node scripts/testing/validate-package-tests.mts",
+    "setup-security-tools": "node .claude/hooks/setup-security-tools/install.mts"
   },
   "devDependencies": {
     "@anthropic-ai/claude-code": "catalog:",
