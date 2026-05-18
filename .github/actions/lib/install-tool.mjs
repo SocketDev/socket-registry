@@ -35,9 +35,19 @@ import {
   writeFileSync,
 } from 'node:fs'
 import path from 'node:path'
-import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
 
-const logger = getDefaultLogger()
+// Composite-action helper runs on the raw runner BEFORE setup-node finishes
+// resolving node_modules — `@socketsecurity/lib-stable` is not on disk yet
+// (the comments in the oxlint-disable directives below already document this
+// constraint). Fall back to a tiny inline logger that mirrors the bits of
+// @socketsecurity/lib-stable/logger that this script uses (just `.fail` for
+// the usage line). Switching back to the lib logger would require pre-
+// installing it, which defeats the whole point of this being a bootstrap
+// step.
+const logger = {
+  // oxlint-disable-next-line socket/no-console-prefer-logger -- pre-setup-node action; @socketsecurity/lib-stable not installed yet.
+  fail: msg => console.error(msg),
+}
 
 const [, , url, integrityArg, destDir, binName] = process.argv
 

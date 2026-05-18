@@ -1,5 +1,10 @@
-import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
-const logger = getDefaultLogger()
+// Composite-action helper runs on the raw runner BEFORE setup-node finishes
+// resolving node_modules — `@socketsecurity/lib-stable` is not on disk yet.
+// Use a tiny inline logger that mirrors the `.fail` API this script needs.
+const logger = {
+  // oxlint-disable-next-line socket/no-console-prefer-logger -- pre-setup-node action; @socketsecurity/lib-stable not installed yet.
+  fail: msg => console.error(msg),
+}
 
 /**
  * @file Semver validate + compare for composite-action shells. Replaces inline
