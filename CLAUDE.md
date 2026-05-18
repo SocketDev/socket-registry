@@ -71,6 +71,10 @@ Apply in: worktree creation, base-ref resolution for `git diff`/`git rev-list`, 
 
 🚨 Fleet-blessed Claude Code plugins are SHA-pinned in the wheelhouse-canonical [`.claude-plugin/marketplace.json`](../.claude-plugin/marketplace.json), with companion human-readable metadata (pin date, pinner) in [`.claude-plugin/README.md`](../.claude-plugin/README.md). The pair is enforced together: every `plugins[].source.sha` in `marketplace.json` must have a row in the README table with matching `version` + `sha` + an ISO-8601 `date`. Same staleness signal the GHA `uses:` SHA-pin comments carry. Bump the SHA → bump the row. Run `pnpm run install-claude-plugins` to reconcile a machine to the pinned set — adds the marketplace + installs each plugin at its pinned SHA, no plugin modifications (enforced by `.claude/hooks/marketplace-comment-guard/`).
 
+### Token minification
+
+Two surfaces apply lossless compression to Claude tool_result payloads — `minify` (JSON whitespace), `strip-lines` (`cat -n` prefixes), `whitespace` (3+ blank lines → 1). All deterministic and information-preserving; no semantic ML compression. **Wire-level proxy**: `@socketsecurity/token-minifier` in [`socket-wheelhouse/packages/`](../packages/socket-token-minifier/) sits between Claude Code and `api.anthropic.com` when `ANTHROPIC_BASE_URL=http://localhost:7779` is set. **In-context hook**: [`.claude/hooks/minify-mcp-output/`](.claude/hooks/minify-mcp-output/) fires PostToolUse on MCP-tool results and returns `hookSpecificOutput.updatedMCPToolOutput` — the only documented rewrite channel for already-collected tool outputs (built-in tools like Read/Bash have no such channel; use the proxy for those) (enforced by `.claude/hooks/minify-mcp-output/`).
+
 ### Fix it, don't defer
 
 🚨 See a lint/type/test error or broken comment in your reading window — fix it. Stop current task, fix the issue in a sibling commit, resume. Don't label as "pre-existing", "unrelated", or "out of scope" — the labels are rationalizations (enforced by `.claude/hooks/excuse-detector/`).
