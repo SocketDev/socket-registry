@@ -774,6 +774,12 @@ importers:
         specifier: 24.9.2
         version: 24.9.2
 
+  .claude/hooks/no-underscore-identifier-guard:
+    devDependencies:
+      '@types/node':
+        specifier: 24.9.2
+        version: 24.9.2
+
   .claude/hooks/node-modules-staging-guard:
     devDependencies:
       '@types/node':
@@ -879,6 +885,12 @@ importers:
       '@socketregistry/packageurl-js-stable':
         specifier: 'catalog:'
         version: '@socketregistry/packageurl-js@1.4.2'
+      '@socketsecurity/lib-stable':
+        specifier: 'catalog:'
+        version: '@socketsecurity/lib@5.28.0(typescript@5.9.2)'
+
+  .claude/hooks/socket-token-minifier-start:
+    dependencies:
       '@socketsecurity/lib-stable':
         specifier: 'catalog:'
         version: '@socketsecurity/lib@5.28.0(typescript@5.9.2)'

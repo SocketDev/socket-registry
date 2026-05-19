@@ -100,6 +100,7 @@ catalog:
   minimatch: 9.0.5
   normalize-package-data: 8.0.0
   npm-package-arg: 13.0.0
+  'npm-run-all2': 9.0.0
   out-url: 1.2.2
   'oxfmt': 0.48.0
   'oxlint': 1.63.0
@@ -139,6 +140,7 @@ minimumReleaseAgeExclude:
   # Network-mocking lib used in fleet test suites. v15 betas pre-date
   # npm's `time` field for the major; allow pinned beta until v15 GA.
   - 'nock@15.0.0-beta.11'
+  - 'npm-run-all2@9.0.0'
 
 # Refuse transitive dependencies declared via git/tarball/local-tarball
 # specs — an npm package shouldn't be allowed to drag in a git URL we
