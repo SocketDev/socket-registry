@@ -306,7 +306,7 @@ runs:
         fi
         # Per-command install hint surfaced when a tool isn't on PATH.
         # Mirrors the local-install regenerate-shims.sh in
-        # ~/.socket/sfw/regenerate-shims.sh — keep these in sync when
+        # ~/.socket/_wheelhouse/regenerate-shims.sh — keep these in sync when
         # adding new ecosystems.
         hint_for() {
           case "$1" in
@@ -356,7 +356,7 @@ runs:
             # $foo / backticks / inner double quotes). The sed pass on
             # each value escapes any embedded single quote via the
             # `'\''` idiom. Mirrors the local-install regenerator at
-            # ~/.socket/sfw/regenerate-shims.sh — keep both in sync
+            # ~/.socket/_wheelhouse/regenerate-shims.sh — keep both in sync
             # when adjusting wording.
             HINT="$(hint_for "$CMD")"
             sq_escape() { printf "%s" "$1" | sed "s/'/'\\\\''/g"; }
