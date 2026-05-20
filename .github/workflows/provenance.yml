@@ -1,4 +1,4 @@
-name: 🔗 Publish
+name: 📦 Publish to npm
 
 # Dependencies:
 #   - SocketDev/socket-registry/.github/actions/setup-and-install
@@ -27,7 +27,7 @@ on:
         type: string
         default: 'latest'
       dry-run:
-        description: 'Stage everything but pass --dry-run to npm publish; nothing reaches the registry. Useful for verifying the manifest + tarball before a real release. Defaults to true: opting INTO a real publish requires unchecking this, so an accidental dispatch never publishes.'
+        description: 'Dry run (--dry-run on npm publish, default: true)'
         required: false
         type: boolean
         default: true
