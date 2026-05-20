@@ -24,6 +24,24 @@ if (!pkgName) {
 
 const stripRange = (v: string): string => v.replace(/^[\^~>=<]+/, '').trim()
 
+// pnpm `npm:` alias form: `npm:@scope/realpkg@version`. The catalog
+// can pin `@socketsecurity/lib-stable: npm:@socketsecurity/lib@5.28.0`
+// to alias one name onto another's published tarball. Return the
+// alias TARGET so the tarball URL points at a real published package
+// (the alias name itself has no tarball on the registry). When the
+// pinned value is an alias, the caller needs the resolved package
+// name too, so emit `<pkg>\t<version>` (TAB-separated); plain
+// versions emit `<version>` alone.
+const aliasOf = (
+  v: string,
+): { pkg: string; version: string } | undefined => {
+  const m = v.match(/^npm:(@?[^@]+)@(.+)$/)
+  if (!m) {
+    return undefined
+  }
+  return { pkg: m[1]!, version: m[2]! }
+}
+
 const fromCatalog = (pkg: string): string | undefined => {
   if (!existsSync('pnpm-workspace.yaml')) {
     return undefined
@@ -80,7 +98,12 @@ const fromPackageJson = (pkg: string): string | undefined => {
   return undefined
 }
 
-const version = fromCatalog(pkgName) ?? fromPackageJson(pkgName)
-if (version) {
-  stdout.write(version)
+const raw = fromCatalog(pkgName) ?? fromPackageJson(pkgName)
+if (raw) {
+  const alias = aliasOf(raw)
+  if (alias) {
+    stdout.write(`${alias.pkg}\t${alias.version}`)
+  } else {
+    stdout.write(raw)
+  }
 }

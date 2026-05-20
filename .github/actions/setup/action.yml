@@ -481,20 +481,33 @@ runs:
             continue
           fi
           # Pinned somewhere in the consumer repo?
-          VERSION="$(node "${ACTION_DIR}/../lib/read-pinned-version.mts" "${PKG}")"
-          if [ -z "$VERSION" ]; then
+          # Script emits `<real-pkg>\t<version>` when the pin uses
+          # pnpm's `npm:` alias form (e.g.
+          # `@socketsecurity/lib-stable: npm:@socketsecurity/lib@5.28.0`),
+          # so the tarball URL points at the alias TARGET (which has a
+          # published tarball) rather than the alias name (which doesnt).
+          # Plain pins emit just `<version>`.
+          PINNED="$(node "${ACTION_DIR}/../lib/read-pinned-version.mts" "${PKG}")"
+          if [ -z "$PINNED" ]; then
             echo "${PKG} not pinned in this repo; skipping."
             continue
           fi
+          if [[ "$PINNED" == *$'\t'* ]]; then
+            FETCH_PKG="${PINNED%$'\t'*}"
+            VERSION="${PINNED#*$'\t'}"
+          else
+            FETCH_PKG="$PKG"
+            VERSION="$PINNED"
+          fi
           # Firewall check — bail loudly on critical/high alerts.
-          if ! node "${ACTION_DIR}/../lib/check-firewall.mts" "${PKG}" "$VERSION"; then
+          if ! node "${ACTION_DIR}/../lib/check-firewall.mts" "${FETCH_PKG}" "$VERSION"; then
             exit 1
           fi
           # Strip leading scope from package name for tarball path.
           # `@scope/name` → `name`; `name` → `name`.
-          BASE="${PKG##*/}"
+          BASE="${FETCH_PKG##*/}"
           echo "Bootstrapping ${PKG}@${VERSION} from npm registry..."
-          TARBALL_URL="https://registry.npmjs.org/${PKG}/-/${BASE}-${VERSION}.tgz"
+          TARBALL_URL="https://registry.npmjs.org/${FETCH_PKG}/-/${BASE}-${VERSION}.tgz"
           TARBALL="$(mktemp -t bootstrap-XXXXXX.tgz)"
           if ! curl -fsSL "$TARBALL_URL" -o "$TARBALL"; then
             echo "Warning: failed to fetch ${TARBALL_URL}; pnpm install will resolve it." >&2
