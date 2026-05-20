@@ -243,6 +243,45 @@ runs:
           fi
           echo "sfw installed: $(ls -la "$SFW_BIN")"
         fi
+        # Enterprise-flavor liveness probe. The enterprise binary reads
+        # SOCKET_API_TOKEN at startup and calls Socket API to identify
+        # the account's active SKUs — if the token is valid but the
+        # account doesn't have firewall-enterprise enabled, every
+        # subsequent invocation 403s with "Error while identifying
+        # active SKUs". Detect that ONCE here and silently downgrade
+        # to sfw-free so CI keeps working with whatever token the repo
+        # has, rather than every downstream pnpm/npm call failing.
+        if [ "$SFW_FLAVOR" = "enterprise" ]; then
+          SFW_PROBE_OUT="$("$SFW_BIN" --version 2>&1 || true)"
+          if echo "$SFW_PROBE_OUT" | grep -q "identifying active SKUs"; then
+            echo "Note: sfw-enterprise SKU probe returned 403 — the SOCKET_API_TOKEN" >&2
+            echo "  in this CI is valid but lacks the firewall-enterprise SKU." >&2
+            echo "  Falling back to sfw-free for the rest of the workflow." >&2
+            SFW_FLAVOR="free"
+            SFW_REPO="SocketDev/sfw-free"
+            if ! ASSET="$(node "$JQ" "$TOOLS_FILE" sfw "$SFW_FLAVOR" checksums "$PLATFORM" asset 2>/dev/null)"; then
+              echo "× SFW-free fallback: no asset for ${PLATFORM} at v${SFW_VERSION}." >&2
+              exit 1
+            fi
+            INTEGRITY="$(node "$JQ" "$TOOLS_FILE" sfw "$SFW_FLAVOR" checksums "$PLATFORM" integrity)"
+            SFW_BIN_NAME="$(node "$JQ" "$TOOLS_FILE" sfw "$SFW_FLAVOR" binaryName)"
+            rm -rf "$SFW_DIR"
+            mkdir -p "$SFW_DIR"
+            node "$INSTALL_TOOL" \
+              "$SFW_REPO" \
+              "v${SFW_VERSION}" \
+              "$ASSET" \
+              "$INTEGRITY" \
+              "$SFW_DIR" \
+              "$SFW_BIN_NAME"
+            SFW_BIN="${SFW_DIR}/${SFW_BIN_NAME}"
+            if [ ! -x "$SFW_BIN" ]; then
+              echo "× SFW-free fallback install failed: $SFW_BIN missing." >&2
+              exit 1
+            fi
+            echo "sfw-free (fallback) installed: $(ls -la "$SFW_BIN")"
+          fi
+        fi
         # Export canonical sfw provenance in the shared SOCKET_TOOL_*
         # namespace. `SOCKET_TOOL_SFW_FLAVOR` tells consumers which
         # release repo was used without re-reading SFW_IS_ENTERPRISE.
