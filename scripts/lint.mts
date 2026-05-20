@@ -1,3 +1,4 @@
+/* max-file-lines: legitimate — lint orchestration (flag parse, file selection, oxlint+oxfmt drivers, staged plumbing). Splitting would scatter the pre-commit/CI entry-point logic across multiple files. */
 /**
  * @file Unified lint runner with flag-based configuration. Provides smart
  *   linting that can target affected files or lint everything.
@@ -167,6 +168,8 @@ export async function runLintOnFiles(
         'oxfmt',
         '-c',
         '.config/oxfmtrc.json',
+        '--ignore-path',
+        '.config/.prettierignore',
         ...(fix ? ['--write'] : ['--check']),
         ...files,
       ],
@@ -242,6 +245,8 @@ export async function runLintOnAll(options: LintOptions = {}): Promise<number> {
         'oxfmt',
         '-c',
         '.config/oxfmtrc.json',
+        '--ignore-path',
+        '.config/.prettierignore',
         ...(fix ? ['--write'] : ['--check']),
         '.',
       ],
