@@ -718,6 +718,12 @@ importers:
         specifier: 24.9.2
         version: 24.9.2
 
+  .claude/hooks/no-blind-keychain-read-guard:
+    devDependencies:
+      '@types/node':
+        specifier: 24.9.2
+        version: 24.9.2
+
   .claude/hooks/no-experimental-strip-types-guard:
     devDependencies:
       '@types/node':
@@ -865,6 +871,16 @@ importers:
         version: 24.9.2
 
   .claude/hooks/pull-request-target-guard:
+    devDependencies:
+      '@types/node':
+        specifier: 24.9.2
+        version: 24.9.2
+
+  .claude/hooks/readme-fleet-shape-guard:
+    dependencies:
+      '@socketsecurity/lib-stable':
+        specifier: 'catalog:'
+        version: '@socketsecurity/lib@5.28.0(typescript@5.9.2)'
     devDependencies:
       '@types/node':
         specifier: 24.9.2
