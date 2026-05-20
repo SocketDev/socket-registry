@@ -11,6 +11,11 @@ on:
         required: false
         type: string
         default: ''
+      create-missing-tag:
+        description: 'After a successful publish, create v<version> git tag pointing at the published commit if one does not already exist. Refuses to move an existing tag — see GitHub Release Immutability.'
+        required: false
+        type: boolean
+        default: true
       debug:
         description: 'Enable debug output (e.g., "0" or "1")'
         required: false
@@ -110,6 +115,12 @@ jobs:
       contents: write
       # Needed for npm provenance via OIDC trusted publishing.
       id-token: write
+    outputs:
+      # Commit SHA the publish ran against. Captured *after* publish succeeds
+      # so re-runs that fail before publish leave outputs empty and the
+      # verify-and-tag job no-ops. Consumed by the verify-and-tag job.
+      published_sha: ${{ steps.capture_sha.outputs.published_sha }}
+      published_version: ${{ steps.capture_sha.outputs.published_version }}
     steps:
       - name: Validate inputs
         env:
@@ -210,6 +221,34 @@ jobs:
             npm publish --access public --tag $DIST_TAG
           fi
 
+      # Capture the commit SHA that the publish ran against. Reads package.json
+      # for the version since both publish paths (custom-script + default
+      # `npm publish`) leave it as the authoritative version source. Only
+      # records outputs on non-dry-run so the verify-and-tag job no-ops on
+      # dry runs.
+      - name: Capture published SHA
+        id: capture_sha
+        if: inputs.dry-run == false
+        env:
+          PACKAGE_NAME: ${{ inputs.package-name }}
+        run: |
+          PUBLISHED_SHA=$(git rev-parse HEAD)
+          # Best-effort version read. Prefer package-name input's directory if it
+          # maps to a sub-package; otherwise root package.json.
+          if [ -f package.json ]; then
+            VERSION=$(node -p "require('./package.json').version" 2>/dev/null || echo "")
+          else
+            VERSION=""
+          fi
+          if [ -z "$VERSION" ]; then
+            echo "::warning::Could not read version from package.json; skipping tag capture"
+            exit 0
+          fi
+          echo "published_sha=$PUBLISHED_SHA" >> "$GITHUB_OUTPUT"
+          echo "published_version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Captured published SHA: $PUBLISHED_SHA"
+          echo "Captured published version: $VERSION"
+
       - name: Set package access
         if: inputs.access-script != ''
         env:
@@ -233,3 +272,56 @@ jobs:
           echo "Skipping MFA automation - npm access commands require npm_token authentication"
           echo "Trusted publishing uses OIDC tokens which don't support npm access commands"
           echo "MFA settings should be configured through npm web interface for trusted publishing"
+
+  # Create v<version> git tag at the published commit SHA after a successful
+  # publish, idempotently. GitHub Release Immutability ("Disallow assets and
+  # tags from being modified once a release is published") freezes tags once
+  # bound to a Release, so:
+  #   - existing tag at same SHA → no-op
+  #   - existing tag at different SHA → hard-fail (operator recovery required)
+  # See .claude/plans/tag-after-publish.md for the full design.
+  verify-and-tag:
+    name: Verify and tag release
+    needs: build-and-publish
+    if: inputs.create-missing-tag && inputs.dry-run == false && needs.build-and-publish.outputs.published_sha != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      # Needed to push the tag.
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2 (2026-05-15)
+        with:
+          ref: ${{ needs.build-and-publish.outputs.published_sha }}
+          fetch-depth: 1
+          persist-credentials: true
+
+      - name: Tag release (idempotent)
+        env:
+          PUBLISHED_SHA: ${{ needs.build-and-publish.outputs.published_sha }}
+          PUBLISHED_VERSION: ${{ needs.build-and-publish.outputs.published_version }}
+        run: |
+          TAG="v$PUBLISHED_VERSION"
+          # Fetch the tag explicitly so we see existing state even on shallow clones.
+          git fetch origin "refs/tags/$TAG:refs/tags/$TAG" 2>/dev/null || true
+
+          if git rev-parse --verify "refs/tags/$TAG" >/dev/null 2>&1; then
+            EXISTING=$(git rev-list -n1 "refs/tags/$TAG")
+            if [ "$EXISTING" = "$PUBLISHED_SHA" ]; then
+              echo "Tag $TAG already exists at $PUBLISHED_SHA — no-op."
+              exit 0
+            fi
+            echo "::error::Tag $TAG exists at $EXISTING but publish SHA is $PUBLISHED_SHA."
+            echo "::error::Release immutability is enabled; this requires manual recovery:"
+            echo "::error::  1. Delete any GitHub Release tied to $TAG"
+            echo "::error::  2. git push --delete origin $TAG  (only if no Release exists)"
+            echo "::error::  3. Re-run this workflow"
+            exit 1
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "$TAG" "$PUBLISHED_SHA" -m "$TAG"
+          git push origin "$TAG"
+          echo "Created and pushed tag $TAG at $PUBLISHED_SHA"
