@@ -32,9 +32,7 @@ const stripRange = (v: string): string => v.replace(/^[\^~>=<]+/, '').trim()
 // pinned value is an alias, the caller needs the resolved package
 // name too, so emit `<pkg>\t<version>` (TAB-separated); plain
 // versions emit `<version>` alone.
-const aliasOf = (
-  v: string,
-): { pkg: string; version: string } | undefined => {
+const aliasOf = (v: string): { pkg: string; version: string } | undefined => {
   const m = v.match(/^npm:(@?[^@]+)@(.+)$/)
   if (!m) {
     return undefined
