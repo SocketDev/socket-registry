@@ -233,164 +233,67 @@ Hooks that gate specific external tools — they only fire when those tools appe
 
 ## 🏗️ Registry-Specific
 
-### Architecture
+### Layout
 
-- `/registry/src/` — TypeScript source
-- `/registry/dist/` — build output (esbuild)
-- `/scripts/` — dev/build scripts (all `.mts`)
-- `/test/` — test files/fixtures
-- `/packages/npm/` — NPM package overrides
-- Primary export: `getManifestData(ecosystem, packageName)` from `@socketsecurity/registry`
-
-### Performance
-
-- Optimize for speed without sacrificing correctness (serves Socket security infrastructure)
-- Benchmark performance-sensitive changes
-- Avoid unnecessary allocations in hot paths
-
-### Package Manager Spawning
-
-- Lives in `@socketsecurity/lib/spawn`, not this repo.
+- `/registry/src/` — TypeScript source ; `/registry/dist/` — esbuild output.
+- `/scripts/` — dev/build scripts (`.mts`).
+- `/test/` — test files + fixtures.
+- `/packages/npm/` — NPM package overrides.
+- Primary export: `getManifestData(ecosystem, packageName)` from `@socketsecurity/registry`.
 
 ### Commands
 
-- Dev: `pnpm run build`, `pnpm run test`, `pnpm run check`, `pnpm run fix`
-- Type check: `pnpm run type` (tsgo, no emit)
-- Registry: `pnpm run update`, `pnpm run make-npm-override`, `pnpm run release-npm`
-- Test npm packages: `node scripts/npm/test-npm-packages.mts` (long-running)
+- Dev: `pnpm run build`, `pnpm test`, `pnpm run check`, `pnpm run fix`.
+- Type check: `pnpm run type` (tsgo, no emit).
+- Registry-specific: `pnpm run update`, `pnpm run make-npm-override`, `pnpm run release-npm`.
+- Test npm packages: `node scripts/npm/test-npm-packages.mts` (long-running).
 
-### Build System
+### Build system
 
-- esbuild (registry); TypeScript → CommonJS (unminified for Node ESM interop)
-- Post-build transform converts esbuild wrappers to clear `module.exports = { ... }` for Node ESM named imports
-- Env configs: `.env.test`
+- esbuild bundles the registry to CommonJS, unminified for Node ESM interop. A post-build transform converts esbuild's wrappers to `module.exports = { ... }` so Node ESM named imports work.
 - Lint: oxlint. Format: oxfmt.
 
-### Cross-Platform (MANDATORY)
+### Node compatibility
 
-- Must work on Windows + POSIX
-- Paths: always `path.join()`, `path.resolve()`, `path.sep` — never hard-code `/` or `\`
-- Temp: `os.tmpdir()` + `fs.mkdtemp()`
-- File URLs: `fileURLToPath()` from `node:url`
+- Minimum Node 18.0.0.
+- **Forbidden ES2023+**: `toReversed()`, `toSorted()`, `toSpliced()`, `with()`. Use `slice().reverse()` / `slice().sort()` instead.
 
-### Node.js Compatibility
+### GitHub Actions SHA pin cascade
 
-- Minimum: Node.js 18.0.0
-- **FORBIDDEN ES2023+**: `toReversed()`, `toSorted()`, `toSpliced()`, `with()`
-- Use `slice().reverse()`, `slice().sort()` instead
+Layer definitions + cascade procedure live in `.claude/skills/updating-workflows/` (slash command `/update-workflows`, full reference at `reference.md`). Highlights:
 
-### Git Workflow
+- Layered (1 → 2a → 2b → 3 → 4); each layer is its own PR.
+- 🚨 Never type/guess SHAs. `git fetch origin main && git rev-parse origin/main` AFTER merge.
+- **Propagation SHA** = whatever `.github/workflows/_local-not-for-reuse-*.yml` currently pin. Expect exactly one; more = the Layer 4 bump is incomplete.
+- Consumer-repo cadence: **direct push** for socket-btm, sdxgen, stuie, ultrathink; **PR** for socket-cli, socket-lib, socket-sdk-js, socket-packageurl-js.
+- 🚨 Never use `sed` / `awk` / `perl -i` to edit workflow YAML — use the Edit tool. `sed` clobbers quoting on lines the regex didn't expect.
 
-- Pre-commit: `pnpm run fix && pnpm run check`
-- `--no-verify`: safe for scripts/workflows/tests/docs; always run hooks for lib/packages
-- Batch commits: first with hooks, rest with `--no-verify` (after fix + check)
-- Messages: [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) — `<type>(<scope>): <description>`
-- **NO AI attribution** in commit messages
-- **Open PRs:** when adding commits to an OPEN PR, ALWAYS update the PR title and description to match the new scope. A title like `chore: foo` after you've added security-fix and docs commits to it is now a lie. Use `gh pr edit <num> --title "..." --body "..."` (or `--body-file`) and rewrite the body so it reflects every commit on the branch, grouped by theme. The reviewer should be able to read the PR description and know what's in it without scrolling commits.
+### CI testing
 
-### Git SHA Management
-
-- 🚨 **NEVER GUESS SHAs**: use `git rev-parse HEAD` or `git rev-parse origin/main`
-- Format: `@662bbcab1b7533e24ba8e3446cffd8a7e5f7617e # main` (full 40-char SHA)
-- GitHub Actions require pinned full SHAs
-
-### GitHub Actions SHA Pin Cascade
-
-Layer definitions and cascade procedure: see `.claude/skills/updating-workflows/` — command `/update-workflows`, full reference at `.claude/skills/updating-workflows/reference.md`.
-
-Actions and workflows reference each other by full 40-char SHA pinned to main. When any action changes, update consumers in layer order (Layer 1 → 2a → 2b → 3 → 4) via separate PRs. Each PR must merge before the next.
-
-- Each layer gets its own PR — never combine layers
-- 🚨 **NEVER type/guess SHAs** — `git fetch origin main && git rev-parse origin/main` AFTER merge
-- 🚨 **NEVER use a SHA from a PR branch** — only SHAs from main after merge
-- Verify SHA: `gh api repos/SocketDev/socket-registry/commits/<sha> --jq '.sha'`
-- **Propagation SHA** = whatever `.github/workflows/_local-not-for-reuse-*.yml` currently pin. That's the source of truth for external repos:
-
-  ```bash
-  grep -hE 'SocketDev/socket-registry.*@[0-9a-f]{40}' .github/workflows/_local-not-for-reuse-*.yml \
-    | grep -oE '@[0-9a-f]{40}' | sort -u
-  ```
-
-  Expect **exactly one** SHA. More than one = Layer 4 bump incomplete; finish it before propagating.
-
-- L3/L4-only changes (reusable workflow edits, no L1/L2 action changes): skip to Layer 4 bump
-- Don't clobber third-party SHAs during blanket replacements
-- Consumer repos: **direct push** — socket-btm, sdxgen, stuie, ultrathink; **PR** — socket-cli, socket-lib, socket-sdk-js, socket-packageurl-js. Note: `sdxgen` local checkout is `socket-sdxgen/` but GitHub repo is `SocketDev/sdxgen` — use bare name for `gh` commands. `stuie` local checkout is `socket-tui/` but GitHub repo is `SocketDev/stuie`.
-
-### CI Testing Infrastructure
-
-- **MANDATORY**: Use `SocketDev/socket-registry/.github/workflows/ci.yml@<SHA>` with full commit SHA
-- Reusable workflows centralize lint/type-check/test/coverage
-- Matrix: Node.js 22/24, cross-platform
-- CI script naming: `lint-ci`, `test-ci`, `type-ci` (no watch/fix modes)
-
-### GitHub Actions
-
-- **MANDATORY**: actions reference commit SHAs, not tags — `uses: owner/repo@sha # vX.Y.Z`
-- Standard SHAs: actions/checkout@v5, pnpm/action-setup@v4, actions/setup-node@v5, actions/upload-artifact@v4
-- 🚨 **NEVER use `sed` (or `awk`/`perl -i`/other stream editors) to edit YAML workflow files** — use the Edit tool, one occurrence at a time, with `replace_all` when the old_string is unique. This applies even for "safe-looking" bulk swaps like SHA bumps across many files — `sed` silently clobbers quoting/indentation on lines the regex wasn't designed for, and failures are invisible until CI parses the file. If the swap spans many files, loop over them with Edit calls, not a single `sed -i`.
+- **Mandatory**: use `SocketDev/socket-registry/.github/workflows/ci.yml@<SHA>` with a full commit SHA.
+- Matrix: Node 22 / 24, cross-platform.
+- CI-script naming: `lint-ci`, `test-ci`, `type-ci` (no watch/fix modes).
 
 ### Testing
 
-- Dirs: `test/npm/` (NPM package tests), `test/registry.test.mts` + `test/packages.test.mts` (registry-level)
-- Utils: `test/util/` — `setupNpmPackageTest()`, `itOnWindows/itOnUnix/normalizePath()`, `expect*` helpers, `createTypeCheckerTests()`
-- Coverage: **MANDATORY** — never decrease; `c8 ignore` must include reason ending with period
-- Commands: `pnpm test`, `pnpm test path/to/file.test.ts`, `pnpm run cover`, `node scripts/npm/test-npm-packages.mts`
-- 🚨 **NEVER use `--` before test paths** — runs ALL tests
-- **NEVER write source-scanning tests** (reading source files and asserting on contents). Write functional tests that verify behavior.
+- Dirs: `test/npm/` (NPM-package tests), `test/registry.test.mts` + `test/packages.test.mts`.
+- Utils: `test/util/` — `setupNpmPackageTest()`, `itOnWindows/itOnUnix/normalizePath()`, `expect*` helpers, `createTypeCheckerTests()`.
+- Coverage: **mandatory**; never decrease. `c8 ignore` must carry a reason ending with a period.
+- 🚨 Never use `--` before test paths — runs ALL tests.
 
-### Vitest Configuration
+### Vitest config
 
-- Config: `.config/vitest.config.mts` (used by `pnpm test`). Uses forks for isolation.
-- Pool: `pool: 'forks'`, `singleFork: true`, `maxForks: 1`, `isolate: true`
-- Threads: `singleThread: true, maxThreads: 1`
-- Timeouts: `testTimeout: 60_000, hookTimeout: 60_000`
-- Cleanup: `await safeDelete(paths)` from `@socketsecurity/lib/fs`
+- `.config/vitest.config.mts` (used by `pnpm test`). Uses forks for isolation.
+- Pool: `pool: 'forks'`, `singleFork: true`, `maxForks: 1`, `isolate: true`.
+- Timeouts: `testTimeout: 60_000`, `hookTimeout: 60_000`.
 
-### Package Management
+### Dependency alignment
 
-- **pnpm only** (not npm)
-- Add deps: `pnpm add <pkg> --save-exact` (exact versions, no `^`/`~`)
-- Workspace root: `-w` flag
-- After editing `package.json` deps: run `pnpm install`, commit `pnpm-lock.yaml`, never manually edit it
-- READMEs use `pnpm install`
+- Core: `@typescript/native-preview` (tsgo), `@types/node`, `typescript-eslint` (unified only).
+- **Forbidden**: separate `@typescript-eslint/*` packages.
+- **tsgo preservation**: never replace tsgo with tsc.
+- Update: `pnpm run taze`.
 
-### Script Wrappers
+### Scratch documents
 
-- Wrap complex commands in `scripts/*.mts`, not package.json directly: `"script-name": "node scripts/script-name.mts"`
-- Use `spawn` from `@socketsecurity/lib/spawn` with signal handling
-- Set `process.exitCode`; never call `process.exit()` except at entry point
-- `.mts` scripts declare types inline; only write `.d.mts` for legacy `.mjs` utilities
-- Prefer single scripts with flags (`pnpm run build --watch`) over variants (`build:watch`)
-
-### Documentation
-
-- Location: `docs/` (monorepos also `packages/*/docs/`)
-- Filenames: `lowercase-with-hyphens.md` (except README.md, LICENSE, CHANGELOG.md)
-- Style: pithy, direct, scannable; ASCII diagrams for complex concepts
-
-### Error Handling
-
-- `catch (e)` not `catch (error)`
-- Messages: double quotes, descriptive, actionable, NO periods at end
-- Patterns:
-  - `"{field}" is required` / `"{field}" is a required {type}`
-  - `"{field}" must be a {type}`
-  - `{context} "{field}" {violation}`
-  - `failed to parse {format}` / `unable to {action} "{component}"`
-- Throw errors (no silent failures); include `{ cause: e }` when wrapping; no `process.exit()` except script entry
-- JSDoc: `@throws {ErrorType} When condition.`
-
-### Dependency Alignment
-
-- Core: @typescript/native-preview (tsgo), @types/node, typescript-eslint (unified only)
-- DevDeps: @dotenvx/dotenvx, @vitest/coverage-v8, del-cli, eslint, eslint-plugin-\*, globals, husky, knip, lint-staged, npm-run-all2, oxfmt, taze, type-coverage, vitest, yargs-parser, yoctocolors-cjs
-- **FORBIDDEN**: separate `@typescript-eslint/*` packages; use unified `typescript-eslint`
-- **TSGO PRESERVATION**: never replace tsgo with tsc
-- Update: `pnpm run taze`
-
-### Scratch Documents
-
-- Location: `.claude/` (gitignored) — working notes, never commit
-
----
+`.claude/` (gitignored). Working notes go there; never commit.
