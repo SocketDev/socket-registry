@@ -46,8 +46,10 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       const sym = Symbol('test')
       obj[sym] = 42
 
-      for (const _key in obj) {
-        expect.fail('symbol property key was found in for..in of object')
+      for (const key in obj) {
+        expect.fail(
+          `symbol property key ${String(key)} was found in for..in of object`,
+        )
       }
 
       expect(Object.keys(obj)).toEqual([])

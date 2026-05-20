@@ -20,78 +20,78 @@ import {
 /**
  * Get cached default which command options with augmented PATH.
  */
-let _defaultWhichOptions: { path: string } | undefined
+let defaultWhichOptions: { path: string } | undefined
 export function getDefaultWhichOptions(): { path: string } {
-  if (_defaultWhichOptions === undefined) {
-    _defaultWhichOptions = {
+  if (defaultWhichOptions === undefined) {
+    defaultWhichOptions = {
       __proto__: null,
       path: `${ROOT_NODE_MODULES_BIN_PATH}${path.delimiter}${process.env['PATH']}`,
     } as { path: string }
   }
-  return _defaultWhichOptions!
+  return defaultWhichOptions!
 }
 
 /**
  * Get root LICENSE file content.
  */
-let _licenseContent: string | undefined
+let licenseContent: string | undefined
 export function getLicenseContent(): string {
-  if (_licenseContent === undefined) {
-    _licenseContent = readFileSync(ROOT_LICENSE_PATH, 'utf8')
+  if (licenseContent === undefined) {
+    licenseContent = readFileSync(ROOT_LICENSE_PATH, 'utf8')
   }
-  return _licenseContent!
+  return licenseContent!
 }
 
 /**
  * Get git executable path.
  */
-let _gitExecPath: string | undefined
+let gitExecPath: string | undefined
 export function getGitExecPath(): string {
-  if (_gitExecPath === undefined) {
-    _gitExecPath = which.sync('git', getDefaultWhichOptions())
+  if (gitExecPath === undefined) {
+    gitExecPath = which.sync('git', getDefaultWhichOptions())
   }
-  return _gitExecPath!
+  return gitExecPath!
 }
 
 /**
  * Get tsx executable path.
  */
-let _tsxExecPath: string | undefined
+let tsxExecPath: string | undefined
 export function getTsxExecPath(): string {
-  if (_tsxExecPath === undefined) {
+  if (tsxExecPath === undefined) {
     const tsxPath = path.join(ROOT_NODE_MODULES_BIN_PATH, 'tsx')
     if (existsSync(tsxPath)) {
-      _tsxExecPath = tsxPath
+      tsxExecPath = tsxPath
     } else {
-      _tsxExecPath = which.sync('tsx', getDefaultWhichOptions())
+      tsxExecPath = which.sync('tsx', getDefaultWhichOptions())
     }
   }
-  return _tsxExecPath!
+  return tsxExecPath!
 }
 
 /**
  * Parse gitignore file and return ignore patterns.
  */
-let _gitIgnorePatterns: string[] | undefined
+let gitIgnorePatterns: string[] | undefined
 export function getGitIgnorePatterns(): string[] {
-  if (_gitIgnorePatterns === undefined) {
+  if (gitIgnorePatterns === undefined) {
     const gitignorePath = path.join(ROOT_PATH, '.gitignore')
     const content = readFileSync(gitignorePath, 'utf8')
-    _gitIgnorePatterns = content
+    gitIgnorePatterns = content
       .split('\n')
       .map(line => line.trim())
       .filter(line => line && !line.startsWith('#'))
   }
-  return _gitIgnorePatterns!
+  return gitIgnorePatterns!
 }
 
 /**
  * Get merged ignore globs from gitignore and standard exclusions.
  */
-let _ignoreGlobs: readonly string[] | undefined
+let ignoreGlobs: readonly string[] | undefined
 export function getIgnoreGlobs(): readonly string[] {
-  if (_ignoreGlobs === undefined) {
-    _ignoreGlobs = Object.freeze([
+  if (ignoreGlobs === undefined) {
+    ignoreGlobs = Object.freeze([
       // oxlint-disable-next-line socket/sort-set-args -- spread + template strings, non-sortable
       ...new Set([
         // Most of these ignored files can be included specifically if included in the
@@ -108,7 +108,7 @@ export function getIgnoreGlobs(): readonly string[] {
       ]),
     ])
   }
-  return _ignoreGlobs!
+  return ignoreGlobs!
 }
 
 /**

@@ -23,6 +23,15 @@ const rootPath = path.join(__dirname, '..', '..')
 // Maximum file size: 2MB (2,097,152 bytes)
 const MAX_FILE_SIZE = 2 * 1024 * 1024
 
+// Allowlisted large files: fleet-canonical assets whose size is bounded by
+// the upstream they ship, not by repo authoring. acorn.wasm is the AST
+// parser shared by AST-based oxlint plugin rules + hooks; ~3MB is the
+// upstream build artifact.
+const ALLOWED_LARGE_FILES = new Set<string>([
+  '.claude/hooks/_shared/acorn/acorn.wasm',
+  'vendor/acorn-wasm/acorn.wasm',
+])
+
 // Directories to skip
 const SKIP_DIRS = new Set([
   '.cache',
@@ -81,6 +90,9 @@ export async function scanDirectory(dir, violations = []) {
           const stats = await fs.stat(fullPath)
           if (stats.size > MAX_FILE_SIZE) {
             const relativePath = path.relative(rootPath, fullPath)
+            if (ALLOWED_LARGE_FILES.has(relativePath)) {
+              continue
+            }
             violations.push({
               file: relativePath,
               size: stats.size,

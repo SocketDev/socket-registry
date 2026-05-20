@@ -74,10 +74,10 @@ export async function getEta() {
   return eta
 }
 
-let _templates
+let templates
 export function getTemplates() {
-  if (_templates === undefined) {
-    _templates = Object.freeze({
+  if (templates === undefined) {
+    templates = Object.freeze({
       __proto__: null,
       ...Object.fromEntries(
         [
@@ -91,7 +91,7 @@ export function getTemplates() {
       ),
     })
   }
-  return _templates
+  return templates
 }
 
 /**

@@ -768,6 +768,8 @@ importers:
         specifier: 24.9.2
         version: 24.9.2
 
+  .claude/hooks/no-structured-clone-prefer-json-guard: {}
+
   .claude/hooks/no-token-in-dotenv-guard:
     devDependencies:
       '@types/node':
@@ -888,6 +890,8 @@ importers:
       '@socketsecurity/lib-stable':
         specifier: 'catalog:'
         version: '@socketsecurity/lib@5.28.0(typescript@5.9.2)'
+
+  .claude/hooks/soak-exclude-date-annotation-guard: {}
 
   .claude/hooks/socket-token-minifier-start:
     dependencies:

@@ -7,13 +7,13 @@ import process from 'node:process'
 
 import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
 
-let _cliArgs: Record<string, unknown> | undefined
+let cliArgs: Record<string, unknown> | undefined
 
 /**
  * Parse and cache command line arguments.
  */
 function getCliArgs() {
-  if (_cliArgs === undefined) {
+  if (cliArgs === undefined) {
     const { values } = parseArgs({
       options: {
         force: {
@@ -26,9 +26,9 @@ function getCliArgs() {
       },
       strict: false,
     })
-    _cliArgs = values
+    cliArgs = values
   }
-  return _cliArgs
+  return cliArgs
 }
 
 /**

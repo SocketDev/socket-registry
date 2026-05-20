@@ -10,22 +10,22 @@ import { hasOwn } from '@socketsecurity/lib-stable/objects'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-let _cachedTestNpmPackageJson
+let cachedTestNpmPackageJson
 
 /**
  * Get cached test npm package.json.
  */
 export function getTestNpmPackageJson() {
-  if (_cachedTestNpmPackageJson === undefined) {
+  if (cachedTestNpmPackageJson === undefined) {
     const testNpmPackageJsonPath = path.resolve(
       __dirname,
       '../../test/npm/package.json',
     )
-    _cachedTestNpmPackageJson = JSON.parse(
+    cachedTestNpmPackageJson = JSON.parse(
       readFileSync(testNpmPackageJsonPath, 'utf8'),
     )
   }
-  return _cachedTestNpmPackageJson
+  return cachedTestNpmPackageJson
 }
 
 /**

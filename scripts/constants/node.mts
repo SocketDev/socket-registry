@@ -4,9 +4,9 @@
 
 import os from 'node:os'
 
-const _platform = os.platform()
-export const DARWIN = _platform === 'darwin'
-export const WIN32 = _platform === 'win32'
+const platform = os.platform()
+export const DARWIN = platform === 'darwin'
+export const WIN32 = platform === 'win32'
 
 export const NEWLINE = os.EOL
 
