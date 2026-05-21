@@ -16,13 +16,13 @@ import { createRequire } from 'node:module'
 import path from 'node:path'
 import { execScript } from '@socketsecurity/lib-stable/eco/npm/script'
 import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
-import { isDirEmptySync } from '@socketsecurity/lib-stable/fs'
-import { globStreamLicenses } from '@socketsecurity/lib-stable/globs'
+import { isDirEmptySync } from '@socketsecurity/lib-stable/fs/safe'
+import { globStreamLicenses } from '@socketsecurity/lib-stable/globs/stream'
 import {
   LOG_SYMBOLS,
   getDefaultLogger,
 } from '@socketsecurity/lib-stable/logger'
-import { isObject } from '@socketsecurity/lib-stable/objects'
+import { isObject } from '@socketsecurity/lib-stable/objects/types'
 
 const logger = getDefaultLogger()
 import {
@@ -37,17 +37,20 @@ import {
   resolvePackageJsonEntryExports,
   resolvePackageLicenses,
   resolveRegistryPackageName,
-} from '@socketsecurity/lib-stable/packages'
+} from '@socketsecurity/lib-stable/packages/operations'
 import {
   confirm,
   input,
   search,
   select,
 } from '@socketsecurity/lib-stable/stdio/prompts'
-import { naturalCompare, naturalSorter } from '@socketsecurity/lib-stable/sorts'
-import { transform } from '@socketsecurity/lib-stable/streams'
-import { indentString } from '@socketsecurity/lib-stable/strings'
-import { pluralize } from '@socketsecurity/lib-stable/words'
+import {
+  naturalCompare,
+  naturalSorter,
+} from '@socketsecurity/lib-stable/sorts/natural'
+import { transform } from '@socketsecurity/lib-stable/streams/transform'
+import { indentString } from '@socketsecurity/lib-stable/strings/format'
+import { pluralize } from '@socketsecurity/lib-stable/words/pluralize'
 import { ReturnTypeEnums, default as didYouMean } from 'didyoumean2'
 import fastGlob from 'fast-glob'
 import { open } from 'out-url'

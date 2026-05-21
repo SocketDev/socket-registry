@@ -12,8 +12,8 @@ import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
 import {
   readPackageJson,
   resolveOriginalPackageName,
-} from '@socketsecurity/lib-stable/packages'
-import { pEach } from '@socketsecurity/lib-stable/promises'
+} from '@socketsecurity/lib-stable/packages/operations'
+import { pEach } from '@socketsecurity/lib-stable/promises/iterate'
 
 const logger = getDefaultLogger()
 

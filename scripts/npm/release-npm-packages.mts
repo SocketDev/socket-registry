@@ -8,26 +8,26 @@ import path from 'node:path'
 import process from 'node:process'
 
 import { execScript } from '@socketsecurity/lib-stable/eco/npm/script'
-import { getAbortSignal } from '@socketsecurity/lib-stable/constants/process'
-import { readFileUtf8 } from '@socketsecurity/lib-stable/fs'
+import { getAbortSignal } from '@socketsecurity/lib-stable/process/abort'
+import { readFileUtf8 } from '@socketsecurity/lib-stable/fs/safe'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
 import {
   isObjectObject,
   toSortedObject,
-} from '@socketsecurity/lib-stable/objects'
+} from '@socketsecurity/lib-stable/objects/types'
 import {
   extractPackage,
   fetchPackageManifest,
   getReleaseTag,
   readPackageJson,
   readPackageJsonSync,
-} from '@socketsecurity/lib-stable/packages'
-import { pEach } from '@socketsecurity/lib-stable/promises'
-import { spawn } from '@socketsecurity/lib-stable/spawn'
+} from '@socketsecurity/lib-stable/packages/operations'
+import { pEach } from '@socketsecurity/lib-stable/promises/iterate'
+import { spawn } from '@socketsecurity/lib-stable/spawn/spawn'
 import {
   getDefaultSpinner,
   withSpinner,
-} from '@socketsecurity/lib-stable/spinner'
+} from '@socketsecurity/lib-stable/spinner/registry'
 import { minimatch } from 'minimatch'
 import semver from 'semver'
 import { LATEST, SOCKET_REGISTRY_PACKAGE_NAME } from '../constants/packages.mts'

@@ -9,14 +9,13 @@ import path from 'node:path'
 import { PackageURL } from '@socketregistry/packageurl-js-stable'
 
 import manifestData from '../../registry/manifest.json' with { type: 'json' }
-import { joinAnd } from '@socketsecurity/lib-stable/arrays'
-import { globStreamLicenses } from '@socketsecurity/lib-stable/globs'
-import { isObjectObject } from '@socketsecurity/lib-stable/objects'
-import {
-  readPackageJson,
-  resolveOriginalPackageName,
-} from '@socketsecurity/lib-stable/packages'
-import { capitalize, determineArticle } from '@socketsecurity/lib-stable/words'
+import { joinAnd } from '@socketsecurity/lib-stable/arrays/join'
+import { globStreamLicenses } from '@socketsecurity/lib-stable/globs/stream'
+import { isObject } from '@socketsecurity/lib-stable/objects/predicates'
+import { resolveOriginalPackageName } from '@socketsecurity/lib-stable/packages/normalize'
+import { readPackageJson } from '@socketsecurity/lib-stable/packages/operations'
+import { determineArticle } from '@socketsecurity/lib-stable/words/article'
+import { capitalize } from '@socketsecurity/lib-stable/words/capitalize'
 import { Eta } from 'eta'
 import fastGlob from 'fast-glob'
 import semver from 'semver'
@@ -154,7 +153,7 @@ async function getNpmReadmeAction(pkgPath, options) {
           ...(interop ? { interop } : {}),
           adjectivesText: `${capitalize(determineArticle(adjectives[0]))} ${joinAnd(adjectives)}`,
           categories,
-          dependencies: isObjectObject(pkgJson.dependencies)
+          dependencies: isObject(pkgJson.dependencies)
             ? pkgJson.dependencies
             : {},
           originalName: resolveOriginalPackageName(sockRegPkgName),

@@ -20,7 +20,7 @@
  *   change.
  */
 
-import { spawnSync } from '@socketsecurity/lib-stable/spawn'
+import { spawnSync } from '@socketsecurity/lib-stable/spawn/spawn'
 import { existsSync, promises as fs } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'

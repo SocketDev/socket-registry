@@ -3,7 +3,7 @@
  *   benchmarks for registry operations.
  */
 
-import { execBin } from '@socketsecurity/lib-stable/bin'
+import { execBin } from '@socketsecurity/lib-stable/bin/exec'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
 
 import fastGlob from 'fast-glob'

@@ -6,7 +6,7 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import process from 'node:process'
-import { isQuiet } from '@socketsecurity/lib-stable/argv/flags'
+import { isQuiet } from '@socketsecurity/lib-stable/argv/flag-predicates'
 import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
 import { createSectionHeader } from '@socketsecurity/lib-stable/stdio/header'

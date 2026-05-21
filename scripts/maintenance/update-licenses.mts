@@ -8,9 +8,9 @@
 import { promises as fs } from 'node:fs'
 
 import { UTF8 } from '@socketsecurity/lib-stable/constants/encoding'
-import { globStreamLicenses } from '@socketsecurity/lib-stable/globs'
+import { globStreamLicenses } from '@socketsecurity/lib-stable/globs/stream'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
-import { parallelEach } from '@socketsecurity/lib-stable/streams'
+import { parallelEach } from '@socketsecurity/lib-stable/streams/parallel'
 
 import { LICENSE, ROOT_PATH } from '../constants/paths.mts'
 import { getIgnoreGlobs, getLicenseContent } from '../constants/utils.mts'

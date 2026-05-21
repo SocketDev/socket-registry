@@ -9,8 +9,8 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import parseArgsModule from '@socketsecurity/lib-stable/argv/parse'
 import loggerModule from '@socketsecurity/lib-stable/logger'
-import promisesModule from '@socketsecurity/lib-stable/promises'
-import spawnModule from '@socketsecurity/lib-stable/spawn'
+import promisesModule from '@socketsecurity/lib-stable/promises/iterate'
+import spawnModule from '@socketsecurity/lib-stable/spawn/spawn'
 
 const { parseArgs } = parseArgsModule
 const { logger } = loggerModule

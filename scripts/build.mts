@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url'
 
 import colors from 'yoctocolors-cjs'
 
-import { isQuiet } from '@socketsecurity/lib-stable/argv/flags'
+import { isQuiet } from '@socketsecurity/lib-stable/argv/flag-predicates'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
 
 import { runCommand } from './util/run-command.mts'

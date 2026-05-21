@@ -3,7 +3,7 @@
  */
 
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
-import { readPackageJson } from '@socketsecurity/lib-stable/packages'
+import { readPackageJson } from '@socketsecurity/lib-stable/packages/operations'
 
 import { PACKAGE_DEFAULT_NODE_RANGE } from '../constants/node.mts'
 import { ROOT_PACKAGE_JSON_PATH } from '../constants/paths.mts'

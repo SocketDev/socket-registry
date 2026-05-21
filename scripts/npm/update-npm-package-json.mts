@@ -3,7 +3,7 @@
  */
 
 import path from 'node:path'
-import { isDebug } from '@socketsecurity/lib-stable/debug'
+import { isDebug } from '@socketsecurity/lib-stable/debug/namespace'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
 import {
   createPackageJson,
@@ -11,11 +11,11 @@ import {
   isSubpathExports,
   readPackageJson,
   resolvePackageJsonEntryExports,
-} from '@socketsecurity/lib-stable/packages'
+} from '@socketsecurity/lib-stable/packages/operations'
 
 const logger = getDefaultLogger()
 import { trimLeadingDotSlash } from '@socketsecurity/lib-stable/paths/normalize'
-import { pluralize } from '@socketsecurity/lib-stable/words'
+import { pluralize } from '@socketsecurity/lib-stable/words/pluralize'
 import fastGlob from 'fast-glob'
 
 import { getNpmPackageNames } from '../constants/testing.mts'

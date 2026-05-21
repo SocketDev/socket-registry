@@ -4,7 +4,7 @@
 
 import { WIN32 } from '@socketsecurity/lib-stable/constants/platform'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
-import { spawnSync } from '@socketsecurity/lib-stable/spawn'
+import { spawnSync } from '@socketsecurity/lib-stable/spawn/spawn'
 
 const logger = getDefaultLogger()
 

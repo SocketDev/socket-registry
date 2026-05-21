@@ -18,9 +18,9 @@ import {
 import {
   readPackageJson,
   resolveOriginalPackageName,
-} from '@socketsecurity/lib-stable/packages'
-import { pEach } from '@socketsecurity/lib-stable/promises'
-import { pluralize } from '@socketsecurity/lib-stable/words'
+} from '@socketsecurity/lib-stable/packages/operations'
+import { pEach } from '@socketsecurity/lib-stable/promises/iterate'
+import { pluralize } from '@socketsecurity/lib-stable/words/pluralize'
 import process from 'node:process'
 
 const logger = getDefaultLogger()

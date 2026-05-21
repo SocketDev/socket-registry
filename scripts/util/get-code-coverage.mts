@@ -5,8 +5,8 @@ import { existsSync } from 'node:fs'
 import path from 'node:path'
 
 import { WIN32 } from '@socketsecurity/lib-stable/constants/platform'
-import { readJson } from '@socketsecurity/lib-stable/fs'
-import { isObjectObject } from '@socketsecurity/lib-stable/objects'
+import { readJson } from '@socketsecurity/lib-stable/fs/safe'
+import { isObjectObject } from '@socketsecurity/lib-stable/objects/types'
 
 import { REPO_ROOT } from '../paths.mts'
 import { spawn } from './spawn.mts'

@@ -7,7 +7,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import fg from 'fast-glob'
 
-import { envAsBoolean } from '@socketsecurity/lib/env/helpers'
+import { envAsBoolean } from '@socketsecurity/lib/env/boolean'
 import process from 'node:process'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))

@@ -9,17 +9,16 @@ import process from 'node:process'
 import PackageJson from '@npmcli/package-json'
 import { parseArgs } from '@socketsecurity/lib/argv/parse'
 import { EXT_JSON } from '@socketsecurity/lib/paths/exts'
-import { readJson } from '@socketsecurity/lib/fs'
-import { isObjectObject, objectEntries } from '@socketsecurity/lib/objects'
-import {
-  getExportFilePaths,
-  isValidPackageName,
-  readPackageJson,
-  resolveOriginalPackageName,
-} from '@socketsecurity/lib/packages'
+import { readJson } from '@socketsecurity/lib/fs/read-json'
+import { isObject } from '@socketsecurity/lib/objects/predicates'
+import { objectEntries } from '@socketsecurity/lib/objects/sort'
+import { getExportFilePaths } from '@socketsecurity/lib/packages/exports'
+import { resolveOriginalPackageName } from '@socketsecurity/lib/packages/normalize'
+import { readPackageJson } from '@socketsecurity/lib/packages/operations'
+import { isValidPackageName } from '@socketsecurity/lib/packages/validation'
 import { trimLeadingDotSlash } from '@socketsecurity/lib/paths/normalize'
-import { naturalCompare } from '@socketsecurity/lib/sorts'
-import { isNonEmptyString } from '@socketsecurity/lib/strings'
+import { naturalCompare } from '@socketsecurity/lib/sorts/natural'
+import { isNonEmptyString } from '@socketsecurity/lib/strings/predicates'
 import fastGlob from 'fast-glob'
 import semver from 'semver'
 import { describe, expect, it } from 'vitest'
@@ -178,7 +177,7 @@ for (let i = 0, { length } = ecosystems; i < length; i += 1) {
 
         if (entryExports) {
           it('file exists for every "export" entry of package.json', () => {
-            expect(isObjectObject(entryExports)).toBe(true)
+            expect(isObject(entryExports)).toBe(true)
             for (const filePath of getExportFilePaths(entryExports)) {
               expect(existsSync(path.join(pkgPath, filePath))).toBe(true)
             }
@@ -390,8 +389,8 @@ for (let i = 0, { length } = ecosystems; i < length; i += 1) {
         if (hasOverrides) {
           if (!hasOverridesAsDeps) {
             it('should have overrides and resolutions fields in package.json', () => {
-              expect(isObjectObject(pkgOverrides)).toBe(true)
-              expect(isObjectObject(pkgResolutions)).toBe(true)
+              expect(isObject(pkgOverrides)).toBe(true)
+              expect(isObject(pkgResolutions)).toBe(true)
             })
           }
         } else if (!hasDependencies) {

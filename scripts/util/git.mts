@@ -5,7 +5,7 @@
 import path from 'node:path'
 
 // Import from registry v2.0 (async only)
-import { getChangedFiles } from '@socketsecurity/lib-stable/git'
+import { getChangedFiles } from '@socketsecurity/lib-stable/git/changed'
 import { normalizePath } from '@socketsecurity/lib-stable/paths/normalize'
 
 import {

@@ -7,18 +7,18 @@ import path from 'node:path'
 
 import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
 
-import { joinAnd } from '@socketsecurity/lib-stable/arrays'
-import { getChangedFiles } from '@socketsecurity/lib-stable/git'
+import { joinAnd } from '@socketsecurity/lib-stable/arrays/join'
+import { getChangedFiles } from '@socketsecurity/lib-stable/git/changed'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
-import { isObjectObject } from '@socketsecurity/lib-stable/objects'
+import { isObjectObject } from '@socketsecurity/lib-stable/objects/types'
 import {
   fetchPackageManifest,
   getReleaseTag,
   readPackageJsonSync,
-} from '@socketsecurity/lib-stable/packages'
-import { pEach } from '@socketsecurity/lib-stable/promises'
-import { spawn } from '@socketsecurity/lib-stable/spawn'
-import { pluralize } from '@socketsecurity/lib-stable/words'
+} from '@socketsecurity/lib-stable/packages/operations'
+import { pEach } from '@socketsecurity/lib-stable/promises/iterate'
+import { spawn } from '@socketsecurity/lib-stable/spawn/spawn'
+import { pluralize } from '@socketsecurity/lib-stable/words/pluralize'
 import semver from 'semver'
 
 import { getEnv } from '../constants/env.mts'

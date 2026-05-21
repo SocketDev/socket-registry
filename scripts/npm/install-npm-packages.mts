@@ -96,7 +96,7 @@ import { getCI } from '@socketsecurity/lib-stable/env/ci'
 import {
   getDefaultSpinner,
   withSpinner,
-} from '@socketsecurity/lib-stable/spinner'
+} from '@socketsecurity/lib-stable/spinner/registry'
 import { deleteAsync as del } from 'del'
 import { load as yamlLoad } from 'js-yaml'
 import pacote from 'pacote'
@@ -111,14 +111,14 @@ import {
   readJson,
   safeDelete,
   writeJson,
-} from '@socketsecurity/lib-stable/fs'
+} from '@socketsecurity/lib-stable/fs/safe'
 import {
   LOG_SYMBOLS,
   getDefaultLogger,
 } from '@socketsecurity/lib-stable/logger'
-import { readPackageJson } from '@socketsecurity/lib-stable/packages'
+import { readPackageJson } from '@socketsecurity/lib-stable/packages/operations'
 import { pEach, pRetry } from '@socketsecurity/lib-stable/promises'
-import { pluralize } from '@socketsecurity/lib-stable/words'
+import { pluralize } from '@socketsecurity/lib-stable/words/pluralize'
 
 const logger = getDefaultLogger()
 import { cleanTestScript } from '../util/script-cleaning.mts'
