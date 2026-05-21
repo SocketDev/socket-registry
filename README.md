@@ -11,11 +11,15 @@ Optimized package overrides for [Socket Optimize](https://socket.dev/features/op
 
 <img src="./socket-optimize-hero.png" height="272px" width="576px" alt="npx socket optimize">
 
-## Quick Start
+## Why this repo exists
+
+`@socketregistry` is the monorepo behind [Socket Optimize](https://socket.dev/features/optimize) — a curated set of drop-in npm package replacements that reduce dependencies, modernize APIs, improve performance, and patch known CVEs without breaking compatibility. Every override passes the original package's own test suite, ships with TypeScript types, and stays MIT-compatible. The registry exists so `socket optimize` has something authoritative to swap in.
+
+## Install
 
 Install the Socket CLI globally, then run it inside any project:
 
-```bash
+```sh
 # pnpm (recommended)
 pnpm add -g socket
 
@@ -24,15 +28,19 @@ npm install -g socket
 
 # yarn
 yarn global add socket
+```
 
-# Then, from your project root:
+## Usage
+
+From your project root:
+
+```sh
 socket optimize
 ```
 
-`socket optimize` analyzes your dependencies and suggests optimized
-replacements from the Socket Registry.
+`socket optimize` analyzes your dependencies and suggests optimized replacements from the Socket Registry.
 
-## What Are Package Overrides?
+### What are package overrides?
 
 Package overrides are improved versions of existing npm packages:
 
@@ -45,7 +53,7 @@ Original Package          Socket Override
   Tuneup   🔧  →  Fix CVEs, maintain compatibility
 ```
 
-## Quality Standards
+### Quality standards
 
 All overrides in this registry:
 
@@ -55,10 +63,12 @@ All overrides in this registry:
 - Include
   <a href="https://www.typescriptlang.org/"><img src="./ts.svg" height="20px" title="This package contains built-in TypeScript declarations" alt="TypeScript icon, indicating that this package has built-in type declarations"></a>
   TypeScript definitions
-- Support current and [LTS](https://nodejs.org/en/about/previous-releases) Node
-  versions
+- Support current and [LTS](https://nodejs.org/en/about/previous-releases) Node versions
 
-## Contributing
+## Development
+
+<details>
+<summary>Contributor commands</summary>
 
 Create a new override in three steps:
 
@@ -68,6 +78,8 @@ Install       →     Generate          →     Complete
   ↓                   ↓                       ↓
 pnpm install    make-npm-override    Fill TODOs + Test
 ```
+
+</details>
 
 ## License
 
