@@ -17,17 +17,17 @@ on:
         type: boolean
         default: true
       debug:
-        description: 'Enable debug output (e.g., "0" or "1")'
+        description: 'Enable debug output'
         required: false
         type: string
         default: '0'
       dist-tag:
-        description: 'npm dist-tag for publishing (e.g., "latest", "next", "beta", "canary", "backport")'
+        description: 'Dist-tag for publishing (e.g., "latest", "next", "beta", "canary", "backport")'
         required: false
         type: string
         default: 'latest'
       dry-run:
-        description: 'Dry run (--dry-run on npm publish, default: true)'
+        description: 'Dry run (default: true)'
         required: false
         type: boolean
         default: true
