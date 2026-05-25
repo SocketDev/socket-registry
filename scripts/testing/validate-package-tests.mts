@@ -260,7 +260,7 @@ export async function validateModuleResolution(_packageName, packageDir) {
         // Recursively scan subdirectories, excluding node_modules.
 
         await collectFiles(fullPath)
-      } else if (entry.isFile() && /\.(cjs|js|mjs|ts)$/.test(entry.name)) {
+      } else if (entry.isFile() && /\.(?:cjs|js|mjs|ts)$/.test(entry.name)) {
         sourceFiles.push(fullPath)
       }
     }

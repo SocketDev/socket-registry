@@ -84,26 +84,19 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     it('splits with capturing groups', () => {
       expect(split('test', 't')).toEqual(['', 'es', ''])
       expect(split('test', /t/)).toEqual(['', 'es', ''])
-      expect(split('test', /(t)/)).toEqual(['', 't', 'es', 't', ''])
+      expect(split('test', /(t)/)).toEqual(['', 't', 'es', 't', '']) // socket-hook: allow capture
 
       expect(split('test', 'es')).toEqual(['t', 't'])
       expect(split('test', /es/)).toEqual(['t', 't'])
-      expect(split('test', /(es)/)).toEqual(['t', 'es', 't'])
+      expect(split('test', /(es)/)).toEqual(['t', 'es', 't']) // socket-hook: allow capture
 
-      expect(split('test', /(t)(e)(s)(t)/)).toEqual([
-        '',
-        't',
-        'e',
-        's',
-        't',
-        '',
-      ])
+      const reTest = /(t)(e)(s)(t)/ // socket-hook: allow capture
+      expect(split('test', reTest)).toEqual(['', 't', 'e', 's', 't', ''])
     })
 
     it('splits with complex HTML pattern', () => {
-      expect(
-        split('A<B>bold</B>and<CODE>coded</CODE>', /<(\/)?([^<>]+)>/),
-      ).toEqual([
+      const reHtml = /<(\/)?([^<>]+)>/ // socket-hook: allow capture
+      expect(split('A<B>bold</B>and<CODE>coded</CODE>', reHtml)).toEqual([
         'A',
         undefined,
         'B',
@@ -121,8 +114,9 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
 
     it('splits with repeated capture groups', () => {
-      expect(split('tesst', /(s)*/)).toEqual(['t', undefined, 'e', 's', 't'])
-      expect(split('tesst', /(s)*?/)).toEqual([
+      expect(split('tesst', /(s)*/)).toEqual(['t', undefined, 'e', 's', 't']) // socket-hook: allow capture
+      const reGreedy = /(s)*?/ // socket-hook: allow capture
+      expect(split('tesst', reGreedy)).toEqual([
         't',
         undefined,
         'e',
@@ -133,8 +127,9 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
         undefined,
         't',
       ])
-      expect(split('tesst', /(s*)/)).toEqual(['t', '', 'e', 'ss', 't'])
-      expect(split('tesst', /(s*?)/)).toEqual([
+      expect(split('tesst', /(s*)/)).toEqual(['t', '', 'e', 'ss', 't']) // socket-hook: allow capture
+      const reGreedyAll = /(s*?)/ // socket-hook: allow capture
+      expect(split('tesst', reGreedyAll)).toEqual([
         't',
         '',
         'e',

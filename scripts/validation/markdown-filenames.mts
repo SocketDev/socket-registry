@@ -164,7 +164,7 @@ export function isLowercaseHyphenated(filename) {
   const nameWithoutExt = filename.replace(/\.md$/, '')
 
   // Must be lowercase letters, numbers, and hyphens only
-  return /^[a-z0-9]+(-[a-z0-9]+)*$/.test(nameWithoutExt)
+  return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(nameWithoutExt)
 }
 
 /**
@@ -173,7 +173,7 @@ export function isLowercaseHyphenated(filename) {
  */
 export function isScreamingCase(filename) {
   // Remove extension for checking
-  const nameWithoutExt = filename.replace(/\.(MD|md)$/, '')
+  const nameWithoutExt = filename.replace(/\.(?:MD|md)$/, '')
 
   // Check if it contains any lowercase letters
   return /^[A-Z0-9_]+$/.test(nameWithoutExt) && /[A-Z]/.test(nameWithoutExt)
@@ -184,7 +184,7 @@ export function isScreamingCase(filename) {
  */
 export function validateFilename(filePath) {
   const filename = path.basename(filePath)
-  const nameWithoutExt = filename.replace(/\.(MD|md)$/, '')
+  const nameWithoutExt = filename.replace(/\.(?:MD|md)$/, '')
   const relativePath = path.relative(rootPath, filePath)
 
   // README.md and LICENSE (including LICENSE.*) are special - allowed anywhere

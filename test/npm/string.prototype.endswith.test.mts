@@ -88,7 +88,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   describe('search regexp', () => {
     it('throws TypeError for regex search string', () => {
       expect(endsWith('[a-z]+(bar)?', '(bar)?')).toBe(true)
-      expect(() => endsWith('[a-z]+(bar)?', /(bar)?/)).toThrow(TypeError)
+      expect(() => endsWith('[a-z]+(bar)?', /(bar)?/)).toThrow(TypeError) // socket-hook: allow capture
       expect(endsWith('[a-z]+(bar)?', '[a-z]+', 6)).toBe(true)
     })
   })
