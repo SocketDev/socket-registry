@@ -21,6 +21,11 @@ on:
         required: false
         type: string
         default: '0'
+      environment:
+        description: 'GitHub environment to bind the publish job to. Set this to disambiguate the OIDC subject when publishing through this reusable workflow — npm trusted-publisher validation on the workflow_call path checks the calling workflow plus the environment claim. Configure the matching environment name on the package''s npm trusted publisher. Empty = no environment binding (back-compat).'
+        required: false
+        type: string
+        default: ''
       dist-tag:
         description: 'Dist-tag for publishing (e.g., "latest", "next", "beta", "canary", "backport")'
         required: false
@@ -110,6 +115,12 @@ jobs:
     name: Build and Publish
     runs-on: ubuntu-latest
     timeout-minutes: ${{ inputs.timeout-minutes }}
+    # Bind to a GitHub environment when the caller supplies one. The OIDC
+    # token then carries an `environment` claim, which npm's
+    # trusted-publisher validation uses to disambiguate the workflow_call
+    # path (where validation otherwise sees the calling workflow's name and
+    # can mismatch). Empty string = unbound (back-compat).
+    environment: ${{ inputs.environment }}
     permissions:
       # Needed to create release tags and commits.
       contents: write
