@@ -215,15 +215,24 @@ jobs:
           DIST_TAG: ${{ inputs.dist-tag }}
           DRY_RUN: ${{ inputs.dry-run }}
         run: |
-          # Default to `pnpm stage publish` so npm's staged-publishing
-          # gate (when the package requires it) is honored without each
-          # consumer wiring its own publish-script. Packages that don't
-          # require staging still go through it — the staging review
-          # step is desirable for every fleet release anyway.
-          if [ "$DRY_RUN" = "true" ]; then
-            pnpm stage publish --provenance --access public --tag $DIST_TAG --dry-run
+          # Default to the canonical fleet publish runner
+          # (scripts/publish.mts), which wraps `pnpm stage publish` with
+          # an already-published check, error pointers, and dry-run
+          # plumbing. The script is cascaded to every fleet repo via
+          # socket-wheelhouse's sync-scaffolding manifest, so it's
+          # available without each consumer wiring its own publish-script.
+          # Fallback to inline `pnpm stage publish` if the script isn't
+          # present (older repos that haven't cascaded yet).
+          if [ -f scripts/publish.mts ]; then
+            EXTRA=""
+            if [ "$DRY_RUN" = "true" ]; then EXTRA="--dry-run"; fi
+            node scripts/publish.mts --staged --tag "$DIST_TAG" $EXTRA
           else
-            pnpm stage publish --provenance --access public --tag $DIST_TAG
+            if [ "$DRY_RUN" = "true" ]; then
+              pnpm stage publish --provenance --access public --tag $DIST_TAG --dry-run
+            else
+              pnpm stage publish --provenance --access public --tag $DIST_TAG
+            fi
           fi
 
       # Capture the commit SHA that the publish ran against. Reads package.json
