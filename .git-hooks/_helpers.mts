@@ -1,7 +1,7 @@
 // Shared helpers for git hooks — API-key allowlist + content scanners
 // + tiny string utilities (color wrappers, marker-syntax picker, path
 // normalize). Each hook imports `getDefaultLogger` from
-// `@socketsecurity/lib-stable/logger` directly for output; this module stays
+// `@socketsecurity/lib-stable/logger/default` directly for output; this module stays
 // import-light so the cost of `import './_helpers.mts'` is bounded.
 //
 // Requires Node 25+ for stable .mts type-stripping (no flag needed).
@@ -75,7 +75,7 @@ export const SOCKET_SECURITY_ENV = SOCKET_TOKEN_ENV_NAMES[0]!
 
 // ── Output ──────────────────────────────────────────────────────────
 //
-// Hooks call `getDefaultLogger()` from `@socketsecurity/lib-stable/logger`
+// Hooks call `getDefaultLogger()` from `@socketsecurity/lib-stable/logger/default`
 // directly. Color comes from the logger's semantic methods —
 // `.fail()` is red ✖, `.success()` is green ✔, `.warn()` is yellow ⚠,
 // `.info()` is blue ℹ, `.error()` is plain. ANSI constants and
@@ -399,7 +399,18 @@ const AWS_KEY_RE = /(aws_access_key|aws_secret|\bAKIA[0-9A-Z]{16}\b)/i
 // `ghs_[A-Za-z0-9\._]{36,}`.
 const GITHUB_TOKEN_RE =
   /\b(?:ghp_[A-Za-z0-9]{36,}|gho_[A-Za-z0-9]{36,}|ghr_[A-Za-z0-9]{36,}|ghs_[A-Za-z0-9._]{36,}|ghu_[A-Za-z0-9._]{36,}|github_pat_[A-Za-z0-9_]{20,})/
-const PRIVATE_KEY_RE = /-----BEGIN (RSA |EC |DSA )?PRIVATE KEY-----/
+// Private-key PEM headers. Covers every type that wraps a private
+// key in PEM armor:
+//   - `BEGIN PRIVATE KEY` (PKCS#8, generic)
+//   - `BEGIN RSA PRIVATE KEY` (PKCS#1, OpenSSL classic)
+//   - `BEGIN EC PRIVATE KEY` / `BEGIN DSA PRIVATE KEY`
+//   - `BEGIN OPENSSH PRIVATE KEY` (default ssh-keygen output since 2019;
+//     the most common case for personal SSH keys)
+//   - `BEGIN ENCRYPTED PRIVATE KEY` (PKCS#8 passphrase-protected)
+//   - `BEGIN PGP PRIVATE KEY BLOCK` (PGP secret keys)
+// The leading `[A-Z ]*` accepts any uppercase-letters+space prefix
+// before "PRIVATE KEY" so future formats are caught automatically.
+const PRIVATE_KEY_RE = /-----BEGIN [A-Z ]*PRIVATE KEY( BLOCK)?-----/
 
 export const scanSocketApiKeys = (text: string): LineHit[] =>
   scanLines(text, SOCKET_API_KEY_RE, { filter: isAllowedApiKey })
@@ -567,7 +578,7 @@ export const scanDocsPnpmFirst = (text: string): LineHit[] => {
 // ── Logger leak scanner ────────────────────────────────────────────
 //
 // The fleet rule: source code uses `getDefaultLogger()` from
-// `@socketsecurity/lib-stable/logger`. Direct calls to `process.stderr.write`,
+// `@socketsecurity/lib-stable/logger/default`. Direct calls to `process.stderr.write`,
 // `process.stdout.write`, `console.log`, `console.error`, `console.warn`,
 // `console.info`, `console.debug` are blocked. Doc-context lines are
 // exempt; lines carrying `// socket-hook: allow console` (or `#` in

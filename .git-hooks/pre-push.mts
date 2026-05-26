@@ -23,7 +23,7 @@ import { basename } from 'node:path'
 import process from 'node:process'
 
 import { errorMessage } from '@socketsecurity/lib-stable/errors'
-import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
 import {
   containsAiAttribution,
@@ -152,6 +152,91 @@ const computeRange = (
     return `${baseRef}..${localSha}`
   }
   return `${remoteSha}..${localSha}`
+}
+
+// Scans every commit in the range to require a verified signature
+// when pushing to a protected ref (default branch). Block on `N`
+// (no signature) and `B` (bad/unverifiable) — but allow other
+// markers like `G` (good GPG sig), `U` (good GPG sig, unknown trust),
+// `E` (missing-key but otherwise valid), `X` (good signature on
+// expired key), `Y`/`R` (revoked/expired key with good signature).
+//
+// Bypass (exceptional only): prefix the push command with the
+// SOCKET_PRE_PUSH_ALLOW_UNSIGNED env var:
+//   SOCKET_PRE_PUSH_ALLOW_UNSIGNED=1 git push origin main
+// One-shot — do not persist in shell rc.
+//
+// Why pre-push and not just rely on GitHub branch protection? The
+// fleet enforces branch protection too (lint-github-settings.mts
+// audits `required_signatures: true`), but a local pre-push fail
+// gives faster feedback (no round-trip to GitHub) and catches the
+// case where branch protection is being set up but not yet active
+// on a freshly-created fleet repo.
+const SIGNED_PUSH_BYPASS_ENV = 'SOCKET_PRE_PUSH_ALLOW_UNSIGNED'
+
+const readSignedPushBypassActive = (): boolean => {
+  // Pre-push runs in git's own context — no Claude Code transcript
+  // path is available. The bypass is an explicit env var the user
+  // sets on the failing push: `SOCKET_PRE_PUSH_ALLOW_UNSIGNED=1 git
+  // push origin main`. One-shot semantics: env var is not persisted.
+  return Boolean(process.env[SIGNED_PUSH_BYPASS_ENV])
+}
+
+const scanSignedCommits = (
+  range: string,
+  remoteRef: string,
+  bypassActive: boolean,
+): number => {
+  // Only enforce on default-branch refs (main / master). Feature
+  // branches and topic branches can stay unsigned during development;
+  // signing is required at the point of landing on the protected ref.
+  const refBase = remoteRef.replace(/^refs\/heads\//, '')
+  if (refBase !== 'main' && refBase !== 'master') {
+    return 0
+  }
+  logger.info('Checking commit signatures...')
+  // %G? prints the signature verification marker per commit. See
+  // https://git-scm.com/docs/git-log#Documentation/git-log.txt-emGem
+  const lines = gitLines('log', '--format=%H %G?', range)
+  let errors = 0
+  const unsigned: string[] = []
+  for (const line of lines) {
+    const [sha, marker] = line.split(' ')
+    if (!sha || !marker) {
+      continue
+    }
+    // `N` = no signature. `B` = bad signature. Both block.
+    if (marker === 'N' || marker === 'B') {
+      unsigned.push(sha)
+      errors++
+    }
+  }
+  if (errors === 0) {
+    return 0
+  }
+  if (bypassActive) {
+    logger.warn(
+      `${errors} unsigned commit(s) being pushed to ${refBase} — allowed by bypass phrase.`,
+    )
+    return 0
+  }
+  logger.fail(`${errors} unsigned commit(s) being pushed to ${refBase}.`)
+  for (const sha of unsigned.slice(0, 5)) {
+    const oneline = git('log', '-1', '--oneline', sha)
+    logger.info(`  - ${oneline}`)
+  }
+  if (unsigned.length > 5) {
+    logger.info(`  ... and ${unsigned.length - 5} more`)
+  }
+  logger.info('')
+  logger.info('Fix: rebase + re-sign the commits.')
+  logger.info(`  git rebase --exec 'git commit --amend --no-edit -S' <base>`)
+  logger.info('')
+  logger.info(
+    'Bypass (exceptional only): prefix the push with ' +
+      `\`${SIGNED_PUSH_BYPASS_ENV}=1\`. One-shot; do not persist in shell rc.`,
+  )
+  return errors
 }
 
 // Scans every commit in the range for AI attribution in commit
@@ -345,7 +430,7 @@ const scanFilesInRange = (range: string): number => {
           }
         }
         logger.info(
-          'Use `getDefaultLogger()` from `@socketsecurity/lib-stable/logger`. ' +
+          'Use `getDefaultLogger()` from `@socketsecurity/lib-stable/logger/default`. ' +
             'For documentation lines that need the literal call, append ' +
             `the marker \`${socketHookMarkerFor(file, 'logger')}\`.`,
         )
@@ -404,9 +489,13 @@ const main = async (): Promise<number> => {
   let totalErrors = 0
   const refLines = splitLines(stdin.trim()).filter(Boolean)
 
+  // Bypass for the signed-commits scan is evaluated once per push:
+  // a single phrase authorizes one push regardless of ref count.
+  const signedBypassActive = readSignedPushBypassActive()
+
   for (const refLine of refLines) {
-    const [localRef, localSha, , remoteSha] = refLine.split(/\s+/)
-    if (!localRef || !localSha || !remoteSha) {
+    const [localRef, localSha, remoteRef, remoteSha] = refLine.split(/\s+/)
+    if (!localRef || !localSha || !remoteRef || !remoteSha) {
       continue
     }
     const range = computeRange(remote, localRef, localSha, remoteSha)
@@ -421,6 +510,7 @@ const main = async (): Promise<number> => {
     }
 
     totalErrors += scanCommitMessages(range)
+    totalErrors += scanSignedCommits(range, remoteRef, signedBypassActive)
     totalErrors += scanFilesInRange(range)
   }
 

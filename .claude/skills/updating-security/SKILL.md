@@ -43,18 +43,18 @@ them via the cheapest principled mechanism. Invoked directly via
 | 3   | Apply direct fixes   | For each direct dep: `pnpm update <pkg>@<first-patched-version>` (or higher); commit per alert.                                |
 | 4   | Apply override fixes | For each transitive: add `pnpm.overrides[<pkg>]` to `package.json` pinning the patched range; `pnpm install`; commit per row.  |
 | 5   | Validate             | `pnpm run check --all` (interactive) or `pnpm run check --staged` (CI). Roll back any commit whose check fails.                |
-| 6   | Push                 | Per CLAUDE.md push policy — `git push origin <branch>`, fall back to PR on rejection. NEVER force-push.                        |
+| 6   | Push                 | Per CLAUDE.md push policy: `git push origin <branch>`, fall back to PR on rejection. NEVER force-push.                         |
 | 7   | Verify resolution    | After push lands, `gh api .../dependabot/alerts` should show each fixed alert as `auto_dismissed` or `fixed`. Log remaining.   |
 | 8   | Report               | Per-alert table: alert # / pkg / severity / action taken / state.                                                              |
 
 ## Hard requirements
 
-- **Clean tree on entry** — same rule as `updating` umbrella.
-- **One commit per alert** — `chore(security): bump <pkg> to <ver> (GHSA-XXXX)` or `chore(security): override <pkg> ~> <ver> (GHSA-XXXX)`.
-- **No `--no-verify`** — the soak / cooldown guard (`minimum-release-age-guard`) MUST be honored. If a patched version is inside the 7-day soak, the skill notes the alert as `awaiting-soak` and returns without modification.
-- **Conventional Commits** — `chore(security): <action>` (per CLAUDE.md _Commits & PRs_).
-- **Default-branch fallback** — never hard-code `main` (per CLAUDE.md _Default branch fallback_).
-- **GitHub auth** — assumes `gh auth status` returns OK. Token must have `security_events:read` + `repo` scopes. Personal `gh` login satisfies both.
+- **Clean tree on entry**: same rule as `updating` umbrella.
+- **One commit per alert**: `chore(security): bump <pkg> to <ver> (GHSA-XXXX)` or `chore(security): override <pkg> ~> <ver> (GHSA-XXXX)`.
+- **No `--no-verify`**: the soak / cooldown guard (`minimum-release-age-guard`) MUST be honored. If a patched version is inside the 7-day soak, the skill notes the alert as `awaiting-soak` and returns without modification.
+- **Conventional Commits**: `chore(security): <action>` (per CLAUDE.md _Commits & PRs_).
+- **Default-branch fallback**: never hard-code `main` (per CLAUDE.md _Default branch fallback_).
+- **GitHub auth**: assumes `gh auth status` returns OK. Token must have `security_events:read` + `repo` scopes. Personal `gh` login satisfies both.
 
 ## Success criteria
 
@@ -63,9 +63,7 @@ them via the cheapest principled mechanism. Invoked directly via
 - Working tree clean after the commit chain.
 - `pnpm run check` passes against the fix set.
 
-**Safety:** every commit is atomic and the skill can be interrupted at
-any phase. Resume by re-running — already-applied fixes show up as
-`auto_dismissed` and are skipped.
+**Safety:** every commit is atomic and the skill can be interrupted at any phase. Resume by re-running. Already-applied fixes show up as `auto_dismissed` and are skipped.
 
 Full bash, alert-shape reference, dismissal-reason taxonomy, and
 recovery procedures in [`reference.md`](reference.md).

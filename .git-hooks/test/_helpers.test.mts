@@ -537,6 +537,34 @@ test('scanPrivateKeys: catches PEM header', () => {
   assert.ok(hits.length >= 1)
 })
 
+test('scanPrivateKeys: catches every common PEM variant', () => {
+  const variants = [
+    '-----BEGIN PRIVATE KEY-----', // PKCS#8 generic
+    '-----BEGIN RSA PRIVATE KEY-----', // PKCS#1 OpenSSL
+    '-----BEGIN EC PRIVATE KEY-----',
+    '-----BEGIN DSA PRIVATE KEY-----',
+    '-----BEGIN OPENSSH PRIVATE KEY-----', // default ssh-keygen since 2019
+    '-----BEGIN ENCRYPTED PRIVATE KEY-----', // PKCS#8 passphrase
+    '-----BEGIN PGP PRIVATE KEY BLOCK-----',
+  ]
+  for (const v of variants) {
+    const hits = scanPrivateKeys(v)
+    assert.ok(hits.length >= 1, `must catch: ${v}`)
+  }
+})
+
+test('scanPrivateKeys: does not false-positive on prose', () => {
+  const benign = [
+    'See: BEGIN PRIVATE KEY is the PEM header for PKCS#8 keys.',
+    '// the PRIVATE KEY format starts with -----BEGIN',
+    'PUBLIC KEY (not private):',
+  ]
+  for (const b of benign) {
+    const hits = scanPrivateKeys(b)
+    assert.strictEqual(hits.length, 0, `must not match prose mention: ${b}`)
+  }
+})
+
 // ── scanSocketApiKeys ─────────────────────────────────────────────
 
 test('scanSocketApiKeys: catches sktsec_ literal', () => {

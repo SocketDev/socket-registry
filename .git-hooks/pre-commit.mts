@@ -11,9 +11,10 @@
 import { basename } from 'node:path'
 import process from 'node:process'
 
-import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
 import {
+  git,
   gitLines,
   normalizePath,
   readFileForScan,
@@ -49,6 +50,57 @@ const main = (): number => {
   }
 
   let errors = 0
+
+  // Commit signing config gate. The commit hasn't been created yet,
+  // so we can't verify the signature artifact — only the config that
+  // determines whether the commit WILL be signed. Two requirements:
+  //   - `commit.gpgsign` must be `true`
+  //   - `user.signingkey` must be set
+  // If either is missing, refuse the commit. Pre-push catches the
+  // artifact side (unsigned commits that somehow slipped past); this
+  // gate is the local-config side.
+  //
+  // Bypass: SOCKET_PRE_COMMIT_ALLOW_UNSIGNED=1. One-shot env var,
+  // mirrors the pre-push bypass shape (SOCKET_PRE_PUSH_ALLOW_UNSIGNED).
+  if (!process.env['SOCKET_PRE_COMMIT_ALLOW_UNSIGNED']) {
+    const gpgsign = git('config', '--get', 'commit.gpgsign').toLowerCase()
+    const signingKey = git('config', '--get', 'user.signingkey')
+    if (gpgsign !== 'true') {
+      logger.fail('commit.gpgsign is not enabled')
+      logger.info(`  current: ${gpgsign || '(unset)'}`)
+      logger.info('  expected: true')
+      logger.info('')
+      logger.info('Fix:')
+      logger.info('  git config --global commit.gpgsign true')
+      logger.info('')
+      logger.info('If you have not set up commit signing yet, run:')
+      logger.info('  node .claude/hooks/setup-security-tools/install.mts')
+      logger.info(
+        'which detects available signing methods (GPG, SSH, 1Password)',
+      )
+      logger.info('and walks you through the one-time setup.')
+      errors++
+    } else if (!signingKey) {
+      logger.fail('commit.gpgsign=true but user.signingkey is not set')
+      logger.info('')
+      logger.info('Fix:')
+      logger.info('  git config --global user.signingkey <YOUR_KEY_ID>')
+      logger.info('')
+      logger.info('Or run the setup helper for guided configuration:')
+      logger.info('  node .claude/hooks/setup-security-tools/install.mts')
+      errors++
+    }
+    if (errors > 0) {
+      logger.info('')
+      logger.info(
+        'Bypass (exceptional only): SOCKET_PRE_COMMIT_ALLOW_UNSIGNED=1 git commit ...',
+      )
+      logger.info('One-shot; never persist in shell rc.')
+      logger.error('')
+      logger.fail(`Pre-commit signing config check failed.`)
+      return 1
+    }
+  }
 
   // .DS_Store files.
   logger.info('Checking for .DS_Store files...')
@@ -255,7 +307,7 @@ const main = (): number => {
 
   // Direct stream writes (process.stderr.write, process.stdout.write,
   // console.*) in source files. Source code uses getDefaultLogger()
-  // from @socketsecurity/lib-stable/logger; the logger-guard PreToolUse hook
+  // from @socketsecurity/lib-stable/logger/default; the logger-guard PreToolUse hook
   // catches these at edit time, this gate catches them at commit time
   // for edits made outside Claude.
   logger.info('Checking for direct stream writes...')
@@ -304,7 +356,7 @@ const main = (): number => {
         }
       }
       logger.info(
-        'Use `getDefaultLogger()` from `@socketsecurity/lib-stable/logger`. ' +
+        'Use `getDefaultLogger()` from `@socketsecurity/lib-stable/logger/default`. ' +
           'For documentation lines that need the literal call, append ' +
           `the marker \`${socketHookMarkerFor(file, 'logger')}\`.`,
       )
