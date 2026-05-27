@@ -580,6 +580,12 @@ importers:
         specifier: 24.9.2
         version: 24.9.2
 
+  .claude/hooks/commit-message-format-guard:
+    devDependencies:
+      '@types/node':
+        specifier: 24.9.2
+        version: 24.9.2
+
   .claude/hooks/commit-pr-reminder:
     devDependencies:
       '@types/node':
@@ -626,6 +632,12 @@ importers:
         specifier: 24.9.2
         version: 24.9.2
 
+  .claude/hooks/dont-blame-user-reminder:
+    devDependencies:
+      '@types/node':
+        specifier: 24.9.2
+        version: 24.9.2
+
   .claude/hooks/dont-stop-mid-queue-reminder:
     devDependencies:
       '@types/node':
@@ -651,6 +663,12 @@ importers:
         version: 24.9.2
 
   .claude/hooks/excuse-detector:
+    devDependencies:
+      '@types/node':
+        specifier: 24.9.2
+        version: 24.9.2
+
+  .claude/hooks/extension-build-current-guard:
     devDependencies:
       '@types/node':
         specifier: 24.9.2
@@ -743,6 +761,12 @@ importers:
         version: 24.9.2
 
   .claude/hooks/no-blind-keychain-read-guard:
+    devDependencies:
+      '@types/node':
+        specifier: 24.9.2
+        version: 24.9.2
+
+  .claude/hooks/no-disable-lint-rule-guard:
     devDependencies:
       '@types/node':
         specifier: 24.9.2
@@ -877,6 +901,16 @@ importers:
         version: 24.9.2
 
   .claude/hooks/plan-review-reminder:
+    devDependencies:
+      '@types/node':
+        specifier: 24.9.2
+        version: 24.9.2
+
+  .claude/hooks/plugin-patch-format-guard:
+    dependencies:
+      '@socketsecurity/lib-stable':
+        specifier: 'catalog:'
+        version: '@socketsecurity/lib@6.0.3(typescript@5.9.2)'
     devDependencies:
       '@types/node':
         specifier: 24.9.2
