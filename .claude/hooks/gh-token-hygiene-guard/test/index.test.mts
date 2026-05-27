@@ -33,9 +33,16 @@ interface RunOptions {
   transcriptText?: string
   // The Bash command to feed via tool_input.command.
   command: string
-  // Pre-create the workflow-grant file (presence = unconsumed grant).
-  hasGrant?: boolean
+  // Pre-create the workflow-grant file body. Use a string to set the
+  // body content (e.g. a session_id for a valid grant, or 'wrong-session'
+  // for a mismatch test). Set to `true` to record with the same
+  // session_id the hook sees ('test-session-id'). Omit for no grant.
+  hasGrant?: boolean | string
+  // session_id passed to the hook (defaults to 'test-session-id').
+  sessionId?: string
 }
+
+const TEST_SESSION_ID = 'test-session-id'
 
 async function runHook(
   opts: RunOptions,
@@ -50,8 +57,12 @@ async function runHook(
   const fakeHome = path.join(tmp, 'home')
   mkdirSync(path.join(fakeHome, '.claude'), { recursive: true })
   const grantFile = path.join(fakeHome, '.claude', 'gh-workflow-grant')
-  if (opts.hasGrant) {
-    writeFileSync(grantFile, String(Date.now()))
+  if (opts.hasGrant === true) {
+    // Valid grant: bind to the test session id.
+    writeFileSync(grantFile, `${TEST_SESSION_ID}\n${Date.now()}`)
+  } else if (typeof opts.hasGrant === 'string') {
+    // Caller-specified body (e.g. 'wrong-session' to simulate mismatch).
+    writeFileSync(grantFile, `${opts.hasGrant}\n${Date.now()}`)
   }
   let transcriptPath: string | undefined
   if (opts.transcriptText !== undefined) {
@@ -77,6 +88,7 @@ async function runHook(
       tool_name: 'Bash',
       tool_input: { command: opts.command },
       transcript_path: transcriptPath,
+      session_id: opts.sessionId ?? TEST_SESSION_ID,
     }),
   )
   let stderr = ''
@@ -122,6 +134,34 @@ test('non-gh Bash passes', async () => {
     ghStatusOutput: KEYRING_OUTPUT_NO_WORKFLOW,
   })
   assert.strictEqual(r.code, 0)
+})
+
+test('grep that mentions gh as a search string is NOT a gh invocation', async () => {
+  // Regression: the old regex matched `gh ` anywhere, so a grep for
+  // "gh workflow" tripped the guard. The parser reads the real binary
+  // (grep), so this passes regardless of gh storage state.
+  const r = await runHook({
+    command: 'grep -n "gh workflow run" some-file.mts',
+    ghStatusOutput: FILE_STORAGE_OUTPUT,
+  })
+  assert.strictEqual(r.code, 0)
+})
+
+test('echo of a quoted gh command is NOT a gh invocation', async () => {
+  const r = await runHook({
+    command: 'echo "run gh auth login to fix"',
+    ghStatusOutput: FILE_STORAGE_OUTPUT,
+  })
+  assert.strictEqual(r.code, 0)
+})
+
+test('chained real gh invocation is still caught', async () => {
+  // The parser must still SEE a real gh command in a chain.
+  const r = await runHook({
+    command: 'echo start && gh pr list',
+    ghStatusOutput: FILE_STORAGE_OUTPUT,
+  })
+  assert.strictEqual(r.code, 2)
 })
 
 test('on-disk gh storage is blocked', async () => {
@@ -179,7 +219,22 @@ test('workflow dispatch with scope + missing grant is blocked', async () => {
     ghStatusOutput: KEYRING_OUTPUT_WITH_WORKFLOW,
   })
   assert.strictEqual(r.code, 2)
-  assert.match(r.stderr, /missing or already consumed/)
+  assert.match(r.stderr, /missing, expired, or session-mismatched/)
+})
+
+test('workflow dispatch with attacker-planted grant (wrong session) blocked', async () => {
+  // Simulates the pre-creation attack: a malicious postinstall writes
+  // ~/.claude/gh-workflow-grant with some arbitrary content (or a
+  // session_id from a previous, legitimate session). The hook MUST
+  // reject because the recorded session_id doesn't match the current
+  // session_id.
+  const r = await runHook({
+    command: 'gh workflow run publish.yml',
+    ghStatusOutput: KEYRING_OUTPUT_WITH_WORKFLOW,
+    hasGrant: 'attacker-planted-session-xxx',
+  })
+  assert.strictEqual(r.code, 2)
+  assert.match(r.stderr, /session-mismatched/)
 })
 
 test('refresh -s workflow without bypass is blocked', async () => {
@@ -201,24 +256,26 @@ test('refresh -s workflow without bypass is blocked', async () => {
 // The auth path is exercised by manual smoke-testing on the
 // developer's machine when the hook ships.
 
-test('refresh -s workflow with bypass phrase reaches the auth path', async () => {
-  // The bypass phrase is present, so the hook will attempt OS-auth.
-  // /usr/bin/sudo will fail under CI because no Touch ID and the
-  // -n flag (no password prompt) is set; /usr/bin/dscl is also
-  // unreachable without a real password. The hook returns 'denied'
-  // and blocks. This proves the bypass phrase IS being detected
-  // (the hook reaches the auth path) without exercising the OS auth.
+test('refresh -s workflow with bypass phrase passes the bypass-detect gate', async () => {
+  // With the bypass phrase present, the hook proceeds past the
+  // bypass-detect gate and runs OS-auth. The OS-auth outcome is
+  // environment-dependent — on a Touch-ID-configured developer
+  // machine `sudo -n true` succeeds silently and the hook records
+  // the grant; in CI / on a fresh box, `sudo -n` errors and the
+  // hook falls through to the osascript dialog (which is denied
+  // without a TTY). Both are acceptable outcomes — what this test
+  // verifies is that the bypass-MISSING error is NOT what we get.
   const r = await runHook({
     command: 'gh auth refresh -h github.com -s workflow',
     ghStatusOutput: KEYRING_OUTPUT_NO_WORKFLOW,
     transcriptText: 'Allow workflow-scope bypass',
   })
-  // Either 'denied' (auth failed) or 'unsupported' (no osascript)
-  // — both are exit 2 with a recognizable stderr.
-  assert.strictEqual(r.code, 2)
-  assert.match(
-    r.stderr,
-    /physical-presence check failed|no auth method available/,
+  // Must NOT be the bypass-missing branch (which would say "requires bypass").
+  assert.doesNotMatch(r.stderr, /requires bypass/)
+  // Exit code is 0 (auth succeeded, grant recorded) OR 2 (auth denied).
+  assert.ok(
+    r.code === 0 || r.code === 2,
+    `unexpected exit code ${r.code} (stderr: ${r.stderr})`,
   )
 })
 
@@ -325,4 +382,3 @@ test('expired token age allows gh auth refresh (self-recovery)', async () => {
   })
   assert.strictEqual(code, 0)
 })
-

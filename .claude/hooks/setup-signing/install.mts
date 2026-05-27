@@ -2,36 +2,31 @@
 /**
  * @file Install-only entry point for commit-signing setup. Detects which
  *   signing method is locally available (SSH keys via 1Password / agent /
- *   ~/.ssh, GPG via gpg-agent, plain GPG key), and walks the user through
- *   `git config user.signingkey` + `git config commit.gpgsign true` +
- *   `git config gpg.format` (ssh|openpgp).
- *
- *   Paired with the pre-commit signing-config gate and the pre-push
- *   signed-commits enforcement. Without signing set up, those hooks block
- *   commits / pushes; this helper makes the one-time setup mechanical.
- *
- *   Usage:
- *     node .claude/hooks/setup-signing/install.mts
- *     node .claude/hooks/setup-signing/install.mts --check     # report only
- *     node .claude/hooks/setup-signing/install.mts --force     # overwrite existing config
- *
+ *   ~/.ssh, GPG via gpg-agent, plain GPG key), and walks the user through `git
+ *   config user.signingkey` + `git config commit.gpgsign true` + `git config
+ *   gpg.format` (ssh|openpgp). Paired with the pre-commit signing-config gate
+ *   and the pre-push signed-commits enforcement. Without signing set up, those
+ *   hooks block commits / pushes; this helper makes the one-time setup
+ *   mechanical. Usage: node .claude/hooks/setup-signing/install.mts node
+ *   .claude/hooks/setup-signing/install.mts --check # report only node
+ *   .claude/hooks/setup-signing/install.mts --force # overwrite existing config
  *   Auto-detection order (first hit wins):
- *     1. 1Password SSH agent (SOCK at ~/Library/Group Containers/.../agent.sock).
- *        If present + has keys, recommend SSH signing routed through 1Password.
- *        Pros: keys never touch disk; biometric unlock on use.
- *     2. ssh-agent or running gpg-agent with loaded keys. SSH preferred over GPG
- *        when both exist (simpler keyring, no expiry headaches).
- *     3. ~/.ssh/id_ed25519.pub (or id_rsa.pub) on disk. Recommend SSH signing
- *        using that key.
- *     4. `gpg --list-secret-keys` produces output. Recommend GPG signing with
- *        the first secret key.
- *     5. Nothing found. Print the setup choices and exit.
  *
- *   The helper NEVER generates new keys. Key creation is the user's call —
- *   the helper only configures git to USE keys the user already has.
+ *   1. 1Password SSH agent (SOCK at ~/Library/Group Containers/.../agent.sock). If
+ *      present + has keys, recommend SSH signing routed through 1Password.
+ *      Pros: keys never touch disk; biometric unlock on use.
+ *   2. ssh-agent or running gpg-agent with loaded keys. SSH preferred over GPG
+ *      when both exist (simpler keyring, no expiry headaches).
+ *   3. ~/.ssh/id_ed25519.pub (or id_rsa.pub) on disk. Recommend SSH signing using
+ *      that key.
+ *   4. `gpg --list-secret-keys` produces output. Recommend GPG signing with the
+ *      first secret key.
+ *   5. Nothing found. Print the setup choices and exit. The helper NEVER generates
+ *      new keys. Key creation is the user's call — the helper only configures
+ *      git to USE keys the user already has.
  */
 
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync } from 'node:fs'
 import { homedir, platform } from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
@@ -174,9 +169,7 @@ function detectGpgKey(): DetectedSigner | undefined {
 }
 
 function detectSigner(): DetectedSigner | undefined {
-  return (
-    detect1PasswordSshAgent() ?? detectSshKeyOnDisk() ?? detectGpgKey()
-  )
+  return detect1PasswordSshAgent() ?? detectSshKeyOnDisk() ?? detectGpgKey()
 }
 
 function configure(signer: DetectedSigner): void {
@@ -191,8 +184,7 @@ function configure(signer: DetectedSigner): void {
     // (op-ssh-sign for 1Password). git uses gpg.ssh.program for signing
     // operations.
     if (platform() === 'darwin') {
-      const opSign =
-        '/Applications/1Password.app/Contents/MacOS/op-ssh-sign'
+      const opSign = '/Applications/1Password.app/Contents/MacOS/op-ssh-sign'
       if (existsSync(opSign)) {
         set('gpg.ssh.program', opSign)
       }
@@ -229,9 +221,7 @@ function reportManualSteps(): void {
   logger.log('  2. Upload public key to GitHub → Settings → SSH and GPG keys')
   logger.log('  3. Run this helper again')
   logger.log('')
-  logger.log(
-    'GitHub-side note: upload the corresponding PUBLIC key as a',
-  )
+  logger.log('GitHub-side note: upload the corresponding PUBLIC key as a')
   logger.log(
     'Signing Key at https://github.com/settings/keys for "Verified" badges',
   )
@@ -286,15 +276,9 @@ async function main(): Promise<void> {
   )
   logger.log('pre-push gates will accept it.')
   logger.log('')
-  logger.log(
-    'GitHub-side: upload the public key as a Signing Key at',
-  )
-  logger.log(
-    '  https://github.com/settings/keys',
-  )
-  logger.log(
-    'so commits show as "Verified" in the GitHub UI.',
-  )
+  logger.log('GitHub-side: upload the public key as a Signing Key at')
+  logger.log('  https://github.com/settings/keys')
+  logger.log('so commits show as "Verified" in the GitHub UI.')
 }
 
 main().catch(err => {

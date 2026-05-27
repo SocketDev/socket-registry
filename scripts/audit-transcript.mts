@@ -15,7 +15,7 @@
  *   script is invoked from.
  */
 
-import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { homedir } from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
@@ -57,18 +57,26 @@ function readToolUses(transcriptPath: string): ToolUseEvent[] {
       continue
     }
     // Tool uses appear under message.content[] for assistant turns.
-    const msg = (evt as { message?: { content?: unknown } }).message
+    const msg = (
+      evt as { message?: { content?: unknown | undefined } | undefined }
+    ).message
     const content = msg?.content
     if (!Array.isArray(content)) {
       continue
     }
     for (const block of content) {
-      if (!block || typeof block !== 'object') continue
+      if (!block || typeof block !== 'object') {
+        continue
+      }
       const b = block as Record<string, unknown>
-      if (b['type'] !== 'tool_use') continue
+      if (b['type'] !== 'tool_use') {
+        continue
+      }
       const name = typeof b['name'] === 'string' ? b['name'] : undefined
       const input = b['input']
-      if (!name || !input || typeof input !== 'object') continue
+      if (!name || !input || typeof input !== 'object') {
+        continue
+      }
       out.push({
         name,
         input: input as Record<string, unknown>,
@@ -85,7 +93,7 @@ const PATTERNS: ReadonlyArray<{
   // Predicate: does this Bash command match this pattern?
   matches: (command: string) => boolean
   // Optional input shape filter (tool_name).
-  tool?: string
+  tool?: string | undefined
 }> = [
   // CRITICAL — direct credential exposure paths.
   {
@@ -100,14 +108,14 @@ const PATTERNS: ReadonlyArray<{
     tool: 'Bash',
     matches: c =>
       /\bgh\s+auth\s+refresh\b/.test(c) &&
-      /(?:^|\s)(?:-s|--scopes)\b[^|;&]*\bworkflow\b/.test(c),
+      /(?:^|\s)(?:--scopes|-s)\b[^|;&]*\bworkflow\b/.test(c),
   },
   {
     severity: 'critical',
     category: 'gh workflow dispatch (release/publish surface)',
     tool: 'Bash',
     matches: c =>
-      /\bgh\s+workflow\s+(?:run|dispatch)\b/.test(c) ||
+      /\bgh\s+workflow\s+(?:dispatch|run)\b/.test(c) ||
       (/\bgh\s+api\b/.test(c) &&
         /\/actions\/workflows\/[^/\s]+\/dispatches\b/.test(c)),
   },
@@ -147,7 +155,7 @@ const PATTERNS: ReadonlyArray<{
     tool: 'Bash',
     matches: c =>
       /\bsecurity\s+(?:add|delete)-(?:generic|internet)-password\b/.test(c) ||
-      /\bsecret-tool\s+(?:store|clear)\b/.test(c),
+      /\bsecret-tool\s+(?:clear|store)\b/.test(c),
   },
   {
     severity: 'warn',
@@ -155,7 +163,7 @@ const PATTERNS: ReadonlyArray<{
     tool: 'Bash',
     matches: c =>
       /~\/\.ssh\/[^\s|;&]+/.test(c) ||
-      /\bopenssl\s+(?:rsa|pkcs8|pkey)\b/.test(c) ||
+      /\bopenssl\s+(?:pkcs8|pkey|rsa)\b/.test(c) ||
       /\bssh-keygen\b/.test(c) ||
       /\.pem\b/.test(c),
   },
@@ -169,7 +177,7 @@ const PATTERNS: ReadonlyArray<{
   {
     severity: 'info',
     category: 'workflow YAML edit',
-    matches: c => /\.github\/workflows\/[^\/\s]+\.ya?ml/.test(c),
+    matches: c => /\.github\/workflows\/[^/\s]+\.ya?ml/.test(c),
   },
 ]
 
@@ -178,17 +186,20 @@ function scanToolUse(evt: ToolUseEvent): Finding[] {
   // Most patterns target Bash commands; some target file paths (Edit/Write).
   const command =
     evt.name === 'Bash'
-      ? String((evt.input as { command?: unknown }).command ?? '')
+      ? String((evt.input as { command?: unknown | undefined }).command ?? '')
       : ''
   const filePath =
     evt.name === 'Edit' || evt.name === 'Write'
-      ? String((evt.input as { file_path?: unknown }).file_path ?? '')
+      ? String(
+          (evt.input as { file_path?: unknown | undefined }).file_path ?? '',
+        )
       : ''
   const haystack = command || filePath
   if (!haystack) {
     return findings
   }
-  for (const p of PATTERNS) {
+  for (let i = 0, { length } = PATTERNS; i < length; i += 1) {
+    const p = PATTERNS[i]!
     if (p.tool && p.tool !== evt.name) continue
     if (!p.matches(haystack)) continue
     findings.push({
@@ -213,13 +224,20 @@ function findRecentTranscript(): string | undefined {
   if (!existsSync(dir)) {
     return undefined
   }
+  // TOCTOU: another Claude session may rotate/delete a .jsonl between
+  // readdir and stat. Tolerate missing entries instead of crashing.
   const entries = readdirSync(dir)
     .filter(f => f.endsWith('.jsonl'))
     .map(f => {
       const full = path.join(dir, f)
-      return { full, mtime: statSync(full).mtimeMs }
+      try {
+        return { full, mtime: statSync(full).mtimeMs }
+      } catch {
+        return undefined
+      }
     })
-    .sort((a, b) => b.mtime - a.mtime)
+    .filter((x): x is { full: string; mtime: number } => x !== undefined)
+    .toSorted((a, b) => b.mtime - a.mtime)
   return entries[0]?.full
 }
 
@@ -304,7 +322,8 @@ async function main(): Promise<void> {
   }
 
   const byCategory = new Map<string, Finding[]>()
-  for (const f of findings) {
+  for (let i = 0, { length } = findings; i < length; i += 1) {
+    const f = findings[i]!
     const list = byCategory.get(f.category) ?? []
     list.push(f)
     byCategory.set(f.category, list)
@@ -314,7 +333,9 @@ async function main(): Promise<void> {
     const entries = [...byCategory.entries()].filter(
       ([, fs]) => fs[0]!.severity === severity,
     )
-    if (entries.length === 0) continue
+    if (entries.length === 0) {
+      continue
+    }
     logger.log(`── ${severity.toUpperCase()} ──`)
     for (const [category, fs] of entries) {
       logger.log(`  ${category} (${fs.length})`)

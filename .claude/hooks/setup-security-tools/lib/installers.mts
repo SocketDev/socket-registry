@@ -385,7 +385,7 @@ export async function setupAgentShield(): Promise<boolean> {
   const version = AGENTSHIELD.version ?? purl.version
   const packageSpec = version ? `${npmPackage}@${version}` : npmPackage
 
-  logger.log(`Installing ${packageSpec} via dlx...`)
+  logger.log(`Installing ${packageSpec} via dlx…`)
   const { binaryPath, installed } = await downloadPackage({
     package: packageSpec,
     binaryName: 'agentshield',
@@ -525,7 +525,7 @@ export async function setupNpmTool(
     : purl.name!
   const version = tool.version ?? purl.version
   const packageSpec = version ? `${npmPackage}@${version}` : npmPackage
-  logger.log(`Installing ${packageSpec} via dlx...`)
+  logger.log(`Installing ${packageSpec} via dlx…`)
   const { binaryPath, installed } = await downloadPackage({
     package: packageSpec,
     binaryName: name,
@@ -822,7 +822,7 @@ export async function setupZizmor(): Promise<boolean> {
 }
 
 async function main(): Promise<void> {
-  logger.log('Setting up Socket security tools...')
+  logger.log('Setting up Socket security tools…')
   logger.log('')
 
   const apiToken = findApiToken()

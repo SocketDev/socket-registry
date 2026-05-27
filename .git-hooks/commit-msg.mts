@@ -16,7 +16,7 @@
 
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 
-import { basename } from 'node:path'
+import path from 'node:path'
 import process from 'node:process'
 
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
@@ -61,10 +61,10 @@ const main = (): number => {
 
     // .env files at any depth — allow only .env.example, .env.test,
     // .env.precommit (templates / tracked placeholders).
-    const base = basename(file)
+    const base = path.basename(file)
     if (
       /^\.env(\.[^/]+)?$/.test(base) &&
-      !/^\.env\.(example|test|precommit)$/.test(base)
+      !/^\.env\.(example|precommit|test)$/.test(base)
     ) {
       logger.fail('.env file in commit!')
       logger.info(`File: ${file}`)

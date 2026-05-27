@@ -89,7 +89,7 @@ A ~20-line `.test.mts` under `test/integration/` that:
 // test/integration/<corpus>-<scope>.test.mts
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { spawn } from '@socketsecurity/lib-stable/spawn/spawn'
+import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 import { resolveFinalBinary } from '../helpers/binary.mts'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))

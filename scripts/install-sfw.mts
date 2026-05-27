@@ -115,6 +115,12 @@ async function main(): Promise<void> {
     strict: false,
   })
 
+  // socket-api-token-env: bootstrap -- install bootstrap reads both the local
+  // keychain slot (SOCKET_API_KEY) and the canonical CI/docs name
+  // (SOCKET_API_TOKEN); this is the one place both legacy + canonical names
+  // legitimately appear, so the alias-rewrite autofix must skip it.
+  // socket-api-token-getter: allow direct-env -- runs before the keychain
+  // helper's deps are guaranteed present; only gates on raw env.
   if (
     values['enterprise'] &&
     !process.env['SOCKET_API_KEY'] &&

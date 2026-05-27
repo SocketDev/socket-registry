@@ -38,15 +38,25 @@ import { existsSync, readFileSync } from 'node:fs'
  * shape later.
  */
 /**
- * Normalize a bypass phrase / haystack so hyphens and runs of
- * whitespace collapse to a single space. `Allow workflow-scope
- * bypass`, `Allow workflow scope bypass`, and `Allow  workflow—scope
- * bypass` all collapse to the same canonical form for matching.
- * The transcript-reading helpers run user text through this so
- * minor punctuation variations don't break the bypass match.
+ * Normalize a bypass phrase / haystack so hyphens and runs of whitespace
+ * collapse to a single space. `Allow workflow-scope bypass`, `Allow workflow
+ * scope bypass`, and `Allow workflow—scope bypass` all collapse to the same
+ * canonical form for matching. The transcript-reading helpers run user text
+ * through this so minor punctuation variations don't break the bypass match.
  */
 function normalizeBypassText(text: string): string {
-  return text.replace(/[-—–\s]+/g, ' ')
+  // NFKC: canonical-decompose + compose + compatibility-fold so
+  // visually-similar variants collapse — smart quotes, full-width,
+  // ligatures all map to ASCII-canonical.
+  // \p{Cf} strip: format / zero-width / bidi-override chars are removed
+  // so an attacker can't inject a benign-rendering turn that contains
+  // the bypass phrase only after invisible chars are stripped — nor
+  // can a user accidentally type a phrase that fails to match because
+  // an editor inserted a zero-width-space.
+  return text
+    .normalize('NFKC')
+    .replace(/\p{Cf}/gu, '')
+    .replace(/[-—–\s]+/g, ' ')
 }
 
 export function bypassPhrasePresent(

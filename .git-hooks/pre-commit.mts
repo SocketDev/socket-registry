@@ -8,12 +8,13 @@
 // Bypassable: --no-verify skips this hook entirely. Use sparingly
 // (hotfixes, history operations, pre-build states).
 
-import { basename } from 'node:path'
+import path from 'node:path'
 import process from 'node:process'
 
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
 import {
+  checkOxlintRuleWiringStaged,
   git,
   gitLines,
   normalizePath,
@@ -24,6 +25,7 @@ import {
   scanGitHubTokens,
   scanLoggerLeaks,
   scanNpxDlx,
+  scanPackageJsonPnpmOverrides,
   scanPersonalPaths,
   scanPrivateKeys,
   scanSocketApiKeys,
@@ -34,7 +36,7 @@ import {
 const logger = getDefaultLogger()
 
 const main = (): number => {
-  logger.info('Running Socket Security checks...')
+  logger.info('Running Socket Security checks…')
   // Normalize to POSIX forward slashes so downstream
   // `startsWith('.git-hooks/')` / `includes('/external/')` matchers
   // work the same on Windows (where git can return `\` separators).
@@ -103,7 +105,7 @@ const main = (): number => {
   }
 
   // .DS_Store files.
-  logger.info('Checking for .DS_Store files...')
+  logger.info('Checking for .DS_Store files…')
   const dsStores = stagedFiles.filter(f => f.includes('.DS_Store'))
   if (dsStores.length > 0) {
     logger.fail('.DS_Store file detected!')
@@ -112,7 +114,7 @@ const main = (): number => {
   }
 
   // Log files (ignore test logs).
-  logger.info('Checking for log files...')
+  logger.info('Checking for log files…')
   const logs = stagedFiles.filter(
     f => f.endsWith('.log') && !/test.*\.log$/.test(f),
   )
@@ -126,12 +128,12 @@ const main = (): number => {
   // .env.precommit (templates / tracked placeholders). Match the
   // commit-msg.mts behavior: a nested .env.local is just as much a
   // leak as a root-level one. basename() catches both.
-  logger.info('Checking for .env files...')
+  logger.info('Checking for .env files…')
   const envFiles = stagedFiles.filter(f => {
-    const base = basename(f)
+    const base = path.basename(f)
     return (
-      /^\.env(\.[^/]+)?$/.test(base) &&
-      !/^\.env\.(example|test|precommit)$/.test(base)
+      /^\.env(?:\.[^/]+)?$/.test(base) &&
+      !/^\.env\.(?:example|test|precommit)$/.test(base)
     )
   })
   if (envFiles.length > 0) {
@@ -144,7 +146,7 @@ const main = (): number => {
   }
 
   // Hardcoded personal paths.
-  logger.info('Checking for hardcoded personal paths...')
+  logger.info('Checking for hardcoded personal paths…')
   for (const file of stagedFiles) {
     if (shouldSkipFile(file)) {
       continue
@@ -174,7 +176,7 @@ const main = (): number => {
   }
 
   // Socket API keys (warning, not blocking).
-  logger.info('Checking for API keys...')
+  logger.info('Checking for API keys…')
   for (const file of stagedFiles) {
     if (shouldSkipFile(file)) {
       continue
@@ -194,7 +196,7 @@ const main = (): number => {
   }
 
   // Other secret patterns (AWS, GitHub, private keys).
-  logger.info('Checking for potential secrets...')
+  logger.info('Checking for potential secrets…')
   for (const file of stagedFiles) {
     if (shouldSkipFile(file)) {
       continue
@@ -229,8 +231,30 @@ const main = (): number => {
     }
   }
 
+  // package.json pnpm.overrides — overrides belong in
+  // pnpm-workspace.yaml overrides:, not package.json.
+  logger.info('Checking for package.json pnpm.overrides...')
+  for (const file of stagedFiles) {
+    if (path.basename(file) !== 'package.json' || shouldSkipFile(file)) {
+      continue
+    }
+    const text = readFileForScan(file)
+    if (!text) {
+      continue
+    }
+    const ov = scanPackageJsonPnpmOverrides(text)
+    if (ov.length > 0) {
+      logger.fail(`pnpm.overrides found in: ${file}`)
+      logger.info(`${ov[0]!.lineNumber}:${ov[0]!.line}`)
+      logger.info(
+        'Move dependency overrides to pnpm-workspace.yaml `overrides:`.',
+      )
+      errors++
+    }
+  }
+
   // npx/dlx usage.
-  logger.info('Checking for npx/dlx usage...')
+  logger.info('Checking for npx/dlx usage…')
   for (const file of stagedFiles) {
     // shouldSkipFile covers tests, fixtures, .git-hooks, etc. — test
     // files frequently mention `npx` as part of fixture paths or
@@ -276,7 +300,7 @@ const main = (): number => {
   // pnpm form. npm/yarn fallbacks come after. Block-only — inline
   // backtick spans are not scanned. Suppress per-block with
   // `socket-hook: allow pnpm-first`.
-  logger.info('Checking docs lead with pnpm install commands...')
+  logger.info('Checking docs lead with pnpm install commands…')
   for (const file of stagedFiles) {
     if (shouldSkipFile(file)) {
       continue
@@ -310,7 +334,7 @@ const main = (): number => {
   // from @socketsecurity/lib-stable/logger/default; the logger-guard PreToolUse hook
   // catches these at edit time, this gate catches them at commit time
   // for edits made outside Claude.
-  logger.info('Checking for direct stream writes...')
+  logger.info('Checking for direct stream writes…')
   for (const file of stagedFiles) {
     if (shouldSkipFile(file)) {
       continue
@@ -339,7 +363,7 @@ const main = (): number => {
     ) {
       continue
     }
-    if (!/\.(m?ts|tsx|cts)$/.test(file)) {
+    if (!/\.(?:m?ts|tsx|cts)$/.test(file)) {
       continue
     }
     const text = readFileForScan(file)
@@ -368,11 +392,11 @@ const main = (): number => {
   // out of the current repo) or `…/projects/<fleet-repo>/…` (absolute
   // sibling-clone escape). Both forms hardcode someone's local layout
   // and break in CI / fresh clones / non-standard checkouts.
-  logger.info('Checking for cross-repo path references...')
+  logger.info('Checking for cross-repo path references…')
   // Best-effort current repo name from the toplevel directory; if git
   // isn't reachable we simply don't suppress own-repo matches.
   const repoTopline = gitLines('rev-parse', '--show-toplevel')[0] ?? ''
-  const currentRepoName = repoTopline ? basename(repoTopline) : undefined
+  const currentRepoName = repoTopline ? path.basename(repoTopline) : undefined
   for (const file of stagedFiles) {
     if (shouldSkipFile(file)) {
       continue
@@ -412,6 +436,29 @@ const main = (): number => {
       )
       errors++
     }
+  }
+
+  // oxlint plugin rule WIRING gate. When a rule file / plugin index /
+  // oxlintrc activation / rule test is staged, confirm the wiring triad
+  // (rule file → import+registry → activation → test) is complete. A
+  // half-wired rule sits silently dormant fleet-wide; this catches it at
+  // commit time, not just in a PR (many commits land without one). No-ops
+  // unless a wiring-relevant file is staged + the generator is present
+  // (so it only runs in the wheelhouse, where the rule files live).
+  logger.info('Checking oxlint plugin rule wiring…')
+  const wiringRoot = repoTopline || process.cwd()
+  const wiringDrift = checkOxlintRuleWiringStaged(stagedFiles, wiringRoot)
+  if (wiringDrift) {
+    logger.fail('oxlint plugin rule wiring is out of sync.')
+    for (const line of wiringDrift.split('\n').slice(0, 8)) {
+      logger.info(line)
+    }
+    logger.info(
+      'Run `pnpm run sync-oxlint-rules` to regenerate the import/registry + ' +
+        'oxlintrc activations. A missing `test/<rule>.test.mts` must be ' +
+        'hand-written (the rule + registration + test triad must be complete).',
+    )
+    errors++
   }
 
   if (errors > 0) {

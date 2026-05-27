@@ -552,13 +552,13 @@ function severityOverride(
   // security, downgrade branch-protection findings to warn.
   if (
     disableGhAS &&
-    (ruleKey === 'branch-protection-exists' ||
-      ruleKey === 'branch-protection-required-signatures' ||
-      ruleKey === 'branch-protection-required-pr-reviews' ||
-      ruleKey === 'branch-protection-dismiss-stale-reviews' ||
+    (ruleKey === 'branch-protection-allow-deletions' ||
       ruleKey === 'branch-protection-allow-force-pushes' ||
-      ruleKey === 'branch-protection-allow-deletions' ||
-      ruleKey === 'branch-protection-enforce-admins')
+      ruleKey === 'branch-protection-dismiss-stale-reviews' ||
+      ruleKey === 'branch-protection-enforce-admins' ||
+      ruleKey === 'branch-protection-exists' ||
+      ruleKey === 'branch-protection-required-pr-reviews' ||
+      ruleKey === 'branch-protection-required-signatures')
   ) {
     return 'warn'
   }
