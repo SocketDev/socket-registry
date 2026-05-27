@@ -2,7 +2,7 @@
  * @file Reusable logging utilities for consistent output formatting.
  */
 
-import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
 const logger = getDefaultLogger()
 

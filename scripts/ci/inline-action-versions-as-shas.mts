@@ -7,7 +7,7 @@ import path from 'node:path'
 import process from 'node:process'
 
 import { resolveRefToSha } from '@socketsecurity/lib-stable/github/refs'
-import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
 import { ROOT_PATH } from '../constants/paths.mts'
 

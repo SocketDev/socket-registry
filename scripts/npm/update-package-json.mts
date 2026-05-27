@@ -2,7 +2,7 @@
  * @file Update root package.json with default Node.js engine range.
  */
 
-import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { readPackageJson } from '@socketsecurity/lib-stable/packages/operations'
 
 import { PACKAGE_DEFAULT_NODE_RANGE } from '../constants/node.mts'

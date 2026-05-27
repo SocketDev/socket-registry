@@ -6,7 +6,7 @@ import path from 'node:path'
 import { execNpm } from '@socketsecurity/lib-stable/eco/npm/npm/exec'
 import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
 import { joinAnd } from '@socketsecurity/lib-stable/arrays/join'
-import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { pEach } from '@socketsecurity/lib-stable/promises/iterate'
 import { pluralize } from '@socketsecurity/lib-stable/words/pluralize'
 

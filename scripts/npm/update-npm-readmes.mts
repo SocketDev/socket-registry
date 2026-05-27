@@ -7,7 +7,7 @@ import path from 'node:path'
 
 import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
 import { UTF8 } from '@socketsecurity/lib-stable/constants/encoding'
-import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
 const logger = getDefaultLogger()
 

@@ -4,7 +4,7 @@
 
 import path from 'node:path'
 import { isDebug } from '@socketsecurity/lib-stable/debug/namespace'
-import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import {
   createPackageJson,
   getSubpaths,

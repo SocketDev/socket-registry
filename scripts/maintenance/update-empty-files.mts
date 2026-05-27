@@ -8,7 +8,7 @@ import path from 'node:path'
 import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
 import { EMPTY_FILE } from '@socketsecurity/lib-stable/constants/sentinels'
 import { UTF8 } from '@socketsecurity/lib-stable/constants/encoding'
-import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
 import fastGlob from 'fast-glob'
 

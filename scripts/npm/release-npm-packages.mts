@@ -10,7 +10,7 @@ import process from 'node:process'
 import { execScript } from '@socketsecurity/lib-stable/eco/npm/script'
 import { getAbortSignal } from '@socketsecurity/lib-stable/process/abort'
 import { readFileUtf8 } from '@socketsecurity/lib-stable/fs/safe'
-import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import {
   isObjectObject,
   toSortedObject,
@@ -23,11 +23,11 @@ import {
   readPackageJsonSync,
 } from '@socketsecurity/lib-stable/packages/operations'
 import { pEach } from '@socketsecurity/lib-stable/promises/iterate'
-import { spawn } from '@socketsecurity/lib-stable/spawn/spawn'
+import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 import {
   getDefaultSpinner,
   withSpinner,
-} from '@socketsecurity/lib-stable/spinner/registry'
+} from '@socketsecurity/lib-stable/spinner/default'
 import { minimatch } from 'minimatch'
 import semver from 'semver'
 import { LATEST, SOCKET_REGISTRY_PACKAGE_NAME } from '../constants/packages.mts'

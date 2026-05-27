@@ -6,7 +6,7 @@
 import path from 'node:path'
 import process from 'node:process'
 
-import { spawnSync } from '@socketsecurity/lib-stable/spawn/spawn'
+import { spawnSync } from '@socketsecurity/lib-stable/process/spawn/child'
 
 interface BiomeFormatOptions {
   filepath?: string | undefined

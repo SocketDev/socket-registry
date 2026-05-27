@@ -10,11 +10,11 @@ import path from 'node:path'
 import { PackageURL } from '@socketregistry/packageurl-js-stable'
 import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
 import { UNLICENSED } from '@socketsecurity/lib-stable/constants/licenses'
-import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import {
   AT_LATEST,
   getPackageDefaultNodeRange,
-} from '@socketsecurity/lib-stable/constants/packages/operations'
+} from '@socketsecurity/lib-stable/packages/operations'
 
 const logger = getDefaultLogger()
 import {
@@ -35,7 +35,7 @@ import { naturalCompare } from '@socketsecurity/lib-stable/sorts/natural'
 import {
   getDefaultSpinner,
   withSpinner,
-} from '@socketsecurity/lib-stable/spinner/registry'
+} from '@socketsecurity/lib-stable/spinner/default'
 
 import { DEFAULT_CONCURRENCY } from '../constants/core.mts'
 import {

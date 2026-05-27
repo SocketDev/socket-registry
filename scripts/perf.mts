@@ -4,7 +4,7 @@
  */
 
 import { execBin } from '@socketsecurity/lib-stable/bin/exec'
-import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
 import fastGlob from 'fast-glob'
 

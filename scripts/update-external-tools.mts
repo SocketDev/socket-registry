@@ -34,9 +34,9 @@ import { Type } from '@sinclair/typebox'
 import type { Static } from '@sinclair/typebox'
 
 import { httpDownload } from '@socketsecurity/lib-stable/http-request/download'
-import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { parseSchema } from '@socketsecurity/lib-stable/schema/parse'
-import { spawn } from '@socketsecurity/lib-stable/spawn/spawn'
+import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 
 const logger = getDefaultLogger()
 

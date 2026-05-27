@@ -8,7 +8,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
 import { WIN32 } from '@socketsecurity/lib-stable/constants/platform'
-import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import {
   readPackageJson,
   resolveOriginalPackageName,

@@ -10,7 +10,7 @@ import { build, context } from 'esbuild'
 import fg from 'fast-glob'
 
 import { isQuiet } from '@socketsecurity/lib/argv/flag-predicates'
-import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import { getDefaultLogger } from '@socketsecurity/lib/logger/default'
 import { printFooter } from '@socketsecurity/lib/stdio/footer'
 import { printHeader } from '@socketsecurity/lib/stdio/header'
 

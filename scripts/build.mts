@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url'
 import colors from 'yoctocolors-cjs'
 
 import { isQuiet } from '@socketsecurity/lib-stable/argv/flag-predicates'
-import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
 import { runCommand } from './util/run-command.mts'
 

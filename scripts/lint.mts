@@ -1,502 +1,333 @@
-/* max-file-lines: legitimate — lint orchestration (flag parse, file selection, oxlint+oxfmt drivers, staged plumbing). Splitting would scatter the pre-commit/CI entry-point logic across multiple files. */
+/* eslint-disable no-shadow -- nested cached-length for-loops intentionally reuse `i`/`length` names for the fleet-wide cached-loop idiom; renaming would diverge from the codebase pattern. */
 /**
- * @file Unified lint runner with flag-based configuration. Provides smart
- *   linting that can target affected files or lint everything.
+ * @file Canonical minimal lint runner for socket-* repos. Scope modes:
+ *   (default) Lint files modified in the working tree vs HEAD. --staged Lint
+ *   files in the git index (used by .git-hooks/pre-commit). --all Lint the
+ *   entire workspace. Flags: --fix Auto-fix issues. --quiet Suppress progress
+ *   output. If the chosen scope has no lintable files, the script is a no-op.
+ *   Config or infrastructure changes (.config/oxlintrc.json,
+ *   .config/oxfmtrc.json, tsconfig*.json, pnpm-lock.yaml, .config/**,
+ *   scripts/**, package.json) escalate to `--all` automatically, since they can
+ *   affect everything. This is the minimal zero-dependency reference
+ *   implementation. Larger repos (socket-lib, socket-registry, socket-sdk-js,
+ *   etc.) use a richer version based on @socketsecurity/lib-stable helpers;
+ *   this one keeps the same CLI contract so pre-commit hooks and CI work
+ *   identically across repos.
  */
 
-import { existsSync, readFileSync } from 'node:fs'
+// prefer-async-spawn: sync-required — top-level CLI runner; entire
+// flow is sync (sequential gates, exit-code aggregation).
+import { spawnSync } from '@socketsecurity/lib-stable/process/spawn/child'
+import type { SpawnSyncOptions } from 'node:child_process'
+import { existsSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
-
-import { isQuiet } from '@socketsecurity/lib-stable/argv/flag-predicates'
-import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
-import { getChangedFiles } from '@socketsecurity/lib-stable/git/changed'
-import { getStagedFiles } from '@socketsecurity/lib-stable/git/staged'
-import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
-import { printHeader } from '@socketsecurity/lib-stable/stdio/header'
-import { minimatch } from 'minimatch'
-
-import { REPO_ROOT } from './paths.mts'
-import { runCommandQuiet } from './util/run-command.mts'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
 const logger = getDefaultLogger()
 
-// Glob patterns for changes that trigger a full lint (matched with minimatch).
-const FULL_LINT_TRIGGERS = ['.config/**', 'scripts/util/**', 'pnpm-lock.yaml']
+const args = process.argv.slice(2)
+const mode: 'staged' | 'all' | 'modified' = args.includes('--all')
+  ? 'all'
+  : args.includes('--staged')
+    ? 'staged'
+    : 'modified'
+const fix = args.includes('--fix')
+const quiet = args.includes('--quiet') || args.includes('--silent')
+const stdio: SpawnSyncOptions['stdio'] = quiet ? 'pipe' : 'inherit'
+// On Windows, `pnpm` is a .cmd shim that Node refuses to exec directly
+// via spawnSync (CVE-2024-27980 hardening). The shell wrapper resolves
+// the shim; on POSIX we keep direct invocation so no shell-quoting
+// surface is introduced.
+const useShell = process.platform === 'win32'
 
-/**
- * Get oxfmt exclude patterns from .oxfmtrc.json.
- */
-export function getOxfmtExcludePatterns(): string[] {
-  try {
-    const oxfmtConfigPath = path.join(REPO_ROOT, '.config', 'oxfmtrc.json')
-    if (!existsSync(oxfmtConfigPath)) {
-      return []
-    }
+const LINTABLE_EXTS = new Set(['.cjs', '.cts', '.js', '.mjs', '.mts', '.ts'])
 
-    const oxfmtConfig = JSON.parse(readFileSync(oxfmtConfigPath, 'utf8'))
-    return oxfmtConfig['ignorePatterns'] ?? []
-  } catch {
-    // If we can't read .oxfmtrc.json, return empty array.
-    return []
+// Paths that, when touched, force a full-workspace lint.
+const ESCALATION_PATTERNS = [
+  /^\.config\//,
+  /^scripts\//,
+  /^pnpm-lock\.yaml$/,
+  /^tsconfig.*\.json$/,
+  /^package\.json$/,
+  /^lockstep\.schema\.json$/,
+]
+
+function log(msg: string): void {
+  if (!quiet) {
+    logger.log(msg)
   }
 }
 
-/**
- * Check if a file matches any of the exclude patterns.
- */
-export function isExcludedByOxfmt(
-  file: string,
-  excludePatterns: string[],
-): boolean {
-  for (let i = 0, { length } = excludePatterns; i < length; i += 1) {
-    const pattern = excludePatterns[i]
-    // Convert glob pattern to regex-like matching.
-    // Support **/ for directory wildcards and * for filename wildcards.
-    const regexPattern = pattern
-      // **/ matches any directory.
-      .replace(/\*\*\//g, '.*')
-      // * matches any characters except /.
-      .replace(/\*/g, '[^/]*')
-      // Escape dots.
-      .replace(/\./g, '\\.')
+function gitFiles(args: string[]): string[] {
+  // spawnSync with array args — no shell interpolation, no injection
+  // surface even if a future caller passes data into args.
+  const r = spawnSync('git', args, {
+    stdio: ['ignore', 'pipe', 'pipe'],
+    stdioString: true,
+  })
+  if (r.status !== 0 || typeof r.stdout !== 'string') {
+    return []
+  }
+  return r.stdout
+    .split('\n')
+    .map(s => s.trim())
+    .filter(s => s.length > 0)
+}
 
-    const regex = new RegExp(`^${regexPattern}$`)
-    if (regex.test(file)) {
-      return true
+function getStagedFiles(): string[] {
+  return gitFiles(['diff', '--cached', '--name-only', '--diff-filter=ACMR'])
+}
+
+function getModifiedFiles(): string[] {
+  return gitFiles(['diff', '--name-only', '--diff-filter=ACMR', 'HEAD'])
+}
+
+function shouldEscalate(files: string[]): boolean {
+  for (let i = 0, { length } = files; i < length; i += 1) {
+    const f = files[i]!
+    for (let i = 0, { length } = ESCALATION_PATTERNS; i < length; i += 1) {
+      const pattern = ESCALATION_PATTERNS[i]!
+      if (pattern.test(f)) {
+        return true
+      }
     }
   }
   return false
 }
 
-/**
- * Check if we should run all linters based on changed files.
- */
-export function shouldRunAllLinters(changedFiles: string[]): {
-  runAll: boolean
-  reason?: string | undefined
-} {
-  for (let i = 0, { length } = changedFiles; i < length; i += 1) {
-    const file = changedFiles[i]
-    for (let i = 0, { length } = FULL_LINT_TRIGGERS; i < length; i += 1) {
-      const pattern = FULL_LINT_TRIGGERS[i]
-      if (minimatch(file, pattern)) {
-        return { runAll: true, reason: 'config files changed' }
-      }
-    }
-  }
-
-  return { runAll: false }
+function filterLintable(files: string[]): string[] {
+  return files.filter(f => LINTABLE_EXTS.has(path.extname(f)) && existsSync(f))
 }
 
-/**
- * Filter files to only those that should be linted.
- */
-export function filterLintableFiles(files: string[]): string[] {
-  // Only include extensions actually supported by oxfmt/oxlint
-  const lintableExtensions = new Set([
-    '.cjs',
-    '.cts',
-    '.js',
-    '.mjs',
-    '.mts',
-    '.ts',
-  ])
+// Wheelhouse-self dogfood paths. These dirs are in the canonical
+// .config/oxlint{,rc}.json ignorePatterns because downstream fleet
+// repos consume them as opaque tooling — but the wheelhouse itself
+// authors the code and must lint it. Pass the paths explicitly so
+// oxlint walks them, with the same config + plugin rule set.
+//
+// `template/**` ships byte-identical to every fleet repo via the
+// sync-scaffolding cascade — including `template/.claude/hooks/`
+// (the actual fleet hook code) and `template/.config/oxlint-plugin/`
+// (the canonical rule definitions). The wheelhouse must lint these
+// here, before they propagate, because downstream repos can't
+// independently fix drift in fleet-canonical files.
+//
+// NOTE: The wheelhouse's OWN `<root>/.claude/` is excluded. That's
+// local-dev tooling (the wheelhouse's machine-local hook setup), not
+// fleet-canonical. It's a copy of `template/.claude/` plus per-machine
+// overrides; linting it would double-flag every issue once in
+// `template/` and once in `.claude/`.
+const DOGFOOD_LINT_PATHS = ['.config/oxlint-plugin', 'template']
 
-  const oxfmtExcludePatterns = getOxfmtExcludePatterns()
-
-  return files.filter(file => {
-    const ext = path.extname(file)
-    // Only lint files that have lintable extensions AND still exist.
-    if (!lintableExtensions.has(ext) || !existsSync(file)) {
-      return false
-    }
-
-    // Filter out files excluded by .oxfmtrc.json.
-    if (isExcludedByOxfmt(file, oxfmtExcludePatterns)) {
-      return false
-    }
-
-    return true
-  })
-}
-
-/**
- * Check if an oxfmt result indicates no files were processed (not a real
- * error). Covers exit 2 ("Expected at least one target file" — all files
- * ignored by config) and exit 1 ("No files were processed in the specified
- * paths" — no path matches).
- */
-export function isOxfmtNoFilesResult(result: {
-  stderr?: string | undefined
-}): boolean {
-  const { stderr } = result
-  return (
-    (stderr?.includes('Expected at least one target file') ||
-      stderr?.includes('No files were processed in the specified paths')) ??
-    false
-  )
-}
-
-/**
- * Run linters on specific files.
- */
-interface LintOptions {
-  fix?: boolean | undefined
-  quiet?: boolean | undefined
-}
-
-export async function runLintOnFiles(
-  files: string[],
-  options: LintOptions = {},
-): Promise<number> {
-  const { fix = false, quiet = false } = options
-
-  if (!files.length) {
-    logger.substep('No files to lint')
+// Markdown lint pass — gated behind LINT_MARKDOWN=1 so existing fleet
+// repos with pre-existing markdown hygiene findings aren't blocked
+// until they've cleaned up. Operates over the markdownlint-cli2 config
+// at .config/.markdownlint-cli2.jsonc, which scopes globs + ignores
+// and registers the three fleet custom rules
+// (socket-no-private-wheelhouse-leak, socket-no-relative-sibling-
+// script, socket-readme-required-sections). When the env var is unset
+// the function is a no-op and returns 0.
+//
+// Scope choice: markdown lint always runs over the whole tree (the
+// canonical config's globs/ignores decide the scope, not the script).
+// Per-file invocation would require pre-filtering for the same globs +
+// is slower for the small overall file count typical in fleet repos.
+function runMarkdown(): number {
+  if (process.env['LINT_MARKDOWN'] !== '1') {
     return 0
   }
-
-  if (!quiet) {
-    logger.progress(`Linting ${files.length} file(s)`)
+  if (!existsSync('.config/.markdownlint-cli2.jsonc')) {
+    log('Skipping markdownlint: .config/.markdownlint-cli2.jsonc absent.')
+    return 0
   }
-
-  // Build the linter configurations.
-  const linters = [
-    {
-      args: [
-        'exec',
-        'oxfmt',
-        '-c',
-        '.config/oxfmtrc.json',
-        '--ignore-path',
-        '.config/.prettierignore',
-        ...(fix ? ['--write'] : ['--check']),
-        ...files,
-      ],
-      name: 'oxfmt',
-      enabled: true,
-    },
-    {
-      args: [
-        'exec',
-        'oxlint',
-        '-c',
-        '.config/oxlintrc.json',
-        ...(fix ? ['--fix'] : []),
-        ...files,
-      ],
-      name: 'oxlint',
-      enabled: true,
-    },
+  log('Running markdownlint-cli2…')
+  const mdArgs = [
+    'exec',
+    'markdownlint-cli2',
+    '--config',
+    '.config/.markdownlint-cli2.jsonc',
   ]
-
-  // oxlint-disable-next-line socket/prefer-cached-for-loop -- destructured linter-config tuple; cached-length rewrite would scatter the destructure.
-  for (const { args, enabled } of linters) {
-    if (!enabled) {
-      continue
-    }
-
-    const result = await runCommandQuiet('pnpm', args)
-
-    if (result.exitCode !== 0) {
-      if (isOxfmtNoFilesResult(result)) {
-        // oxfmt had nothing to do - this is fine, continue to next linter.
-        continue
-      }
-
-      // When fixing, non-zero exit codes are normal if fixes were applied.
-      if (!fix || (result.stderr && result.stderr.trim().length > 0)) {
-        if (!quiet) {
-          logger.error('Linting failed')
-        }
-        if (result.stderr) {
-          logger.error(result.stderr)
-        }
-        if (result.stdout && !fix) {
-          logger.log(result.stdout)
-        }
-        return result.exitCode
-      }
-    }
+  if (fix) {
+    mdArgs.push('--fix')
   }
-
-  if (!quiet) {
-    logger.clearLine().done('Linting passed')
-    logger.log('')
+  const mdRes = spawnSync('pnpm', mdArgs, { shell: useShell, stdio })
+  if (mdRes.status !== 0) {
+    return 1
   }
-
   return 0
 }
 
-/**
- * Run linters on all files.
- */
-export async function runLintOnAll(options: LintOptions = {}): Promise<number> {
-  const { fix = false, quiet = false } = options
-
-  if (!quiet) {
-    logger.progress('Linting all files')
-  }
-
-  const linters = [
-    {
-      args: [
-        'exec',
-        'oxfmt',
-        '-c',
-        '.config/oxfmtrc.json',
-        '--ignore-path',
-        '.config/.prettierignore',
-        ...(fix ? ['--write'] : ['--check']),
-        '.',
-      ],
-      name: 'oxfmt',
-    },
-    {
-      args: [
-        'exec',
-        'oxlint',
-        '-c',
-        '.config/oxlintrc.json',
-        ...(fix ? ['--fix'] : []),
-        '.',
-      ],
-      name: 'oxlint',
-    },
+function runAll(): number {
+  log('Formatting all files…')
+  // spawnSync with array args, no shell interpolation. Matches the
+  // socket/prefer-spawn-over-execsync rule: shell-string execSync is
+  // banned because every interpolated value is a potential injection
+  // vector; the array form structurally can't shell-expand its args.
+  const oxfmtArgs = [
+    'exec',
+    'oxfmt',
+    '-c',
+    '.config/oxfmtrc.json',
+    '--ignore-path',
+    '.config/.prettierignore',
+    fix ? '--write' : '--check',
+    '.',
   ]
-
-  // oxlint-disable-next-line socket/prefer-cached-for-loop -- destructured linter-config tuple; cached-length rewrite would scatter the destructure.
-  for (const { args } of linters) {
-    const result = await runCommandQuiet('pnpm', args)
-
-    if (result.exitCode !== 0) {
-      if (isOxfmtNoFilesResult(result)) {
-        // oxfmt had nothing to do - this is fine, continue to next linter.
-        continue
-      }
-
-      // When fixing, non-zero exit codes are normal if fixes were applied.
-      if (!fix || (result.stderr && result.stderr.trim().length > 0)) {
-        if (!quiet) {
-          logger.error('Linting failed')
-        }
-        if (result.stderr) {
-          logger.error(result.stderr)
-        }
-        if (result.stdout && !fix) {
-          logger.log(result.stdout)
-        }
-        return result.exitCode
-      }
-    }
+  const fmtRes = spawnSync('pnpm', oxfmtArgs, { shell: useShell, stdio })
+  if (fmtRes.status !== 0) {
+    return 1
   }
-
-  if (!quiet) {
-    logger.clearLine().done('Linting passed')
-    logger.log('')
+  log('Running oxlint on all files…')
+  const oxlintArgs = ['exec', 'oxlint', '-c', '.config/oxlintrc.json']
+  if (fix) {
+    oxlintArgs.push('--fix')
   }
-
-  return 0
-}
-
-/**
- * Get files to lint based on options.
- */
-interface GetFilesToLintOptions {
-  all?: boolean | undefined
-  changed?: boolean | undefined
-  staged?: boolean | undefined
-}
-
-interface FilesToLintResult {
-  files: string[] | 'all' | undefined
-  reason?: string | undefined
-  mode: string
-}
-
-export async function getFilesToLint(
-  options: GetFilesToLintOptions,
-): Promise<FilesToLintResult> {
-  const { all, changed, staged } = options
-
-  // If --all, return early
-  if (all) {
-    return { files: 'all', reason: 'all flag specified', mode: 'all' }
+  const lintRes = spawnSync('pnpm', oxlintArgs, { shell: useShell, stdio })
+  if (lintRes.status !== 0) {
+    return 1
   }
-
-  // Get changed files
-  let changedFiles = []
-  // Track what mode we're in
-  let mode = 'changed'
-
-  if (staged) {
-    mode = 'staged'
-    changedFiles = await getStagedFiles({ absolute: false })
-    if (!changedFiles.length) {
-      return { files: undefined, reason: 'no staged files', mode }
-    }
-  } else if (changed) {
-    mode = 'changed'
-    changedFiles = await getChangedFiles({ absolute: false })
-    if (!changedFiles.length) {
-      return { files: undefined, reason: 'no changed files', mode }
-    }
-  } else {
-    // Default to changed files if no specific flag
-    mode = 'changed'
-    changedFiles = await getChangedFiles({ absolute: false })
-    if (!changedFiles.length) {
-      return { files: undefined, reason: 'no changed files', mode }
-    }
-  }
-
-  // Check if we should run all based on changed files
-  const { reason, runAll } = shouldRunAllLinters(changedFiles)
-  if (runAll && reason) {
-    return { files: 'all', reason, mode: 'all' }
-  }
-
-  // Filter to lintable files
-  const lintableFiles = filterLintableFiles(changedFiles)
-  if (!lintableFiles.length) {
-    return { files: undefined, reason: 'no lintable files changed', mode }
-  }
-
-  return { files: lintableFiles, mode }
-}
-
-async function main(): Promise<void> {
-  try {
-    // Parse arguments
-    const { positionals, values } = parseArgs({
-      options: {
-        help: {
-          type: 'boolean',
-          default: false,
-        },
-        fix: {
-          type: 'boolean',
-          default: false,
-        },
-        all: {
-          type: 'boolean',
-          default: false,
-        },
-        changed: {
-          type: 'boolean',
-          default: false,
-        },
-        staged: {
-          type: 'boolean',
-          default: false,
-        },
-        quiet: {
-          type: 'boolean',
-          default: false,
-        },
-        silent: {
-          type: 'boolean',
-          default: false,
-        },
-      },
-      allowPositionals: true,
-      strict: false,
-    })
-
-    // Show help if requested
-    if (values.help) {
-      logger.log('Lint Runner')
-      logger.log('')
-      logger.log('Usage: pnpm lint [options] [files...]')
-      logger.log('')
-      logger.log('Options:')
-      logger.log('  --help         Show this help message')
-      logger.log('  --fix          Automatically fix problems')
-      logger.log('  --all          Lint all files')
-      logger.log('  --changed      Lint changed files (default behavior)')
-      logger.log('  --staged       Lint staged files')
-      logger.log('  --quiet, --silent  Suppress progress messages')
-      logger.log('')
-      logger.log('Examples:')
-      logger.log('  pnpm lint                   # Lint changed files (default)')
-      logger.log('  pnpm lint --fix             # Fix issues in changed files')
-      logger.log('  pnpm lint --all             # Lint all files')
-      logger.log('  pnpm lint --staged --fix    # Fix issues in staged files')
-      logger.log('  pnpm lint src/index.ts      # Lint specific file(s)')
-      process.exitCode = 0
-      return
-    }
-
-    const quiet = isQuiet(values)
-    const fix = Boolean(values['fix'])
-
+  // Wheelhouse-self dogfood: lint the .config/oxlint-plugin/ + template/
+  // trees too. The canonical .config/oxlintrc.json ignores those paths so
+  // downstream fleet repos don't waste cycles linting opaque tooling, but
+  // the wheelhouse is the author — every change here lands in every
+  // fleet repo, so the rules must hold here first. .config/oxlintrc.dogfood.json
+  // extends the base config with a narrower ignore list.
+  //
+  // The dogfood lint surface has known structural exemptions (e.g. rule
+  // modules MUST `export default` per the oxlint plugin contract, so
+  // `no-default-export` is exempt for them). Those exemptions live in
+  // .config/oxlintrc.dogfood.json's `overrides`. Today this lint pass
+  // is gated behind LINT_DOGFOOD=1 so it doesn't break the default
+  // workflow while the exemption list is being curated. Set the env var
+  // to opt in.
+  if (process.env['LINT_DOGFOOD'] === '1') {
     if (!quiet) {
-      printHeader('Lint Runner')
-      logger.log('')
+      logger.log('Running oxlint on wheelhouse-self dogfood paths…')
     }
-
-    let exitCode = 0
-
-    // Handle positional arguments (specific files)
-    if (positionals.length > 0) {
-      const files = filterLintableFiles(positionals)
-      if (!quiet) {
-        logger.step('Linting specified files')
+    for (let i = 0, { length } = DOGFOOD_LINT_PATHS; i < length; i += 1) {
+      const dogfoodPath = DOGFOOD_LINT_PATHS[i]!
+      if (!existsSync(dogfoodPath)) {
+        continue
       }
-      exitCode = await runLintOnFiles(files, {
-        fix,
-        quiet,
-      })
+      // spawnSync (not execSync) — array args, no shell interpolation.
+      // Avoids any chance of command injection via dogfoodPath.
+      // spawnSync returns a status object rather than throwing on
+      // non-zero exit, so we branch on status.
+      const args = ['exec', 'oxlint', '-c', '.config/oxlintrc.dogfood.json']
+      if (fix) {
+        args.push('--fix')
+      }
+      args.push(dogfoodPath)
+      const r = spawnSync('pnpm', args, { shell: useShell, stdio })
+      if (r.status !== 0) {
+        return 1
+      }
+    }
+  }
+  const mdStatus = runMarkdown()
+  if (mdStatus !== 0) {
+    return mdStatus
+  }
+  return 0
+}
+
+function runFiles(files: string[]): number {
+  if (files.length === 0) {
+    log('No lintable files; skipping.')
+    return 0
+  }
+  log(`Formatting ${files.length} file(s)...`)
+  const oxfmtArgs = [
+    'exec',
+    'oxfmt',
+    '-c',
+    '.config/oxfmtrc.json',
+    '--ignore-path',
+    '.config/.prettierignore',
+    fix ? '--write' : '--check',
+    '--no-error-on-unmatched-pattern',
+    ...files,
+  ]
+  const fmtRes = spawnSync('pnpm', oxfmtArgs, { shell: useShell, stdio })
+  if (fmtRes.status !== 0) {
+    return 1
+  }
+  log(`Running oxlint on ${files.length} file(s)...`)
+  // --no-error-on-unmatched-pattern keeps the command exit-0 when
+  // every listed file falls inside the config's ignorePatterns (e.g.
+  // touching just .claude/ files, which the canonical config excludes).
+  // Without it oxlint exits 1 with "No files found" — the user sees a
+  // lint failure for files they were never going to lint.
+  const oxlintArgs = [
+    'exec',
+    'oxlint',
+    '-c',
+    '.config/oxlintrc.json',
+    '--no-error-on-unmatched-pattern',
+  ]
+  if (fix) {
+    oxlintArgs.push('--fix')
+  }
+  oxlintArgs.push(...files)
+  const lintRes = spawnSync('pnpm', oxlintArgs, { shell: useShell, stdio })
+  if (lintRes.status !== 0) {
+    return 1
+  }
+  // Markdown lint when any of the changed files is .md / .mdx. The
+  // markdownlint-cli2 config picks its own scope from globs; we just
+  // gate on whether to invoke at all so unrelated edits don't pay the
+  // markdownlint startup cost.
+  const touchedMarkdown = files.some(f => /\.(?:md|mdx)$/i.test(f))
+  if (touchedMarkdown) {
+    const mdStatus = runMarkdown()
+    if (mdStatus !== 0) {
+      return mdStatus
+    }
+  }
+  return 0
+}
+
+function main(): void {
+  if (mode === 'all') {
+    log('Lint scope: all')
+    process.exitCode = runAll()
+    if (process.exitCode === 0) {
+      log('Lint passed')
     } else {
-      // Get files to lint based on flags
-      const { files, mode, reason } = await getFilesToLint(values)
-
-      if (files === undefined) {
-        if (!quiet) {
-          logger.step('Skipping lint')
-          logger.substep(reason)
-        }
-        exitCode = 0
-      } else if (files === 'all') {
-        if (!quiet) {
-          logger.step(`Linting all files (${reason})`)
-        }
-        exitCode = await runLintOnAll({
-          fix,
-          quiet,
-        })
-      } else {
-        if (!quiet) {
-          const modeText = mode === 'staged' ? 'staged' : 'changed'
-          logger.step(`Linting ${modeText} files`)
-        }
-        exitCode = await runLintOnFiles(files, {
-          fix,
-          quiet,
-        })
-      }
+      log('Lint failed')
     }
+    return
+  }
 
-    if (exitCode !== 0) {
-      if (!quiet) {
-        logger.error('')
-        logger.log('Lint failed')
-      }
-      process.exitCode = exitCode
+  const files = mode === 'staged' ? getStagedFiles() : getModifiedFiles()
+
+  if (files.length === 0) {
+    log(`No ${mode} files; skipping lint.`)
+    return
+  }
+
+  if (shouldEscalate(files)) {
+    log(`Config files changed; escalating to full lint.`)
+    process.exitCode = runAll()
+    if (process.exitCode === 0) {
+      log('Lint passed')
     } else {
-      if (!quiet) {
-        logger.log('')
-        logger.success('All lint checks passed!')
-      }
+      log('Lint failed')
     }
-  } catch (e) {
-    logger.error(`Lint runner failed: ${(e as Error).message}`)
-    process.exitCode = 1
+    return
+  }
+
+  const lintable = filterLintable(files)
+  log(
+    `Lint scope: ${mode} (${lintable.length} of ${files.length} files lintable)`,
+  )
+  process.exitCode = runFiles(lintable)
+  if (process.exitCode === 0) {
+    log('Lint passed')
+  } else {
+    log('Lint failed')
   }
 }
 
-main().catch((e: unknown) => {
-  logger.error(e)
-  process.exitCode = 1
-})
+main()

@@ -1,489 +1,204 @@
+/* eslint-disable no-shadow -- nested cached-length for-loops intentionally reuse `i`/`length` names for the fleet-wide cached-loop idiom; renaming would diverge from the codebase pattern. */
 /**
- * @file Unified test runner that provides a smooth, single-script experience.
- *   Combines check, build, and test steps with clean, consistent output.
+ * @file Canonical minimal test runner for socket-* repos. Scope modes:
+ *   (default) Run tests covering files modified in the working tree vs HEAD.
+ *   --staged Run tests covering files in the git index (pre-commit hook). --all
+ *   Run the full test suite. Flags: --quiet Suppress progress output.
+ *   Scope-to-tests mapping (adapt per repo layout):
+ *
+ *   - Changed test files run themselves.
+ *   - Changed source files under `packages/<pkg>/src/` run the sibling
+ *     `packages/<pkg>/test/` folder. Non-workspace repos can adapt the
+ *     resolveTestPatterns() function to their layout (e.g. single src/ + test/
+ *     at root, or tests colocated with source).
+ *   - Config / infrastructure changes escalate to the full suite. This is the
+ *     minimal zero-dependency reference implementation. Larger repos
+ *     (socket-registry, socket-sdk-js, socket-packageurl-js, etc.) use a richer
+ *     version; this one keeps the same CLI contract so pre-commit hooks and CI
+ *     work identically across repos.
  */
 
-// Use raw node:child_process here (not @socketsecurity/lib-stable/spawn) to retain the
-// ChildProcess handle for tracking and SIGTERM-on-parent-exit cleanup. The
-// wheelhouse helper returns a Promise and would erase the handle the rest of
-// this module needs.
-import type { ChildProcess, SpawnOptions } from 'node:child_process'
-// oxlint-disable-next-line socket/prefer-async-spawn -- need the raw ChildProcess handle for runningProcesses tracking + SIGTERM cleanup; the wheelhouse async helper erases it.
-import { spawn } from 'node:child_process'
-
+// prefer-async-spawn: sync-required — top-level CLI runner; entire
+// flow is sync (test runner invocation + exit-code aggregation).
+import { spawnSync } from '@socketsecurity/lib-stable/process/spawn/child'
+import type { SpawnSyncOptions } from 'node:child_process'
 import { existsSync } from 'node:fs'
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 import process from 'node:process'
-
-import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
-import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
-import { onExit } from '@socketsecurity/lib-stable/signal-exit/register'
-import { getDefaultSpinner } from '@socketsecurity/lib-stable/spinner/registry'
-import { printHeader } from '@socketsecurity/lib-stable/stdio/header'
-
-import { getTestsToRun } from './util/changed-test-mapper.mts'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
 const logger = getDefaultLogger()
-const spinner = getDefaultSpinner()
 
-const WIN32 = process.platform === 'win32'
+const args = process.argv.slice(2)
+const mode: 'staged' | 'all' | 'modified' = args.includes('--all')
+  ? 'all'
+  : args.includes('--staged')
+    ? 'staged'
+    : 'modified'
+const quiet = args.includes('--quiet') || args.includes('--silent')
+const stdio: SpawnSyncOptions['stdio'] = quiet ? 'pipe' : 'inherit'
+// On Windows, `pnpm` is a .cmd shim that Node refuses to exec directly via
+// spawnSync (CVE-2024-27980 hardening). Wrap through the shell on Windows
+// only; POSIX keeps direct invocation.
+const useShell = process.platform === 'win32'
 
-// Suppress non-fatal worker termination unhandled rejections
-process.on('unhandledRejection', (reason, _promise) => {
-  const errorMessage = String(
-    (reason as Error | undefined)?.message || reason || '',
+// Paths that, when changed, force the full suite to run.
+const ESCALATION_PATTERNS = [
+  /^\.config\//,
+  /^scripts\//,
+  /^pnpm-lock\.yaml$/,
+  /^tsconfig.*\.json$/,
+  /^\.oxlintrc\.json$/,
+  /^\.oxfmtrc\.json$/,
+  /^vitest\.config\.(js|mjs|mts|ts)$/,
+  /^package\.json$/,
+  /^lockstep\.schema\.json$/,
+]
+
+function log(msg: string): void {
+  if (!quiet) {
+    logger.log(msg)
+  }
+}
+
+function gitFiles(args: string[]): string[] {
+  // spawnSync with array args — no shell interpolation. Matches the
+  // socket/prefer-spawn-over-execsync rule contract.
+  const r = spawnSync('git', args, {
+    stdio: ['ignore', 'pipe', 'pipe'],
+    stdioString: true,
+  })
+  if (r.status !== 0 || typeof r.stdout !== 'string') {
+    return []
+  }
+  return r.stdout
+    .split('\n')
+    .map(s => s.trim())
+    .filter(s => s.length > 0)
+}
+
+function getStagedFiles(): string[] {
+  return gitFiles(['diff', '--cached', '--name-only', '--diff-filter=ACMR'])
+}
+
+function getModifiedFiles(): string[] {
+  return gitFiles(['diff', '--name-only', '--diff-filter=ACMR', 'HEAD'])
+}
+
+function shouldEscalate(files: string[]): boolean {
+  for (let i = 0, { length } = files; i < length; i += 1) {
+    const f = files[i]!
+    for (let i = 0, { length } = ESCALATION_PATTERNS; i < length; i += 1) {
+      const pattern = ESCALATION_PATTERNS[i]!
+      if (pattern.test(f)) {
+        return true
+      }
+    }
+  }
+  return false
+}
+
+/**
+ * Map changed files to vitest test patterns.
+ *
+ * Default implementation handles two common layouts:
+ *
+ * - Pnpm workspace: packages/<pkg>/src/... → packages/<pkg>/test
+ * - Single repo: src/... → test Adapt to your repo's layout if different.
+ */
+function resolveTestPatterns(files: string[]): string[] {
+  const patterns = new Set<string>()
+  for (let i = 0, { length } = files; i < length; i += 1) {
+    const f = files[i]!
+    // Test file itself.
+    if (/\.test\.(m?[jt]s)$/.test(f)) {
+      patterns.add(f)
+      continue
+    }
+    // Workspace source file. Only emit the pattern if the test dir exists;
+    // packages without a test/ directory are skipped rather than making
+    // vitest error on an unknown pattern.
+    const wsMatch = f.match(/^(packages\/[^/]+)\/src\//)
+    if (wsMatch && existsSync(`${wsMatch[1]}/test`)) {
+      patterns.add(`${wsMatch[1]}/test`)
+      continue
+    }
+    // Single-repo source file.
+    if (f.startsWith('src/') && existsSync('test')) {
+      patterns.add('test')
+    }
+  }
+  return [...patterns]
+}
+
+function runAll(): number {
+  log('Test scope: all')
+  const r = spawnSync(
+    'pnpm',
+    ['exec', 'vitest', 'run', '--config', '.config/vitest.config.mts'],
+    { shell: useShell, stdio },
   )
-  // Filter out known non-fatal worker termination errors
-  if (
-    errorMessage.includes('Terminating worker thread') ||
-    errorMessage.includes('ThreadTermination')
-  ) {
-    // Ignore these - they're cleanup messages from vitest worker threads
+  if (r.status !== 0) {
+    log('Tests failed')
+    return 1
+  }
+  log('All tests passed')
+  return 0
+}
+
+function runPatterns(patterns: string[]): number {
+  if (patterns.length === 0) {
+    log('No tests to run; skipping.')
+    return 0
+  }
+  log(`Test scope: ${mode} (${patterns.length} pattern(s))`)
+  // --passWithNoTests: if a pattern produces zero matches (e.g. a freshly
+  // added package with an empty test dir, or a source change that doesn't
+  // touch any testable code), vitest treats it as success rather than a
+  // "no test files found" error. Scoped-by-default runs shouldn't fail
+  // just because the change didn't happen to touch a testable file.
+  const r = spawnSync(
+    'pnpm',
+    [
+      'exec',
+      'vitest',
+      'run',
+      '--config',
+      '.config/vitest.config.mts',
+      '--passWithNoTests',
+      ...patterns,
+    ],
+    // Continuing the same Windows shell-shim rationale (see useShell at file top).
+    { shell: useShell, stdio },
+  )
+  if (r.status !== 0) {
+    log('Tests failed')
+    return 1
+  }
+  log('All tests passed')
+  return 0
+}
+
+function main(): void {
+  if (mode === 'all') {
+    process.exitCode = runAll()
     return
   }
-  // Re-throw other unhandled rejections
-  throw reason
-})
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const rootPath = path.resolve(__dirname, '..')
-const nodeModulesBinPath = path.join(rootPath, 'node_modules', '.bin')
+  const files = mode === 'staged' ? getStagedFiles() : getModifiedFiles()
 
-// Track running processes for cleanup
-const runningProcesses = new Set<ChildProcess>()
-
-// Setup exit handler
-const removeExitHandler = onExit((_code, signal) => {
-  // Stop spinner first
-  try {
-    spinner.stop()
-  } catch {}
-
-  // Kill all running processes. `runningProcesses` is a Set, not an
-  // array — the cached-length rule's autofix was incorrect here.
-  // oxlint-disable-next-line socket/prefer-cached-for-loop -- Set, not array.
-  for (const child of runningProcesses) {
-    try {
-      child.kill('SIGTERM')
-    } catch {}
+  if (files.length === 0) {
+    log(`No ${mode} files; skipping tests.`)
+    return
   }
 
-  if (signal) {
-    logger.log('')
-    logger.log(`Received ${signal}, cleaning up...`)
-    // Let onExit handle the exit with proper code
-    process.exitCode = 128 + (signal === 'SIGINT' ? 2 : 15)
+  if (shouldEscalate(files)) {
+    log('Config files changed; escalating to full test suite.')
+    process.exitCode = runAll()
+    return
   }
-})
 
-export async function runCommand(
-  command: string,
-  args: string[] = [],
-  options: SpawnOptions = {},
-): Promise<number> {
-  return new Promise((resolve, reject) => {
-    const child = spawn(command, args, {
-      stdio: 'inherit',
-      shell: WIN32,
-      ...options,
-    })
-
-    runningProcesses.add(child)
-
-    // When the caller asks for `stdio: 'pipe'` (oxlint/tsgo in the parallel
-    // check phase) but ignores the streams, drain them ourselves — otherwise
-    // the child blocks once its stdout buffer fills (~64 KiB on macOS), which
-    // is exactly the symptom we saw: oxlint . hanging at 0% CPU forever.
-    // Callers that want the output should use runCommandWithOutput.
-    child.stdout?.resume()
-    child.stderr?.resume()
-
-    child.on('exit', (code: number | null) => {
-      runningProcesses.delete(child)
-      resolve(code || 0)
-    })
-
-    child.on('error', (error: Error) => {
-      runningProcesses.delete(child)
-      reject(error)
-    })
-  })
+  const patterns = resolveTestPatterns(files)
+  process.exitCode = runPatterns(patterns)
 }
 
-interface CommandOutput {
-  code: number
-  stdout: string
-  stderr: string
-}
-
-export async function runCommandWithOutput(
-  command: string,
-  args: string[] = [],
-  options: SpawnOptions = {},
-): Promise<CommandOutput> {
-  return new Promise((resolve, reject) => {
-    let stdout = ''
-    let stderr = ''
-
-    const child = spawn(command, args, {
-      shell: WIN32,
-      ...options,
-    })
-
-    runningProcesses.add(child)
-
-    if (child.stdout) {
-      child.stdout.on('data', (data: Buffer) => {
-        stdout += data.toString()
-      })
-    }
-
-    if (child.stderr) {
-      child.stderr.on('data', (data: Buffer) => {
-        stderr += data.toString()
-      })
-    }
-
-    child.on('exit', (code: number | null) => {
-      runningProcesses.delete(child)
-      resolve({ code: code || 0, stdout, stderr })
-    })
-
-    child.on('error', (error: Error) => {
-      runningProcesses.delete(child)
-      reject(error)
-    })
-  })
-}
-
-export async function runCheck(): Promise<number> {
-  logger.step('Running checks')
-
-  // Run fix (auto-format) quietly since it has its own output
-  spinner.start('Formatting code...')
-  const exitCode = await runCommand('pnpm', ['run', 'fix'], {
-    stdio: 'pipe',
-  })
-  if (exitCode !== 0) {
-    spinner.stop()
-    logger.error('Formatting failed')
-    // Re-run with output to show errors
-    await runCommand('pnpm', ['run', 'fix'])
-    return exitCode
-  }
-  spinner.stop()
-  logger.success('Code formatted')
-
-  // Run oxlint and TypeScript in parallel for faster execution.
-  spinner.start('Running oxlint and TypeScript checks...')
-
-  const results = await Promise.allSettled([
-    runCommand('oxlint', ['.'], {
-      stdio: 'pipe',
-    }),
-    runCommand('tsgo', ['--noEmit', '-p', 'tsconfig.check.json'], {
-      stdio: 'pipe',
-    }),
-  ])
-
-  const oxlintExitCode =
-    results[0].status === 'fulfilled' ? results[0].value : 1
-  const tsExitCode = results[1].status === 'fulfilled' ? results[1].value : 1
-
-  spinner.stop()
-
-  // Check results and re-run with output if either failed.
-  if (oxlintExitCode !== 0) {
-    logger.error('oxlint failed')
-    // Re-run with output to show errors.
-    await runCommand('oxlint', ['.'])
-    return oxlintExitCode
-  }
-  logger.success('oxlint passed')
-
-  if (tsExitCode !== 0) {
-    logger.error('TypeScript check failed')
-    // Re-run with output to show errors.
-    await runCommand('tsgo', ['--noEmit', '-p', 'tsconfig.check.json'])
-    return tsExitCode
-  }
-  logger.success('TypeScript check passed')
-
-  return 0
-}
-
-export async function runBuild(): Promise<number> {
-  const distIndexPath = path.join(rootPath, 'dist', 'index.js')
-  if (!existsSync(distIndexPath)) {
-    logger.step('Building project')
-    return runCommand('pnpm', ['run', 'build'])
-  }
-  return 0
-}
-
-interface TestOptions {
-  all?: boolean | undefined
-  coverage?: boolean | undefined
-  force?: boolean | undefined
-  staged?: boolean | undefined
-  update?: boolean | undefined
-}
-
-export async function runTests(
-  options: TestOptions,
-  positionals: string[] = [],
-): Promise<number> {
-  const { all, coverage, force, staged, update } = options
-  const runAll = Boolean(all || force)
-
-  // Get tests to run
-  const testInfo = getTestsToRun({
-    staged: Boolean(staged),
-    all: runAll,
-  })
-  const { mode, reason, tests: testsToRun } = testInfo
-
-  // No tests needed
-  if (testsToRun === undefined) {
-    logger.substep('No relevant changes detected, skipping tests')
-    return 0
-  }
-
-  // Prepare vitest command
-  const vitestCmd = WIN32 ? 'vitest.cmd' : 'vitest'
-  const vitestPath = path.join(nodeModulesBinPath, vitestCmd)
-
-  // --passWithNoTests: a scoped run where the changed files don't resolve
-  // to any test file should succeed rather than error with "No test files
-  // found". Keeps pre-commit hooks passing when an edit touches only
-  // non-testable code.
-  const vitestArgs = [
-    '--config',
-    '.config/vitest.config.mts',
-    'run',
-    '--passWithNoTests',
-  ]
-
-  // Add coverage if requested
-  if (coverage) {
-    vitestArgs.push('--coverage')
-  }
-
-  // Add update if requested
-  if (update) {
-    vitestArgs.push('--update')
-  }
-
-  // Add test patterns if not running all
-  if (testsToRun === 'all') {
-    logger.step(`Running all tests (${reason})`)
-  } else {
-    const modeText = mode === 'staged' ? 'staged' : 'changed'
-    logger.step(`Running tests for ${modeText} files:`)
-    for (let i = 0, { length } = testsToRun; i < length; i += 1) {
-      const test = testsToRun[i]
-      logger.substep(test)
-    }
-    vitestArgs.push(...testsToRun)
-  }
-
-  // Add any additional positional arguments
-  if (positionals.length > 0) {
-    vitestArgs.push(...positionals)
-  }
-
-  const spawnOptions = {
-    cwd: rootPath,
-    env: {
-      ...process.env,
-      // Memory limits: CI gets 8GB, local development gets 2GB to prevent system strain.
-      NODE_OPTIONS:
-        `${process.env.NODE_OPTIONS || ''} --max-old-space-size=${process.env.CI ? 8192 : 2048} --unhandled-rejections=warn`.trim(),
-      NODE_COMPILE_CACHE: './.cache',
-      NODE_ENV: 'test',
-      VITEST: '1',
-    },
-    stdio: 'inherit',
-  }
-
-  // Capture output so vitest worker-termination noise can be filtered below.
-  const result = await runCommandWithOutput(vitestPath, vitestArgs, {
-    ...spawnOptions,
-    stdio: ['inherit', 'pipe', 'pipe'],
-  })
-
-  // Print output
-  if (result.stdout) {
-    process.stdout.write(result.stdout)
-  }
-  if (result.stderr) {
-    process.stderr.write(result.stderr)
-  }
-
-  // Check if we have worker termination error but no test failures
-  const hasWorkerTerminationError =
-    (result.stdout + result.stderr).includes('Terminating worker thread') ||
-    (result.stdout + result.stderr).includes('ThreadTermination')
-
-  const output = result.stdout + result.stderr
-  const hasTestFailures =
-    /Test Files\s+[1-9]\d* failed/.test(output) ||
-    /Tests\s+[1-9]\d* failed/.test(output)
-
-  // Override exit code if we only have worker termination errors
-  if (result.code !== 0 && hasWorkerTerminationError && !hasTestFailures) {
-    return 0
-  }
-
-  return result.code
-}
-
-async function main(): Promise<void> {
-  try {
-    // Parse arguments
-    const { positionals, values } = parseArgs({
-      options: {
-        help: {
-          type: 'boolean',
-          default: false,
-        },
-        fast: {
-          type: 'boolean',
-          default: false,
-        },
-        quick: {
-          type: 'boolean',
-          default: false,
-        },
-        'skip-build': {
-          type: 'boolean',
-          default: false,
-        },
-        staged: {
-          type: 'boolean',
-          default: false,
-        },
-        all: {
-          type: 'boolean',
-          default: false,
-        },
-        force: {
-          type: 'boolean',
-          default: false,
-        },
-        cover: {
-          type: 'boolean',
-          default: false,
-        },
-        coverage: {
-          type: 'boolean',
-          default: false,
-        },
-        update: {
-          type: 'boolean',
-          default: false,
-        },
-      },
-      allowPositionals: true,
-      strict: false,
-    })
-
-    // Show help if requested
-    if (values.help) {
-      logger.log('Test Runner')
-      logger.log('')
-      logger.log('Usage: pnpm test [options] [-- vitest-args...]')
-      logger.log('')
-      logger.log('Options:')
-      logger.log('  --help              Show this help message')
-      logger.log(
-        '  --fast, --quick     Skip lint/type checks for faster execution',
-      )
-      logger.log('  --cover, --coverage Run tests with code coverage')
-      logger.log('  --update            Update test snapshots')
-      logger.log('  --all, --force      Run all tests regardless of changes')
-      logger.log('  --staged            Run tests affected by staged changes')
-      logger.log('  --skip-build        Skip the build step')
-      logger.log('')
-      logger.log('Examples:')
-      logger.log(
-        '  pnpm test                  # Run checks, build, and tests for changed files',
-      )
-      logger.log('  pnpm test --all            # Run all tests')
-      logger.log('  pnpm test --fast           # Skip checks for quick testing')
-      logger.log('  pnpm test --cover          # Run with coverage report')
-      logger.log('  pnpm test --fast --cover   # Quick test with coverage')
-      logger.log('  pnpm test --update         # Update test snapshots')
-      logger.log('  pnpm test -- --reporter=dot # Pass args to vitest')
-      process.exitCode = 0
-      return
-    }
-
-    printHeader('Test Runner')
-
-    // Handle aliases
-    const skipChecks = values.fast || values.quick
-    const withCoverage = values.cover || values.coverage
-
-    let exitCode = 0
-
-    // Run checks unless skipped
-    if (!skipChecks) {
-      exitCode = await runCheck()
-      if (exitCode !== 0) {
-        logger.error('Checks failed')
-        process.exitCode = exitCode
-        return
-      }
-      logger.success('All checks passed')
-    }
-
-    // Run build unless skipped
-    if (!values['skip-build']) {
-      exitCode = await runBuild()
-      if (exitCode !== 0) {
-        logger.error('Build failed')
-        process.exitCode = exitCode
-        return
-      }
-    }
-
-    // Run tests
-    exitCode = await runTests(
-      {
-        all: Boolean(values['all']),
-        coverage: Boolean(withCoverage),
-        force: Boolean(values['force']),
-        staged: Boolean(values['staged']),
-        update: Boolean(values['update']),
-      },
-      positionals,
-    )
-
-    if (exitCode !== 0) {
-      logger.error('Tests failed')
-      process.exitCode = exitCode
-    } else {
-      logger.success('All tests passed!')
-    }
-  } catch (e) {
-    // Ensure spinner is stopped.
-    try {
-      spinner.stop()
-    } catch {}
-    logger.error(`Test runner failed: ${(e as Error).message}`)
-    process.exitCode = 1
-  } finally {
-    // Ensure spinner is stopped
-    try {
-      spinner.stop()
-    } catch {}
-    removeExitHandler()
-  }
-}
-
-main().catch(error => {
-  logger.error(error)
-  process.exitCode = 1
-})
+main()

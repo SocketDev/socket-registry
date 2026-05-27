@@ -8,7 +8,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import parseArgsModule from '@socketsecurity/lib-stable/argv/parse'
 import loggerModule from '@socketsecurity/lib-stable/logger'
-import spawnModule from '@socketsecurity/lib-stable/spawn/spawn'
+import spawnModule from '@socketsecurity/lib-stable/process/spawn/child'
 import { deleteAsync as del } from 'del'
 import process from 'node:process'
 

@@ -12,8 +12,8 @@ import { fileURLToPath } from 'node:url'
 import process from 'node:process'
 import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
 import { COLUMN_LIMIT } from '@socketsecurity/lib-stable/constants/sentinels'
-import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
-import { spawn } from '@socketsecurity/lib-stable/spawn/spawn'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
+import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 
 const logger = getDefaultLogger()
 

@@ -7,7 +7,7 @@
 
 import { NODE_MODULES_GLOB_RECURSIVE } from '@socketsecurity/lib-stable/paths/globs'
 import { isDirEmptySync } from '@socketsecurity/lib-stable/fs/safe'
-import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { deleteAsync as del } from 'del'
 import fastGlob from 'fast-glob'
 
