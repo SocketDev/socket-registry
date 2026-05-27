@@ -6,7 +6,7 @@ packages:
 
 # Packages allowed to run build scripts (pnpm v11 strictDepBuilds default).
 allowBuilds:
-  esbuild: true
+  rolldown: true
 
 # Refuse to run if the pnpm version on PATH differs from the packageManager
 # field in package.json. Our setup action pins pnpm via external-tools.json;
@@ -76,7 +76,6 @@ catalog:
   dev-null-cli: 2.0.0
   didyoumean2: 7.0.4
   ecc-agentshield: 1.4.0
-  esbuild: 0.25.11
   eslint: 9.35.0
   eslint-import-resolver-typescript: 4.4.4
   eslint-plugin-import-x: 4.16.1
@@ -106,6 +105,9 @@ catalog:
   'oxlint': 1.63.0
   pacote: 21.0.1
   read-yaml-file: 2.1.0
+  # Fleet bundler (replaces esbuild) for the published registry/ subpackage's
+  # per-file build. Fleet-latest, single-sourced.
+  rolldown: 1.0.3
   semver: 7.7.4
   source-map-support: 0.5.21
   spdx-correct: 3.2.0
@@ -120,7 +122,9 @@ catalog:
   typescript-eslint: 8.44.1
   update-browserslist-db: 1.1.3
   validate-npm-package-name: 6.0.2
-  vite: 7.3.2
+  # vite 8.0.14 swaps esbuild → rolldown natively; the override forces its
+  # bundled rolldown up to the catalog's 1.0.3.
+  vite: 8.0.14
   vitest: 4.1.6
   which: 5.0.0
   yargs-parser: 22.0.0
@@ -141,6 +145,51 @@ minimumReleaseAgeExclude:
   # npm's `time` field for the major; allow pinned beta until v15 GA.
   - 'nock@15.0.0-beta.11'
   - 'npm-run-all2@9.0.0'
+  # vite 8.0.14 ships rolldown 1.0.2 natively; the override forces 1.0.3.
+  # Scoped to the exact tag so a future vite 8.0.15 still soaks.
+  # published: 2026-05-21 | removable: 2026-05-28
+  - 'vite@8.0.14'
+  # rolldown 1.0.3 is the fleet bundler for the registry/ subpackage build;
+  # the per-platform bindings share its pin. `@rolldown/pluginutils` versions
+  # independently — rolldown depends on `^1.0.0` → resolves to 1.0.1. Listed
+  # explicitly per the fleet "no scope globs in soak excludes" rule.
+  # published: 2026-05-27 | removable: 2026-06-03
+  - 'rolldown@1.0.3'
+  # published: 2026-05-13 | removable: 2026-05-20
+  - '@rolldown/pluginutils@1.0.1'
+  # published: 2026-05-27 | removable: 2026-06-03
+  - '@rolldown/binding-darwin-arm64@1.0.3'
+  # published: 2026-05-27 | removable: 2026-06-03
+  - '@rolldown/binding-darwin-x64@1.0.3'
+  # published: 2026-05-27 | removable: 2026-06-03
+  - '@rolldown/binding-linux-arm-gnueabihf@1.0.3'
+  # published: 2026-05-27 | removable: 2026-06-03
+  - '@rolldown/binding-linux-arm64-gnu@1.0.3'
+  # published: 2026-05-27 | removable: 2026-06-03
+  - '@rolldown/binding-linux-arm64-musl@1.0.3'
+  # published: 2026-05-27 | removable: 2026-06-03
+  - '@rolldown/binding-linux-x64-gnu@1.0.3'
+  # published: 2026-05-27 | removable: 2026-06-03
+  - '@rolldown/binding-linux-x64-musl@1.0.3'
+  # published: 2026-05-27 | removable: 2026-06-03
+  - '@rolldown/binding-win32-x64-msvc@1.0.3'
+  # published: 2026-05-27 | removable: 2026-06-03
+  - '@rolldown/binding-win32-arm64-msvc@1.0.3'
+  # published: 2026-05-27 | removable: 2026-06-03
+  - '@rolldown/binding-android-arm64@1.0.3'
+  # published: 2026-05-27 | removable: 2026-06-03
+  - '@rolldown/binding-freebsd-x64@1.0.3'
+  # published: 2026-05-27 | removable: 2026-06-03
+  - '@rolldown/binding-linux-ppc64-gnu@1.0.3'
+  # published: 2026-05-27 | removable: 2026-06-03
+  - '@rolldown/binding-linux-s390x-gnu@1.0.3'
+  # published: 2026-05-27 | removable: 2026-06-03
+  - '@rolldown/binding-openharmony-arm64@1.0.3'
+  # published: 2026-05-27 | removable: 2026-06-03
+  - '@rolldown/binding-wasm32-wasi@1.0.3'
+  # rolldown's AST/types layer. rolldown 1.0.3 pins `=0.133.0`.
+  # published: 2026-05-26 | removable: 2026-06-02
+  - '@oxc-project/types@0.133.0'
 
 # Refuse transitive dependencies declared via git/tarball/local-tarball
 # specs — an npm package shouldn't be allowed to drag in a git URL we
@@ -205,13 +254,13 @@ overrides:
   'set-function-length': 'npm:@socketregistry/set-function-length@1.0.10'
   'shell-quote': 'npm:shell-quote@1.8.3'
   'side-channel': 'npm:@socketregistry/side-channel@1.0.10'
+  # Force vite's bundled rolldown (1.0.2) up to the catalog's 1.0.3.
+  'rolldown': 'catalog:'
   'typescript': 'catalog:'
   'vite': 'catalog:'
   'which-boxed-primitive': 'npm:@socketregistry/which-boxed-primitive@1.0.9'
   'which-collection': 'npm:@socketregistry/which-collection@1.0.8'
   'which-typed-array': 'npm:@socketregistry/which-typed-array@1.0.9'
-
-patchedDependencies: {}
 trustPolicy: no-downgrade
 trustPolicyExclude:
   - 'compromise@14.15.0'

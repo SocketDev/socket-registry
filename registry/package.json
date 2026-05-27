@@ -58,8 +58,8 @@
     "@socketsecurity/lib": "catalog:",
     "@types/node": "catalog:",
     "del-cli": "catalog:",
-    "esbuild": "catalog:",
     "fast-glob": "catalog:",
+    "rolldown": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:",
     "yoctocolors-cjs": "catalog:"
