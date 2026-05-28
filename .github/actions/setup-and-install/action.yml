@@ -78,7 +78,7 @@ runs:
         working-directory: ${{ inputs.working-directory }}
 
     - name: Setup environment
-      uses: SocketDev/socket-registry/.github/actions/setup@3d33ecebb1d3cdba3529c843a9f0954fd6384702 # main (2026-05-28)
+      uses: SocketDev/socket-registry/.github/actions/setup@af6b289bfb1b6a940e89cb418efe75edfcf43693 # main (2026-05-28)
       with:
         debug: ${{ inputs.debug }}
         node-version: ${{ inputs.node-version }}
