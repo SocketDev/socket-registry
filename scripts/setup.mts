@@ -50,26 +50,32 @@ export function getToolCachePath(tool: string, version: string): string {
   return path.join(getCacheDir(), tool, `${version}-${target}`)
 }
 
-export function computeSha256(filePath: string): Promise<string> {
+/**
+ * Compute a Subresource Integrity (SRI) string for a file. Format:
+ * `sha256-<base64>`. Streams the file so multi-GB binaries don't blow
+ * the heap. Matches the format that update-external-tools.mts writes
+ * into external-tools.json's `platforms.<key>.integrity` field.
+ */
+export function computeIntegrity(filePath: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const hash = crypto.createHash('sha256')
     const stream = createReadStream(filePath)
     stream.on('data', data => hash.update(data))
-    stream.on('end', () => resolve(hash.digest('hex')))
+    stream.on('end', () => resolve(`sha256-${hash.digest('base64')}`))
     stream.on('error', reject)
   })
 }
 
 export function verifyCacheIntegrity(
   cachePath: string,
-  expectedSha256: string,
+  expectedIntegrity: string,
 ): boolean {
-  const checksumFile = path.join(cachePath, '.checksum')
+  const checksumFile = path.join(cachePath, '.integrity')
   if (!existsSync(checksumFile)) {
     return false
   }
   try {
-    return readFileSync(checksumFile, 'utf8').trim() === expectedSha256
+    return readFileSync(checksumFile, 'utf8').trim() === expectedIntegrity
   } catch {
     return false
   }
@@ -118,11 +124,11 @@ export async function acquireLock(
 
 interface PlatformEntry {
   asset: string
-  sha256: string
+  integrity: string
 }
 
 interface ToolConfig {
-  checksums?: Record<string, PlatformEntry> | undefined
+  platforms?: Record<string, PlatformEntry> | undefined
   release?: string | undefined
   repository: string
   version: string
@@ -134,16 +140,16 @@ export async function downloadAndVerify(
 ): Promise<string | undefined> {
   const platform = process.platform === 'win32' ? 'win' : process.platform
   const platformKey = `${platform}-${process.arch}`
-  const platformEntry = config.checksums?.[platformKey]
+  const platformEntry = config.platforms?.[platformKey]
   if (!platformEntry) {
     log.warn(`No ${tool} binary available for ${platformKey}`)
     return undefined
   }
 
   const assetName = platformEntry.asset
-  const expectedSha256 = platformEntry.sha256
-  if (!assetName || !expectedSha256) {
-    log.warn(`No checksum for ${tool} on ${platformKey}`)
+  const expectedIntegrity = platformEntry.integrity
+  if (!assetName || !expectedIntegrity) {
+    log.warn(`No integrity for ${tool} on ${platformKey}`)
     return undefined
   }
 
@@ -155,7 +161,7 @@ export async function downloadAndVerify(
   // Check cache with integrity verification.
   if (
     existsSync(binaryPath) &&
-    verifyCacheIntegrity(cachePath, expectedSha256)
+    verifyCacheIntegrity(cachePath, expectedIntegrity)
   ) {
     log.step(`Using cached ${tool} ${version}`)
     return binaryPath
@@ -168,7 +174,7 @@ export async function downloadAndVerify(
     // Re-check after lock (another process may have completed).
     if (
       existsSync(binaryPath) &&
-      verifyCacheIntegrity(cachePath, expectedSha256)
+      verifyCacheIntegrity(cachePath, expectedIntegrity)
     ) {
       log.step(`Using cached ${tool} ${version}`)
       return binaryPath
@@ -199,13 +205,13 @@ export async function downloadAndVerify(
         throw new Error(`Download failed: ${url}`)
       }
 
-      // Verify checksum.
-      log.step('Verifying checksum...')
-      const actual = await computeSha256(archivePath)
-      if (actual !== expectedSha256) {
+      // Verify integrity.
+      log.step('Verifying integrity...')
+      const actual = await computeIntegrity(archivePath)
+      if (actual !== expectedIntegrity) {
         throw new Error(
-          `Checksum mismatch for ${tool} ${version}:\n` +
-            `  Expected: ${expectedSha256}\n` +
+          `Integrity mismatch for ${tool} ${version}:\n` +
+            `  Expected: ${expectedIntegrity}\n` +
             `  Actual:   ${actual}`,
         )
       }
@@ -249,7 +255,7 @@ export async function downloadAndVerify(
       if (!WIN32) {
         await chmod(path.join(cachePath, binaryName), 0o755)
       }
-      await writeFile(path.join(cachePath, '.checksum'), expectedSha256)
+      await writeFile(path.join(cachePath, '.integrity'), expectedIntegrity)
 
       await safeDelete(tmpDir)
       log.success(`${tool} ${version} installed`)

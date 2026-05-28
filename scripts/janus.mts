@@ -35,7 +35,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 type ToolEntry = {
   version?: string | undefined
-  checksums?: Record<string, unknown> | undefined
+  platforms?: Record<string, unknown> | undefined
 }
 
 function readJanusEntry(): ToolEntry {
@@ -71,7 +71,7 @@ async function main(): Promise<void> {
   const entry = readJanusEntry()
   const platformKey = getPlatformKey()
 
-  if (!entry.checksums?.[platformKey]) {
+  if (!entry.platforms?.[platformKey]) {
     logger.info(
       `janus has no upstream build for ${platformKey} (currently darwin-arm64 only); skipping`,
     )

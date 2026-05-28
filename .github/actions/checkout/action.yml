@@ -88,7 +88,7 @@ runs:
         # Audit step to skip cleanly. lib/jq.mjs exits non-zero when
         # the key is missing — capture that without tripping set -e.
         ASSET=""
-        if ASSET_TRY="$(node "$JQ" "$TOOLS_FILE" zizmor checksums "$PLATFORM" asset 2>/dev/null)"; then
+        if ASSET_TRY="$(node "$JQ" "$TOOLS_FILE" zizmor platforms "$PLATFORM" asset 2>/dev/null)"; then
           ASSET="$ASSET_TRY"
         fi
         if [ -z "$ASSET" ]; then
@@ -97,7 +97,7 @@ runs:
           echo "SOCKET_TOOL_ZIZMOR_AVAILABLE=false" >> "${GITHUB_ENV:-/dev/null}"
           exit 0
         fi
-        INTEGRITY="$(node "$JQ" "$TOOLS_FILE" zizmor checksums "$PLATFORM" integrity)"
+        INTEGRITY="$(node "$JQ" "$TOOLS_FILE" zizmor platforms "$PLATFORM" integrity)"
         ZIZMOR_BIN="$ZIZMOR_DIR/zizmor"
         [[ "$ASSET" == *.zip ]] && ZIZMOR_BIN="$ZIZMOR_DIR/zizmor.exe"
         # Shared installer: fetches, integrity-verifies (SRI), extracts.

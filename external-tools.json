@@ -10,7 +10,7 @@
     "free": {
       "repository": "github:SocketDev/sfw-free",
       "binaryName": "sfw",
-      "checksums": {
+      "platforms": {
         "darwin-arm64": {
           "asset": "sfw-free-macos-arm64",
           "integrity": "sha256-JI+1iOHhon5xkvewefc5/Cmp3mHwutfpCSg2MCLcVkM="
@@ -44,7 +44,7 @@
     "enterprise": {
       "repository": "github:SocketDev/firewall-release",
       "binaryName": "sfw",
-      "checksums": {
+      "platforms": {
         "darwin-arm64": {
           "asset": "sfw-macos-arm64",
           "integrity": "sha256-sc3Dvb0qMWEke9XMIV6zxEqQuH/guACjOImhT2G7DW0="
@@ -80,28 +80,28 @@
     "notes": "Socket fleet targets 8 platforms: linux-x64, linux-arm64, linux-x64-musl, linux-arm64-musl, darwin-x64, darwin-arm64, win-x64, win-arm64. zizmor upstream (zizmorcore/zizmor) only publishes 5 of those: linux-gnu x64+arm64, darwin x64+arm64, win-x64. The three unsupported combos (linux-x64-musl, linux-arm64-musl, win-arm64) are intentionally absent below — adding alias keys with mismatched binaries would break sha256 verification on those runners. Workflows that need zizmor on linux-musl or win-arm64 must conditionally skip the audit on those cells until upstream ships matching binaries.",
     "description": "GitHub Actions security linter",
     "repository": "github:zizmorcore/zizmor",
-    "version": "1.23.1",
+    "version": "1.25.2",
     "release": "asset",
-    "checksums": {
+    "platforms": {
       "darwin-arm64": {
         "asset": "zizmor-aarch64-apple-darwin.tar.gz",
-        "integrity": "sha256-JjJWG5dMaflSJYwatLdDLVx/kuVVcEFVw6woopEL1xc="
+        "integrity": "sha256-Yk7w4JUhrs2GISa+D213VGaa8mRnUNaKxIoRS+M8MUY="
       },
       "darwin-x64": {
         "asset": "zizmor-x86_64-apple-darwin.tar.gz",
-        "integrity": "sha256-idXtQggd2dBDOhC3VF+sQrNfHwMIhcJ4uXErMsZvJZc="
+        "integrity": "sha256-NTJxuewwHdS6FYr0gTI8gxxum0lNWsP1qljPSyB2mcw="
       },
       "linux-arm64": {
         "asset": "zizmor-aarch64-unknown-linux-gnu.tar.gz",
-        "integrity": "sha256-NyXXzXEC5NcIJxhjiffVkwtoeCMpMNCj6wWNfltH5lg="
+        "integrity": "sha256-S0uUkREsKgmzGBAcDTNJtzrxxPUy4JfdbQFk8qvadg0="
       },
       "linux-x64": {
         "asset": "zizmor-x86_64-unknown-linux-gnu.tar.gz",
-        "integrity": "sha256-Z6jfChQ1LdgYguFIdmU9CXuZsPT2tv55jtwDIM/yev8="
+        "integrity": "sha256-qh+s0QXw2D/lxVsa3NnXQX3l2DqidHH5HcC2bPOANXc="
       },
       "win-x64": {
         "asset": "zizmor-x86_64-pc-windows-msvc.zip",
-        "integrity": "sha256-M8IpP/AoNHIN182LRzSKr7LpWhm9yZPA7KypyASt6So="
+        "integrity": "sha256-ZdRqgUT3ASAGIbWA9jIHbYDQgtYIVt6fiHk6lftYgtc="
       }
     }
   },
@@ -112,53 +112,57 @@
     "minVersion": "1.82.0",
     "minLlvmVersion": "19",
     "release": "rustup",
-    "components": ["rustc", "cargo"]
+    "components": [
+      "rustc",
+      "cargo"
+    ]
   },
   "pnpm": {
     "notes": [
-      "pnpm publishes 7 platform-native binaries: linux-{x64,arm64}{,-musl}, darwin-arm64, win-{x64,arm64}. Verified against v11.3.0 (2026-05-24).",
-      "linux-*-musl tarballs are first-class assets with distinct sha256 from the glibc tarballs — the binaries are linked against different libcs and only the matching one runs on its target. Don't 'simplify' by pointing musl keys at the glibc asset.",
-      "darwin-x64 is the odd one out: upstream dropped the SEA binary in 11.0.5 because of nodejs/node#62893 (upstream LIEF/Mach-O bug that the Node team has declined to fix). Intel Mac instead installs the npm-registry JS tarball + runs it through system Node — see the `source` + `binary` fields under `checksums.darwin-x64`."
+      "pnpm publishes 7 platform-native binaries: linux-{x64,arm64}{,-musl}, darwin-arm64, win-{x64,arm64}. Verified against v11.4.0 (2026-05-28).",
+      "linux-*-musl tarballs are first-class assets with distinct integrity from the glibc tarballs — the binaries are linked against different libcs and only the matching one runs on its target. Don't 'simplify' by pointing musl keys at the glibc asset.",
+      "darwin-x64 is the odd one out: upstream dropped the SEA binary in 11.0.5 because of nodejs/node#62893 (upstream LIEF/Mach-O bug that the Node team has declined to fix). Intel Mac instead installs the npm-registry JS tarball + runs it through system Node — see the `source` + `binary` fields under `platforms.darwin-x64`.",
+      "v11.4.0 entries were hand-pinned (computed directly from upstream release assets via `curl + crypto.hash('sha256', …, 'base64')`) on 2026-05-28, bypassing the 7-day minimumReleaseAge soak — the soak in update-external-tools.mts is for npm-registry packages (typosquats / malicious freshpubs) and pnpm releases are GitHub-asset distributions with a known publisher. Future automated bumps will go back through the soak."
     ],
     "description": "Fast, disk space efficient package manager",
     "repository": "github:pnpm/pnpm",
-    "version": "11.3.0",
+    "version": "11.4.0",
     "release": "asset",
-    "checksums": {
+    "platforms": {
       "darwin-arm64": {
         "asset": "pnpm-darwin-arm64.tar.gz",
-        "integrity": "sha256-eIlY93tE16wF8F8IzN1SDxsiU9g03ypesM9aubhNQPY="
+        "integrity": "sha256-ulkBTCwc6Ldq+fVZOFIGomI95P8raUtckVmKj0SrtOI="
       },
       "darwin-x64": {
-        "asset": "pnpm-11.3.0.tgz",
-        "integrity": "sha512-LEA9ZZRScodnKx9wVjQ6H3w2NANqZ/+r/MKz11ldhDdo+HhxSNG1fPeVbJBga70ZKFfDY68Z6W0tDsnsV0HSFQ==",
+        "asset": "pnpm-11.4.0.tgz",
+        "integrity": "sha512-8P68fjdVKrSFSUqRQkGzOOCzWAuT1UzjHwCTMBWICGMSkDihtK5OQUoO5jrDW/IRl+mQFyxKaCVkULVjYxCWjw==",
         "source": "npm-registry",
         "binary": "package/dist/pnpm.cjs",
         "notes": "Intel Mac uses the npm-registry JS tarball + system Node (no SEA binary). Upstream dropped darwin-x64 SEA in pnpm 11.0.5 due to nodejs/node#62893 (upstream LIEF/Mach-O bug Node has declined to fix)."
       },
       "linux-arm64": {
         "asset": "pnpm-linux-arm64.tar.gz",
-        "integrity": "sha256-OD9kT1BmfpwXUnkRc9J0ukFBFyYrCcGwJ8LSl79SBmI="
+        "integrity": "sha256-zDjr1bJhCldE+EV2uWPEnmYJqN9a7XFK4950mZjUR4w="
       },
       "linux-arm64-musl": {
         "asset": "pnpm-linux-arm64-musl.tar.gz",
-        "integrity": "sha256-tIkSj16abvVsHF/wLAMRhjW+93Ju+bstRODM0W0ZGIM="
+        "integrity": "sha256-oeLskSPHCf0EtwQifPzztQzSu7wb050t9BRTC1aX63U="
       },
       "linux-x64": {
         "asset": "pnpm-linux-x64.tar.gz",
-        "integrity": "sha256-brUGtTKX6xGGugy/8Vd7sm0XcTg1oBpTQtyvrlUIJ84="
+        "integrity": "sha256-8/jRIX7vATu8caJNUu+x8QQeSv9V7dgOCwjiX0CTBaQ="
       },
       "linux-x64-musl": {
         "asset": "pnpm-linux-x64-musl.tar.gz",
-        "integrity": "sha256-1yjFEOBKwhgJHOXcWRsocGuxVKFL2XQaFGoN79OtRms="
+        "integrity": "sha256-YAEK0AqWtx4g0WGKysp6cTlecQy9XoiUbAMKHQfFaRY="
       },
       "win-arm64": {
         "asset": "pnpm-win32-arm64.zip",
-        "integrity": "sha256-kqf1YX1TV0vUCNCabUkSPMO3B+SQqO+GlpjH/0VEbSo="
+        "integrity": "sha256-DoBql/9HOW/IZ2nyfE7RvepHd61A8NcXCmJH6FnrUVo="
       },
       "win-x64": {
         "asset": "pnpm-win32-x64.zip",
-        "integrity": "sha256-EmTKoNytBoSc/QS5OfGaZMU0nV3UnxTa28BnA8bkJlM="
+        "integrity": "sha256-hM6Q44vAsRZBc+uFOg+//H7csFDLDVyM5Mpgn1yAjgo="
       }
     }
   }

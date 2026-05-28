@@ -33,6 +33,7 @@ import { fileURLToPath } from 'node:url'
 import { Type } from '@sinclair/typebox'
 import type { Static } from '@sinclair/typebox'
 
+import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { httpDownload } from '@socketsecurity/lib-stable/http-request/download'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { parseSchema } from '@socketsecurity/lib-stable/schema/parse'
@@ -136,19 +137,27 @@ export function versionFromTag(tag: string): string {
   return tag.replace(/^v/, '')
 }
 
-export async function computeSha256(filePath: string): Promise<string> {
+/**
+ * Compute a Subresource Integrity (SRI) string for a file. Format:
+ * `sha256-<base64>`. Matches what npm / pnpm / browser `<script integrity>`
+ * use natively — same alg can be substituted (sha384, sha512) without
+ * changing call sites that just consume the string. Uses the one-shot
+ * crypto.hash() API (Node 21.7+) — single Buffer read, no stream
+ * overhead.
+ */
+export async function computeIntegrity(filePath: string): Promise<string> {
   const content = await fs.readFile(filePath)
-  return crypto.createHash('sha256').update(content).digest('hex')
+  return `sha256-${crypto.hash('sha256', content, 'base64')}`
 }
 
-export async function downloadAndHash(url: string): Promise<string> {
+export async function computeIntegrityFromUrl(url: string): Promise<string> {
   const tmpFile = path.join(
     os.tmpdir(),
     `external-tools-update-${Date.now()}-${Math.random().toString(36).slice(2)}`,
   )
   try {
     await httpDownload(url, tmpFile, { retries: 2 })
-    return await computeSha256(tmpFile)
+    return await computeIntegrity(tmpFile)
   } finally {
     // oxlint-disable-next-line socket/prefer-safe-delete -- finally cleanup with explicit catch
     await fs.unlink(tmpFile).catch(() => {})
@@ -160,38 +169,53 @@ export async function downloadAndHash(url: string): Promise<string> {
 // sync — both consume `external-tools.json`-shaped data.
 //
 // Two tool shapes are supported:
-//   1. Single-flavor (pnpm, zizmor): `{ repository, checksums, … }`
-//      with checksums at the top level.
-//   2. Multi-flavor (sfw): `{ free: { repository, binaryName, checksums },
+//   1. Single-flavor (pnpm, zizmor): `{ repository, platforms, … }`
+//      with platforms at the top level.
+//   2. Multi-flavor (sfw): `{ free: { repository, binaryName, platforms },
 //      enterprise: { ... } }` — flavors carry their own repository
-//      and per-platform checksums while sharing one `version`.
-const checksumEntrySchema = Type.Object({
+//      and per-platform integrity values while sharing one `version`.
+//
+// The `integrity` field is Subresource Integrity (SRI): `sha256-<base64>`
+// (or `sha384-` / `sha512-`). Same shape npm / pnpm / browser
+// `<script integrity>` consume natively. Source-of-truth is the field
+// itself; the outer `platforms` map name describes the keying.
+const platformEntrySchema = Type.Object({
   asset: Type.String(),
-  sha256: Type.String({ pattern: '^[0-9a-f]{64}$' }),
+  integrity: Type.String({ pattern: '^sha(256|384|512)-[A-Za-z0-9+/=]+$' }),
 })
 
-const checksumsSchema = Type.Record(Type.String(), checksumEntrySchema)
+const platformsSchema = Type.Record(Type.String(), platformEntrySchema)
 
 const flavorSchema = Type.Object({
   repository: Type.String(),
   binaryName: Type.String(),
-  checksums: checksumsSchema,
+  platforms: platformsSchema,
 })
 
+// `version` is optional at the schema level because some entries (e.g.
+// `rust`) declare a `minVersion` floor instead of a pinned version — they
+// resolve at install time via rustup / runner toolcache, not via downloads
+// from a fixed GitHub release. updateTool() enforces `version` at runtime
+// only for entries with `release: 'asset'`; floor-shape entries skip the
+// update path entirely.
 const toolSchema = Type.Object({
   description: Type.Optional(Type.String()),
   repository: Type.Optional(Type.String()),
-  version: Type.String(),
+  version: Type.Optional(Type.String()),
+  minVersion: Type.Optional(Type.String()),
   release: Type.Optional(Type.String()),
-  checksums: Type.Optional(checksumsSchema),
+  platforms: Type.Optional(platformsSchema),
   free: Type.Optional(flavorSchema),
   enterprise: Type.Optional(flavorSchema),
   notes: Type.Optional(Type.Union([Type.String(), Type.Array(Type.String())])),
-})
+  // Catch-all so floor-shape entries (rust: minLlvmVersion, components,
+  // …) don't trip schema validation. Stricter per-tool typing belongs in
+  // the entry's own validator, not this aggregate schema.
+}, { additionalProperties: true })
 
 const rootConfigSchema = Type.Record(Type.String(), toolSchema)
 
-type ChecksumEntry = Static<typeof checksumEntrySchema>
+type PlatformEntry = Static<typeof platformEntrySchema>
 type RootConfig = Static<typeof rootConfigSchema>
 
 export function readConfig(): RootConfig {
@@ -226,25 +250,26 @@ interface UpdateResult {
 }
 
 /**
- * Recompute every checksum in the supplied map against the resolved GitHub
- * release. Mutates the map in place and returns a fresh object with the new
- * entries. Shared by the single-flavor and per-flavor code paths.
+ * Recompute every platform integrity in the supplied map against the
+ * resolved GitHub release. Mutates the map in place and returns a fresh
+ * object with the new entries. Shared by the single-flavor and
+ * per-flavor code paths.
  */
-export async function recomputeChecksums(
+export async function recomputePlatforms(
   label: string,
   repo: string,
   release: GhRelease,
-  checksums: Record<string, ChecksumEntry>,
-): Promise<Record<string, ChecksumEntry>> {
-  const newChecksums: Record<string, ChecksumEntry> = {}
-  for (const [platform, entry] of Object.entries(checksums)) {
+  platforms: Record<string, PlatformEntry>,
+): Promise<Record<string, PlatformEntry>> {
+  const newPlatforms: Record<string, PlatformEntry> = {}
+  for (const [platform, entry] of Object.entries(platforms)) {
     // Re-resolve the asset name against the latest release's asset
     // list. Most tools reuse the same filename pattern across
     // releases, but a tool might rename assets between versions
     // (e.g. pnpm's Windows asset layout changed pre-v10). Prefer a
     // case-insensitive exact match on the pinned asset name; fall
     // back to the pinned name if the release listing is missing it
-    // (downloadAndHash will surface a 404 loudly in that case).
+    // (computeIntegrityFromUrl will surface a 404 loudly in that case).
     const pinnedAsset = entry.asset
     const asset = release.assets.find(
       a => a.name.toLowerCase() === pinnedAsset.toLowerCase(),
@@ -256,10 +281,10 @@ export async function recomputeChecksums(
 
     logger.log(`  ${label}/${platform}: hashing ${asset.name}`)
     // eslint-disable-next-line no-await-in-loop
-    const sha256 = await downloadAndHash(asset.browser_download_url)
-    newChecksums[platform] = { asset: asset.name, sha256 }
+    const integrity = await computeIntegrityFromUrl(asset.browser_download_url)
+    newPlatforms[platform] = { asset: asset.name, integrity }
   }
-  return newChecksums
+  return newPlatforms
 }
 
 export async function updateTool(
@@ -291,26 +316,24 @@ export async function updateTool(
 
   // Detect multi-flavor shape: tools like `sfw` ship as `free` and
   // `enterprise` flavors. Each flavor carries its own `repository`
-  // and `checksums`; only `version` is shared at the top level.
-  // Single-flavor tools carry `repository` + `checksums` at the top.
+  // and `platforms`; only `version` is shared at the top level.
+  // Single-flavor tools carry `repository` + `platforms` at the top.
   const flavors: Array<{ key: 'free' | 'enterprise' }> = []
-  if (toolConfig.free?.checksums) {
+  if (toolConfig.free?.platforms) {
     flavors.push({ key: 'free' })
   }
-  if (toolConfig.enterprise?.checksums) {
+  if (toolConfig.enterprise?.platforms) {
     flavors.push({ key: 'enterprise' })
   }
   const isMultiFlavor = flavors.length > 0
 
-  // Special case — pnpm only. pnpm 11 ships as release candidates on
-  // the `prerelease: true` channel while stable stays on 10.x; we
-  // intentionally track the pre-GA 11 line. Every other tool in this
-  // file (and any future addition) is expected to follow stable
-  // releases only. If a second prerelease-tracked tool ever lands
-  // here, extend this allowlist explicitly rather than flipping it
-  // back to a version-string heuristic — the explicit form makes
-  // "why is this tool different?" grep-able.
-  const includePrerelease = name === 'pnpm'
+  // All tracked tools follow the stable release channel. pnpm 11 used
+  // to ship as `prerelease: true` while stable stayed on 10.x — once
+  // pnpm 11 went GA the prerelease pin became wrong (stale prereleases
+  // would shadow newer stables). If a future tool legitimately needs
+  // the prerelease track, add it to an explicit allowlist here rather
+  // than reverting to a version-string heuristic.
+  const includePrerelease = false
 
   // Resolve the canonical release used for the version comparison.
   // For multi-flavor tools we anchor on the first flavor's repo —
@@ -326,7 +349,7 @@ export async function updateTool(
   try {
     release = await ghApiLatestRelease(primaryRepo, includePrerelease)
   } catch (e) {
-    const msg = e instanceof Error ? e.message : String(e)
+    const msg = errorMessage(e)
     logger.warn(`Failed to fetch ${name} releases: ${msg}`)
     return {
       tool: name,
@@ -371,8 +394,8 @@ export async function updateTool(
 
   if (isMultiFlavor) {
     // Resolve and hash each flavor against ITS OWN repository. Without
-    // this loop the per-flavor sha256s would stay pinned to the old
-    // release while `version` advanced — silent corruption.
+    // this loop the per-flavor integrity values would stay pinned to
+    // the old release while `version` advanced — silent corruption.
     for (const { key } of flavors) {
       const flavor = toolConfig[key]!
       const flavorRepo = ownerAndNameFromRepository(flavor.repository)
@@ -382,20 +405,20 @@ export async function updateTool(
         flavorRelease = await ghApiLatestRelease(flavorRepo, includePrerelease)
       }
       // eslint-disable-next-line no-await-in-loop
-      flavor.checksums = await recomputeChecksums(
+      flavor.platforms = await recomputePlatforms(
         key,
         flavorRepo,
         flavorRelease,
-        flavor.checksums,
+        flavor.platforms,
       )
     }
   } else {
     const repo = ownerAndNameFromRepository(toolConfig.repository)
-    toolConfig.checksums = await recomputeChecksums(
+    toolConfig.platforms = await recomputePlatforms(
       name,
       repo,
       release,
-      toolConfig.checksums ?? {},
+      toolConfig.platforms ?? {},
     )
   }
 

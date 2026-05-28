@@ -95,15 +95,15 @@ runs:
         # process.report so we don't shell out to ldd.
         PLATFORM_TOOL="${GITHUB_ACTION_PATH}/../lib/platform.mjs"
         PLATFORM="$(node "$PLATFORM_TOOL")"
-        ASSET="$(node "$JQ" "$TOOLS_FILE" pnpm checksums "$PLATFORM" asset)"
-        INTEGRITY="$(node "$JQ" "$TOOLS_FILE" pnpm checksums "$PLATFORM" integrity)"
+        ASSET="$(node "$JQ" "$TOOLS_FILE" pnpm platforms "$PLATFORM" asset)"
+        INTEGRITY="$(node "$JQ" "$TOOLS_FILE" pnpm platforms "$PLATFORM" integrity)"
         # Optional `source` field. When set to `npm-registry`, the asset
         # is a JS-only npm tarball (e.g. pnpm-11.0.8.tgz) — runs through
         # the system Node instead of being a SEA binary. Currently used
         # only for darwin-x64 because upstream pnpm dropped the SEA
         # binary in 11.0.5 due to nodejs/node#62893.
-        SOURCE="$(node "$JQ" "$TOOLS_FILE" pnpm checksums "$PLATFORM" source 2>/dev/null || echo "")"
-        BINARY_REL="$(node "$JQ" "$TOOLS_FILE" pnpm checksums "$PLATFORM" binary 2>/dev/null || echo "")"
+        SOURCE="$(node "$JQ" "$TOOLS_FILE" pnpm platforms "$PLATFORM" source 2>/dev/null || echo "")"
+        BINARY_REL="$(node "$JQ" "$TOOLS_FILE" pnpm platforms "$PLATFORM" binary 2>/dev/null || echo "")"
         PNPM_BIN="$PNPM_DIR/pnpm"
         [[ "$ASSET" == *.zip ]] && PNPM_BIN="$PNPM_DIR/pnpm.exe"
         # Shared installer: fetches, integrity-verifies (SRI), extracts.
@@ -173,7 +173,7 @@ runs:
       run: | # zizmor: ignore[github-env]
         set -euo pipefail
         # SFW (Socket Firewall) version + per-platform asset/integrity
-        # live in external-tools.json under sfw.<flavor>.checksums.
+        # live in external-tools.json under sfw.<flavor>.platforms.
         # Bumping a tool requires updating the version AND every
         # platform's integrity (SRI string) there in the same commit.
         # The lib/ scripts below resolve platform → asset → URL →
@@ -197,13 +197,13 @@ runs:
         # Hard-fail with a clear message on unsupported platforms (eg
         # win-arm64) rather than silently skipping. SFW is a required
         # dependency of the install flow, unlike zizmor (audit-only).
-        if ! ASSET="$(node "$JQ" "$TOOLS_FILE" sfw "$SFW_FLAVOR" checksums "$PLATFORM" asset 2>/dev/null)"; then
+        if ! ASSET="$(node "$JQ" "$TOOLS_FILE" sfw "$SFW_FLAVOR" platforms "$PLATFORM" asset 2>/dev/null)"; then
           echo "× SFW (${SFW_FLAVOR}) is not published for ${PLATFORM} at v${SFW_VERSION}." >&2
           echo "  Supported: linux-{x64,arm64}{,-musl}, darwin-{x64,arm64}, win-x64." >&2
           echo "  win-arm64 has no upstream binary — skip SFW-dependent steps on that runner or wait for upstream support." >&2
           exit 1
         fi
-        INTEGRITY="$(node "$JQ" "$TOOLS_FILE" sfw "$SFW_FLAVOR" checksums "$PLATFORM" integrity)"
+        INTEGRITY="$(node "$JQ" "$TOOLS_FILE" sfw "$SFW_FLAVOR" platforms "$PLATFORM" integrity)"
         SFW_BIN_NAME="$(node "$JQ" "$TOOLS_FILE" sfw "$SFW_FLAVOR" binaryName)"
         if [[ "$ASSET" == *.exe ]]; then
           SFW_BIN_NAME="${SFW_BIN_NAME}.exe"
@@ -259,11 +259,11 @@ runs:
             echo "  Falling back to sfw-free for the rest of the workflow." >&2
             SFW_FLAVOR="free"
             SFW_REPO="SocketDev/sfw-free"
-            if ! ASSET="$(node "$JQ" "$TOOLS_FILE" sfw "$SFW_FLAVOR" checksums "$PLATFORM" asset 2>/dev/null)"; then
+            if ! ASSET="$(node "$JQ" "$TOOLS_FILE" sfw "$SFW_FLAVOR" platforms "$PLATFORM" asset 2>/dev/null)"; then
               echo "× SFW-free fallback: no asset for ${PLATFORM} at v${SFW_VERSION}." >&2
               exit 1
             fi
-            INTEGRITY="$(node "$JQ" "$TOOLS_FILE" sfw "$SFW_FLAVOR" checksums "$PLATFORM" integrity)"
+            INTEGRITY="$(node "$JQ" "$TOOLS_FILE" sfw "$SFW_FLAVOR" platforms "$PLATFORM" integrity)"
             SFW_BIN_NAME="$(node "$JQ" "$TOOLS_FILE" sfw "$SFW_FLAVOR" binaryName)"
             rm -rf "$SFW_DIR"
             mkdir -p "$SFW_DIR"
