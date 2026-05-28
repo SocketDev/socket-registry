@@ -1,3 +1,6 @@
+# Layer 1 — leaf action (no internal SocketDev refs). Consumed
+# externally by fleet release workflows. No internal cascade.
+
 name: 'Create GitHub Release'
 description: |
   Create (or update) a GitHub release for the current ref via `gh release`,

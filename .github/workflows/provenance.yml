@@ -1,3 +1,8 @@
+# Layer 3 — reusable workflow. References Layer 2b (setup-and-install).
+# When this file bumps, the merge SHA becomes the PROPAGATION SHA:
+# Layer 4 (`_local-not-for-reuse-provenance.yml`) pins to it, and
+# external repos pin their `uses: ...provenance.yml@<sha>` refs to it.
+
 name: 📦 Publish to npm
 
 # Dependencies:

@@ -1,3 +1,8 @@
+# Layer 1 — leaf action (no internal SocketDev refs). Consumed by
+# `ci.yml` (Layer 3 reusable workflow). When this file bumps,
+# cascade is: 3 → 4 → external repos. See updating-workflows skill
+# at .claude/skills/updating-workflows/.
+
 name: 'Run Script'
 description: 'Run setup and main scripts with proper working directory handling'
 

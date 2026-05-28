@@ -1,3 +1,6 @@
+# Layer 1 — leaf action (no internal SocketDev refs). Consumed
+# externally by fleet repos that build Zig code. No internal cascade.
+
 name: 'Setup Zig'
 description: |
   Download the Zig compiler tarball for the runner's platform/arch, extract

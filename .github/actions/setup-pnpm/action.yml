@@ -1,3 +1,9 @@
+# Layer 1 — leaf action (no internal SocketDev refs). Note: `setup`
+# (Layer 2a) installs pnpm directly via external-tools.json without
+# delegating to this action. This action is consumed externally by
+# fleet repos that need pnpm but not the rest of the `setup` action.
+# No internal cascade.
+
 name: 'Setup pnpm'
 description: |
   Locate or install pnpm. Replaces the third-party `pnpm/action-setup`

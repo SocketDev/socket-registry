@@ -1,3 +1,8 @@
+# Layer 1 — leaf action (no internal SocketDev refs). Consumed by
+# `setup-and-install` (Layer 2b) + `_local-not-for-reuse-*.yml` (Layer 4).
+# When this file bumps, the cascade is: 2b → 3 → 4 → external repos.
+# See updating-workflows skill at .claude/skills/updating-workflows/.
+
 name: 'Checkout'
 description: 'Checkout repository with sensible defaults (fetch-depth 100, persist-credentials false)'
 

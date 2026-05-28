@@ -1,3 +1,8 @@
+# Layer 1 — leaf action (no internal SocketDev refs). Consumed by
+# `setup-and-install` (Layer 2b). When this file bumps, cascade is:
+# 2b → 3 → 4 → external repos. See updating-workflows skill at
+# .claude/skills/updating-workflows/.
+
 name: 'Install'
 description: 'Install pnpm dependencies and provision ecc-agentshield (sfw shims are set up by the setup action)'
 

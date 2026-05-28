@@ -1,3 +1,8 @@
+# Layer 4 — `_local` wrapper. NOT reused externally; this is
+# socket-registry's own weekly-update entry point. References Layer 3
+# (weekly-update.yml) which it pins to the PROPAGATION SHA on cascade.
+# See updating-workflows skill at .claude/skills/updating-workflows/.
+
 name: 🔄 Weekly Update
 
 # Local (socket-registry) weekly-update workflow.

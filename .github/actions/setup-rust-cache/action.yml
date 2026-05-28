@@ -1,3 +1,6 @@
+# Layer 1 — leaf action (no internal SocketDev refs). Consumed
+# externally by fleet repos that build Rust code. No internal cascade.
+
 name: 'Setup Rust Cache'
 description: |
   Cache the cargo registry, git index, and one or more target/ directories

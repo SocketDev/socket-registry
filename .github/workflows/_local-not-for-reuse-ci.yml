@@ -1,3 +1,10 @@
+# Layer 4 — `_local` wrapper. NOT reused externally; this is
+# socket-registry's own CI entry point. References Layer 3 (ci.yml)
+# AND inline Layer 1 (cache-npm-packages) + Layer 2b (setup-and-install)
+# for the additional jobs it runs alongside the reusable workflow.
+# Both ref kinds bump to the PROPAGATION SHA during cascade. See
+# updating-workflows skill — Phase 5 (Layer 4) sweeps both ref shapes.
+
 name: 🚀 CI
 
 # Dependencies:

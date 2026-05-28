@@ -1,3 +1,6 @@
+# Layer 1 — leaf action (no internal SocketDev refs). Consumed by
+# `_local-not-for-reuse-ci.yml` (Layer 4) inline. No internal cascade.
+
 name: 'Cache NPM Test Packages'
 description: 'Cache npm test packages to speed up subsequent CI runs'
 

@@ -1,3 +1,8 @@
+# Layer 1 — leaf action (no internal SocketDev refs). Consumed by
+# `setup` (Layer 2a). When this file bumps, cascade is: 2a → 2b → 3 → 4
+# → external repos. See updating-workflows skill at
+# .claude/skills/updating-workflows/.
+
 name: 'Setup Debug'
 description: 'Parse and setup debug environment variables'
 

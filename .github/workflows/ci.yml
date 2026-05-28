@@ -1,3 +1,9 @@
+# Layer 3 — reusable workflow. References Layer 2b (setup-and-install)
+# + Layer 1 (run-script). When this file bumps, the merge SHA becomes
+# the PROPAGATION SHA: Layer 4 (`_local-not-for-reuse-ci.yml`) pins to
+# it, and external repos pin their `uses: ...ci.yml@<sha>` refs to it.
+# See updating-workflows skill at .claude/skills/updating-workflows/.
+
 name: 🔗 CI
 
 # CI orchestrator that runs checks and tests.

@@ -1,3 +1,7 @@
+# Layer 1 — leaf action (no internal SocketDev refs). Consumed
+# externally by fleet repos. No internal cascade dependency.
+# See updating-workflows skill at .claude/skills/updating-workflows/.
+
 name: 'Upload Artifacts'
 description: 'Standardized artifact upload for test and lint results'
 

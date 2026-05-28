@@ -1,3 +1,9 @@
+# Layer 3 — reusable workflow. References Layer 2b (setup-and-install)
+# + Layer 1 (setup-git-signing, cleanup-git-signing). When this file
+# bumps, the merge SHA becomes the PROPAGATION SHA: Layer 4
+# (`_local-not-for-reuse-weekly-update.yml`) pins to it, and external
+# repos pin their `uses: ...weekly-update.yml@<sha>` refs to it.
+
 name: 🔄 Weekly Update
 
 # Reusable weekly-update workflow for socket-* repos.

@@ -1,3 +1,7 @@
+# Layer 2a — references Layer 1 (debug). Consumed by `setup-and-install`
+# (Layer 2b). When this file bumps, cascade is: 2b → 3 → 4 → external
+# repos. See updating-workflows skill at .claude/skills/updating-workflows/.
+
 name: 'Setup'
 description: 'Setup debug, Node.js, pnpm, Socket firewall shims, and bootstrap zero-dep Socket packages (@socketsecurity/lib, @socketregistry/packageurl-js, @sinclair/typebox)'
 

@@ -1,3 +1,8 @@
+# Layer 1 — leaf action (no internal SocketDev refs). Consumed by
+# `weekly-update.yml` (Layer 3 reusable workflow). When this file
+# bumps, cascade is: 3 → 4 → external repos. Paired with
+# `cleanup-git-signing` (use both, always() the cleanup).
+
 name: 'Setup GPG commit signing'
 description: 'Import a GPG key and configure git for signed commits. Pair with cleanup-git-signing (if: always()) after all commits.'
 

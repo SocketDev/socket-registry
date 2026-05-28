@@ -1,3 +1,9 @@
+# Layer 2b — aggregator. References Layer 1 (checkout, install,
+# setup-go-toolchain) + Layer 2a (setup). When ANY of those bump,
+# THIS file bumps next, then Layer 3 (ci.yml / provenance.yml /
+# weekly-update.yml) bumps to ref this file's new SHA. See the
+# updating-workflows skill at .claude/skills/updating-workflows/.
+
 name: 'Setup and Install'
 description: 'Aggregate: checkout + setup environment + install dependencies'
 

@@ -1,3 +1,6 @@
+# Layer 1 — leaf action (no internal SocketDev refs). Consumed
+# externally by fleet repos that build Rust code. No internal cascade.
+
 name: 'Setup Rust Toolchain'
 description: |
   Install the Rust toolchain via rustup (downloading rustup-init from the

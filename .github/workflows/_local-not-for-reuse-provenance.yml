@@ -1,3 +1,8 @@
+# Layer 4 — `_local` wrapper. NOT reused externally; this is
+# socket-registry's own publish entry point. References Layer 3
+# (provenance.yml) which it pins to the PROPAGATION SHA on cascade.
+# See updating-workflows skill at .claude/skills/updating-workflows/.
+
 name: 📦 Publish
 
 # Dependencies:
