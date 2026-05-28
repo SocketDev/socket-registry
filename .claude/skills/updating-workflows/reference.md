@@ -72,6 +72,34 @@ Starting from the layer **above** the change, create a PR for each layer.
 - Change at Layer 3: start cascade from Layer 4, propagation SHA is the Layer 3 merge commit
 - Change at Layer 4: no internal cascade, external repos may need updating if reusable workflows also changed
 
+**Layer 4 sweep — both ref kinds:** `_local-not-for-reuse-*.yml`
+files carry TWO kinds of SocketDev refs that both need propagation-SHA
+pinning during the cascade:
+
+1. The `uses: SocketDev/socket-registry/.github/workflows/<name>.yml@<L3-SHA>`
+   line that delegates to a Layer 3 reusable workflow.
+2. Inline `uses: SocketDev/socket-registry/.github/actions/<action>@<SHA>`
+   steps inside additional jobs the wrapper runs (e.g.
+   `_local-not-for-reuse-ci.yml`'s `test-npm-packages` job has its own
+   `setup-and-install` step on top of delegating to `ci.yml`).
+
+Both go to the propagation SHA. Verify with:
+
+```bash
+grep -rEn "SocketDev/socket-registry[^@]+@[a-f0-9]" \
+  .github/workflows/_local-not-for-reuse-*.yml \
+  | grep -v "<propagation-sha>"
+```
+
+Empty output = clean. Any remaining ref means the sweep missed an
+inline `uses:` and the cascade is incomplete.
+
+**External-repo sweep:** same `grep -v "<propagation-sha>"`
+verification across the consuming repo's `.github/workflows/`. Pins to
+`setup-git-signing` / `cleanup-git-signing` (or other actions not
+touched in this wave) stay at their existing SHAs — leave them
+unless the cascade explicitly bumps them.
+
 ---
 
 ## External consuming repos
