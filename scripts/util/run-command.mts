@@ -6,7 +6,7 @@ import process from 'node:process'
 
 import { WIN32 } from '@socketsecurity/lib-stable/constants/platform'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
-import type { SpawnOptions } from '@socketsecurity/lib-stable/process/spawn/child'
+import type { SpawnOptions } from '@socketsecurity/lib-stable/process/spawn/types'
 import {
   spawn,
   spawnSync,

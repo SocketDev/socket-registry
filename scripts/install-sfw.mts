@@ -14,7 +14,7 @@
  *   _cacache, etc.) — `sfw/` was the lone non-prefixed sibling, now
  *   regularized.
  *
- *   Reads version + per-platform SRI integrity from the repo's root
+ *   Reads version + per-platform sha256 from the repo's root
  *   `external-tools.json` under `tools.sfw-free` / `tools.sfw-enterprise`.
  *   That file is the single fleet source of truth — every consumer of
  *   external tooling reads the same entries. Usage: pnpm run install:sfw #
@@ -78,7 +78,7 @@ interface ToolEntry {
   version: string
   repository?: string | undefined
   release?: string | undefined
-  platforms?: Record<string, { asset: string; integrity: string }> | undefined
+  checksums?: Record<string, { asset: string; sha256: string }> | undefined
 }
 
 interface ExternalToolsFile {
@@ -164,9 +164,9 @@ async function main(): Promise<void> {
   }
 
   const platform = detectPlatform()
-  const platformMeta = entry.platforms?.[platform]
+  const platformMeta = entry.checksums?.[platform]
   if (!platformMeta) {
-    const supported = Object.keys(entry.platforms ?? {}).join(', ')
+    const supported = Object.keys(entry.checksums ?? {}).join(', ')
     logger.fail(
       `${toolKey} v${entry.version} is not published for ${platform}.\n` +
         `  Supported: ${supported || '(none)'}`,
@@ -178,7 +178,7 @@ async function main(): Promise<void> {
   const repoSlug = entry.repository.replace(/^github:/, '')
   const url = `https://github.com/${repoSlug}/releases/download/v${entry.version}/${platformMeta.asset}`
   const binaryName = WIN32 ? 'sfw.exe' : 'sfw'
-  const integrity = platformMeta.integrity
+  const sha256 = platformMeta.sha256
 
   if (!values['quiet']) {
     logger.info(`Installing ${toolKey} v${entry.version} (${platform})`)
@@ -188,7 +188,7 @@ async function main(): Promise<void> {
   const { binaryPath, downloaded } = await downloadBinary({
     force: Boolean(values['force']),
     name: binaryName,
-    hash: integrity,
+    sha256,
     url,
   })
 

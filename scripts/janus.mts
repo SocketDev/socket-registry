@@ -1,6 +1,6 @@
 /**
  * @file Canonical fleet janus launcher. Forwards argv to the janus binary
- *   installed by `.claude/hooks/setup-security-tools/` under the shared
+ *   installed by `.claude/hooks/fleet/setup-security-tools/` under the shared
  *   wheelhouse dir
  *   (`~/.socket/_wheelhouse/janus/<version>/<platform-arch>/janus`) so every
  *   fleet member's `pnpm run janus -- <args>` resolves to the same SHA-verified
@@ -35,7 +35,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 type ToolEntry = {
   version?: string | undefined
-  platforms?: Record<string, unknown> | undefined
+  checksums?: Record<string, unknown> | undefined
 }
 
 function readJanusEntry(): ToolEntry {
@@ -71,7 +71,7 @@ async function main(): Promise<void> {
   const entry = readJanusEntry()
   const platformKey = getPlatformKey()
 
-  if (!entry.platforms?.[platformKey]) {
+  if (!entry.checksums?.[platformKey]) {
     logger.info(
       `janus has no upstream build for ${platformKey} (currently darwin-arm64 only); skipping`,
     )
