@@ -6,7 +6,11 @@ packages:
 
 # Packages allowed to run build scripts (pnpm v11 strictDepBuilds default).
 allowBuilds:
+  cpu-features: false
+  esbuild: set this to true or false
+  protobufjs: false
   rolldown: true
+  ssh2: false
 
 # Refuse to run if the pnpm version on PATH differs from the packageManager
 # field in package.json. Our setup action pins pnpm via external-tools.json;
@@ -32,8 +36,10 @@ catalog:
   '@mdn/browser-compat-data': 7.1.5
   '@npmcli/package-json': 7.0.0
   '@npmcli/promise-spawn': 8.0.3
+  '@redwoodjs/agent-ci': 0.16.2
   '@sinclair/typebox': 0.34.49
   '@socketregistry/packageurl-js': 1.4.2
+  '@types/shell-quote': 1.7.5
   # -stable aliases: pnpm `overrides:` can't redirect a package's own
   # name from inside the same package — Node ESM resolves it as a
   # self-reference. Build / hook / script / config code uses the
@@ -190,6 +196,37 @@ minimumReleaseAgeExclude:
   # rolldown's AST/types layer. rolldown 1.0.3 pins `=0.133.0`.
   # published: 2026-05-26 | removable: 2026-06-02
   - '@oxc-project/types@0.133.0'
+  - '@redwoodjs/agent-ci'
+  - 'dtu-github-actions'
+  - 'shell-quote'
+  - 'vite'
+  - 'vitest'
+  - '@vitest/coverage-v8'
+  - '@vitest/expect'
+  - '@vitest/mocker'
+  - '@vitest/pretty-format'
+  - '@vitest/runner'
+  - '@vitest/snapshot'
+  - '@vitest/spy'
+  - '@vitest/ui'
+  - '@vitest/utils'
+  - 'rolldown'
+  - '@rolldown/pluginutils'
+  - '@rolldown/binding-android-arm64'
+  - '@rolldown/binding-darwin-arm64'
+  - '@rolldown/binding-darwin-x64'
+  - '@rolldown/binding-freebsd-x64'
+  - '@rolldown/binding-linux-arm-gnueabihf'
+  - '@rolldown/binding-linux-arm64-gnu'
+  - '@rolldown/binding-linux-arm64-musl'
+  - '@rolldown/binding-linux-ppc64-gnu'
+  - '@rolldown/binding-linux-s390x-gnu'
+  - '@rolldown/binding-linux-x64-gnu'
+  - '@rolldown/binding-linux-x64-musl'
+  - '@rolldown/binding-openharmony-arm64'
+  - '@rolldown/binding-wasm32-wasi'
+  - '@rolldown/binding-win32-arm64-msvc'
+  - '@rolldown/binding-win32-x64-msvc'
 
 # Refuse transitive dependencies declared via git/tarball/local-tarball
 # specs — an npm package shouldn't be allowed to drag in a git URL we
