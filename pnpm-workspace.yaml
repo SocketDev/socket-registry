@@ -81,6 +81,7 @@ catalog:
   del-cli: 6.0.0
   dev-null-cli: 2.0.0
   didyoumean2: 7.0.4
+  'dtu-github-actions': 0.16.2
   ecc-agentshield: 1.4.0
   eslint: 9.35.0
   eslint-import-resolver-typescript: 4.4.4
@@ -227,6 +228,12 @@ minimumReleaseAgeExclude:
   - '@rolldown/binding-wasm32-wasi'
   - '@rolldown/binding-win32-arm64-msvc'
   - '@rolldown/binding-win32-x64-msvc'
+  - '@socketdev/*'
+  - 'ecc-agentshield'
+  - 'sfw'
+  - 'socket-*'
+  - '@redwoodjs/agent-ci@0.16.2'
+  - 'dtu-github-actions@0.16.2'
 
 # Refuse transitive dependencies declared via git/tarball/local-tarball
 # specs — an npm package shouldn't be allowed to drag in a git URL we

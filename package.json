@@ -65,6 +65,7 @@
     "@mdn/browser-compat-data": "catalog:",
     "@npmcli/package-json": "catalog:",
     "@npmcli/promise-spawn": "catalog:",
+    "@redwoodjs/agent-ci": "catalog:",
     "@sinclair/typebox": "catalog:",
     "@socketregistry/is-unicode-supported": "workspace:*",
     "@socketregistry/packageurl-js": "catalog:",
