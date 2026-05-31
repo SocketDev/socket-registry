@@ -301,6 +301,7 @@ overrides:
   # Force vite's bundled rolldown (1.0.2) up to the catalog's 1.0.3.
   'rolldown': 'catalog:'
   'typescript': 'catalog:'
+  'uuid': '11.1.1'
   'vite': 'catalog:'
   'which-boxed-primitive': 'npm:@socketregistry/which-boxed-primitive@1.0.9'
   'which-collection': 'npm:@socketregistry/which-collection@1.0.8'
