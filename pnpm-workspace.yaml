@@ -251,10 +251,14 @@ blockExoticSubdeps: true
 # in the default `catalog:` block above. This defeats accidental
 # local-checkout resolution when a sibling repo is on disk.
 overrides:
+  # Fleet-canonical overrides (managed by socket-wheelhouse sync; do not edit).
   '@socketregistry/packageurl-js': 'catalog:'
   '@socketsecurity/lib': 'catalog:'
   '@socketsecurity/registry': 'catalog:'
   '@socketsecurity/sdk': 'catalog:'
+  'uuid': '11.1.1'
+
+  # Repo-specific overrides below.
   '@types/node': 'catalog:'
   'aggregate-error': 'npm:@socketregistry/aggregate-error@1.0.15'
   'array-buffer-byte-length': 'npm:@socketregistry/array-buffer-byte-length@1.0.7'
@@ -271,8 +275,8 @@ overrides:
   'has-tostringtag': 'npm:@socketregistry/has-tostringtag@1.0.7'
   'hasown': 'npm:@socketregistry/hasown@1.0.7'
   'iconv-lite': 'catalog:'
-  'ip-address': '10.1.1'
   'indent-string': 'npm:@socketregistry/indent-string@1.0.14'
+  'ip-address': '10.1.1'
   'is-arguments': 'npm:@socketregistry/is-arguments@1.0.10'
   'is-array-buffer': 'npm:@socketregistry/is-array-buffer@1.0.10'
   'is-core-module': 'npm:@socketregistry/is-core-module@1.0.11'
@@ -293,15 +297,14 @@ overrides:
   'picomatch@4': '4.0.4'
   'postcss': '8.5.10'
   'regexp.prototype.flags': 'npm:@socketregistry/regexp.prototype.flags@1.0.8'
+  # Force vite's bundled rolldown (1.0.2) up to the catalog's 1.0.3.
+  'rolldown': 'catalog:'
   'safe-regex-test': 'npm:@socketregistry/safe-regex-test@1.0.8'
   'safer-buffer': 'npm:@socketregistry/safer-buffer@1.0.10'
   'set-function-length': 'npm:@socketregistry/set-function-length@1.0.10'
   'shell-quote': 'npm:shell-quote@1.8.3'
   'side-channel': 'npm:@socketregistry/side-channel@1.0.10'
-  # Force vite's bundled rolldown (1.0.2) up to the catalog's 1.0.3.
-  'rolldown': 'catalog:'
   'typescript': 'catalog:'
-  'uuid': '11.1.1'
   'vite': 'catalog:'
   'which-boxed-primitive': 'npm:@socketregistry/which-boxed-primitive@1.0.9'
   'which-collection': 'npm:@socketregistry/which-collection@1.0.8'
