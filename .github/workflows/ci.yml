@@ -178,14 +178,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: ${{ inputs.check-timeout-minutes }}
     steps:
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@66611664a95d469f4fc11ae079ee6acfcd61c674 # main (2026-06-01)
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@5cd9c7d622dabb56087189c8858917b4fe011099 # main (2026-06-01)
         with:
           debug: ${{ inputs.debug }}
           node-version: ${{ inputs.check-node-version }}
           socket-api-token: ${{ secrets.SOCKET_API_TOKEN || secrets.SOCKET_API_KEY }}
           working-directory: ${{ inputs.working-directory }}
 
-      - uses: SocketDev/socket-registry/.github/actions/run-script@eb02d98f2c53a12ade27199c017fc64aa209492e # main (2026-05-25)
+      - uses: SocketDev/socket-registry/.github/actions/run-script@5cd9c7d622dabb56087189c8858917b4fe011099 # main (2026-05-25)
         with:
           main-script: ${{ inputs.check-script }}
           setup-script: ${{ inputs.check-setup-script }}
@@ -197,14 +197,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: ${{ inputs.lint-timeout-minutes }}
     steps:
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@66611664a95d469f4fc11ae079ee6acfcd61c674 # main (2026-06-01)
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@5cd9c7d622dabb56087189c8858917b4fe011099 # main (2026-06-01)
         with:
           debug: ${{ inputs.debug }}
           node-version: ${{ inputs.lint-node-version }}
           socket-api-token: ${{ secrets.SOCKET_API_TOKEN || secrets.SOCKET_API_KEY }}
           working-directory: ${{ inputs.working-directory }}
 
-      - uses: SocketDev/socket-registry/.github/actions/run-script@eb02d98f2c53a12ade27199c017fc64aa209492e # main (2026-05-25)
+      - uses: SocketDev/socket-registry/.github/actions/run-script@5cd9c7d622dabb56087189c8858917b4fe011099 # main (2026-05-25)
         with:
           main-script: ${{ inputs.lint-script }}
           setup-script: ${{ inputs.lint-setup-script }}
@@ -216,14 +216,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: ${{ inputs.type-check-timeout-minutes }}
     steps:
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@66611664a95d469f4fc11ae079ee6acfcd61c674 # main (2026-06-01)
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@5cd9c7d622dabb56087189c8858917b4fe011099 # main (2026-06-01)
         with:
           debug: ${{ inputs.debug }}
           node-version: ${{ inputs.type-check-node-version }}
           socket-api-token: ${{ secrets.SOCKET_API_TOKEN || secrets.SOCKET_API_KEY }}
           working-directory: ${{ inputs.working-directory }}
 
-      - uses: SocketDev/socket-registry/.github/actions/run-script@eb02d98f2c53a12ade27199c017fc64aa209492e # main (2026-05-25)
+      - uses: SocketDev/socket-registry/.github/actions/run-script@5cd9c7d622dabb56087189c8858917b4fe011099 # main (2026-05-25)
         with:
           main-script: ${{ inputs.type-check-script }}
           setup-script: ${{ inputs.type-check-setup-script }}
@@ -241,7 +241,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: ${{ inputs.test-timeout-minutes }}
     steps:
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@66611664a95d469f4fc11ae079ee6acfcd61c674 # main (2026-06-01)
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@5cd9c7d622dabb56087189c8858917b4fe011099 # main (2026-06-01)
         with:
           debug: ${{ inputs.debug }}
           node-version: ${{ matrix.node-version }}
@@ -250,7 +250,7 @@ jobs:
           socket-api-token: ${{ secrets.SOCKET_API_TOKEN || secrets.SOCKET_API_KEY }}
           working-directory: ${{ inputs.working-directory }}
 
-      - uses: SocketDev/socket-registry/.github/actions/run-script@eb02d98f2c53a12ade27199c017fc64aa209492e # main (2026-05-25)
+      - uses: SocketDev/socket-registry/.github/actions/run-script@5cd9c7d622dabb56087189c8858917b4fe011099 # main (2026-05-25)
         with:
           main-script: ${{ inputs.test-script }}
           setup-script: ${{ inputs.test-setup-script }}
