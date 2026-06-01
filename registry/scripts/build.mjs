@@ -16,8 +16,8 @@ import { printFooter } from '@socketsecurity/lib/stdio/footer'
 import { printHeader } from '@socketsecurity/lib/stdio/header'
 
 import { buildConfig } from '../.config/rolldown.config.mts'
-import { parseArgs } from '../../scripts/util/parse-args.mts'
-import { runSequence } from '../../scripts/util/run-command.mts'
+import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
+import { runSequence } from '../../scripts/fleet/util/run-command.mts'
 import process from 'node:process'
 
 const logger = getDefaultLogger()

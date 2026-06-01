@@ -39,7 +39,7 @@ import {
   SOCKET_REGISTRY_SCOPE,
 } from '../constants/paths.mts'
 import { getNpmPackageNames } from '../constants/testing.mts'
-import { logSectionHeader } from '../util/logging.mts'
+import { logSectionHeader } from '../repo/util/logging.mts'
 
 const logger = getDefaultLogger()
 

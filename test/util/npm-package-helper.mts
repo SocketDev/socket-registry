@@ -6,7 +6,7 @@
 import path from 'node:path'
 
 import { NPM, NPM_PACKAGES_PATH } from '../../scripts/constants/paths.mts'
-import { isPackageTestingSkipped } from '../../scripts/util/tests.mts'
+import { isPackageTestingSkipped } from '../../scripts/repo/util/tests.mts'
 
 interface SetupNpmPackageTestResult {
   eco: string

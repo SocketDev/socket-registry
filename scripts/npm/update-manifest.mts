@@ -48,9 +48,9 @@ import {
   TEST_NPM_PATH,
 } from '../constants/paths.mts'
 import { getNpmPackageNames } from '../constants/testing.mts'
-import { biomeFormat } from '../util/biome.mts'
-import { getModifiedFiles } from '../util/git.mts'
-import { getPackageVersionSpec, shouldSkipTests } from '../util/packages.mts'
+import { biomeFormat } from '../repo/util/biome.mts'
+import { getModifiedFiles } from '../repo/util/git.mts'
+import { getPackageVersionSpec, shouldSkipTests } from '../repo/util/packages.mts'
 
 const require = createRequire(import.meta.url)
 

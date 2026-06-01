@@ -17,19 +17,19 @@ import { pEach } from '@socketsecurity/lib-stable/promises/iterate'
 
 const logger = getDefaultLogger()
 
-import { cleanTestScript } from '../util/script-cleaning.mts'
+import { cleanTestScript } from '../repo/util/script-cleaning.mts'
 import { ROOT_PATH, TEST_NPM_PATH } from '../constants/paths.mts'
 import { getNpmPackageNames } from '../constants/testing.mts'
-import { extractErrorInfo } from '../util/errors.mts'
-import { filterPackagesByChanges } from '../util/git.mts'
+import { extractErrorInfo } from '../repo/util/errors.mts'
+import { filterPackagesByChanges } from '../repo/util/git.mts'
 import {
   PNPM_HOISTED_INSTALL_FLAGS,
   PNPM_INSTALL_BASE_FLAGS,
   PNPM_INSTALL_ENV,
   buildTestEnv,
   spawnCapture,
-} from '../util/package.mts'
-import { suppressMaxListenersWarning } from '../util/suppress-warnings.mts'
+} from '../repo/util/package.mts'
+import { suppressMaxListenersWarning } from '../repo/util/suppress-warnings.mts'
 
 const { values: cliArgs } = parseArgs({
   options: {

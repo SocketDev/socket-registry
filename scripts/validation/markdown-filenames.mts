@@ -19,7 +19,7 @@ import { fileURLToPath } from 'node:url'
 
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
-import { runValidationScript } from '../util/validation-runner.mts'
+import { runValidationScript } from '../repo/util/validation-runner.mts'
 
 const logger = getDefaultLogger()
 

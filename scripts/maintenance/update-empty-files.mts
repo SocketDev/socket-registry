@@ -16,7 +16,7 @@ const logger = getDefaultLogger()
 
 import { NPM_TEMPLATES_PATH, ROOT_PATH } from '../constants/paths.mts'
 import { getIgnoreGlobs } from '../constants/utils.mts'
-import { getModifiedFiles } from '../util/git.mts'
+import { getModifiedFiles } from '../repo/util/git.mts'
 
 const { values: cliArgs } = parseArgs({
   options: {

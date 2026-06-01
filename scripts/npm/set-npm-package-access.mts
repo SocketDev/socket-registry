@@ -20,7 +20,7 @@ import {
   SOCKET_REGISTRY_SCOPE,
 } from '../constants/paths.mts'
 import { getNpmPackageNames } from '../constants/testing.mts'
-import { extractNpmError } from '../util/errors.mts'
+import { extractNpmError } from '../repo/util/errors.mts'
 
 const { values: cliArgs } = parseArgs({
   options: {
