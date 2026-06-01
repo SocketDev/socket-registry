@@ -5,7 +5,7 @@
       "Setup action picks the enterprise flavor when SOCKET_API_KEY is in env, otherwise the free flavor. Enterprise downloads require GITHUB_TOKEN auth (private repo); install-tool.mjs forwards GITHUB_TOKEN automatically when set."
     ],
     "description": "Socket Firewall — package manager command wrapper",
-    "version": "1.7.2",
+    "version": "1.12.0",
     "release": "asset",
     "free": {
       "repository": "github:SocketDev/sfw-free",
@@ -13,31 +13,31 @@
       "platforms": {
         "darwin-arm64": {
           "asset": "sfw-free-macos-arm64",
-          "integrity": "sha256-JI+1iOHhon5xkvewefc5/Cmp3mHwutfpCSg2MCLcVkM="
+          "integrity": "sha256-MZrrqT1eV8LbaNZwnloEqhIuMmstlaJ8EHTQqExWcDE="
         },
         "darwin-x64": {
           "asset": "sfw-free-macos-x86_64",
-          "integrity": "sha256-pUJ9R51EDwjjeJ+hkbpXWZvmSZcZba9C5n2WT+wDgrQ="
+          "integrity": "sha256-sF/KJci6E/rQGhbwW5nSG4Zlkca0b5xmL2i6MSC1obM="
         },
         "linux-arm64": {
           "asset": "sfw-free-linux-arm64",
-          "integrity": "sha256-hKBF5OG7MgzFwNOSnwLlPxmTmLW+BjfohG0C2e8AJ7E="
+          "integrity": "sha256-WYyNGcgIMu9cp/2wqfw1wEWEf9AoiRJqcRXANFpHjaM="
         },
         "linux-arm64-musl": {
           "asset": "sfw-free-musl-linux-arm64",
-          "integrity": "sha256-jk24IBch1wxWb687hNfWeuxvLvRgri9kCMbPpQK28U0="
+          "integrity": "sha256-sDbKuadvoHhUBID6ktZVm8LO3jaDqsu8WbkYkBVyBK4="
         },
         "linux-x64": {
           "asset": "sfw-free-linux-x86_64",
-          "integrity": "sha256-k+LZ36JEuCp04BTcJrHGrxi0rewg81JUN4lD21/pFBE="
+          "integrity": "sha256-UYJPAqJC+JLGHEIiPgW36Cu2JHYjN/Amr8KsIp/8rec="
         },
         "linux-x64-musl": {
           "asset": "sfw-free-musl-linux-x86_64",
-          "integrity": "sha256-LIJ3Z7s1CBjDn0vO3kvpFhMInKY3GXj2cpDjNAOFXdE="
+          "integrity": "sha256-/jIdCw8MO7nITKYcQUVjIFs9J7ILAGGtXwwQjnCzlIg="
         },
         "win-x64": {
           "asset": "sfw-free-windows-x86_64.exe",
-          "integrity": "sha256-bTM7TKydfFcS4umWd8pjSsijAg1VDGMIMSxgvql/Cig="
+          "integrity": "sha256-gg0IaLeHCvtHwJTJNoZmv5rxh0TXXJRlM6M0tX7Z8Yo="
         }
       }
     },
@@ -47,31 +47,31 @@
       "platforms": {
         "darwin-arm64": {
           "asset": "sfw-macos-arm64",
-          "integrity": "sha256-sc3Dvb0qMWEke9XMIV6zxEqQuH/guACjOImhT2G7DW0="
+          "integrity": "sha256-D52Q9TM9YuYwvSo+ZGDJlZld0T2+xCxY0RLJr/vCvMQ="
         },
         "darwin-x64": {
           "asset": "sfw-macos-x86_64",
-          "integrity": "sha256-2iUtKppdDtsnG7dx4NAbnNb6FjW212X2Hv1h7bZznxI="
+          "integrity": "sha256-b2Q2wZlUhNyhUg501J0sKjNfOUKFGyZoVSvEolhqh0M="
         },
         "linux-arm64": {
           "asset": "sfw-linux-arm64",
-          "integrity": "sha256-wkp5wn4aAaWbehYMFlkwrgKYFscrFB/PzbL3Pgd0iYo="
+          "integrity": "sha256-705i7ErN2Yk8NV6ni/zUWEsFYGI6cOGbzM2OMZ0tI6k="
         },
         "linux-arm64-musl": {
           "asset": "sfw-musl-linux-arm64",
-          "integrity": "sha256-gbClAbHIZAkSKCq74kpd5MRmnSGVcMSzaOhEOvZ/ujg="
+          "integrity": "sha256-N9ZS28BhD5QIcSH1m95R2+oYyQpmkROTbdXCGZfvDo0="
         },
         "linux-x64": {
           "asset": "sfw-linux-x86_64",
-          "integrity": "sha256-RIK1LmNnvUYQUZv9V6EE1ZB+yH1TmRQu07s9Ii3h8z0="
+          "integrity": "sha256-klirLZpQsTIoESFp1yAQ86WswmiQI9E268x6omPu3us="
         },
         "linux-x64-musl": {
           "asset": "sfw-musl-linux-x86_64",
-          "integrity": "sha256-zjuULfGmZEqD3cYacplX0p+PhZiD/n5slTwear+CJW8="
+          "integrity": "sha256-MqYo5paEQ1ChIF+O6LdvZmXK2uIjNnp+QyYeOcythxE="
         },
         "win-x64": {
           "asset": "sfw-windows-x86_64.exe",
-          "integrity": "sha256-5SrYBqHEG0QPBAmOscfkB4RfA/V0Cmp5AGum/RcgVuw="
+          "integrity": "sha256-/Oac58s/MglUVyeFi3pdoxnaQp50zWk854iazWUbXOw="
         }
       }
     }
