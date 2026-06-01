@@ -111,7 +111,7 @@ export function removeStaleEntries(content: string, stale: Finding[]): string {
   }
   const lines = content.split('\n')
   // 1-based line numbers, descending, so splices don't shift pending indices.
-  const byLineDesc = [...stale].toSorted((a, b) => b.line - a.line)
+  const byLineDesc = [...stale].sort((a, b) => b.line - a.line)
   for (let i = 0, { length } = byLineDesc; i < length; i += 1) {
     const idx = byLineDesc[i]!.line - 1
     // Remove a preceding annotation line if it's the canonical comment.

@@ -33,11 +33,11 @@ import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { parseArgs } from 'node:util'
 
+import { errorMessage } from '@socketsecurity/lib-stable/errors'
 import { safeMkdirSync } from '@socketsecurity/lib-stable/fs/safe'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { getSocketAppDir } from '@socketsecurity/lib-stable/paths/socket'
 import { spawnSync } from '@socketsecurity/lib-stable/process/spawn/child'
-import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 
 const logger = getDefaultLogger()
 

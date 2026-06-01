@@ -14,6 +14,7 @@ import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 
+import { errorMessage } from '@socketsecurity/lib-stable/errors'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { validateSchema } from '@socketsecurity/lib-stable/schema/validate'
 
@@ -21,7 +22,6 @@ import { LockstepManifestSchema } from './schema.mts'
 import type { Row, Site, Upstream } from './schema.mts'
 
 import type { Manifest } from './types.mts'
-import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 
 const logger = getDefaultLogger()
 

@@ -180,7 +180,7 @@ const PATTERNS: ReadonlyArray<{
         const args = invocations[i]!
         for (let j = 0, { length: al } = args; j < al; j += 1) {
           const a = args[j]
-          if (a !== '--scopes' && a !== '-s') {
+          if (a !== '-s' && a !== '--scopes') {
             continue
           }
           const value = args[j + 1] ?? ''
