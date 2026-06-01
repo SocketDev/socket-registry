@@ -93,10 +93,8 @@ import { NODE_MODULES } from '@socketsecurity/lib-stable/paths/dirnames'
 import { PACKAGE_JSON } from '@socketsecurity/lib-stable/paths/filenames'
 import { WIN32 } from '@socketsecurity/lib-stable/constants/platform'
 import { getCI } from '@socketsecurity/lib-stable/env/ci'
-import {
-  getDefaultSpinner,
-  withSpinner,
-} from '@socketsecurity/lib-stable/spinner/default'
+import { getDefaultSpinner } from '@socketsecurity/lib-stable/spinner/default'
+import { withSpinner } from '@socketsecurity/lib-stable/spinner/with'
 import { deleteAsync as del } from 'del'
 import { load as yamlLoad } from 'js-yaml'
 import pacote from 'pacote'

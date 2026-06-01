@@ -24,10 +24,8 @@ import {
 } from '@socketsecurity/lib-stable/packages/operations'
 import { pEach } from '@socketsecurity/lib-stable/promises/iterate'
 import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
-import {
-  getDefaultSpinner,
-  withSpinner,
-} from '@socketsecurity/lib-stable/spinner/default'
+import { getDefaultSpinner } from '@socketsecurity/lib-stable/spinner/default'
+import { withSpinner } from '@socketsecurity/lib-stable/spinner/with'
 import { minimatch } from 'minimatch'
 import semver from 'semver'
 import { LATEST, SOCKET_REGISTRY_PACKAGE_NAME } from '../constants/packages.mts'

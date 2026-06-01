@@ -32,10 +32,8 @@ import {
 } from '@socketsecurity/lib-stable/packages/operations'
 import { pEach } from '@socketsecurity/lib-stable/promises/iterate'
 import { naturalCompare } from '@socketsecurity/lib-stable/sorts/natural'
-import {
-  getDefaultSpinner,
-  withSpinner,
-} from '@socketsecurity/lib-stable/spinner/default'
+import { getDefaultSpinner } from '@socketsecurity/lib-stable/spinner/default'
+import { withSpinner } from '@socketsecurity/lib-stable/spinner/with'
 
 import { DEFAULT_CONCURRENCY } from '../constants/core.mts'
 import {
