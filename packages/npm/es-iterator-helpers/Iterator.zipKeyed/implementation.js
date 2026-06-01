@@ -108,12 +108,11 @@ module.exports = function zipKeyed(iterables, options) {
     } else {
       // Step 14.b: For each element key of keys, do
       for (let i = 0, { length } = keys; i < length; i += 1) {
-        const key = keys[i]!
+        const key = keys[i]
         // Step 14.b.i: Let value be Completion(Get(paddingOption, key)).
         // Step 14.b.ii: IfAbruptCloseIterators(value, iters).
         // Step 14.b.iii: Append value to padding.
         padding.push(paddingOption[key])
-      
       }
     }
   }
