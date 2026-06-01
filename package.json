@@ -37,7 +37,7 @@
     "perf": "node scripts/perf.mts",
     "security": "node scripts/fleet/security.mts",
     "setup": "node scripts/setup.mts",
-    "prepare": "node scripts/fleet/install-git-hooks.mts && node scripts/fleet/install-git-hooks.mts",
+    "prepare": "node scripts/fleet/install-git-hooks.mts",
     "prepublishOnly": "echo 'ERROR: Use GitHub Actions workflow for publishing' && exit 1",
     "publish": "node scripts/fleet/publish.mts",
     "publish:ci": "node scripts/fleet/publish.mts --skip-build",
