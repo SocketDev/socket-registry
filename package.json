@@ -151,7 +151,7 @@
     "strict": true
   },
   "engines": {
-    "node": ">=18.20.8",
+    "node": ">=18",
     "pnpm": ">=11.5.0"
   },
   "packageManager": "pnpm@11.5.0",
