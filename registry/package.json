@@ -45,8 +45,8 @@
     "./tsconfig.json": "./tsconfig.json"
   },
   "scripts": {
-    "build": "node scripts/build.mjs",
-    "build:watch": "node scripts/build.mjs --watch",
+    "build": "node scripts/build.mts",
+    "build:watch": "node scripts/build.mts --watch",
     "check": "tsgo --noEmit",
     "clean": "del-cli dist '**/*.tsbuildinfo'",
     "dev": "pnpm run build:watch",
