@@ -13,8 +13,10 @@
 ## Architecture layers
 
 Actions and workflows reference each other by full 40-char SHA. When any action
-changes, all consumers must be updated in dependency order via separate PRs. Each
-PR must merge before the next can be created (the new merge SHA becomes the pin).
+changes, all consumers must be updated in dependency order, one commit per layer.
+Each commit must land on `main` before the next layer can pin to it — the new
+merge SHA is the next layer's input. The fleet default is direct push to `main`;
+fall back to a PR only when branch protection rejects the push.
 
 ```
 Layer 1 — Leaf actions (no internal SocketDev refs):
