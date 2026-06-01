@@ -69,11 +69,14 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
     it('thisArg and callback arguments are as expected', () => {
       const arr = [0, -0, 1, 2, 3, 4, 5, NaN, Infinity, -Infinity]
-      const result = groupBy(arr, function (this: any, x: any, i: number) {
-        expect(this).toBe(undefined)
-        expect(x).toBe(arr[i])
-        return 42
-      })
+      const result = groupBy(
+        arr,
+        function (this: unknown, x: number, i: number) {
+          expect(this).toBe(undefined)
+          expect(x).toBe(arr[i])
+          return 42
+        },
+      )
       expect(result).toEqual({ __proto__: null, 42: arr })
     })
   })

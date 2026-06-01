@@ -15,8 +15,8 @@ const {
   sockRegPkgName,
 } = await setupNpmPackageTest(import.meta.url)
 
-const identity = (x: any) => x
-const arrayWrap = (x: any) => [x]
+const identity = (x: unknown) => x
+const arrayWrap = (x: unknown) => [x]
 
 const canDistinguishSparseFromUndefined = 0 in [undefined]
 const undefinedIfNoSparseBug = canDistinguishSparseFromUndefined
@@ -27,8 +27,8 @@ const undefinedIfNoSparseBug = canDistinguishSparseFromUndefined
       },
     }
 
-const createArrayLikeFromArray = (arr: any[]) => {
-  const o: Record<string, any> = {}
+const createArrayLikeFromArray = (arr: unknown[]) => {
+  const o: Record<string, unknown> = {}
   for (let i = 0; i < arr.length; i += 1) {
     if (i in arr) {
       o[i] = arr[i]
@@ -39,7 +39,7 @@ const createArrayLikeFromArray = (arr: any[]) => {
 }
 
 const getTestArr = () => {
-  const arr: any[] = [
+  const arr: unknown[] = [
     2,
     3,
     undefinedIfNoSparseBug,
@@ -68,7 +68,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   it('skips non-existing values', () => {
     const array = [1, 2, 3, 4]
     const arrayLike = createArrayLikeFromArray([1, 2, 3, 4])
-    delete (array as any)[2]
+    delete (array as Record<number, number>)[2]
     delete arrayLike[2]
 
     let i = 0
@@ -90,7 +90,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     const context = {}
     forEach(
       arr,
-      function (this: any, value: any, key: number, list: any[]) {
+      function (this: unknown, value: unknown, key: number, list: unknown[]) {
         expect(arguments.length).toBe(3)
         expect(value).toBe(expectedValue)
         expect(key).toBe(0)
@@ -111,7 +111,10 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     expect(arr).toEqual([1, 2, 3, 4, 5, 6])
     expect(i).toBe(3)
 
-    const arrayLike: Record<string, any> = createArrayLikeFromArray([1, 2, 3])
+    const arrayLike = createArrayLikeFromArray([1, 2, 3]) as {
+      length: number
+      [index: number]: number
+    }
     i = 0
     forEach(arrayLike, (a: number) => {
       i += 1
@@ -124,8 +127,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
   it('does not visit elements deleted from the array after it has begun', () => {
     const arr = [1, 2, 3]
-    const actual: Array<[number, any]> = []
-    forEach(arr, (x: any, i: number) => {
+    const actual: Array<[number, unknown]> = []
+    forEach(arr, (x: unknown, i: number) => {
       actual.push([i, x])
       delete arr[1]
     })
@@ -137,7 +140,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
   describe('empty array', () => {
     it('returns undefined', () => {
-      const arr: any[] = []
+      const arr: unknown[] = []
       const actual = forEach(arr, identity)
       expect(actual).toBe(undefined)
     })
@@ -145,7 +148,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
   it('list arg boxing', () => {
     let called = false
-    forEach('f', (item: string, _index: number, list: any) => {
+    forEach('f', (item: string, _index: number, list: unknown) => {
       expect(item).toBe('f')
       expect(typeof list).toBe('object')
       expect(Object.prototype.toString.call(list)).toBe('[object String]')

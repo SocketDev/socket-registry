@@ -15,7 +15,7 @@ const {
   sockRegPkgName,
 } = await setupNpmPackageTest(import.meta.url)
 
-const identity = (x: any) => x
+const identity = (x: unknown) => x
 
 const canDistinguishSparseFromUndefined = 0 in [undefined]
 const undefinedIfNoSparseBug = canDistinguishSparseFromUndefined
@@ -26,8 +26,8 @@ const undefinedIfNoSparseBug = canDistinguishSparseFromUndefined
       },
     }
 
-const createArrayLikeFromArray = (arr: any[]) => {
-  const o: Record<string, any> = {}
+const createArrayLikeFromArray = (arr: unknown[]) => {
+  const o: Record<string, unknown> = {}
   for (let i = 0; i < arr.length; i += 1) {
     if (i in arr) {
       o[i] = arr[i]
@@ -46,11 +46,11 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     const result = reduce(
       arr,
       function (
-        this: any,
-        accumulator: any,
-        value: any,
+        this: unknown,
+        accumulator: unknown,
+        value: unknown,
         key: number,
-        list: any[],
+        list: unknown[],
       ) {
         expect(arguments.length).toBe(4)
         expect(accumulator).toBe(initialValue)
@@ -69,14 +69,17 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     const firstValue = {}
     const secondValue = {}
 
-    reduce([firstValue, secondValue], (accumulator: any, value: any) => {
-      expect(accumulator).toBe(firstValue)
-      expect(value).toBe(secondValue)
-    })
+    reduce(
+      [firstValue, secondValue],
+      (accumulator: unknown, value: unknown) => {
+        expect(accumulator).toBe(firstValue)
+        expect(value).toBe(secondValue)
+      },
+    )
 
     reduce(
       [secondValue],
-      (accumulator: any, value: any) => {
+      (accumulator: unknown, value: unknown) => {
         expect(accumulator).toBe(firstValue)
         expect(value).toBe(secondValue)
       },
@@ -87,7 +90,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   it('does not visit elements added to the array after it has begun', () => {
     let arr = [1, 2, 3]
     let i = 0
-    reduce(arr, (_acc: any, v: number) => {
+    reduce(arr, (_acc: unknown, v: number) => {
       i += 1
       arr.push(v + 3)
     })
@@ -98,7 +101,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     arr = [1, 2, 3]
     reduce(
       arr,
-      (_acc: any, v: number) => {
+      (_acc: unknown, v: number) => {
         i += 1
         arr.push(v + 3)
       },
@@ -107,9 +110,12 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     expect(arr).toEqual([1, 2, 3, 4, 5, 6])
     expect(i).toBe(3)
 
-    let arrayLike = createArrayLikeFromArray([1, 2, 3])
+    let arrayLike = createArrayLikeFromArray([1, 2, 3]) as {
+      length: number
+      [index: number]: number
+    }
     i = 0
-    reduce(arrayLike, (_acc: any, v: number) => {
+    reduce(arrayLike, (_acc: unknown, v: number) => {
       i += 1
       arrayLike[arrayLike['length']] = v + 3
       arrayLike['length'] += 1
@@ -117,11 +123,14 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     expect(Array.prototype.slice.call(arrayLike)).toEqual([1, 2, 3, 5, 6])
     expect(i).toBe(2)
 
-    arrayLike = createArrayLikeFromArray([1, 2, 3])
+    arrayLike = createArrayLikeFromArray([1, 2, 3]) as {
+      length: number
+      [index: number]: number
+    }
     i = 0
     reduce(
       arrayLike,
-      (_acc: any, v: number) => {
+      (_acc: unknown, v: number) => {
         i += 1
         arrayLike[arrayLike['length']] = v + 3
         arrayLike['length'] += 1
@@ -154,7 +163,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     const visited: Record<number, boolean> = {}
     reduce(
       arr,
-      (a: any, b: any) => {
+      (a: number, b: number) => {
         if (a) {
           visited[a] = true
         }
@@ -168,7 +177,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     expect(visited).toEqual({ 1: true, 3: true })
 
     const visited2: Record<number, boolean> = {}
-    reduce(arr, (a: any, b: any) => {
+    reduce(arr, (a: number, b: number) => {
       if (a) {
         visited2[a] = true
       }
@@ -184,7 +193,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     let called = false
     reduce(
       'f',
-      (acc: any, item: string, _index: number, list: any) => {
+      (acc: unknown, item: string, _index: number, list: unknown) => {
         expect(acc).toBe(undefined)
         expect(item).toBe('f')
         expect(typeof list).toBe('object')
@@ -203,7 +212,12 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       length: '-4294967294',
     }
 
-    const cb = (_prevVal: any, curVal: any, idx: number, object: any) => {
+    const cb = (
+      _prevVal: unknown,
+      curVal: unknown,
+      idx: number,
+      object: unknown,
+    ) => {
       expect(object).toBe(obj)
       return curVal === 11 && idx === 1
     }

@@ -192,9 +192,9 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
         try {
           pathParse.win32(errorCase.input)
           expect.unreachable('should have thrown')
-        } catch (err: any) {
+        } catch (err) {
           expect(err).toBeInstanceOf(TypeError)
-          expect(err.message).toMatch(errorCase.message)
+          expect((err as Error).message).toMatch(errorCase.message)
         }
       })
     }
@@ -207,9 +207,9 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
         try {
           pathParse.posix(errorCase.input)
           expect.unreachable('should have thrown')
-        } catch (err: any) {
+        } catch (err) {
           expect(err).toBeInstanceOf(TypeError)
-          expect(err.message).toMatch(errorCase.message)
+          expect((err as Error).message).toMatch(errorCase.message)
         }
       })
     }

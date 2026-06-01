@@ -80,8 +80,12 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     it('faked typed arrays are not typed arrays', () => {
       for (let i = 0, { length } = typedArrayNames; i < length; i += 1) {
         const name = typedArrayNames[i]!
-        if (typeof (globalThis as any)[name] === 'function') {
-          const fakeTypedArray: any = []
+        if (
+          typeof (globalThis as unknown as Record<string, unknown>)[name] ===
+          'function'
+        ) {
+          const fakeTypedArray = [] as unknown as unknown[] &
+            Record<symbol, unknown>
           fakeTypedArray[Symbol.toStringTag] = name
           expect(isTypedArray(fakeTypedArray)).toBe(false)
         }
@@ -98,7 +102,9 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   describe('Typed Arrays', () => {
     for (let i = 0, { length } = typedArrayNames; i < length; i += 1) {
       const name = typedArrayNames[i]!
-      const TypedArray = (globalThis as any)[name]
+      const TypedArray = (
+        globalThis as unknown as Record<string, new (length: number) => unknown>
+      )[name]
       if (typeof TypedArray === 'function') {
         it(`new ${name}(10) is typed array`, () => {
           const arr = new TypedArray(10)

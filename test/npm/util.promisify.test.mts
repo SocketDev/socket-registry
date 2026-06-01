@@ -24,8 +24,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   })
 
   it('pYes is properly promisified', async () => {
-    const yes = function (...args: any[]) {
-      const cb = args[args.length - 1]
+    const yes = function (...args: unknown[]) {
+      const cb = args[args.length - 1] as (err: unknown, value: unknown) => void
       cb(undefined, args.slice(0, -1))
     }
     const pYes = promisify(yes)
@@ -36,8 +36,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   })
 
   it('pNo is properly promisified', async () => {
-    const no = function (...args: any[]) {
-      const cb = args[args.length - 1]
+    const no = function (...args: unknown[]) {
+      const cb = args[args.length - 1] as (err: unknown) => void
       cb(args.slice(0, -1))
     }
     const pNo = promisify(no)

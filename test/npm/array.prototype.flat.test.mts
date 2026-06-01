@@ -15,7 +15,7 @@ const {
   sockRegPkgName,
 } = await setupNpmPackageTest(import.meta.url)
 
-const testArray = (actual: any[], expected: any[], _msg: string) => {
+const testArray = (actual: unknown[], expected: unknown[], _msg: string) => {
   expect(actual).toEqual(expected)
   expect(actual.length).toBe(expected.length)
 }

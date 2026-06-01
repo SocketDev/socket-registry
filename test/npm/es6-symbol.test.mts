@@ -26,7 +26,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     const symbol = SymbolPolyfill('test')
     const obj: Record<PropertyKey, unknown> = {}
     obj[symbol] = 'foo'
-    expect((obj as any).test).toBeUndefined()
+    expect((obj as { test?: unknown | undefined }).test).toBeUndefined()
     expect(obj[symbol]).toBe('foo')
   })
 })

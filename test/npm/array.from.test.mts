@@ -117,7 +117,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   })
 
   it('uses iterators with strings', { skip: !hasSymbols }, () => {
-    const a: any = Object('a')
+    const a = Object('a') as Record<symbol, unknown>
     const b = Object('b')
     a[Symbol.iterator] = function () {
       return b[Symbol.iterator]()
@@ -138,7 +138,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
   it('fills holes in arrays', () => {
     const arr = [1, 2, 3]
-    delete (arr as any)[1]
+    delete (arr as Record<number, number>)[1]
     expect(arrayFrom(arr)).toEqual([1, undefined, 3])
     // eslint-disable-next-line no-sparse-arrays
     expect(arrayFrom([4, , 6])).toEqual([4, undefined, 6])
@@ -169,7 +169,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     it('works with arrays', () => {
       const actual = arrayFrom(
         original,
-        function (this: any, value: any, index: number) {
+        function (this: unknown, value: number, index: number) {
           expect(value).toBe(original[index])
           expect(arguments.length).toBe(2)
           return value * 2
@@ -187,7 +187,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       const context = {}
       arrayFrom(
         original,
-        function (this: any) {
+        function (this: unknown) {
           expect(this).toBe(context)
         },
         context,
@@ -197,7 +197,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     it('accepts a primitive thisArg', () => {
       arrayFrom(
         original,
-        function (this: any) {
+        function (this: { valueOf(): unknown }) {
           expect(this.valueOf()).toBe(42)
           expect(Object.prototype.toString.call(this)).toBe('[object Number]')
         },
@@ -208,7 +208,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     it('accepts a falsy thisArg', () => {
       arrayFrom(
         original,
-        function (this: any) {
+        function (this: { valueOf(): unknown }) {
           expect(this.valueOf()).toBe(false)
           expect(Object.prototype.toString.call(this)).toBe('[object Boolean]')
         },
@@ -231,7 +231,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
   describe('works with iterable objects', () => {
     it('works with arguments', () => {
-      ;(function (..._args: any[]) {
+      ;(function (..._args: unknown[]) {
         expect(arrayFrom(arguments)).toEqual([1, 2, 3])
       })(1, 2, 3)
     })
@@ -290,7 +290,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     const array = [0, 1, -2, 4, -8, 16]
     const o = { arrayIndex: -1 }
 
-    const mapper = function (this: typeof o, _value: any, index: number) {
+    const mapper = function (this: typeof o, _value: unknown, index: number) {
       this.arrayIndex += 1
       expect(index).toBe(this.arrayIndex)
       array.splice(array.length - 1, 1)

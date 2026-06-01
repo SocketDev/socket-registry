@@ -27,6 +27,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
   it('contains only strings', () => {
     const arrays = availableTypedArrays()
-    expect(arrays.every((array: any) => typeof array === 'string')).toBe(true)
+    expect(arrays.every((array: unknown) => typeof array === 'string')).toBe(
+      true,
+    )
   })
 })

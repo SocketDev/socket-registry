@@ -44,14 +44,14 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   describe('second argument: iterator', () => {
     it('throws for non-function iterators', () => {
       const arr: unknown[] = []
-      expect(() => forEach(arr, undefined as any)).toThrow(TypeError)
-      expect(() => forEach(arr, undefined as any)).toThrow(TypeError)
-      expect(() => forEach(arr, '' as any)).toThrow(TypeError)
-      expect(() => forEach(arr, /a/ as any)).toThrow(TypeError)
-      expect(() => forEach(arr, true as any)).toThrow(TypeError)
-      expect(() => forEach(arr, false as any)).toThrow(TypeError)
-      expect(() => forEach(arr, NaN as any)).toThrow(TypeError)
-      expect(() => forEach(arr, 42 as any)).toThrow(TypeError)
+      expect(() => forEach(arr, undefined as never)).toThrow(TypeError)
+      expect(() => forEach(arr, undefined as never)).toThrow(TypeError)
+      expect(() => forEach(arr, '' as never)).toThrow(TypeError)
+      expect(() => forEach(arr, /a/ as never)).toThrow(TypeError)
+      expect(() => forEach(arr, true as never)).toThrow(TypeError)
+      expect(() => forEach(arr, false as never)).toThrow(TypeError)
+      expect(() => forEach(arr, NaN as never)).toThrow(TypeError)
+      expect(() => forEach(arr, 42 as never)).toThrow(TypeError)
     })
 
     it('does not throw for function iterators', () => {
@@ -118,13 +118,13 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
 
     it('iterates only over own keys', () => {
-      function F(this: any) {
+      function F(this: { a?: number | undefined; b?: number | undefined }) {
         this.a = 1
         this.b = 2
       }
-      F.prototype.c = 3
+      ;(F.prototype as { c?: number | undefined }).c = 3
       let counter = 0
-      forEach(new (F as any)(), () => {
+      forEach(new (F as unknown as new () => unknown)(), () => {
         counter += 1
       })
       expect(counter).toBe(2)

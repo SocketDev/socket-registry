@@ -113,7 +113,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   it('works with functions', () => {
     // eslint-disable-next-line unicorn/consistent-function-scoping
     const target = () => {}
-    ;(target as any).a = 1
+    ;(target as { a?: number | undefined }).a = 1
     const returned = es6oa.assign(target, { b: 2 })
     expect(target).toBe(returned)
     expect(returned.a).toBe(1)
@@ -139,9 +139,9 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
   it('only iterates over own keys', () => {
     class Foo {}
-    ;(Foo.prototype as any).bar = true
+    ;(Foo.prototype as { bar?: boolean | undefined }).bar = true
     const foo = new Foo()
-    ;(foo as any).baz = true
+    ;(foo as { baz?: boolean | undefined }).baz = true
     const target = { a: 1 }
     const returned = es6oa.assign(target, foo)
     expect(returned).toBe(target)
@@ -215,7 +215,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     const str = 'abcdefghijklmnopqrst'
     const letters = {}
     for (const letter of str.split('')) {
-      ;(letters as any)[letter] = letter
+      ;(letters as Record<string, string>)[letter] = letter
     }
     const n = 5
     logger.info(`run the next test ${n} times`)
@@ -244,8 +244,10 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
     const sourceBValue = {}
     const sourceCValue = {}
-    ;(source as any).b = sourceBValue
-    ;(source as any).c = sourceCValue
+    ;(source as { b?: unknown | undefined; c?: unknown | undefined }).b =
+      sourceBValue
+    ;(source as { b?: unknown | undefined; c?: unknown | undefined }).c =
+      sourceCValue
     const result = es6oa.assign(target, source)
     expect(result).toBe(target)
     expect(result.b).toBe(targetBValue)

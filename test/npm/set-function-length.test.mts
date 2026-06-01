@@ -58,8 +58,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   it('sets the length of a function', () => {
     const fns = [
       function zero() {},
-      function one(_x: any) {},
-      function two(_x: any, _y: any) {},
+      function one(_x: unknown) {},
+      function two(_x: unknown, _y: unknown) {},
     ]
     for (let i = 0, { length } = fns; i < length; i += 1) {
       const fn = fns[i]!

@@ -134,7 +134,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
         expect(toReversed(arr)).toEqual([4, 3, undefined, 5, 0])
       } finally {
-        delete (Array.prototype as any)[1]
+        delete (Array.prototype as Record<number, unknown>)[1]
       }
     })
   })

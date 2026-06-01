@@ -70,7 +70,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     it('reads elements via getters', () => {
       const getCalls: number[] = []
 
-      const arrayLike: Record<string, any> = {
+      const arrayLike: Record<string, number> = {
         0: 2,
         1: 1,
         2: 3,
@@ -132,7 +132,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
         expect(toSorted(arr)).toEqual([1, 2, 4, 5, undefined])
       } finally {
-        delete (Array.prototype as any)[3]
+        delete (Array.prototype as Record<number, unknown>)[3]
       }
     })
   })
@@ -167,7 +167,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
         expect(sorted).toEqual([1, 2, 3, 4, undefined])
         expect(Object.prototype.hasOwnProperty.call(sorted, 4)).toBe(true)
       } finally {
-        delete (Array.prototype as any)[3]
+        delete (Array.prototype as Record<number, unknown>)[3]
       }
     })
   })

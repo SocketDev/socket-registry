@@ -16,8 +16,8 @@ const {
 } = await setupNpmPackageTest(import.meta.url)
 
 describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
-  const sparseish = { length: 5, 0: 'a', 1: 'b' } as any
-  const overfullarrayish = { length: 2, 0: 'a', 1: 'b', 2: 'c' } as any
+  const sparseish = { length: 5, 0: 'a', 1: 'b' }
+  const overfullarrayish = { length: 2, 0: 'a', 1: 'b', 2: 'c' }
   const thrower = {
     valueOf() {
       throw new RangeError('whoa')
@@ -53,7 +53,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
 
     it('ToLength conversion throws', () => {
-      expect(() => includes({ length: thrower, 0: true } as any, true)).toThrow(
+      expect(() => includes({ length: thrower, 0: true }, true)).toThrow(
         RangeError,
       )
     })
@@ -96,19 +96,19 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
     describe('number coercion', () => {
       it('does not find "a" with object fromIndex coercing to 2', () => {
-        expect(includes(['a', 'b', 'c'], 'a', numberish as any)).toBe(false)
+        expect(includes(['a', 'b', 'c'], 'a', numberish)).toBe(false)
       })
 
       it('does not find "a" with string fromIndex coercing to 2', () => {
-        expect(includes(['a', 'b', 'c'], 'a', '2' as any)).toBe(false)
+        expect(includes(['a', 'b', 'c'], 'a', '2')).toBe(false)
       })
 
       it('finds "c" with object fromIndex coercing to 2', () => {
-        expect(includes(['a', 'b', 'c'], 'c', numberish as any)).toBe(true)
+        expect(includes(['a', 'b', 'c'], 'c', numberish)).toBe(true)
       })
 
       it('finds "c" with string fromIndex coercing to 2', () => {
-        expect(includes(['a', 'b', 'c'], 'c', '2' as any)).toBe(true)
+        expect(includes(['a', 'b', 'c'], 'c', '2')).toBe(true)
       })
     })
 

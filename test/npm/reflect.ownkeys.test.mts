@@ -28,7 +28,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   })
 
   it('object with non-enumerable properties', () => {
-    const o: Record<string, any> = {}
+    const o: Record<string, unknown> = {}
     Object.defineProperty(o, 'a', {
       enumerable: false,
       value: 1,
@@ -47,7 +47,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       const a = Symbol('a')
       const b = Symbol('b')
 
-      const o: Record<string | symbol, any> = { a: 1, b: 2 }
+      const o: Record<string | symbol, unknown> = { a: 1, b: 2 }
       o[a] = 3
       o[b] = 4
       expect(ownKeys(o)).toEqual(['a', 'b', a, b])
@@ -57,9 +57,9 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       const a = Symbol('a')
       const b = Symbol('b')
 
-      const p: Record<string | symbol, any> = { a: 1 }
+      const p: Record<string | symbol, unknown> = { a: 1 }
       p[a] = 3
-      const child: Record<string | symbol, any> = { __proto__: p }
+      const child: Record<string | symbol, unknown> = { __proto__: p }
       child['b'] = 2
       child[b] = 4
       expect(ownKeys(child)).toEqual(['b', b])
@@ -67,7 +67,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
     it('object with non-enumerable symbol properties', () => {
       const a = Symbol('a')
-      const nonEnum: Record<string | symbol, any> = { a: 1 }
+      const nonEnum: Record<string | symbol, unknown> = { a: 1 }
       Object.defineProperty(nonEnum, a, {
         enumerable: false,
         value: 1,

@@ -71,8 +71,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   })
 
   it('array with extra property is still an array', () => {
-    const arr: any = []
-    arr.foo = 'bar'
+    const arr = [] as unknown as unknown[] & Record<string, unknown>
+    arr['foo'] = 'bar'
     expect(isArray(arr)).toBe(true)
   })
 })

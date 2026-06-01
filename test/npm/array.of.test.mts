@@ -167,9 +167,12 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   })
 
   it('does not call setters for indexes', () => {
-    const MyType = function (this: any) {} as any
+    const MyType = function (this: unknown) {} as unknown as {
+      new (): unknown
+      prototype: object
+    }
     Object.defineProperty(MyType.prototype, '0', {
-      set(_x: any) {
+      set(_x: string) {
         throw new SyntaxError('Setter called: ' + _x)
       },
     })

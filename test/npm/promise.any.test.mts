@@ -24,9 +24,9 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     try {
       await any([])
       expect.unreachable('should not resolve')
-    } catch (error: any) {
+    } catch (error) {
       expect(error instanceof AggregateError).toBe(true)
-      expect(error.errors).toEqual([])
+      expect((error as AggregateError).errors).toEqual([])
     }
   })
 
@@ -48,9 +48,9 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     try {
       await any([Promise.reject(a), Promise.reject(b), Promise.reject(c)])
       expect.unreachable('should not resolve')
-    } catch (error: any) {
+    } catch (error) {
       expect(error instanceof AggregateError).toBe(true)
-      expect(error.errors).toEqual([a, b, c])
+      expect((error as AggregateError).errors).toEqual([a, b, c])
     }
   })
 
@@ -72,13 +72,13 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     const poison = new EvalError()
     const promise = new Promise(function () {})
     // eslint-disable-next-line unicorn/no-thenable
-    ;(promise as any).then = function () {
+    ;(promise as { then: unknown }).then = function () {
       throw poison
     }
     try {
       await any([promise])
       expect.unreachable('should not reach here')
-    } catch (error: any) {
+    } catch (error) {
       expect(error).toBe(poison)
     }
   })

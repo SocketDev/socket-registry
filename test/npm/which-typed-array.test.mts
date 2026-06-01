@@ -66,8 +66,10 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       for (let i = 0, { length } = typedArrayNames; i < length; i += 1) {
         const name = typedArrayNames[i]!
         if (typeof globalThis[name] === 'function') {
-          const fakeTypedArray: any = []
-          fakeTypedArray[Symbol.toStringTag] = name
+          const fakeTypedArray: unknown[] = []
+          ;(fakeTypedArray as unknown as Record<symbol, unknown>)[
+            Symbol.toStringTag
+          ] = name
           expect(whichTypedArray(fakeTypedArray)).toBe(false)
         }
       }

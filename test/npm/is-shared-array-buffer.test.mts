@@ -71,7 +71,12 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
     for (let i = 0, { length } = typedArrayNames; i < length; i += 1) {
       const name = typedArrayNames[i]!
-      const TypedArray = (globalThis as any)[name]
+      const TypedArray = (
+        globalThis as unknown as Record<
+          string,
+          new (length: number) => { buffer: unknown }
+        >
+      )[name]
       if (typeof TypedArray === 'function') {
         it(`${name} buffer is not a SharedArrayBuffer`, () => {
           const ta = new TypedArray(0)

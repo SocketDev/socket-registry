@@ -29,7 +29,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   })
 
   it('returns undefined when nothing matches', () => {
-    expect(find(list, (item: any) => item === 'a')).toBe(undefined)
+    expect(find(list, (item: unknown) => item === 'a')).toBe(undefined)
   })
 
   it('throws without callback', () => {
@@ -40,7 +40,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     const context = {}
     const foundIndex = find(
       list,
-      function (this: any, value: number, index: number, arr: number[]) {
+      function (this: unknown, value: number, index: number, arr: number[]) {
         expect(list[index]).toBe(value)
         expect(arr).toEqual(list)
         expect(this).toBe(context)
@@ -67,10 +67,10 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     () => {
       it('works with a sparse array', () => {
         // eslint-disable-next-line no-sparse-arrays
-        const obj = [1, , undefined] as any[]
+        const obj = [1, , undefined] as unknown[]
         expect(1 in obj).toBe(false)
-        const seen: Array<[number, any]> = []
-        const foundSparse = find(obj, (item: any, idx: number) => {
+        const seen: Array<[number, unknown]> = []
+        const foundSparse = find(obj, (item: unknown, idx: number) => {
           seen.push([idx, item])
           return false
         })
@@ -84,8 +84,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
       it('works with a sparse array-like object', () => {
         const obj = { 0: 1, 2: undefined, length: 3.2 }
-        const seen: Array<[number, any]> = []
-        const foundSparse = find(obj, (item: any, idx: number) => {
+        const seen: Array<[number, unknown]> = []
+        const foundSparse = find(obj, (item: unknown, idx: number) => {
           seen.push([idx, item])
           return false
         })

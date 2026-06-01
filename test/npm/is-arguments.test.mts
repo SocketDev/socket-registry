@@ -74,9 +74,9 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
 
     it('real arguments with faked toStringTag is not arguments', () => {
-      const args: any = (function () {
+      const args = (function () {
         return arguments
-      })()
+      })() as unknown as Record<PropertyKey, unknown>
       args[Symbol.toStringTag] = 'Arguments'
       expect(isArguments(args)).toBe(false)
     })

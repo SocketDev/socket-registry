@@ -30,7 +30,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   })
 
   it('values are in the same order as keys', () => {
-    const object: Record<string | number, any> = { a, b }
+    const object: Record<string | number, unknown> = { a, b }
     object[0] = 3
     object['c'] = c
     object[1] = 4
@@ -47,15 +47,18 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   })
 
   it('inherited properties are omitted', () => {
-    const F = function (this: any) {} as any
-    F.prototype.a = a
+    const F = function (this: unknown) {} as unknown as {
+      new (): Record<string, unknown>
+      prototype: Record<string, unknown>
+    }
+    F.prototype['a'] = a
     const f = new F()
-    f.b = b
+    f['b'] = b
     expect(values(f)).toEqual([b])
   })
 
   it('Symbol properties are omitted', () => {
-    const object: Record<string | symbol, any> = { a, b, c }
+    const object: Record<string | symbol, unknown> = { a, b, c }
     const enumSym = Symbol('enum')
     const nonEnumSym = Symbol('non enum')
     object[enumSym] = enumSym
@@ -68,7 +71,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   })
 
   it('not-yet-visited keys deleted on [[Get]] must not show up in output', () => {
-    const o: Record<string, any> = { a: 1, b: 2, c: 3 }
+    const o: Record<string, unknown> = { a: 1, b: 2, c: 3 }
     Object.defineProperty(o, 'a', {
       get() {
         delete this.b
@@ -79,7 +82,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   })
 
   it('not-yet-visited keys made non-enumerable on [[Get]] must not show up in output', () => {
-    const o: Record<string, any> = { a: 'A', b: 'B' }
+    const o: Record<string, unknown> = { a: 'A', b: 'B' }
     Object.defineProperty(o, 'a', {
       get() {
         Object.defineProperty(o, 'b', { enumerable: false })

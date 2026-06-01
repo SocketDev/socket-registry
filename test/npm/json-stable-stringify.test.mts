@@ -22,7 +22,9 @@ describe(
       skip || ENV.CI ? undefined : require(pkgRequireIndexJsPath)
 
     const rawJSON: ((_str: string) => { rawJSON: string }) | undefined = (
-      JSON as any
+      JSON as unknown as {
+        rawJSON?: ((_str: string) => { rawJSON: string }) | undefined
+      }
     ).rawJSON
 
     const SUPPORTS_JSON_RAW_JSON = typeof rawJSON === 'function'
@@ -106,7 +108,7 @@ describe(
             ;(function r() {
               limit += 1
               const newObj = {}
-              ;(obj as any)[`prop${limit}`] = newObj
+              ;(obj as Record<string, unknown>)[`prop${limit}`] = newObj
               obj = newObj
               r()
             })()

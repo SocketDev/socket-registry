@@ -15,7 +15,7 @@ const {
   sockRegPkgName,
 } = await setupNpmPackageTest(import.meta.url)
 
-const hasOwn = (obj: any, key: string) =>
+const hasOwn = (obj: unknown, key: string) =>
   Object.prototype.hasOwnProperty.call(obj, key)
 
 const getRegexLiteral = (stringRegex: string) => {
@@ -81,7 +81,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
   it('getters are called in expected order', () => {
     let calls = ''
-    const re: Record<string, any> = {}
+    const re: Record<string, unknown> = {}
     Object.defineProperty(re, 'hasIndices', {
       get() {
         calls += 'd'

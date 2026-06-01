@@ -84,7 +84,9 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
     for (let i = 0, { length } = typedArrayNames; i < length; i += 1) {
       const name = typedArrayNames[i]!
-      const TypedArray = (globalThis as any)[name]
+      const TypedArray = (globalThis as Record<string, unknown>)[name] as
+        | (new (length: number) => { buffer: unknown })
+        | undefined
       if (typeof TypedArray === 'function') {
         it(`${name} buffer is an ArrayBuffer`, () => {
           const ta = new TypedArray(0)

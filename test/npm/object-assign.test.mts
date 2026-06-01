@@ -54,10 +54,13 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   })
 
   it('only iterates own keys', () => {
-    const Unicorn = function (this: any) {} as any
-    Unicorn.prototype.rainbows = 'many'
+    const Unicorn = function (this: unknown) {} as unknown as {
+      new (): Record<string, unknown>
+      prototype: Record<string, unknown>
+    }
+    Unicorn.prototype['rainbows'] = 'many'
     const unicorn = new Unicorn()
-    unicorn.bar = 1
+    unicorn['bar'] = 1
 
     expect(objectAssign({ foo: 1 }, unicorn)).toEqual({ foo: 1, bar: 1 })
   })
@@ -100,7 +103,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     const sym = Symbol('foo')
     source[sym] = 'bar'
     objectAssign(target, source)
-    expect((target as any)[sym]).toBe('bar')
+    expect((target as Record<symbol, unknown>)[sym]).toBe('bar')
   })
 
   it('only copies enumerable symbols', () => {
@@ -112,6 +115,6 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       value: 'bar',
     })
     objectAssign(target, source)
-    expect((target as any)[sym]).toBe(undefined)
+    expect((target as Record<symbol, unknown>)[sym]).toBe(undefined)
   })
 })

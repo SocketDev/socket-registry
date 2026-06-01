@@ -15,8 +15,8 @@ const {
   sockRegPkgName,
 } = await setupNpmPackageTest(import.meta.url)
 
-const yes = (value: any) => ({ status: 'fulfilled', value })
-const no = (reason: any) => ({ status: 'rejected', reason })
+const yes = (value: unknown) => ({ status: 'fulfilled', value })
+const no = (reason: unknown) => ({ status: 'rejected', reason })
 
 describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   const a = {}
@@ -54,13 +54,13 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   it('poisoned .then', async () => {
     const promise = new Promise(function () {})
     // eslint-disable-next-line unicorn/no-thenable
-    ;(promise as any).then = function () {
+    ;(promise as { then: unknown }).then = function () {
       throw new EvalError()
     }
     try {
       await allSettled([promise])
       expect.unreachable('should not reach here')
-    } catch (reason: any) {
+    } catch (reason) {
       expect(reason instanceof EvalError).toBe(true)
     }
   })

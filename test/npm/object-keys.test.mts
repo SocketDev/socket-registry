@@ -54,7 +54,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
     it('should work with an arguments object', () => {
       // eslint-disable-next-line unicorn/consistent-function-scoping
-      function testArgs(_a: any, _b: any, _c: any) {
+      function testArgs(_a: unknown, _b: unknown, _c: unknown) {
         const keys = objectKeys(arguments)
         expect(keys).toEqual(['0', '1', '2'])
       }
@@ -67,14 +67,14 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       expect(objectKeys(new String('hello'))).toEqual(['0', '1', '2', '3', '4'])
 
       const x = new String('x')
-      ;(x as any).y = 1
+      ;(x as unknown as Record<string, unknown>)['y'] = 1
       expect(objectKeys(x).toSorted()).toEqual(['0', 'y'].toSorted())
     })
 
     it('should work with a function', () => {
       // eslint-disable-next-line unicorn/consistent-function-scoping
       const foo = () => {}
-      ;(foo as any).a = true
+      ;(foo as unknown as Record<string, unknown>)['a'] = true
 
       expect(() => objectKeys(foo)).not.toThrow()
       expect(objectKeys(foo)).toEqual(['a'])
@@ -114,8 +114,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       class Prototype {
         foo: boolean = true
       }
-      const instance: any = new Prototype()
-      instance.bar = true
+      const instance = new Prototype() as Prototype & Record<string, unknown>
+      instance['bar'] = true
       const keys = objectKeys(instance)
       expect(Array.isArray(keys)).toBe(true)
       expect(keys.toSorted()).toEqual(['bar', 'foo'].toSorted())
@@ -135,7 +135,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
         'valueOf',
       ]
       shadowedProps.sort()
-      const shadowedObject: any = { __proto__: null }
+      const shadowedObject: Record<string, unknown> = { __proto__: null }
       for (let i = 0; i < shadowedProps.length; i += 1) {
         shadowedObject[shadowedProps[i] as string] = i
       }
@@ -153,8 +153,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
     it('should work in iOS 5 mobile Safari scenario', () => {
       // eslint-disable-next-line unicorn/consistent-function-scoping
-      const Foo: any = () => {}
-      Foo.a = () => {}
+      const Foo = (() => {}) as unknown as Record<string, unknown>
+      Foo['a'] = () => {}
       expect(objectKeys(Foo)).toEqual(['a'])
     })
 

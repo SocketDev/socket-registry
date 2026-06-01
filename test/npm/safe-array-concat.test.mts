@@ -41,20 +41,23 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   })
 
   it('ignores nonArray .constructor on first item', () => {
-    const arr: any = [1, 2]
-    arr.constructor = function C() {
-      return { args: arguments }
-    }
+    const arr = [1, 2]
+    ;(arr as unknown as Record<PropertyKey, unknown>)['constructor'] =
+      function C() {
+        return { args: arguments }
+      }
     expect(safeConcat(arr, 3, 4)).toEqual([1, 2, 3, 4])
   })
 
   it('ignores Symbol.species on first item', () => {
     const species = Symbol.species
-    const speciesArr: any = [1, 2]
-    speciesArr.constructor = {}
-    speciesArr.constructor[species] = function Species() {
+    const speciesArr = [1, 2]
+    const speciesCtor: Record<PropertyKey, unknown> = {}
+    speciesCtor[species] = function Species() {
       return { args: arguments }
     }
+    ;(speciesArr as unknown as Record<PropertyKey, unknown>)['constructor'] =
+      speciesCtor as unknown as Function
     expect(safeConcat(speciesArr, 3, 4)).toEqual([1, 2, 3, 4])
   })
 })

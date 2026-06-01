@@ -31,7 +31,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     it('should not mutate regex lastIndex', () => {
       const regex = /a/
       const marker = {}
-      ;(regex as any).lastIndex = marker
+      ;(regex as unknown as Record<string, unknown>)['lastIndex'] = marker
       expect(regex.lastIndex).toBe(marker)
       expect(isRegex(regex)).toBe(true)
       expect(regex.lastIndex).toBe(marker)

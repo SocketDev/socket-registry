@@ -27,8 +27,8 @@ const undefinedIfNoSparseBug = canDistinguishSparseFromUndefined
       },
     }
 
-const createArrayLikeFromArray = (arr: any[]) => {
-  const o: Record<string, any> = {}
+const createArrayLikeFromArray = (arr: unknown[]) => {
+  const o: Record<string, unknown> = {}
   for (let i = 0; i < arr.length; i += 1) {
     if (i in arr) {
       o[i] = arr[i]
@@ -39,7 +39,7 @@ const createArrayLikeFromArray = (arr: any[]) => {
 }
 
 const getTestArr = () => {
-  const arr: any[] = [
+  const arr: unknown[] = [
     0,
     false,
     undefined,
@@ -82,7 +82,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     const context = {}
     findLastIndex(
       arr,
-      function (this: any, value: any, key: number, list: any[]) {
+      function (this: unknown, value: unknown, key: number, list: unknown[]) {
         expect(arguments.length).toBe(3)
         expect(value).toBe(expectedValue)
         expect(key).toBe(0)
@@ -108,8 +108,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
   it('does not visit elements deleted from the array after it has begun', () => {
     const arr = [1, 2, 3]
-    const actual: Array<[number, any]> = []
-    findLastIndex(arr, (x: any, i: number) => {
+    const actual: Array<[number, unknown]> = []
+    findLastIndex(arr, (x: unknown, i: number) => {
       actual.push([i, x])
       delete arr[1]
       return false
@@ -149,9 +149,9 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
   describe('stopping after N elements', () => {
     it('no context', () => {
-      const actual: Record<number, any> = {}
+      const actual: Record<number, unknown> = {}
       let count = 0
-      findLastIndex(getTestArr(), (obj: any, index: number) => {
+      findLastIndex(getTestArr(), (obj: unknown, index: number) => {
         actual[index] = obj
         count += 1
         return count === 4
@@ -165,12 +165,16 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
 
     it('with context', () => {
-      const actual: Record<number, any> = {}
+      const actual: Record<number, unknown> = {}
       const context = { actual }
       let count = 0
       findLastIndex(
         getTestArr(),
-        function (this: any, obj: any, index: number) {
+        function (
+          this: { actual: Record<number, unknown> },
+          obj: unknown,
+          index: number,
+        ) {
           this.actual[index] = obj
           count += 1
           return count === 4
@@ -186,11 +190,11 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
 
     it('arraylike, no context', () => {
-      const actual: Record<number, any> = {}
+      const actual: Record<number, unknown> = {}
       let count = 0
       findLastIndex(
         createArrayLikeFromArray(getTestArr()),
-        (obj: any, index: number) => {
+        (obj: unknown, index: number) => {
           actual[index] = obj
           count += 1
           return count === 4
@@ -205,12 +209,16 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
 
     it('arraylike, context', () => {
-      const actual: Record<number, any> = {}
+      const actual: Record<number, unknown> = {}
       const context = { actual }
       let count = 0
       findLastIndex(
         createArrayLikeFromArray(getTestArr()),
-        function (this: any, obj: any, index: number) {
+        function (
+          this: { actual: Record<number, unknown> },
+          obj: unknown,
+          index: number,
+        ) {
           this.actual[index] = obj
           count += 1
           return count === 4
@@ -228,7 +236,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
   it('list arg boxing', () => {
     let called = false
-    findLastIndex('bar', (item: string, _index: number, list: any) => {
+    findLastIndex('bar', (item: string, _index: number, list: unknown) => {
       expect(item).toBe('r')
       expect(typeof list).toBe('object')
       expect(Object.prototype.toString.call(list)).toBe('[object String]')
@@ -275,7 +283,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     const arrayLike = { length: Number.MAX_VALUE }
     const calledWithIndex: number[] = []
 
-    findLastIndex(arrayLike, (_: any, index: number) => {
+    findLastIndex(arrayLike, (_: unknown, index: number) => {
       calledWithIndex.push(index)
       return true
     })

@@ -27,8 +27,8 @@ const undefinedIfNoSparseBug = canDistinguishSparseFromUndefined
       },
     }
 
-const createArrayLikeFromArray = (arr: any[]) => {
-  const o: Record<string, any> = {}
+const createArrayLikeFromArray = (arr: unknown[]) => {
+  const o: Record<string, unknown> = {}
   for (let i = 0; i < arr.length; i += 1) {
     if (i in arr) {
       o[i] = arr[i]
@@ -39,7 +39,7 @@ const createArrayLikeFromArray = (arr: any[]) => {
 }
 
 const getTestArr = () => {
-  const arr: any[] = [
+  const arr: unknown[] = [
     2,
     3,
     undefinedIfNoSparseBug,
@@ -60,7 +60,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     const context = {}
     every(
       arr,
-      function (this: any, value: any, key: number, list: any[]) {
+      function (this: unknown, value: unknown, key: number, list: unknown[]) {
         expect(arguments.length).toBe(3)
         expect(value).toBe(expectedValue)
         expect(key).toBe(0)
@@ -86,8 +86,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
   it('does not visit elements deleted from the array after it has begun', () => {
     const arr = [1, 2, 3]
-    const actual: Array<[number, any]> = []
-    every(arr, (x: any, i: number) => {
+    const actual: Array<[number, unknown]> = []
+    every(arr, (x: unknown, i: number) => {
       actual.push([i, x])
       delete arr[1]
       return true
@@ -118,9 +118,9 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
   describe('stopping after N elements', () => {
     it('no context', () => {
-      const actual: Record<number, any> = {}
+      const actual: Record<number, unknown> = {}
       let count = 0
-      every(getTestArr(), (obj: any, index: number) => {
+      every(getTestArr(), (obj: unknown, index: number) => {
         actual[index] = obj
         count += 1
         return count !== 3
@@ -133,12 +133,16 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
 
     it('with context', () => {
-      const actual: Record<number, any> = {}
+      const actual: Record<number, unknown> = {}
       const context = { actual }
       let count = 0
       every(
         getTestArr(),
-        function (this: any, obj: any, index: number) {
+        function (
+          this: { actual: Record<number, unknown> },
+          obj: unknown,
+          index: number,
+        ) {
           this.actual[index] = obj
           count += 1
           return count !== 3
@@ -153,11 +157,11 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
 
     it('arraylike, no context', () => {
-      const actual: Record<number, any> = {}
+      const actual: Record<number, unknown> = {}
       let count = 0
       every(
         createArrayLikeFromArray(getTestArr()),
-        (obj: any, index: number) => {
+        (obj: unknown, index: number) => {
           actual[index] = obj
           count += 1
           return count !== 3
@@ -171,12 +175,16 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
 
     it('arraylike, context', () => {
-      const actual: Record<number, any> = {}
+      const actual: Record<number, unknown> = {}
       const context = { actual }
       let count = 0
       every(
         createArrayLikeFromArray(getTestArr()),
-        function (this: any, obj: any, index: number) {
+        function (
+          this: { actual: Record<number, unknown> },
+          obj: unknown,
+          index: number,
+        ) {
           this.actual[index] = obj
           count += 1
           return count !== 3
@@ -193,7 +201,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
   it('list arg boxing', () => {
     let called = false
-    every('foo', (item: string, _index: number, list: any) => {
+    every('foo', (item: string, _index: number, list: unknown) => {
       expect(item).toBe('f')
       expect(typeof list).toBe('object')
       expect(Object.prototype.toString.call(list)).toBe('[object String]')

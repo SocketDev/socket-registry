@@ -30,7 +30,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   }
 
   it('gets all expected non-Symbol descriptors', () => {
-    const obj: Record<string, any> = { normal: Infinity }
+    const obj: Record<string, unknown> = { normal: Infinity }
     Object.defineProperty(obj, 'enumerable', enumDescriptor)
     Object.defineProperty(obj, 'writable', writableDescriptor)
 
@@ -56,7 +56,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       value: [symbol],
       writable: true,
     }
-    const obj: Record<string | symbol, any> = { normal: Infinity }
+    const obj: Record<string | symbol, unknown> = { normal: Infinity }
     Object.defineProperty(obj, 'enumerable', enumDescriptor)
     Object.defineProperty(obj, 'writable', writableDescriptor)
     Object.defineProperty(obj, 'symbol', symDescriptor)
@@ -77,7 +77,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   })
 
   it('Proxies that return an undefined descriptor', () => {
-    const obj: Record<string, any> = { foo: true }
+    const obj: Record<string, unknown> = { foo: true }
     const fooDescriptor = Object.getOwnPropertyDescriptor(obj, 'foo')
 
     const proxy = new Proxy(obj, {

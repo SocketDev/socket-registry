@@ -63,7 +63,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       const isBigInt = name.slice(0, 3) === 'Big'
 
       it(`${name}: returns a new instance when sliced with no args`, () => {
-        const ta = new (TA as any)(
+        const ta = new (TA as new (values: number[] | bigint[]) => Uint8Array)(
           isBigInt ? [BigInt(1), BigInt(2), BigInt(3)] : [1, 2, 3],
         )
         const copy = slice(ta)
@@ -74,14 +74,14 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       })
 
       it(`${name}: returns subset when sliced with start index`, () => {
-        const ta = new (TA as any)(
+        const ta = new (TA as new (values: number[] | bigint[]) => Uint8Array)(
           isBigInt ? [BigInt(1), BigInt(2), BigInt(3)] : [1, 2, 3],
         )
         const subset = slice(ta, 1)
         expect(subset).not.toBe(ta)
-        const expected = new (TA as any)(
-          isBigInt ? [BigInt(2), BigInt(3)] : [2, 3],
-        )
+        const expected = new (TA as new (
+          values: number[] | bigint[],
+        ) => Uint8Array)(isBigInt ? [BigInt(2), BigInt(3)] : [2, 3])
         expect(Array.from(subset)).toEqual(Array.from(expected))
       })
     }

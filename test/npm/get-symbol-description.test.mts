@@ -49,7 +49,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
         [Symbol(), undefined],
         [Symbol(undefined), undefined],
         // oxlint-disable-next-line socket/prefer-undefined-over-null -- spec: Symbol(null).description === "null"; Symbol(undefined).description === undefined.
-        [Symbol(null as any), 'null'],
+        [Symbol(null as unknown as string), 'null'],
         [Symbol.iterator, 'Symbol.iterator'],
         [Symbol('foo'), 'foo'],
       ]

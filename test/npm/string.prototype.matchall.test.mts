@@ -14,8 +14,8 @@ const {
   sockRegPkgName,
 } = await setupNpmPackageTest(import.meta.url)
 
-const collectResults = (iterator: any) => {
-  const results = []
+const collectResults = (iterator: Iterator<RegExpMatchArray>) => {
+  const results: RegExpMatchArray[] = []
   let result = iterator.next()
   while (!result.done) {
     results.push(result.value)
@@ -31,8 +31,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     const regexResults = collectResults(matchAll(str, /a/g))
     expect(strResults.length).toBe(regexResults.length)
     for (let i = 0; i < strResults.length; i++) {
-      expect(strResults[i][0]).toBe(regexResults[i][0])
-      expect(strResults[i].index).toBe(regexResults[i].index)
+      expect(strResults[i]![0]).toBe(regexResults[i]![0])
+      expect(strResults[i]!.index).toBe(regexResults[i]!.index)
     }
   })
 
@@ -43,12 +43,12 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     expect(Object.prototype.hasOwnProperty.call(iterator, 'next')).toBe(false)
     const results = collectResults(iterator)
     expect(results.length).toBe(3)
-    expect(results[0][0]).toBe('a')
-    expect(results[0].index).toBe(0)
-    expect(results[1][0]).toBe('a')
-    expect(results[1].index).toBe(1)
-    expect(results[2][0]).toBe('c')
-    expect(results[2].index).toBe(3)
+    expect(results[0]![0]).toBe('a')
+    expect(results[0]!.index).toBe(0)
+    expect(results[1]![0]).toBe('a')
+    expect(results[1]!.index).toBe(1)
+    expect(results[2]![0]).toBe('c')
+    expect(results[2]!.index).toBe(3)
   })
 
   it('throws with a non-global regex', () => {
@@ -60,19 +60,19 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     const str = 'AaBbCc'
     const results = collectResults(matchAll(str, /[bc]/gi))
     expect(results.length).toBe(4)
-    expect(results[0][0]).toBe('B')
-    expect(results[1][0]).toBe('b')
-    expect(results[2][0]).toBe('C')
-    expect(results[3][0]).toBe('c')
+    expect(results[0]![0]).toBe('B')
+    expect(results[1]![0]).toBe('b')
+    expect(results[2]![0]).toBe('C')
+    expect(results[3]![0]).toBe('c')
   })
 
   it('respects flags', () => {
     const str = 'A\na\nb\nC'
     const results = collectResults(matchAll(str, /^[ac]/gim))
     expect(results.length).toBe(3)
-    expect(results[0][0]).toBe('A')
-    expect(results[1][0]).toBe('a')
-    expect(results[2][0]).toBe('C')
+    expect(results[0]![0]).toBe('A')
+    expect(results[1]![0]).toBe('a')
+    expect(results[2]![0]).toBe('C')
   })
 
   describe('zero-width matches', () => {
@@ -80,10 +80,10 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       const str = 'abcde'
       const results = collectResults(matchAll(str, /\B/g))
       expect(results.length).toBe(4)
-      expect(results[0].index).toBe(1)
-      expect(results[1].index).toBe(2)
-      expect(results[2].index).toBe(3)
-      expect(results[3].index).toBe(4)
+      expect(results[0]!.index).toBe(1)
+      expect(results[1]!.index).toBe(2)
+      expect(results[2]!.index).toBe(3)
+      expect(results[3]!.index).toBe(4)
     })
   })
 })

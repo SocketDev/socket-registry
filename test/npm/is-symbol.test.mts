@@ -102,7 +102,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
         Object.getOwnPropertyNames(Symbol).filter(isWellKnown)
       for (let i = 0, { length } = wellKnownSymbols; i < length; i += 1) {
         const name = wellKnownSymbols[i]!
-        const sym = (Symbol as any)[name]
+        const sym = (Symbol as unknown as Record<string, unknown>)[name]
         if (typeof sym === 'symbol') {
           expect(isSymbol(sym)).toBe(true)
         }

@@ -127,7 +127,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       })
 
       it('object from bound constructor is instance of original and bound constructor', () => {
-        const A = function (this: any, x?: string) {
+        const A = function (this: { name?: string | undefined }, x?: string) {
           this.name = x || 'A'
         }
         const B = functionBind.call(A, undefined, 'B')

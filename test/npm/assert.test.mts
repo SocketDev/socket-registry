@@ -470,9 +470,9 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
 
     it('should handle circular references', () => {
-      const obj1: any = { a: 1 }
+      const obj1: { a: number; self?: unknown | undefined } = { a: 1 }
       obj1.self = obj1
-      const obj2: any = { a: 1 }
+      const obj2: { a: number; self?: unknown | undefined } = { a: 1 }
       obj2.self = obj2
       expect(() => assert.deepEqual(obj1, obj2)).not.toThrow()
     })
@@ -494,9 +494,9 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
 
     it('should handle errors with custom properties', () => {
-      const err1: any = new Error('test')
+      const err1 = new Error('test') as Error & { code?: string | undefined }
       err1.code = 'ERR_TEST'
-      const err2: any = new Error('test')
+      const err2 = new Error('test') as Error & { code?: string | undefined }
       err2.code = 'ERR_TEST'
       expect(() => assert.deepEqual(err1, err2)).not.toThrow()
     })

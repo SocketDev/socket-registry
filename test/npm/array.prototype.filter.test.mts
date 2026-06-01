@@ -16,7 +16,7 @@ const {
 } = await setupNpmPackageTest(import.meta.url)
 
 const truthy = () => true
-const oddIndexes = (_x: any, i: number) => i % 2 !== 0
+const oddIndexes = (_x: unknown, i: number) => i % 2 !== 0
 
 const canDistinguishSparseFromUndefined = 0 in [undefined]
 const undefinedIfNoSparseBug = canDistinguishSparseFromUndefined
@@ -27,8 +27,8 @@ const undefinedIfNoSparseBug = canDistinguishSparseFromUndefined
       },
     }
 
-const createArrayLikeFromArray = (arr: any[]) => {
-  const o: Record<string, any> = {}
+const createArrayLikeFromArray = (arr: unknown[]) => {
+  const o: Record<string, unknown> = {}
   for (let i = 0; i < arr.length; i += 1) {
     if (i in arr) {
       o[i] = arr[i]
@@ -39,7 +39,7 @@ const createArrayLikeFromArray = (arr: any[]) => {
 }
 
 const getTestArr = () => {
-  const arr: any[] = [
+  const arr: unknown[] = [
     2,
     3,
     4,
@@ -104,7 +104,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   it('skips non-existing values', () => {
     const array = [1, 2, 3, 4]
     const arrayLike = createArrayLikeFromArray([1, 2, 3, 4])
-    delete (array as any)[2]
+    delete (array as Record<number, number>)[2]
     delete arrayLike[2]
 
     let i = 0
@@ -126,7 +126,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     const context = {}
     filter(
       arr,
-      function (this: any, value: any, key: number, list: any[]) {
+      function (this: unknown, value: unknown, key: number, list: unknown[]) {
         expect(arguments.length).toBe(3)
         expect(value).toBe(expectedValue)
         expect(key).toBe(0)
@@ -147,7 +147,10 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     expect(arr).toEqual([1, 2, 3, 4, 5, 6])
     expect(i).toBe(3)
 
-    const arrayLike: Record<string, any> = createArrayLikeFromArray([1, 2, 3])
+    const arrayLike = createArrayLikeFromArray([1, 2, 3]) as {
+      length: number
+      [index: number]: number
+    }
     i = 0
     filter(arrayLike, (a: number) => {
       i += 1
@@ -160,8 +163,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
   it('does not visit elements deleted from the array after it has begun', () => {
     const arr = [1, 2, 3]
-    const actual: Array<[number, any]> = []
-    filter(arr, (x: any, i: number) => {
+    const actual: Array<[number, unknown]> = []
+    filter(arr, (x: unknown, i: number) => {
       actual.push([i, x])
       delete arr[1]
     })
@@ -173,7 +176,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
   describe('empty array', () => {
     it('returns a new empty array', () => {
-      const arr: any[] = []
+      const arr: unknown[] = []
       const actual = filter(arr, truthy)
       expect(actual).not.toBe(arr)
       expect(actual).toEqual(arr)
@@ -182,7 +185,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
   it('list arg boxing', () => {
     let called = false
-    filter('f', (item: string, _index: number, list: any) => {
+    filter('f', (item: string, _index: number, list: unknown) => {
       expect(item).toBe('f')
       expect(typeof list).toBe('object')
       expect(Object.prototype.toString.call(list)).toBe('[object String]')

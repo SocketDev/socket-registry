@@ -95,7 +95,9 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     for (const method of ['poolSize', 'isBuffer', 'concat', 'byteLength']) {
       for (let i = 0, { length } = implementations; i < length; i += 1) {
         const impl = implementations[i]
-        expect(impl.Buffer[method]).toBe((buffer as any).Buffer[method])
+        expect(impl.Buffer[method]).toBe(
+          (buffer.Buffer as unknown as Record<string, unknown>)[method],
+        )
         expect(typeof impl.Buffer[method]).not.toBe('undefined')
       }
     }
@@ -108,7 +110,9 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       }
       for (let i = 0, { length } = implementations; i < length; i += 1) {
         const impl = implementations[i]
-        expect(impl[method]).toBe((buffer as any)[method])
+        expect(impl[method]).toBe(
+          (buffer as unknown as Record<string, unknown>)[method],
+        )
         expect(typeof impl[method]).not.toBe('undefined')
       }
     }
@@ -121,7 +125,9 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       }
       for (let i = 0, { length } = implementations; i < length; i += 1) {
         const impl = implementations[i]
-        expect(impl.Buffer[method]).toBe((buffer as any).Buffer[method])
+        expect(impl.Buffer[method]).toBe(
+          (buffer.Buffer as unknown as Record<string, unknown>)[method],
+        )
         expect(typeof impl.Buffer[method]).not.toBe('undefined')
       }
     }
