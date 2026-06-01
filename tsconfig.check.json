@@ -1,5 +1,5 @@
 {
-  "extends": "./.config/tsconfig.base.json",
+  "extends": "./.config/fleet/tsconfig.base.json",
   "compilerOptions": {
     "allowImportingTsExtensions": true,
     "declaration": true,
