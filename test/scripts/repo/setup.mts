@@ -5,7 +5,7 @@ import process from 'node:process'
 
 // Check if coverage is enabled.
 const isCoverageEnabled =
-  process.argv.includes('--coverage') || process.env.COVERAGE === 'true'
+  process.argv.includes('--coverage') || process.env['COVERAGE'] === 'true'
 
 if (isCoverageEnabled) {
   // Intercept require() calls to redirect registry/dist to registry/src.
