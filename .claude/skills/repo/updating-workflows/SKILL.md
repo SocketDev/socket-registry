@@ -59,6 +59,47 @@ Progress:
 - [ ] Layer 3 landed -> propagation SHA: ________
 ```
 
+### Phase 2.5: GATE — the propagation SHA's OWN CI must be green 🛑
+
+🚨 **DO NOT propagate a SHA whose CI is not green. This is a hard STOP, not a
+recommendation.** A Layer 3 commit landing on `main` only means it merged — NOT
+that it works. A merged-but-red propagation SHA (broken action, missing
+`external-tools.json`, a malware-flagged dependency surfaced by the install
+step, a lint/type regression) gets blasted to every consumer and breaks the
+entire fleet's CI at once. **Why:** 2026-06-01 a socket-registry shared-workflow
+SHA was cascaded to socket-lib before its CI was confirmed; socket-lib's CI then
+failed three different ways (lint debt, a `setup-and-install` `external-tools.json`
+path break, and a Socket-firewall malware flag on `@redwoodjs/agent-ci@0.16.2`) —
+all of which a CI-green check on the propagation SHA would have caught before a
+single consumer was touched.
+
+Confirm the propagation SHA's CI run concluded **success** before touching Layer 4
+or any consumer:
+
+```bash
+# The propagation SHA must have a completed, successful CI run.
+gh run list --repo SocketDev/socket-registry --commit <propagation-sha> \
+  --json workflowName,status,conclusion \
+  --jq '.[] | select(.workflowName == "⚡ CI") | {status, conclusion}'
+```
+
+- `status: "completed"` AND `conclusion: "success"` → gate passes, proceed.
+- `conclusion: "failure"` / `"cancelled"` / `"timed_out"` → **STOP.** Fix the
+  failure at the source layer, land a new Layer 3 commit, and restart from a new
+  propagation SHA. Never propagate the failing one.
+- `status: "in_progress"` / no run yet → **WAIT.** Poll until it concludes; do not
+  propagate on an unfinished run. (If a run takes too long, that is still not a
+  pass — wait or fix, never assume.)
+
+This gate is mandatory even when the change "looks trivial" — a one-line action
+edit can still pull a newly-malware-flagged transitive dep through the install
+step. There is no bypass: a red propagation SHA is never propagated.
+
+```
+Progress:
+- [ ] Propagation SHA CI run is completed + success (NOT just merged): ________
+```
+
 ### Phase 3: Update Layer 4
 
 Pin all `_local-not-for-reuse-*` workflows to the **propagation SHA** (Layer 3 merge SHA). Same land-direct-or-fall-back-to-PR pattern from Phase 2 step 8.
