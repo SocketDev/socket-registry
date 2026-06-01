@@ -23,8 +23,3 @@ module.exports = Object.defineProperties(
     shim: desc(require('./shim')),
   },
 )
-module.exports.custom = module.exports.custom
-module.exports.customPromisifyArgs = module.exports.customPromisifyArgs
-module.exports.getPolyfill = module.exports.getPolyfill
-module.exports.implementation = module.exports.implementation
-module.exports.shim = module.exports.shim

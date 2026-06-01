@@ -39,6 +39,3 @@ module.exports = Object.defineProperties(EsAggregateError, {
   shim: desc(require('./shim')),
   [Symbol.hasInstance]: desc(instance => instance instanceof Impl),
 })
-module.exports.getPolyfill = module.exports.getPolyfill
-module.exports.implementation = module.exports.implementation
-module.exports.shim = module.exports.shim
