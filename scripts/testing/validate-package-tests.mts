@@ -8,17 +8,16 @@ import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import parseArgsModule from '@socketsecurity/lib-stable/argv/parse'
-import loggerModule from '@socketsecurity/lib-stable/logger'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import promisesModule from '@socketsecurity/lib-stable/promises/iterate'
 import spawnModule from '@socketsecurity/lib-stable/process/spawn/child'
-
-const { parseArgs } = parseArgsModule
-const { logger } = loggerModule
-const { spawn } = spawnModule
-const { pEach } = promisesModule
-
 import { deleteAsync as del } from 'del'
 import process from 'node:process'
+
+const { parseArgs } = parseArgsModule
+const logger = getDefaultLogger()
+const { spawn } = spawnModule
+const { pEach } = promisesModule
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const PACKAGES_DIR = path.join(__dirname, '..', '..', 'packages', 'npm')
@@ -46,12 +45,12 @@ const { values: cliArgs } = parseArgs({
 })
 
 const VALIDATION_CHECKS = {
-  MODULE_RESOLUTION: 'module-resolution',
-  TEST_FILES: 'test-files',
   BUILD_ARTIFACTS: 'build-artifacts',
-  ESLINT_CONFIG: 'eslint-config',
   DEPENDENCIES: 'dependencies',
+  ESLINT_CONFIG: 'eslint-config',
+  MODULE_RESOLUTION: 'module-resolution',
   PACKAGE_JSON: 'package-json',
+  TEST_FILES: 'test-files',
 }
 
 /**
@@ -444,7 +443,7 @@ export async function validateTestFiles(_packageName, packageDir) {
  * Main validation flow.
  */
 async function main(): Promise<void> {
-  logger.info('Starting package validation...')
+  logger.info('Starting package validation…')
   logger.error('')
 
   const packages = await getPackagesToValidate()

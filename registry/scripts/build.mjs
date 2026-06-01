@@ -186,7 +186,7 @@ export async function watchBuild(options = {}) {
 
   if (!quiet) {
     logger.info('Starting watch mode with incremental builds')
-    logger.indent('Watching for file changes...')
+    logger.indent('Watching for file changes…')
   }
 
   try {
@@ -406,7 +406,6 @@ async function main() {
         }),
         buildTypes({ quiet, verbose, skipClean: true }),
       ])
-
 
       // Check if any of the parallel builds failed.
       exitCode = srcResult.exitCode !== 0 ? srcResult.exitCode : typesExitCode

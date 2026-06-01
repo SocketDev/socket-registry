@@ -5,25 +5,24 @@
 import path from 'node:path'
 import { isDebug } from '@socketsecurity/lib-stable/debug/namespace'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
-import {
-  createPackageJson,
-  getSubpaths,
-  isSubpathExports,
-  readPackageJson,
-  resolvePackageJsonEntryExports,
-} from '@socketsecurity/lib-stable/packages/operations'
-
-const logger = getDefaultLogger()
+import { readPackageJson } from '@socketsecurity/lib-stable/packages/operations'
 import { trimLeadingDotSlash } from '@socketsecurity/lib-stable/paths/normalize'
 import { pluralize } from '@socketsecurity/lib-stable/words/pluralize'
 import fastGlob from 'fast-glob'
-
 import { getNpmPackageNames } from '../constants/testing.mts'
+import { createPackageJson } from '@socketsecurity/lib-stable/packages/manifest'
 import {
   NPM_PACKAGES_PATH,
   PACKAGE_JSON,
   SOCKET_REGISTRY_SCOPE,
 } from '../constants/paths.mts'
+import {
+  getSubpaths,
+  isSubpathExports,
+  resolvePackageJsonEntryExports,
+} from '@socketsecurity/lib-stable/packages/exports'
+
+const logger = getDefaultLogger()
 
 /**
  * Update package.json files and validate subpath exports.

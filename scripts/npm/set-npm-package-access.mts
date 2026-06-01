@@ -9,18 +9,17 @@ import { joinAnd } from '@socketsecurity/lib-stable/arrays/join'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { pEach } from '@socketsecurity/lib-stable/promises/iterate'
 import { pluralize } from '@socketsecurity/lib-stable/words/pluralize'
-
-const logger = getDefaultLogger()
-
 import { COLUMN_LIMIT } from '../constants/core.mts'
 import { getEnv } from '../constants/env.mts'
+import { getNpmPackageNames } from '../constants/testing.mts'
+import { extractNpmError } from '../repo/util/errors.mts'
 import {
   NPM_PACKAGES_PATH,
   REGISTRY_PKG_PATH,
   SOCKET_REGISTRY_SCOPE,
 } from '../constants/paths.mts'
-import { getNpmPackageNames } from '../constants/testing.mts'
-import { extractNpmError } from '../repo/util/errors.mts'
+
+const logger = getDefaultLogger()
 
 const { values: cliArgs } = parseArgs({
   options: {
@@ -84,7 +83,7 @@ async function main(): Promise<void> {
 
   // Process token-based packages with MFA automation.
   if (tokenBasedPackages.length) {
-    logger.log('Setting MFA automation for token-based packages...')
+    logger.log('Setting MFA automation for token-based packages…')
     await pEach(
       tokenBasedPackages,
       async pkg => {

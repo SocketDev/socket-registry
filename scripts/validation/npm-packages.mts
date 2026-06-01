@@ -11,17 +11,13 @@ import { fileURLToPath } from 'node:url'
 import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
 import { WIN32 } from '@socketsecurity/lib-stable/constants/platform'
 import { getCI } from '@socketsecurity/lib-stable/env/ci'
-import {
-  LOG_SYMBOLS,
-  getDefaultLogger,
-} from '@socketsecurity/lib-stable/logger'
-import {
-  readPackageJson,
-  resolveOriginalPackageName,
-} from '@socketsecurity/lib-stable/packages/operations'
+import { readPackageJson } from '@socketsecurity/lib-stable/packages/operations'
 import { pEach } from '@socketsecurity/lib-stable/promises/iterate'
 import { pluralize } from '@socketsecurity/lib-stable/words/pluralize'
 import process from 'node:process'
+import { LOG_SYMBOLS } from '@socketsecurity/lib-stable/logger/symbols'
+import { resolveOriginalPackageName } from '@socketsecurity/lib-stable/packages/normalize'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
 const logger = getDefaultLogger()
 
@@ -161,7 +157,7 @@ async function main(): Promise<void> {
     try {
       cachedResults = JSON.parse(await fs.readFile(resultsFile, 'utf8'))
     } catch {
-      logger.warn('Could not read cache, starting fresh...')
+      logger.warn('Could not read cache, starting fresh…')
     }
   }
 
@@ -207,8 +203,8 @@ async function main(): Promise<void> {
       // For full run, check if cache has all packages.
       const cachedPackageNames = cachedResults
         .map(r => r.socketPackage || r.package)
-        .sort()
-      const requestedPackages = packages.slice().sort()
+        .toSorted()
+      const requestedPackages = packages.slice().toSorted()
       if (
         JSON.stringify(cachedPackageNames) === JSON.stringify(requestedPackages)
       ) {

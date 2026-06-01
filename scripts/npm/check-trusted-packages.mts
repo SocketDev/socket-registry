@@ -126,7 +126,7 @@ async function getPackagesFromManifest() {
       }
     }
 
-    return Array.from(packages).sort()
+    return Array.from(packages).toSorted()
   } catch (e) {
     logger.error('Failed to read manifest.json:', (e as Error).message)
     return []
@@ -318,7 +318,7 @@ async function main(): Promise<void> {
   const state = { linePosition: 0 }
 
   // Sort packages for consistent output
-  const sortedPackages = Array.from(packagesToCheck).sort()
+  const sortedPackages = Array.from(packagesToCheck).toSorted()
 
   for (let i = 0, { length } = sortedPackages; i < length; i += 1) {
     const packageName = sortedPackages[i]

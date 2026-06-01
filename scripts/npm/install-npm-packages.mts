@@ -99,42 +99,38 @@ import { deleteAsync as del } from 'del'
 import { load as yamlLoad } from 'js-yaml'
 import pacote from 'pacote'
 import { c as tarCreate } from 'tar'
-
-const ENV = { CI: getCI() }
-const spinner = getDefaultSpinner()
-
 import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
-import {
-  readFileUtf8,
-  readJson,
-  safeDelete,
-  writeJson,
-} from '@socketsecurity/lib-stable/fs/safe'
-import {
-  LOG_SYMBOLS,
-  getDefaultLogger,
-} from '@socketsecurity/lib-stable/logger'
+import { safeDelete } from '@socketsecurity/lib-stable/fs/safe'
 import { readPackageJson } from '@socketsecurity/lib-stable/packages/operations'
-import { pEach, pRetry } from '@socketsecurity/lib-stable/promises/iterate'
+import { pEach } from '@socketsecurity/lib-stable/promises/iterate'
 import { pluralize } from '@socketsecurity/lib-stable/words/pluralize'
-
-const logger = getDefaultLogger()
 import { cleanTestScript } from '../repo/util/script-cleaning.mts'
 import { ALLOW_TEST_FAILURES_BY_ECOSYSTEM } from '../constants/testing.mts'
+import { filterPackagesByChanges } from '../repo/util/git.mts'
+import { runCommandQuietStrict } from '../fleet/util/run-command.mts'
+import { suppressMaxListenersWarning } from '../repo/util/suppress-warnings.mts'
+import process from 'node:process'
+import { LOG_SYMBOLS } from '@socketsecurity/lib-stable/logger/symbols'
+import { readFileUtf8 } from '@socketsecurity/lib-stable/fs/read-file'
+import { readJson } from '@socketsecurity/lib-stable/fs/read-json'
+import { writeJson } from '@socketsecurity/lib-stable/fs/write-json'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
+import { pRetry } from '@socketsecurity/lib-stable/promises/retry'
 import {
   NPM_PACKAGES_PATH,
   ROOT_PATH,
   TEST_NPM_PATH,
 } from '../constants/paths.mts'
-import { filterPackagesByChanges } from '../repo/util/git.mts'
 import {
   PNPM_HOISTED_INSTALL_FLAGS,
   PNPM_INSTALL_ENV,
   copySocketOverride,
 } from '../repo/util/package.mts'
-import { runCommandQuietStrict } from '../fleet/util/run-command.mts'
-import { suppressMaxListenersWarning } from '../repo/util/suppress-warnings.mts'
-import process from 'node:process'
+
+const ENV = { CI: getCI() }
+const spinner = getDefaultSpinner()
+
+const logger = getDefaultLogger()
 
 // Default concurrency values based on environment and platform.
 const DEFAULT_CI_CONCURRENCY_WIN32 = '5'
@@ -293,7 +289,7 @@ export async function generatePnpmOverrides(options) {
 
   // Use cache key that includes the excluded packages.
   const cacheKey =
-    excludes.length > 0 ? excludes.slice().sort().join(',') : '__all__'
+    excludes.length > 0 ? excludes.slice().toSorted().join(',') : '__all__'
   if (cachedPnpmOverrides?.[cacheKey]) {
     return cachedPnpmOverrides[cacheKey]
   }
@@ -1199,7 +1195,7 @@ async function main(): Promise<void> {
   const results = []
 
   await withSpinner({
-    message: 'Installing packages...',
+    message: 'Installing packages…',
     operation: async () => {
       // Update spinner text when progress changes.
       // In CI environments, batch updates to avoid excessive line output.

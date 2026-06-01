@@ -9,15 +9,9 @@ import process from 'node:process'
 
 import { execScript } from '@socketsecurity/lib-stable/eco/npm/script'
 import { getAbortSignal } from '@socketsecurity/lib-stable/process/abort'
-import { readFileUtf8 } from '@socketsecurity/lib-stable/fs/safe'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import {
-  isObjectObject,
-  toSortedObject,
-} from '@socketsecurity/lib-stable/objects/types'
-import {
   extractPackage,
-  fetchPackageManifest,
   getReleaseTag,
   readPackageJson,
   readPackageJsonSync,
@@ -38,6 +32,10 @@ import {
 } from '../constants/paths.mts'
 import { getNpmPackageNames } from '../constants/testing.mts'
 import { logSectionHeader } from '../repo/util/logging.mts'
+import { fetchPackageManifest } from '@socketsecurity/lib-stable/packages/manifest'
+import { isPlainObject as isObjectObject } from '@socketsecurity/lib-stable/objects/predicates'
+import { readFileUtf8 } from '@socketsecurity/lib-stable/fs/read-file'
+import { toSortedObject } from '@socketsecurity/lib-stable/objects/sort'
 
 const logger = getDefaultLogger()
 
@@ -337,7 +335,7 @@ export async function maybeBumpPackage(pkg, options) {
     hasChanged = true
   } else {
     // No git changes, do full hash comparison.
-    spinner?.text(`Comparing ${pkg.printName} against published version...`)
+    spinner?.text(`Comparing ${pkg.printName} against published version…`)
     hasChanged = await hasPackageChanged(pkg, manifest, { state })
   }
 
@@ -405,7 +403,7 @@ async function main(): Promise<void> {
   }
 
   await withSpinner({
-    message: 'Checking for package changes...',
+    message: 'Checking for package changes…',
     operation: async () => {
       // Check registry package FIRST before processing npm packages.
       await maybeBumpPackage(registryPkg, { spinner, state })
@@ -444,7 +442,7 @@ async function main(): Promise<void> {
   }
 
   await withSpinner({
-    message: 'Updating manifest and package.json files...',
+    message: 'Updating manifest and package.json files…',
     operation: async () => {
       const spawnOptions = {
         cwd: ROOT_PATH,

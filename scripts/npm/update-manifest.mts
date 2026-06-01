@@ -6,36 +6,26 @@
 import { promises as fs } from 'node:fs'
 import { createRequire } from 'node:module'
 import path from 'node:path'
-
 import { PackageURL } from '@socketregistry/packageurl-js-stable'
 import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
 import { UNLICENSED } from '@socketsecurity/lib-stable/constants/licenses'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
-import {
-  AT_LATEST,
-  getPackageDefaultNodeRange,
-} from '@socketsecurity/lib-stable/packages/operations'
-
-const logger = getDefaultLogger()
-import {
-  objectEntries,
-  toSortedObject,
-  toSortedObjectFromEntries,
-} from '@socketsecurity/lib-stable/objects/types'
-import {
-  extractPackage,
-  fetchPackageManifest,
-  isBlessedPackageName,
-  readPackageJson,
-  resolveOriginalPackageName,
-  resolvePackageJsonEntryExports,
-} from '@socketsecurity/lib-stable/packages/operations'
 import { pEach } from '@socketsecurity/lib-stable/promises/iterate'
 import { naturalCompare } from '@socketsecurity/lib-stable/sorts/natural'
 import { getDefaultSpinner } from '@socketsecurity/lib-stable/spinner/default'
 import { withSpinner } from '@socketsecurity/lib-stable/spinner/with'
-
 import { DEFAULT_CONCURRENCY } from '../constants/core.mts'
+import { getNpmPackageNames } from '../constants/testing.mts'
+import { biomeFormat } from '../repo/util/biome.mts'
+import { getModifiedFiles } from '../repo/util/git.mts'
+import { fetchPackageManifest } from '@socketsecurity/lib-stable/packages/manifest'
+import { resolveOriginalPackageName } from '@socketsecurity/lib-stable/packages/normalize'
+import { isBlessedPackageName } from '@socketsecurity/lib-stable/packages/validation'
+import { resolvePackageJsonEntryExports } from '@socketsecurity/lib-stable/packages/exports'
+import {
+  extractPackage,
+  readPackageJson,
+} from '@socketsecurity/lib-stable/packages/operations'
 import {
   NPM,
   NPM_PACKAGES_PATH,
@@ -45,10 +35,21 @@ import {
   ROOT_PACKAGES_PATH,
   TEST_NPM_PATH,
 } from '../constants/paths.mts'
-import { getNpmPackageNames } from '../constants/testing.mts'
-import { biomeFormat } from '../repo/util/biome.mts'
-import { getModifiedFiles } from '../repo/util/git.mts'
-import { getPackageVersionSpec, shouldSkipTests } from '../repo/util/packages.mts'
+import {
+  getPackageVersionSpec,
+  shouldSkipTests,
+} from '../repo/util/packages.mts'
+import {
+  AT_LATEST,
+  getPackageDefaultNodeRange,
+} from '@socketsecurity/lib-stable/constants/packages'
+import {
+  objectEntries,
+  toSortedObject,
+  toSortedObjectFromEntries,
+} from '@socketsecurity/lib-stable/objects/sort'
+
+const logger = getDefaultLogger()
 
 const require = createRequire(import.meta.url)
 
@@ -159,7 +160,7 @@ export async function addNpmManifestData(manifest, options) {
       })
       const metaEntries = [
         ['name', name],
-        ['interop', interop.sort(naturalCompare)],
+        ['interop', interop.toSorted(naturalCompare)],
         ['license', nmPkgJson.license ?? UNLICENSED],
         ['package', origPkgName],
         ['version', version],
@@ -208,7 +209,7 @@ export async function addNpmManifestData(manifest, options) {
   )
 
   if (manifestData.length) {
-    manifest[eco] = manifestData.sort((a, b) => naturalCompare(a[0], b[0]))
+    manifest[eco] = manifestData.toSorted((a, b) => naturalCompare(a[0], b[0]))
   }
   return manifest
 }

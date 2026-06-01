@@ -7,13 +7,13 @@ import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import parseArgsModule from '@socketsecurity/lib-stable/argv/parse'
-import loggerModule from '@socketsecurity/lib-stable/logger'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import spawnModule from '@socketsecurity/lib-stable/process/spawn/child'
 import { deleteAsync as del } from 'del'
 import process from 'node:process'
 
 const { parseArgs } = parseArgsModule
-const { logger } = loggerModule
+const logger = getDefaultLogger()
 const { spawn } = spawnModule
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -54,7 +54,7 @@ export async function createTestEnvironment() {
   logger.info(`Created temporary directory: ${tempDir}`)
 
   const projectRoot = path.join(__dirname, '..', '..')
-  logger.info('Copying project files...')
+  logger.info('Copying project files…')
 
   await fs.cp(projectRoot, tempDir, {
     recursive: true,

@@ -5,12 +5,12 @@ import { existsSync } from 'node:fs'
 import path from 'node:path'
 
 import { WIN32 } from '@socketsecurity/lib-stable/constants/platform'
-import { readJson } from '@socketsecurity/lib-stable/fs/safe'
-import { isObjectObject } from '@socketsecurity/lib-stable/objects/types'
+import { isPlainObject as isObjectObject } from '@socketsecurity/lib-stable/objects/predicates'
 
 import { REPO_ROOT } from '../../fleet/paths.mts'
 import { spawn } from './spawn.mts'
 import process from 'node:process'
+import { readJson } from '@socketsecurity/lib-stable/fs/read-json'
 
 /**
  * Count how many items in array are covered (greater than 0).

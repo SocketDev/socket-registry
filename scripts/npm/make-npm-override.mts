@@ -16,26 +16,26 @@ import { createRequire } from 'node:module'
 import path from 'node:path'
 import { execScript } from '@socketsecurity/lib-stable/eco/npm/script'
 import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
-import { isDirEmptySync } from '@socketsecurity/lib-stable/fs/safe'
 import { globStreamLicenses } from '@socketsecurity/lib-stable/globs/stream'
+import { isObject } from '@socketsecurity/lib-stable/objects/predicates'
+import { transform } from '@socketsecurity/lib-stable/streams/transform'
+import { indentString } from '@socketsecurity/lib-stable/strings/format'
+import { pluralize } from '@socketsecurity/lib-stable/words/pluralize'
+import { ReturnTypeEnums, default as didYouMean } from 'didyoumean2'
+import fastGlob from 'fast-glob'
+import { open } from 'out-url'
+import semver from 'semver'
+import { UTF8 } from '@socketsecurity/lib-stable/constants/encoding'
+import { ESNEXT } from '../constants/core.mts'
+import { LOG_SYMBOLS } from '@socketsecurity/lib-stable/logger/symbols'
+import { fetchPackageManifest } from '@socketsecurity/lib-stable/packages/manifest'
+import { isDirEmptySync } from '@socketsecurity/lib-stable/fs/inspect'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
+import { isValidPackageName } from '@socketsecurity/lib-stable/packages/validation'
 import {
-  LOG_SYMBOLS,
-  getDefaultLogger,
-} from '@socketsecurity/lib-stable/logger'
-import { isObject } from '@socketsecurity/lib-stable/objects/types'
-
-const logger = getDefaultLogger()
-import {
-  collectIncompatibleLicenses,
-  collectLicenseWarnings,
   extractPackage,
-  fetchPackageManifest,
-  isSubpathExports,
-  isValidPackageName,
   readPackageJson,
   resolveGitHubTgzUrl,
-  resolvePackageJsonEntryExports,
-  resolvePackageLicenses,
   resolveRegistryPackageName,
 } from '@socketsecurity/lib-stable/packages/operations'
 import {
@@ -48,17 +48,6 @@ import {
   naturalCompare,
   naturalSorter,
 } from '@socketsecurity/lib-stable/sorts/natural'
-import { transform } from '@socketsecurity/lib-stable/streams/transform'
-import { indentString } from '@socketsecurity/lib-stable/strings/format'
-import { pluralize } from '@socketsecurity/lib-stable/words/pluralize'
-import { ReturnTypeEnums, default as didYouMean } from 'didyoumean2'
-import fastGlob from 'fast-glob'
-import { open } from 'out-url'
-import semver from 'semver'
-
-import { UTF8 } from '@socketsecurity/lib-stable/constants/encoding'
-
-import { ESNEXT } from '../constants/core.mts'
 import {
   LICENSE,
   LICENSE_ORIGINAL,
@@ -83,6 +72,17 @@ import {
   getTypeScriptActions,
   writeAction,
 } from '../repo/util/templates.mts'
+import {
+  collectIncompatibleLicenses,
+  collectLicenseWarnings,
+  resolvePackageLicenses,
+} from '@socketsecurity/lib-stable/packages/licenses'
+import {
+  isSubpathExports,
+  resolvePackageJsonEntryExports,
+} from '@socketsecurity/lib-stable/packages/exports'
+
+const logger = getDefaultLogger()
 
 const require = createRequire(import.meta.url)
 
@@ -476,9 +476,10 @@ async function main(): Promise<void> {
     editablePkgJson.update({
       main: useNmEntryExports ? undefined : editablePkgJson.content.main,
       exports: useNmEntryExports ? nmEntryExports : entryExports,
-      files: [...editablePkgJson.content.files, ...filesFieldAdditions].sort(
-        naturalCompare,
-      ),
+      files: [
+        ...editablePkgJson.content.files,
+        ...filesFieldAdditions,
+      ].toSorted(naturalCompare),
     })
     await editablePkgJson.save()
   }

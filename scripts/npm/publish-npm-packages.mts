@@ -10,9 +10,8 @@ import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
 import { joinAnd } from '@socketsecurity/lib-stable/arrays/join'
 import { getChangedFiles } from '@socketsecurity/lib-stable/git/changed'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
-import { isObjectObject } from '@socketsecurity/lib-stable/objects/types'
+import { isPlainObject as isObjectObject } from '@socketsecurity/lib-stable/objects/predicates'
 import {
-  fetchPackageManifest,
   getReleaseTag,
   readPackageJsonSync,
 } from '@socketsecurity/lib-stable/packages/operations'
@@ -28,6 +27,7 @@ import { NPM_PACKAGES_PATH, REGISTRY_PKG_PATH } from '../constants/paths.mts'
 import { getNpmPackageNames } from '../constants/testing.mts'
 import { extractNpmError } from '../repo/util/errors.mts'
 import process from 'node:process'
+import { fetchPackageManifest } from '@socketsecurity/lib-stable/packages/manifest'
 
 const logger = getDefaultLogger()
 
@@ -100,7 +100,7 @@ export async function ensureNpmVersion() {
   } else {
     // Install npm@latest if current version is insufficient.
     logger.log(
-      `npm version ${currentVersion} does not meet 11.5.1+ requirement, installing npm@latest...`,
+      `npm version ${currentVersion} does not meet 11.5.1+ requirement, installing npm@latest…`,
     )
     await spawn('npm', ['install', '-g', 'npm@latest'], { shell: WIN32 })
     const result = await spawn('npm', ['--version'], { shell: WIN32 })
@@ -177,7 +177,7 @@ export async function findVersionBumpCommits() {
   }
 
   // Reverse to get chronological order (oldest first).
-  return commits.slice().reverse()
+  return commits.slice().toReversed()
 }
 
 /**
@@ -224,7 +224,7 @@ export async function publishAtCommit(sha) {
   await checkoutCommit(sha)
 
   // Rebuild at this commit to ensure we have the correct registry dist files.
-  logger.log('Building registry...')
+  logger.log('Building registry…')
   await spawn('pnpm', ['run', 'build'], { shell: WIN32 })
 
   const fails = []
@@ -339,7 +339,7 @@ export async function publishAtCommit(sha) {
     if (manifestChanged) {
       logger.log('')
       logger.log(
-        'Updating and committing manifest.json with latest npm versions...',
+        'Updating and committing manifest.json with latest npm versions…',
       )
       await spawn('git', ['config', 'user.name', 'Socket Bot'])
       await spawn('git', [
@@ -528,7 +528,7 @@ async function main(): Promise<void> {
       if (forceRegistryFlag) {
         logger.log('')
         logger.log(
-          'Force-registry flag is set, checking HEAD for unpublished packages...',
+          'Force-registry flag is set, checking HEAD for unpublished packages…',
         )
         const headSha = await getCommitSha('HEAD')
         await publishAtCommit(headSha)
@@ -572,7 +572,7 @@ async function main(): Promise<void> {
     if (!bumpCommits.length) {
       logger.info('No registry version bumps to publish')
       logger.log('')
-      logger.log('Checking for unpublished packages at HEAD...')
+      logger.log('Checking for unpublished packages at HEAD…')
       // Even if there are no registry version bumps, we should check
       // if any @socketregistry/* packages have unpublished versions.
       const headSha = await getCommitSha('HEAD')

@@ -9,19 +9,15 @@ import process from 'node:process'
 import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
 import { WIN32 } from '@socketsecurity/lib-stable/constants/platform'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
-import {
-  readPackageJson,
-  resolveOriginalPackageName,
-} from '@socketsecurity/lib-stable/packages/operations'
+import { readPackageJson } from '@socketsecurity/lib-stable/packages/operations'
 import { pEach } from '@socketsecurity/lib-stable/promises/iterate'
-
-const logger = getDefaultLogger()
-
 import { cleanTestScript } from '../repo/util/script-cleaning.mts'
 import { ROOT_PATH, TEST_NPM_PATH } from '../constants/paths.mts'
 import { getNpmPackageNames } from '../constants/testing.mts'
 import { extractErrorInfo } from '../repo/util/errors.mts'
 import { filterPackagesByChanges } from '../repo/util/git.mts'
+import { suppressMaxListenersWarning } from '../repo/util/suppress-warnings.mts'
+import { resolveOriginalPackageName } from '@socketsecurity/lib-stable/packages/normalize'
 import {
   PNPM_HOISTED_INSTALL_FLAGS,
   PNPM_INSTALL_BASE_FLAGS,
@@ -29,7 +25,8 @@ import {
   buildTestEnv,
   spawnCapture,
 } from '../repo/util/package.mts'
-import { suppressMaxListenersWarning } from '../repo/util/suppress-warnings.mts'
+
+const logger = getDefaultLogger()
 
 const { values: cliArgs } = parseArgs({
   options: {

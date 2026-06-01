@@ -35,7 +35,31 @@ const { values: cliArgs } = parseArgs({
  * fixes for this failure type.
  */
 const FAILURE_PATTERNS = {
-  // Module resolution and import errors.
+  BUILD_ARTIFACT_MISSING: {
+    pattern: /build\/([^\s]+).*not found/i,
+    category: 'Build Artifacts',
+    severity: 'error',
+    extract: match => ({ artifact: match[1] }),
+    suggestions: [
+      'Run build step before testing',
+      'Commit required build artifacts to git',
+      'Verify build script in package.json',
+      "Check .gitignore isn't excluding required files",
+    ],
+  },
+  ESLINT_PLUGIN_FAILED: {
+    pattern:
+      /Failed to load plugin ['"]([^'"]+)['"] declared in ['"]([^'"]+)['"]/,
+    category: 'ESLint Configuration',
+    severity: 'error',
+    extract: match => ({ plugin: match[1], config: match[2] }),
+    suggestions: [
+      'Add missing ESLint plugin to devDependencies',
+      'Remove plugin from ESLint config if not needed',
+      'Consider removing .eslintrc if not essential for package',
+      'Verify plugin version compatibility',
+    ],
+  },
   MODULE_NOT_FOUND: {
     category: 'Module Resolution',
     extract: match => ({ module: match[1] }),
@@ -60,19 +84,6 @@ const FAILURE_PATTERNS = {
       'Ensure test files are not in .gitignore',
     ],
   },
-  ESLINT_PLUGIN_FAILED: {
-    pattern:
-      /Failed to load plugin ['"]([^'"]+)['"] declared in ['"]([^'"]+)['"]/,
-    category: 'ESLint Configuration',
-    severity: 'error',
-    extract: match => ({ plugin: match[1], config: match[2] }),
-    suggestions: [
-      'Add missing ESLint plugin to devDependencies',
-      'Remove plugin from ESLint config if not needed',
-      'Consider removing .eslintrc if not essential for package',
-      'Verify plugin version compatibility',
-    ],
-  },
   PARSING_ERROR: {
     pattern: /Parse error|Parsing error|Unexpected token/i,
     category: 'Syntax/Parsing',
@@ -82,6 +93,18 @@ const FAILURE_PATTERNS = {
       'Verify file encoding is UTF-8',
       'Check for binary files incorrectly treated as text',
       'Ensure build step completed successfully',
+    ],
+  },
+  PATH_RESOLUTION: {
+    pattern: /ENOENT.*['"]([^'"]+)['"]/,
+    category: 'Path Resolution',
+    severity: 'error',
+    extract: match => ({ path: match[1] }),
+    suggestions: [
+      'Use path.join() instead of hard-coded path separators',
+      'Use os.tmpdir() for temporary directories',
+      'Check for POSIX-specific paths (use path.join())',
+      'Verify file exists and path is correct',
     ],
   },
   PNPM_DEPENDENCY_ERROR: {
@@ -96,18 +119,6 @@ const FAILURE_PATTERNS = {
       'Verify pnpm workspace configuration',
     ],
   },
-  BUILD_ARTIFACT_MISSING: {
-    pattern: /build\/([^\s]+).*not found/i,
-    category: 'Build Artifacts',
-    severity: 'error',
-    extract: match => ({ artifact: match[1] }),
-    suggestions: [
-      'Run build step before testing',
-      'Commit required build artifacts to git',
-      'Verify build script in package.json',
-      "Check .gitignore isn't excluding required files",
-    ],
-  },
   TIMEOUT: {
     pattern: /Timed? out|timeout|ETIMEDOUT/i,
     category: 'Timeout',
@@ -117,18 +128,6 @@ const FAILURE_PATTERNS = {
       'Check for infinite loops or hanging promises',
       'Verify network-dependent tests have proper mocks',
       'Check if CI resources are constrained',
-    ],
-  },
-  PATH_RESOLUTION: {
-    pattern: /ENOENT.*['"]([^'"]+)['"]/,
-    category: 'Path Resolution',
-    severity: 'error',
-    extract: match => ({ path: match[1] }),
-    suggestions: [
-      'Use path.join() instead of hard-coded path separators',
-      'Use os.tmpdir() for temporary directories',
-      'Check for POSIX-specific paths (use path.join())',
-      'Verify file exists and path is correct',
     ],
   },
 }
@@ -374,10 +373,10 @@ export function groupFailures(failures) {
  */
 async function main(): Promise<void> {
   try {
-    logger.info('Fetching CI log...')
+    logger.info('Fetching CI log…')
     const logContent = await fetchLogContent()
 
-    logger.info('Analyzing failures...')
+    logger.info('Analyzing failures…')
     const failures = analyzeLog(logContent)
     const grouped = groupFailures(failures)
     const recommendations = generateRecommendations(failures, grouped)
