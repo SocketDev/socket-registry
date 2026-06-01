@@ -14,7 +14,7 @@ import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 const logger = getDefaultLogger()
 
 import { logSectionHeader } from '../util/logging.mts'
-import { runCommandStrict } from '../util/run-command.mts'
+import { runCommandStrict } from '../fleet/util/run-command.mts'
 import process from 'node:process'
 
 const { values: cliArgs } = parseArgs({

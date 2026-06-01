@@ -134,7 +134,7 @@ import {
   PNPM_INSTALL_ENV,
   copySocketOverride,
 } from '../util/package.mts'
-import { runCommandQuietStrict } from '../util/run-command.mts'
+import { runCommandQuietStrict } from '../fleet/util/run-command.mts'
 import { suppressMaxListenersWarning } from '../util/suppress-warnings.mts'
 import process from 'node:process'
 
