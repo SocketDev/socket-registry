@@ -178,7 +178,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: ${{ inputs.check-timeout-minutes }}
     steps:
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@2fa6f4242bb97ed599cb07d3ee13b2239be4f87c # main (2026-05-28)
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@66611664a95d469f4fc11ae079ee6acfcd61c674 # main (2026-06-01)
         with:
           debug: ${{ inputs.debug }}
           node-version: ${{ inputs.check-node-version }}
@@ -197,7 +197,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: ${{ inputs.lint-timeout-minutes }}
     steps:
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@2fa6f4242bb97ed599cb07d3ee13b2239be4f87c # main (2026-05-28)
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@66611664a95d469f4fc11ae079ee6acfcd61c674 # main (2026-06-01)
         with:
           debug: ${{ inputs.debug }}
           node-version: ${{ inputs.lint-node-version }}
@@ -216,7 +216,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: ${{ inputs.type-check-timeout-minutes }}
     steps:
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@2fa6f4242bb97ed599cb07d3ee13b2239be4f87c # main (2026-05-28)
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@66611664a95d469f4fc11ae079ee6acfcd61c674 # main (2026-06-01)
         with:
           debug: ${{ inputs.debug }}
           node-version: ${{ inputs.type-check-node-version }}
@@ -241,7 +241,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: ${{ inputs.test-timeout-minutes }}
     steps:
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@2fa6f4242bb97ed599cb07d3ee13b2239be4f87c # main (2026-05-28)
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@66611664a95d469f4fc11ae079ee6acfcd61c674 # main (2026-06-01)
         with:
           debug: ${{ inputs.debug }}
           node-version: ${{ matrix.node-version }}
