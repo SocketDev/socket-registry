@@ -5,7 +5,7 @@ function atobFn(...args) {
     return builtinAtob(...args)
   } catch (e) {
     if (e?.name === 'InvalidCharacterError' && e instanceof DOMException) {
-      return null
+      return undefined
     }
     throw e
   }
@@ -16,7 +16,7 @@ function btoaFn(...args) {
     return builtinBtoa(...args)
   } catch (e) {
     if (e?.name === 'InvalidCharacterError' && e instanceof DOMException) {
-      return null
+      return undefined
     }
     throw e
   }

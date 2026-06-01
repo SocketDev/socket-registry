@@ -37,7 +37,7 @@ const $setSize = callBound('Set.prototype.size', true)
 // taken from https://github.com/browserify/commonjs-assert/blob/bba838e9ba9e28edf3127ce6974624208502f6bc/internal/util/comparisons.js#L416-L439
 function findLooseMatchingPrimitives(prim) {
   if (typeof prim === 'undefined') {
-    return null
+    return undefined
   }
   if (typeof prim === 'object') {
     // Only pass in null as object!

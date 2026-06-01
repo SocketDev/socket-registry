@@ -18,7 +18,7 @@ import { determineArticle } from '@socketsecurity/lib-stable/words/article'
 import { capitalize } from '@socketsecurity/lib-stable/words/capitalize'
 import { Eta } from 'eta'
 import fastGlob from 'fast-glob'
-import semver from 'semver'
+import semver from '@socketsecurity/lib-stable/external/semver'
 
 import { UTF8 } from '@socketsecurity/lib-stable/constants/encoding'
 import {

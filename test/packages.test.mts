@@ -20,7 +20,7 @@ import { trimLeadingDotSlash } from '@socketsecurity/lib/paths/normalize'
 import { naturalCompare } from '@socketsecurity/lib/sorts/natural'
 import { isNonEmptyString } from '@socketsecurity/lib/strings/predicates'
 import fastGlob from 'fast-glob'
-import semver from 'semver'
+import semver from '@socketsecurity/lib-stable/external/semver'
 import { describe, expect, it } from 'vitest'
 
 import { getManifestData } from '../registry/src/index.js'

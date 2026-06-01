@@ -21,7 +21,7 @@ import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 import { getDefaultSpinner } from '@socketsecurity/lib-stable/spinner/default'
 import { withSpinner } from '@socketsecurity/lib-stable/spinner/with'
 import { minimatch } from 'minimatch'
-import semver from 'semver'
+import semver from '@socketsecurity/lib-stable/external/semver'
 import { LATEST, SOCKET_REGISTRY_PACKAGE_NAME } from '../constants/packages.mts'
 import {
   NPM_PACKAGES_PATH,

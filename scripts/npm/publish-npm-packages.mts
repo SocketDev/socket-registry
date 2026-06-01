@@ -18,7 +18,7 @@ import {
 import { pEach } from '@socketsecurity/lib-stable/promises/iterate'
 import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 import { pluralize } from '@socketsecurity/lib-stable/words/pluralize'
-import semver from 'semver'
+import semver from '@socketsecurity/lib-stable/external/semver'
 
 import { getEnv } from '../constants/env.mts'
 import { WIN32 } from '../constants/node.mts'

@@ -49,7 +49,7 @@ function sortAndStringifyWithSpace(value, space, opts) {
     if (valType === 'boolean') {
       return val ? 'true' : 'false'
     }
-    if (valType === 'number' || valType === 'string' || valType === 'bigint') {
+    if (valType === 'bigint' || valType === 'number' || valType === 'string') {
       return JSONStringify(val)
     }
 
@@ -105,7 +105,7 @@ function sortAndStringifyWithSpace(value, space, opts) {
         )
       })
     } else {
-      keys = SUPPORTS_TO_SORTED ? keys.toSorted() : keys.sort()
+      keys = SUPPORTS_TO_SORTED ? keys.toSorted() : keys.toSorted()
     }
 
     seen.add(val)
@@ -153,7 +153,7 @@ function sortKeysFast(value) {
   }
   // Sort object keys
   const sorted = {}
-  const keys = ObjectKeys(value).sort()
+  const keys = ObjectKeys(value).toSorted()
   for (let i = 0, { length } = keys; i < length; i += 1) {
     const key = keys[i]
     sorted[key] = sortKeysFast(value[key])
@@ -171,7 +171,7 @@ function sortKeysIterative(root) {
   if (typeof root !== 'object') {
     return root
   }
-  const queue = [{ parent: null, key: '', value: root }]
+  const queue = [{ parent: undefined, key: '', value: root }]
   const processed = new Map()
   let result
 
@@ -229,7 +229,7 @@ function sortKeysIterative(root) {
         parent[key] = obj
       }
 
-      const keys = ObjectKeys(value).sort()
+      const keys = ObjectKeys(value).toSorted()
       const { length } = keys
       for (let i = length - 1; i >= 0; i -= 1) {
         const k = keys[i]
@@ -310,7 +310,7 @@ function sortKeysWithOptions(value, opts, seen) {
         )
       })
     } else {
-      keys = SUPPORTS_TO_SORTED ? keys.toSorted() : keys.sort()
+      keys = SUPPORTS_TO_SORTED ? keys.toSorted() : keys.toSorted()
     }
 
     const sorted = {}

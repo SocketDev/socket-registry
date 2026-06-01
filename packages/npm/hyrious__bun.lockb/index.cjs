@@ -172,7 +172,7 @@ function fmt_resolution(a, buffers) {
 }
 
 function fmt_specs(name, specs, version) {
-  specs = Array.from(new Set(specs.map(e => e || `^${version}`))).sort()
+  specs = Array.from(new Set(specs.map(e => e || `^${version}`))).toSorted()
   let out = ''
   let comma = false
   for (const spec of specs) {
@@ -293,9 +293,11 @@ function parse(buf) {
   }).reduce(
     (list, [field, len]) => {
       const data = read(len * list_len)
-      list.forEach((a, i) => {
+      for (let i = 0, { length } = list; i < length; i += 1) {
+        const a = list[i]!
         a[field] = data.subarray(i * len, i * len + len)
-      })
+      
+      }
       return list
     },
     Array.from({ length: list_len }, () => ({})),
@@ -356,7 +358,7 @@ function parse(buf) {
   ]
   const order = Array.from({ length: list_len }, (_, i) => i)
     .slice(1)
-    .sort((a, b) => {
+    .toSorted((a, b) => {
       const pa = packages[a]
       const pb = packages[b]
       return (
