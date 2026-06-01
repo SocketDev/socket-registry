@@ -139,11 +139,10 @@ export function versionFromTag(tag: string): string {
 
 /**
  * Compute a Subresource Integrity (SRI) string for a file. Format:
- * `sha256-<base64>`. Matches what npm / pnpm / browser `<script integrity>`
- * use natively — same alg can be substituted (sha384, sha512) without
- * changing call sites that just consume the string. Uses the one-shot
- * crypto.hash() API (Node 21.7+) — single Buffer read, no stream
- * overhead.
+ * `sha256-<base64>`. Matches what npm / pnpm / browser `<script integrity>` use
+ * natively — same alg can be substituted (sha384, sha512) without changing call
+ * sites that just consume the string. Uses the one-shot crypto.hash() API (Node
+ * 21.7+) — single Buffer read, no stream overhead.
  */
 export async function computeIntegrity(filePath: string): Promise<string> {
   const content = await fs.readFile(filePath)
@@ -198,20 +197,25 @@ const flavorSchema = Type.Object({
 // from a fixed GitHub release. updateTool() enforces `version` at runtime
 // only for entries with `release: 'asset'`; floor-shape entries skip the
 // update path entirely.
-const toolSchema = Type.Object({
-  description: Type.Optional(Type.String()),
-  repository: Type.Optional(Type.String()),
-  version: Type.Optional(Type.String()),
-  minVersion: Type.Optional(Type.String()),
-  release: Type.Optional(Type.String()),
-  platforms: Type.Optional(platformsSchema),
-  free: Type.Optional(flavorSchema),
-  enterprise: Type.Optional(flavorSchema),
-  notes: Type.Optional(Type.Union([Type.String(), Type.Array(Type.String())])),
-  // Catch-all so floor-shape entries (rust: minLlvmVersion, components,
-  // …) don't trip schema validation. Stricter per-tool typing belongs in
-  // the entry's own validator, not this aggregate schema.
-}, { additionalProperties: true })
+const toolSchema = Type.Object(
+  {
+    description: Type.Optional(Type.String()),
+    repository: Type.Optional(Type.String()),
+    version: Type.Optional(Type.String()),
+    minVersion: Type.Optional(Type.String()),
+    release: Type.Optional(Type.String()),
+    platforms: Type.Optional(platformsSchema),
+    free: Type.Optional(flavorSchema),
+    enterprise: Type.Optional(flavorSchema),
+    notes: Type.Optional(
+      Type.Union([Type.String(), Type.Array(Type.String())]),
+    ),
+    // Catch-all so floor-shape entries (rust: minLlvmVersion, components,
+    // …) don't trip schema validation. Stricter per-tool typing belongs in
+    // the entry's own validator, not this aggregate schema.
+  },
+  { additionalProperties: true },
+)
 
 const rootConfigSchema = Type.Record(Type.String(), toolSchema)
 
@@ -250,10 +254,9 @@ interface UpdateResult {
 }
 
 /**
- * Recompute every platform integrity in the supplied map against the
- * resolved GitHub release. Mutates the map in place and returns a fresh
- * object with the new entries. Shared by the single-flavor and
- * per-flavor code paths.
+ * Recompute every platform integrity in the supplied map against the resolved
+ * GitHub release. Mutates the map in place and returns a fresh object with the
+ * new entries. Shared by the single-flavor and per-flavor code paths.
  */
 export async function recomputePlatforms(
   label: string,

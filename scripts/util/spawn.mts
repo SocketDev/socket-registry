@@ -4,5 +4,8 @@
  */
 
 export { isSpawnError } from '@socketsecurity/lib-stable/process/spawn/errors'
-export { spawn, spawnSync } from '@socketsecurity/lib-stable/process/spawn/child'
+export {
+  spawn,
+  spawnSync,
+} from '@socketsecurity/lib-stable/process/spawn/child'
 export { isStdioType } from '@socketsecurity/lib-stable/process/spawn/stdio'
