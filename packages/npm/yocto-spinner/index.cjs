@@ -5,69 +5,83 @@ const { defineProperty: ObjectDefineProperty } = Object
 
 const defaultTtyColumns = 80
 
-let _defaultSpinner
+let defaultSpinnerCache
 function getDefaultSpinner() {
-  if (_defaultSpinner === undefined) {
-    _defaultSpinner = {
+  if (defaultSpinnerCache === undefined) {
+    defaultSpinnerCache = {
       frames: isUnicodeSupported()
         ? ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
         : ['-', '\\', '|', '/'],
       interval: 80,
     }
   }
-  return _defaultSpinner
+  return defaultSpinnerCache
 }
 
-let _logSymbols
+function getFrame(spinner, index) {
+  const { frames } = spinner
+  const len = frames?.length ?? 0
+  return index > -1 && index < len ? frames[index] : ''
+}
+
+function getFrameCount(spinner) {
+  const { frames } = spinner
+  const len = frames?.length ?? 0
+  return len < 1 ? 1 : len
+}
+
+let logSymbolsCache
 function getLogSymbols() {
-  if (_logSymbols === undefined) {
+  if (logSymbolsCache === undefined) {
     const supported = isUnicodeSupported()
     const colors = getYoctocolors()
-    _logSymbols = {
+    logSymbolsCache = {
       error: colors.red(supported ? '✖' : '×'),
       info: colors.blue(supported ? 'ℹ' : 'i'),
+      // oxlint-disable-next-line socket/no-status-emoji -- Vendored upstream log symbol; published module shape must match.
       success: colors.green(supported ? '✔' : '√'),
+      // oxlint-disable-next-line socket/no-status-emoji -- Vendored upstream log symbol; published module shape must match.
       warning: colors.yellow(supported ? '⚠' : '‼'),
     }
   }
-  return _logSymbols
+  return logSymbolsCache
 }
 
-let _process
+let processCache
 function getProcess() {
-  if (_process === undefined) {
+  if (processCache === undefined) {
     // Use non-'node:' prefixed require to avoid Webpack errors.
 
-    _process = require('node:process')
+    processCache = require('node:process')
   }
-  return _process
+  return processCache
 }
 
-let _yoctocolors
+let yoctocolorsCache
 function getYoctocolors() {
-  if (_yoctocolors === undefined) {
-    _yoctocolors = { .../*@__PURE__*/ require('yoctocolors-cjs') }
+  if (yoctocolorsCache === undefined) {
+    yoctocolorsCache = { .../*@__PURE__*/ require('yoctocolors-cjs') }
   }
-  return _yoctocolors
+  return yoctocolorsCache
 }
 
-let _processInteractive
+let processInteractiveCache
 function isProcessInteractive() {
-  if (_processInteractive === undefined) {
+  if (processInteractiveCache === undefined) {
     const { env } = getProcess()
-    _processInteractive = env.TERM !== 'dumb' && !('CI' in env)
+    processInteractiveCache = env.TERM !== 'dumb' && !('CI' in env)
   }
-  return _processInteractive
+  return processInteractiveCache
 }
 
-let _unicodeSupported
+let unicodeSupportedCache
 function isUnicodeSupported() {
-  if (_unicodeSupported === undefined) {
+  if (unicodeSupportedCache === undefined) {
     const process = getProcess()
     if (process.platform !== 'win32') {
       // Linux console (kernel).
-      _unicodeSupported = process.env.TERM !== 'linux'
-      return _unicodeSupported
+      unicodeSupportedCache = process.env.TERM !== 'linux'
+      return unicodeSupportedCache
     }
     const { env } = process
     if (
@@ -78,11 +92,11 @@ function isUnicodeSupported() {
       // ConEmu and cmder.
       env.ConEmuTask === '{cmd::Cmder}'
     ) {
-      _unicodeSupported = true
-      return _unicodeSupported
+      unicodeSupportedCache = true
+      return unicodeSupportedCache
     }
     const { TERM, TERM_PROGRAM } = env
-    _unicodeSupported =
+    unicodeSupportedCache =
       TERM_PROGRAM === 'Terminus-Sublime' ||
       TERM_PROGRAM === 'vscode' ||
       TERM === 'xterm-256color' ||
@@ -91,34 +105,22 @@ function isUnicodeSupported() {
       TERM === 'rxvt-unicode-256color' ||
       env.TERMINAL_EMULATOR === 'JetBrains-JediTerm'
   }
-  return _unicodeSupported
-}
-
-let _stripVTControlCharacters
-function stripVTControlCharacters(string) {
-  if (_stripVTControlCharacters === undefined) {
-    // Use non-'node:' prefixed require to avoid Webpack errors.
-
-    const nodeUtil = /*@__PURE__*/ require('node:util')
-    _stripVTControlCharacters = nodeUtil.stripVTControlCharacters
-  }
-  return _stripVTControlCharacters(string)
-}
-
-function getFrame(spinner, index) {
-  const { frames } = spinner
-  const length = frames?.length ?? 0
-  return index > -1 && index < length ? frames[index] : ''
-}
-
-function getFrameCount(spinner) {
-  const { frames } = spinner
-  const length = frames?.length ?? 0
-  return length < 1 ? 1 : length
+  return unicodeSupportedCache
 }
 
 function normalizeText(value) {
   return typeof value === 'string' ? value.trimStart() : ''
+}
+
+let stripVTControlCharactersCache
+function stripVTControlCharacters(string) {
+  if (stripVTControlCharactersCache === undefined) {
+    // Use non-'node:' prefixed require to avoid Webpack errors.
+
+    const nodeUtil = /*@__PURE__*/ require('node:util')
+    stripVTControlCharactersCache = nodeUtil.stripVTControlCharacters
+  }
+  return stripVTControlCharactersCache(string)
 }
 
 class YoctoSpinner {

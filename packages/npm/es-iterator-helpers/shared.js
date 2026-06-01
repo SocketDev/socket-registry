@@ -1,4 +1,5 @@
 'use strict'
+// max-file-lines: legitimate — vendored es-iterator-helpers shared internals; single cohesive published module that must mirror upstream.
 
 const ArrayCtor = Array
 const ErrorCtor = Error

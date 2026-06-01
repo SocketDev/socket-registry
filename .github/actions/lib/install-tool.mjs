@@ -97,70 +97,82 @@ if (process.env.GITHUB_TOKEN) {
   headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`
 }
 
-// oxlint-disable-next-line socket/no-fetch-prefer-http-request -- pre-setup-node action; @socketsecurity/lib-stable not installed yet, only built-in fetch is available.
-const res = await fetch(url, { redirect: 'follow', headers })
-if (!res.ok) {
-  // oxlint-disable-next-line socket/no-console-prefer-logger -- pre-setup-node action; @socketsecurity/lib-stable not installed yet.
-  console.error(
-    `× download failed: HTTP ${res.status} ${res.statusText} for ${url}`,
-  )
-  process.exit(1)
-}
-
-const bytes = new Uint8Array(await res.arrayBuffer())
-const actual = crypto.createHash(algo).update(bytes).digest('base64')
-
-// Compare base64 forms directly. Trailing `=` padding may differ
-// (npm strips it, our hash adds it) — strip both sides before
-// comparing so `sha512-...=` and `sha512-...` match.
-const stripPadding = b64 => b64.replace(/=+$/, '')
-if (stripPadding(actual) !== stripPadding(expected)) {
-  // oxlint-disable-next-line socket/no-console-prefer-logger -- pre-setup-node action; @socketsecurity/lib-stable not installed yet.
-  console.error(`× ${algo} integrity mismatch for ${assetName}`)
-  // oxlint-disable-next-line socket/no-console-prefer-logger -- pre-setup-node action; same.
-  console.error(`  Expected: ${algo}-${expected}`)
-  // oxlint-disable-next-line socket/no-console-prefer-logger -- pre-setup-node action; same.
-  console.error(`  Actual:   ${algo}-${actual}`)
-  // oxlint-disable-next-line socket/no-console-prefer-logger -- pre-setup-node action; same.
-  console.error(`  URL:      ${url}`)
-  process.exit(2)
-}
-
-writeFileSync(archivePath, bytes)
-
-const lower = assetName.toLowerCase()
-let extractCmd
-let extractArgs
-if (lower.endsWith('.tar.gz') || lower.endsWith('.tgz')) {
-  extractCmd = 'tar'
-  extractArgs = ['xzf', archivePath, '-C', destDir]
-} else if (lower.endsWith('.zip')) {
-  if (process.platform === 'win32') {
-    extractCmd = 'powershell'
-    extractArgs = [
-      '-NoProfile',
-      '-Command',
-      `Expand-Archive -Path '${archivePath}' -DestinationPath '${destDir}' -Force`,
-    ]
-  } else {
-    extractCmd = 'unzip'
-    extractArgs = ['-qo', archivePath, '-d', destDir]
-  }
-}
-
-if (extractCmd) {
-  const r = spawnSync(extractCmd, extractArgs, { stdio: 'inherit' })
-  if (r.status !== 0) {
+// Composite-action helper runs as a standalone node script on the raw runner;
+// the CJS bundle target rejects top-level await, so the download / verify /
+// extract pipeline runs inside an async IIFE.
+// oxlint-disable-next-line socket/export-top-level-functions -- composite-action helper runs on the raw runner before setup-node; no node_modules, no module boundary worth exporting across.
+async function main() {
+  // oxlint-disable-next-line socket/no-fetch-prefer-http-request -- pre-setup-node action; @socketsecurity/lib-stable not installed yet, only built-in fetch is available.
+  const res = await fetch(url, { redirect: 'follow', headers })
+  if (!res.ok) {
     // oxlint-disable-next-line socket/no-console-prefer-logger -- pre-setup-node action; @socketsecurity/lib-stable not installed yet.
-    console.error(`× extraction failed: ${extractCmd} exited ${r.status}`)
+    console.error(
+      `× download failed: HTTP ${res.status} ${res.statusText} for ${url}`,
+    )
     process.exit(1)
   }
-  rmSync(archivePath, { force: true })
-} else if (binName) {
-  // Bare-binary asset (no archive). Rename to bin-name and chmod.
-  const finalPath = path.join(destDir, binName)
-  renameSync(archivePath, finalPath)
-  chmodSync(finalPath, 0o755)
-} else {
-  chmodSync(archivePath, 0o755)
+
+  const bytes = new Uint8Array(await res.arrayBuffer())
+  const actual = crypto.createHash(algo).update(bytes).digest('base64')
+
+  // Compare base64 forms directly. Trailing `=` padding may differ
+  // (npm strips it, our hash adds it) — strip both sides before
+  // comparing so `sha512-...=` and `sha512-...` match.
+  const stripPadding = b64 => b64.replace(/=+$/, '')
+  if (stripPadding(actual) !== stripPadding(expected)) {
+    // oxlint-disable-next-line socket/no-console-prefer-logger -- pre-setup-node action; @socketsecurity/lib-stable not installed yet.
+    console.error(`× ${algo} integrity mismatch for ${assetName}`)
+    // oxlint-disable-next-line socket/no-console-prefer-logger -- pre-setup-node action; same.
+    console.error(`  Expected: ${algo}-${expected}`)
+    // oxlint-disable-next-line socket/no-console-prefer-logger -- pre-setup-node action; same.
+    console.error(`  Actual:   ${algo}-${actual}`)
+    // oxlint-disable-next-line socket/no-console-prefer-logger -- pre-setup-node action; same.
+    console.error(`  URL:      ${url}`)
+    process.exit(2)
+  }
+
+  writeFileSync(archivePath, bytes)
+
+  const lower = assetName.toLowerCase()
+  let extractCmd
+  let extractArgs
+  if (lower.endsWith('.tar.gz') || lower.endsWith('.tgz')) {
+    extractCmd = 'tar'
+    extractArgs = ['xzf', archivePath, '-C', destDir]
+  } else if (lower.endsWith('.zip')) {
+    if (process.platform === 'win32') {
+      extractCmd = 'powershell'
+      extractArgs = [
+        '-NoProfile',
+        '-Command',
+        `Expand-Archive -Path '${archivePath}' -DestinationPath '${destDir}' -Force`,
+      ]
+    } else {
+      extractCmd = 'unzip'
+      extractArgs = ['-qo', archivePath, '-d', destDir]
+    }
+  }
+
+  if (extractCmd) {
+    const r = spawnSync(extractCmd, extractArgs, { stdio: 'inherit' })
+    if (r.status !== 0) {
+      // oxlint-disable-next-line socket/no-console-prefer-logger -- pre-setup-node action; @socketsecurity/lib-stable not installed yet.
+      console.error(`× extraction failed: ${extractCmd} exited ${r.status}`)
+      process.exit(1)
+    }
+    rmSync(archivePath, { force: true })
+  } else if (binName) {
+    // Bare-binary asset (no archive). Rename to bin-name and chmod.
+    const finalPath = path.join(destDir, binName)
+    renameSync(archivePath, finalPath)
+    chmodSync(finalPath, 0o755)
+  } else {
+    chmodSync(archivePath, 0o755)
+  }
 }
+
+main().catch(e => {
+  // oxlint-disable-next-line socket/no-console-prefer-logger -- pre-setup-node action; @socketsecurity/lib-stable not installed yet.
+  console.error(e)
+  process.exit(1)
+})

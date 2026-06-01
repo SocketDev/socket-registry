@@ -82,9 +82,9 @@ const main = async (): Promise<number> => {
     clearTimeout(timer)
     // Firewall errors are non-fatal — allow bootstrap to proceed.
     // Network blips or registry-down shouldn't break a fresh clone.
-    stderr.write(
-      `firewall-api: ${e instanceof Error ? e.message : String(e)} — proceeding anyway (non-fatal)\n`,
-    )
+    // oxlint-disable-next-line socket/prefer-error-message -- composite-action helper runs on the raw runner before setup-node; @socketsecurity/lib-stable/errors is not installed yet.
+    const message = e instanceof Error ? e.message : String(e)
+    stderr.write(`firewall-api: ${message} — proceeding anyway (non-fatal)\n`)
     return 0
   }
 }

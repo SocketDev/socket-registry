@@ -1,6 +1,6 @@
 'use strict'
 
-let _localeCompare
+let localeCompareCache
 function assert(truthy, message = 'assert failed') {
   if (truthy) {
     return
@@ -222,11 +222,11 @@ function is_scp(s) {
 }
 
 function localeCompare(x, y) {
-  if (_localeCompare === undefined) {
+  if (localeCompareCache === undefined) {
     // Lazily call new Intl.Collator() because in Node it can take 10-14ms.
-    _localeCompare = new Intl.Collator().compare
+    localeCompareCache = new Intl.Collator().compare
   }
-  return _localeCompare(x, y)
+  return localeCompareCache(x, y)
 }
 
 function parse(buf) {
@@ -294,9 +294,8 @@ function parse(buf) {
     (list, [field, len]) => {
       const data = read(len * list_len)
       for (let i = 0, { length } = list; i < length; i += 1) {
-        const a = list[i]!
+        const a = list[i]
         a[field] = data.subarray(i * len, i * len + len)
-      
       }
       return list
     },

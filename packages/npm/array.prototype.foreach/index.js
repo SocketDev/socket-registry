@@ -13,7 +13,12 @@ function desc(value) {
 
 module.exports = Object.defineProperties(
   function forEach(thisArg, ...args) {
-    new.target ? new impl(...args) : Reflect.apply(impl, thisArg, args)
+    if (new.target) {
+      // oxlint-disable-next-line no-new -- Upstream constructor-guard side effect (throws); the constructed value is intentionally discarded.
+      new impl(...args)
+    } else {
+      Reflect.apply(impl, thisArg, args)
+    }
   },
   {
     getPolyfill: desc(require('./polyfill')),

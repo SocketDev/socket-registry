@@ -1,13 +1,13 @@
 'use strict'
 
-let _process
+let processCache
 function getProcess() {
-  if (_process === undefined) {
+  if (processCache === undefined) {
     // Use non-'node:' prefixed require to avoid Webpack errors.
 
-    _process = require('node:process')
+    processCache = require('node:process')
   }
-  return _process
+  return processCache
 }
 
 module.exports = function isInteractive({ stream = getProcess().stdout } = {}) {

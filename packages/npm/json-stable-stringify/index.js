@@ -145,7 +145,7 @@ function sortKeysFast(value) {
   }
   if (ArrayIsArray(value)) {
     const { length } = value
-    const result = new Array(length)
+    const result = Array.from({ length })
     for (let i = 0; i < length; i += 1) {
       result[i] = sortKeysFast(value[i])
     }
@@ -284,7 +284,7 @@ function sortKeysWithOptions(value, opts, seen) {
   try {
     if (ArrayIsArray(value)) {
       const { length } = value
-      const arr = new Array(length)
+      const arr = Array.from({ length })
       for (let i = 0; i < length; i += 1) {
         const processed = sortKeysWithOptions(value[i], opts, seen)
         arr[i] = opts.replacer
