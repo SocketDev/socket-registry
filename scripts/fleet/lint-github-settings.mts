@@ -976,7 +976,7 @@ function main(): number {
     const cached = readCache(repo)
     if (cached?.pass) {
       const ageHours = Math.round(
-        (Date.now() - Date.parse(cached.verifiedAt)) / 3600_000,
+        (Date.now() - Date.parse(cached.verifiedAt)) / 3_600_000,
       )
       process.stdout.write(
         `✓ Cache fresh (${ageHours}h old, < 7d TTL). Use --force to re-check.\n`,

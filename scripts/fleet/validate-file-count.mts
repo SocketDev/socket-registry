@@ -13,8 +13,8 @@ import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
 
-import { errorMessage } from '@socketsecurity/lib-stable/errors'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
+import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 
 const logger = getDefaultLogger()
 const execAsync = promisify(exec)

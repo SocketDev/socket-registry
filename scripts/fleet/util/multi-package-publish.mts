@@ -38,7 +38,6 @@ import path from 'node:path'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 import { safeDelete, safeMkdir } from '@socketsecurity/lib-stable/fs/safe'
-import { errorMessage } from '@socketsecurity/lib-stable/errors'
 
 import { isPackAppTriplet, parseTripletSegment } from './pack-app-triplets.mts'
 import type { PackAppTriplet } from './pack-app-triplets.mts'
@@ -50,6 +49,7 @@ import type {
   GitHubRepoSlug,
   SourceAllowlistEntry,
 } from './source-allowlist.mts'
+import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 
 const logger = getDefaultLogger()
 

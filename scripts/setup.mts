@@ -12,13 +12,13 @@ import path from 'node:path'
 import process from 'node:process'
 
 import { WIN32 } from '@socketsecurity/lib-stable/constants/platform'
-import { errorMessage } from '@socketsecurity/lib-stable/errors'
 import { isErrnoException } from '@socketsecurity/lib-stable/errors/predicates'
 import { safeDelete } from '@socketsecurity/lib-stable/fs/safe'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 
-import { REPO_ROOT } from './paths.mts'
+import { REPO_ROOT } from './fleet/paths.mts'
+import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 
 const logger = getDefaultLogger()
 const quiet = process.argv.includes('--quiet')
@@ -52,9 +52,9 @@ export function getToolCachePath(tool: string, version: string): string {
 
 /**
  * Compute a Subresource Integrity (SRI) string for a file. Format:
- * `sha256-<base64>`. Streams the file so multi-GB binaries don't blow
- * the heap. Matches the format that update-external-tools.mts writes
- * into external-tools.json's `platforms.<key>.integrity` field.
+ * `sha256-<base64>`. Streams the file so multi-GB binaries don't blow the heap.
+ * Matches the format that update-external-tools.mts writes into
+ * external-tools.json's `platforms.<key>.integrity` field.
  */
 export function computeIntegrity(filePath: string): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -206,7 +206,7 @@ export async function downloadAndVerify(
       }
 
       // Verify integrity.
-      log.step('Verifying integrity...')
+      log.step('Verifying integrity…')
       const actual = await computeIntegrity(archivePath)
       if (actual !== expectedIntegrity) {
         throw new Error(
@@ -217,7 +217,7 @@ export async function downloadAndVerify(
       }
 
       // Extract.
-      log.step('Extracting...')
+      log.step('Extracting…')
       if (assetName.endsWith('.zip')) {
         const unzipResult = await spawn(
           WIN32 ? 'powershell' : 'unzip',

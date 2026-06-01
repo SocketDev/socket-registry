@@ -5,15 +5,14 @@
  *   parent directories.
  */
 
-import { NODE_MODULES_GLOB_RECURSIVE } from '@socketsecurity/lib-stable/paths/globs'
-import { isDirEmptySync } from '@socketsecurity/lib-stable/fs/safe'
+import { NODE_MODULES_GLOB_RECURSIVE } from '@socketsecurity/lib-stable/paths/dirnames'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { deleteAsync as del } from 'del'
 import fastGlob from 'fast-glob'
+import { ROOT_PATH } from '../constants/paths.mts'
+import { isDirEmptySync } from '@socketsecurity/lib-stable/fs/inspect'
 
 const logger = getDefaultLogger()
-
-import { ROOT_PATH } from '../constants/paths.mts'
 
 async function main(): Promise<void> {
   const dirPaths = (
@@ -25,7 +24,7 @@ async function main(): Promise<void> {
     })
   )
     // Sort directory paths longest to shortest.
-    .sort((a, b) => b.length - a.length)
+    .toSorted((a, b) => b.length - a.length)
 
   // Collect all empty directories.
   const emptyDirs = dirPaths.filter(dirPath => isDirEmptySync(dirPath))

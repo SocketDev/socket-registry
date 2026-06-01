@@ -41,7 +41,7 @@ interface CheckResult {
   readonly fix?: string | undefined
 }
 
-const CACHE_TTL_THRESHOLD_SECONDS = 28800
+const CACHE_TTL_THRESHOLD_SECONDS = 28_800
 
 function isMac(): boolean {
   return os.platform() === 'darwin'

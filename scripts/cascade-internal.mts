@@ -160,7 +160,9 @@ export async function rewriteFile(
 ): Promise<void> {
   let text = await fs.readFile(file, 'utf8')
   // Rewrite right-to-left so earlier offsets remain valid.
-  for (const pin of [...pinsInFile].sort((a, b) => b.shaStart - a.shaStart)) {
+  for (const pin of [...pinsInFile].toSorted(
+    (a, b) => b.shaStart - a.shaStart,
+  )) {
     text = text.slice(0, pin.shaStart) + head + text.slice(pin.shaStart + 40)
   }
   await fs.writeFile(file, text)
@@ -188,8 +190,8 @@ export async function runIteration(
   }
   const relFiles = [...byFile.keys()]
     .map(f => path.relative(REPO_ROOT, f))
-    .sort()
-  const pinPaths = [...new Set(stale.map(p => p.pinPath))].sort()
+    .toSorted()
+  const pinPaths = [...new Set(stale.map(p => p.pinPath))].toSorted()
   logger.log(
     `  bumping ${stale.length} stale pins across ${byFile.size} files → ${head.slice(0, 8)}`,
   )

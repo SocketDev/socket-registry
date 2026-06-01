@@ -7,7 +7,7 @@ import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 import process from 'node:process'
 
-import { REPO_ROOT } from '../paths.mts'
+import { REPO_ROOT } from '../fleet/paths.mts'
 
 const logger = getDefaultLogger()
 

@@ -6,16 +6,14 @@
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
-
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
-
-const logger = getDefaultLogger()
-
+import { REPO_ROOT } from '../fleet/paths.mts'
 import {
   ROOT_DOT_GITHUB_ACTIONS_PATH,
   ROOT_DOT_GITHUB_WORKFLOWS_PATH,
 } from '../constants/paths.mts'
-import { REPO_ROOT } from '../paths.mts'
+
+const logger = getDefaultLogger()
 
 /**
  * Extract structured dependency information from a workflow or action file.
@@ -150,7 +148,7 @@ async function main(): Promise<void> {
   logger.log('')
 
   // Sort files for consistent output.
-  const sortedFiles = Array.from(dependencyTree.keys()).sort()
+  const sortedFiles = Array.from(dependencyTree.keys()).toSorted()
   // Base indentation for the entire tree.
   const indent = '  '
 

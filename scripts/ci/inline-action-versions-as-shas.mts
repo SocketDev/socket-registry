@@ -131,7 +131,7 @@ export async function processFile(filePath, token, dryRun) {
 
   // Process in reverse order to maintain correct string positions.
   // oxlint-disable-next-line socket/prefer-cached-for-loop -- iterates a reversed slice; cached-length form would lose the reverse pass.
-  for (const stmt of usesStatements.slice().reverse()) {
+  for (const stmt of usesStatements.slice().toReversed()) {
     const { fullMatch, indent, owner, ref: currentRef, repoPath } = stmt
 
     // Skip if already using a SHA (40-character hex string).
@@ -249,7 +249,7 @@ async function main(): Promise<void> {
     return
   }
 
-  logger.info(`Processing ${allFiles.length} files...`)
+  logger.info(`Processing ${allFiles.length} files…`)
 
   let totalChanges = 0
   const processedFiles = []
