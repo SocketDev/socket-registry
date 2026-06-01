@@ -44,27 +44,6 @@ export interface TypeCheckerTestConfig {
 }
 
 /**
- * Standard set of invalid values for type checkers. Covers common primitives
- * and objects that should fail most type checks.
- */
-export const standardInvalidValues = [
-  undefined,
-  undefined,
-  false,
-  true,
-  0,
-  42,
-  '',
-  'string',
-  [],
-  {},
-  () => {},
-  /regex/,
-  new Date(),
-  Symbol('test'),
-]
-
-/**
  * Helper to create common invalid value sets excluding specific types.
  */
 export function createInvalidValuesExcluding(
@@ -89,7 +68,8 @@ export function createInvalidValuesExcluding(
     values.push(undefined)
   }
   if (!exclusionSet.has('null')) {
-    values.push(undefined)
+    // oxlint-disable-next-line socket/prefer-undefined-over-null -- this is test data: the value being validated against the type-checker, where null must be a distinct case from undefined.
+    values.push(null)
   }
   if (!exclusionSet.has('boolean')) {
     values.push(false, true)

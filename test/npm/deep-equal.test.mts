@@ -8,7 +8,6 @@ import { describe, expect, it } from 'vitest'
 
 import { expectValidPackageStructure } from '../util/assertion-helpers.mts'
 import { setupNpmPackageTest } from '../util/npm-package-helper.mts'
-import { describeIfMap, describeIfSet } from '../util/platform-test-helpers.mts'
 
 const {
   eco,
@@ -59,7 +58,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
   })
 
-  describeIfMap('Maps', () => {
+  describe('Maps', () => {
     it('two equal Maps', () => {
       const map1 = new Map([
         ['a', 1],
@@ -117,7 +116,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
   })
 
-  describeIfSet('Sets', () => {
+  describe('Sets', () => {
     it('two equal Sets', () => {
       const set1 = new Set([1, 2, 3])
       const set2 = new Set([1, 2, 3])
@@ -133,7 +132,9 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
 
     it('two equal Sets with object values', () => {
+      // oxlint-disable-next-line socket/sort-set-args -- three identical {} literals; ordering is meaningless and intentional test data.
       const set1 = new Set([{}, {}, {}])
+      // oxlint-disable-next-line socket/sort-set-args -- three identical {} literals; ordering is meaningless and intentional test data.
       const set2 = new Set([{}, {}, {}])
       expect(deepEqual(set1, set2)).toBe(true)
       expect(deepEqual(set1, set2, { strict: true })).toBe(true)
@@ -474,18 +475,18 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
   describe('circular references', () => {
     it('objects with circular references', () => {
-      const obj1: any = { a: 1 }
-      obj1.self = obj1
-      const obj2: any = { a: 1 }
-      obj2.self = obj2
+      const obj1: Record<string, unknown> = { a: 1 }
+      obj1['self'] = obj1
+      const obj2: Record<string, unknown> = { a: 1 }
+      obj2['self'] = obj2
       expect(deepEqual(obj1, obj2)).toBe(true)
       expect(deepEqual(obj1, obj2, { strict: true })).toBe(true)
     })
 
     it('arrays with circular references', () => {
-      const arr1: any[] = [1, 2]
+      const arr1: unknown[] = [1, 2]
       arr1.push(arr1)
-      const arr2: any[] = [1, 2]
+      const arr2: unknown[] = [1, 2]
       arr2.push(arr2)
       expect(deepEqual(arr1, arr2)).toBe(true)
       expect(deepEqual(arr1, arr2, { strict: true })).toBe(true)
