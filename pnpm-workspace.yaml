@@ -7,7 +7,7 @@ packages:
 # Packages allowed to run build scripts (pnpm v11 strictDepBuilds default).
 allowBuilds:
   cpu-features: false
-  esbuild: set this to true or false
+  esbuild: true
   protobufjs: false
   rolldown: true
   ssh2: false
