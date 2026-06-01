@@ -67,9 +67,9 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
         const name = typedArrayNames[i]!
         const TA = globalThis[name]
         if (typeof TA === 'function') {
-          const length = 10
-          const arr = new TA(length)
-          expect(typedArrayLength(arr)).toBe(length)
+          const arrLength = 10
+          const arr = new TA(arrLength)
+          expect(typedArrayLength(arr)).toBe(arrLength)
         }
       }
     })

@@ -21,7 +21,8 @@ import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 import { getDefaultSpinner } from '@socketsecurity/lib-stable/spinner/default'
 import { withSpinner } from '@socketsecurity/lib-stable/spinner/with'
 import { minimatch } from 'minimatch'
-import semver from '@socketsecurity/lib-stable/external/semver'
+// oxlint-disable-next-line socket/prefer-stable-external-semver -- @socketsecurity/lib-stable has no ./external/semver export at the pinned version; semver is a devDependency (scripts/tests only, not bundled).
+import semver from 'semver'
 import { LATEST, SOCKET_REGISTRY_PACKAGE_NAME } from '../constants/packages.mts'
 import {
   NPM_PACKAGES_PATH,
@@ -40,7 +41,7 @@ import { toSortedObject } from '@socketsecurity/lib-stable/objects/sort'
 const logger = getDefaultLogger()
 
 const abortSignal = getAbortSignal()
-const spinner = getDefaultSpinner()
+const defaultSpinner = getDefaultSpinner()
 const npmPackageNames = getNpmPackageNames()
 
 const registryPkg = packageData({
@@ -406,18 +407,18 @@ async function main(): Promise<void> {
     message: 'Checking for package changes…',
     operation: async () => {
       // Check registry package FIRST before processing npm packages.
-      await maybeBumpPackage(registryPkg, { spinner, state })
+      await maybeBumpPackage(registryPkg, { spinner: defaultSpinner, state })
 
       // Process npm packages in parallel 3 at a time.
       await pEach(
         npmPackages,
         async pkg => {
-          await maybeBumpPackage(pkg, { spinner, state })
+          await maybeBumpPackage(pkg, { spinner: defaultSpinner, state })
         },
         { concurrency: 3 },
       )
     },
-    spinner,
+    spinner: defaultSpinner,
   })
 
   if (abortSignal.aborted || !state.bumped.length) {
@@ -452,7 +453,7 @@ async function main(): Promise<void> {
       await execScript('update:package-json', [], spawnOptions)
       await execScript('update:manifest', ['--', '--force'], spawnOptions)
     },
-    spinner,
+    spinner: defaultSpinner,
   })
 }
 

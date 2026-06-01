@@ -323,16 +323,16 @@ export async function validateBundleDeps() {
 
     // `externals` and `bundled` are Sets — use for...of, not the
     // cached-length for-loop.
-    for (let i = 0, { length } = externals; i < length; i += 1) {
-      const ext = externals[i]!
+    for (let j = 0, { length: len } = externals; j < len; j += 1) {
+      const ext = externals[j]!
       const packageName = getPackageName(ext)
       if (packageName && !BUILTIN_MODULES.has(packageName)) {
         allExternals.add(packageName)
       }
     }
 
-    for (let i = 0, { length } = bundled; i < length; i += 1) {
-      const bun = bundled[i]!
+    for (let j = 0, { length: len } = bundled; j < len; j += 1) {
+      const bun = bundled[j]!
       allBundled.add(bun)
     }
   }

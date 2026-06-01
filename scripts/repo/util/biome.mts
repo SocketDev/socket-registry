@@ -31,6 +31,7 @@ export function biomeFormat(
   const extension = ext ? ext.slice(1) : 'json'
   const result = spawnSync(
     'pnpm',
+    // oxlint-disable-next-line socket/no-eslint-biome-config-ref -- real Biome CLI invocation; registry formats manifest.json with biome, not a stale config ref.
     ['exec', 'biome', 'format', `--stdin-file-path=temp.${extension}`],
     {
       // oxlint-disable-next-line socket/no-process-cwd-in-scripts-hooks -- biome reads from stdin (no file resolution); cwd is purely for `pnpm exec` to find the biome binary in node_modules.

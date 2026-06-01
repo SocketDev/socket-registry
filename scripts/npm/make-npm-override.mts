@@ -24,7 +24,8 @@ import { pluralize } from '@socketsecurity/lib-stable/words/pluralize'
 import { ReturnTypeEnums, default as didYouMean } from 'didyoumean2'
 import fastGlob from 'fast-glob'
 import { open } from 'out-url'
-import semver from '@socketsecurity/lib-stable/external/semver'
+// oxlint-disable-next-line socket/prefer-stable-external-semver -- @socketsecurity/lib-stable has no ./external/semver export at the pinned version; semver is a devDependency (scripts/tests only, not bundled).
+import semver from 'semver'
 import { UTF8 } from '@socketsecurity/lib-stable/constants/encoding'
 import { ESNEXT } from '../constants/core.mts'
 import { LOG_SYMBOLS } from '@socketsecurity/lib-stable/logger/symbols'
@@ -349,19 +350,19 @@ async function main(): Promise<void> {
     if (answer) {
       const searchResult = await search({
         message: 'Which one?',
-        source: async input => {
-          if (!input) {
+        source: async term => {
+          if (!term) {
             return []
           }
           // Trim, truncate, and lower input.
-          const formatted = input.trim().slice(0, maxTsRefLength).toLowerCase()
+          const formatted = term.trim().slice(0, maxTsRefLength).toLowerCase()
           if (!formatted) {
-            return [input]
+            return [term]
           }
           let matches
           // Simple search.
           for (const p of ['es2', 'es', 'e', 'de', 'd', 'n', 'w']) {
-            if (input.startsWith(p) && input.length <= 3) {
+            if (term.startsWith(p) && term.length <= 3) {
               matches = possibleTsRefs.filter(l => l.startsWith(p))
               break
             }
@@ -376,19 +377,19 @@ async function main(): Promise<void> {
             })
           }
           if (!matches.length) {
-            return [toChoice(input)]
+            return [toChoice(term)]
           }
           const firstMatch = matches[0]
           const sortedTail =
             matches.length > 1 ? naturalSorter(matches.slice(1)).desc() : []
           // If a match starts with input then don't include input in the results.
-          if (matches.some(m => m.startsWith(input))) {
+          if (matches.some(m => m.startsWith(term))) {
             return [firstMatch, ...sortedTail].map(toChoice)
           }
           let first = firstMatch
-          let second = input
-          if (input.length > firstMatch.length) {
-            first = input
+          let second = term
+          if (term.length > firstMatch.length) {
+            first = term
             second = firstMatch
           }
           return [first, second, ...sortedTail].map(toChoice)

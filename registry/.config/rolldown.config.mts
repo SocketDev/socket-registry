@@ -44,20 +44,10 @@ for (let i = 0, { length } = entryFiles; i < length; i += 1) {
 }
 
 export const buildConfig: RolldownOptions = {
-  input,
-  platform: 'node',
   // bundle:false equivalent — keep each source file as its own module with
   // inter-file requires intact.
   external: (id: string) => !id.startsWith('.') && !path.isAbsolute(id),
-  // oxc define lives under `transform` (top-level `define` is rejected by
-  // rolldown). Value is already-quoted source text, same contract as esbuild.
-  transform: {
-    define: {
-      'process.env.NODE_ENV': JSON.stringify(
-        process.env['NODE_ENV'] || 'production',
-      ),
-    },
-  },
+  input,
   output: {
     dir: distPath,
     format: 'cjs',
@@ -68,5 +58,15 @@ export const buildConfig: RolldownOptions = {
     entryFileNames: '[name].js',
     chunkFileNames: '[name].js',
     banner: '/* Socket Registry - Built with rolldown */',
+  },
+  platform: 'node',
+  // oxc define lives under `transform` (top-level `define` is rejected by
+  // rolldown). Value is already-quoted source text, same contract as esbuild.
+  transform: {
+    define: {
+      'process.env.NODE_ENV': JSON.stringify(
+        process.env['NODE_ENV'] || 'production',
+      ),
+    },
   },
 }

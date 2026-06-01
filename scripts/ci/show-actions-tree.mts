@@ -106,8 +106,8 @@ async function main(): Promise<void> {
   for (let i = 0, { length } = workflowFiles; i < length; i += 1) {
     const file = workflowFiles[i]
     const { flat, structured } = await extractDependenciesWithStructure(file)
-    for (let i = 0, { length } = flat; i < length; i += 1) {
-      const dep = flat[i]
+    for (let j = 0, { length: len } = flat; j < len; j += 1) {
+      const dep = flat[j]
       allDependencies.add(dep)
     }
     if (structured.length > 0) {
@@ -131,8 +131,8 @@ async function main(): Promise<void> {
       try {
         const { flat, structured } =
           await extractDependenciesWithStructure(actionFile)
-        for (let i = 0, { length } = flat; i < length; i += 1) {
-          const dep = flat[i]
+        for (let j = 0, { length: len } = flat; j < len; j += 1) {
+          const dep = flat[j]
           allDependencies.add(dep)
         }
         if (structured.length > 0) {

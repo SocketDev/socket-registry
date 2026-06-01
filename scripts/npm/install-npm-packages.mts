@@ -376,8 +376,8 @@ export async function applyNestedSocketOverrides(packagePath) {
             withFileTypes: true,
           })
 
-          for (let i = 0, { length } = scopedEntries; i < length; i += 1) {
-            const scopedEntry = scopedEntries[i]
+          for (let j = 0, { length: len } = scopedEntries; j < len; j += 1) {
+            const scopedEntry = scopedEntries[j]
             if (!scopedEntry.isDirectory()) {
               continue
             }
@@ -1005,12 +1005,12 @@ export async function installPackage(packageInfo) {
     await applyNestedSocketOverrides(installedPath)
 
     // Mark installation as complete.
-    const installMarkerPath = path.join(
+    const completeMarkerPath = path.join(
       packageTempDir,
       '.socket-install-complete',
     )
     const overrideHash = await computeOverrideHash(overridePath)
-    await writeJson(installMarkerPath, {
+    await writeJson(completeMarkerPath, {
       installedAt: new Date().toISOString(),
       versionSpec,
       overrideHash,

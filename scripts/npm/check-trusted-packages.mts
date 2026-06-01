@@ -152,9 +152,9 @@ async function getPackagesFromScope(scope) {
   }
 }
 
-async function runCommand(command, args = []) {
+async function runCommand(command, commandArgs = []) {
   try {
-    const result = await spawn(command, args, {
+    const result = await spawn(command, commandArgs, {
       shell: process.platform === 'win32',
       stdio: 'pipe',
     })

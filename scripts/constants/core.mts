@@ -2,6 +2,7 @@
  * @file Core constants used across build scripts.
  */
 
+// oxlint-disable-next-line socket/no-eslint-biome-config-ref -- real Biome config filename; registry validates packages that may ship biome.json.
 export const BIOME_JSON = 'biome.json'
 export const COLUMN_LIMIT = 80
 export const DEFAULT_CONCURRENCY = 3

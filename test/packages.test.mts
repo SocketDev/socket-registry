@@ -20,7 +20,8 @@ import { trimLeadingDotSlash } from '@socketsecurity/lib/paths/normalize'
 import { naturalCompare } from '@socketsecurity/lib/sorts/natural'
 import { isNonEmptyString } from '@socketsecurity/lib/strings/predicates'
 import fastGlob from 'fast-glob'
-import semver from '@socketsecurity/lib-stable/external/semver'
+// oxlint-disable-next-line socket/prefer-stable-external-semver -- @socketsecurity/lib-stable has no ./external/semver export at the pinned version; semver is a devDependency (scripts/tests only, not bundled).
+import semver from 'semver'
 import { describe, expect, it } from 'vitest'
 
 import { getManifestData } from '../registry/src/index.js'
@@ -106,8 +107,12 @@ for (let i = 0, { length } = ecosystems; i < length; i += 1) {
       return
     }
 
-    for (let i = 0, { length } = packageNames; i < length; i += 1) {
-      const sockRegPkgName = packageNames[i]!
+    for (
+      let j = 0, { length: pkgLength } = packageNames;
+      j < pkgLength;
+      j += 1
+    ) {
+      const sockRegPkgName = packageNames[j]!
       const pkgPath = path.join(npmPackagesPath, sockRegPkgName)
       const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)
       const pkgJsonExists = existsSync(pkgJsonPath)
@@ -192,8 +197,12 @@ for (let i = 0, { length } = ecosystems; i < length; i += 1) {
             )
 
             // For each JS file, check if there's a corresponding type file.
-            for (let i = 0, { length } = jsFilePaths; i < length; i += 1) {
-              const jsFilePath = jsFilePaths[i]!
+            for (
+              let k = 0, { length: jsLength } = jsFilePaths;
+              k < jsLength;
+              k += 1
+            ) {
+              const jsFilePath = jsFilePaths[k]!
               // Check if there's any type file in the exports.
               // This is a simplified check - just ensure type files exist somewhere.
               if (!typeFilePaths.length) {

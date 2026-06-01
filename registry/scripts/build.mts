@@ -10,7 +10,10 @@ import { fileURLToPath } from 'node:url'
 import { rolldown, watch } from 'rolldown'
 import fg from 'fast-glob'
 
+import type { InputOptions, OutputOptions } from 'rolldown'
+
 import { isQuiet } from '@socketsecurity/lib/argv/flag-predicates'
+import { errorMessage } from '@socketsecurity/lib/errors/message'
 import { getDefaultLogger } from '@socketsecurity/lib/logger/default'
 import { printFooter } from '@socketsecurity/lib/stdio/footer'
 import { printHeader } from '@socketsecurity/lib/stdio/header'
@@ -27,12 +30,19 @@ const rootPath = path.resolve(
   '..',
 )
 
+interface BuildOptions {
+  analyze?: boolean | undefined
+  quiet?: boolean | undefined
+  skipClean?: boolean | undefined
+  verbose?: boolean | undefined
+}
+
 /**
  * Build source code with esbuild. Returns { exitCode, buildTime, result } for
  * external logging.
  */
-export async function buildSource(options = {}) {
-  const { quiet = false, skipClean = false, verbose = false } = options
+export async function buildSource(options: BuildOptions = {}) {
+  const { quiet = false, skipClean = false } = options
 
   // Clean dist directory if needed.
   if (!skipClean) {
@@ -57,9 +67,16 @@ export async function buildSource(options = {}) {
   try {
     const startTime = Date.now()
     const { output, ...inputOptions } = buildConfig
-    const bundle = await rolldown(inputOptions)
+    const bundle = await rolldown(inputOptions as InputOptions)
     try {
-      await bundle.write(output)
+      const outputs: OutputOptions[] = Array.isArray(output)
+        ? output
+        : output
+          ? [output]
+          : []
+      for (let i = 0, { length } = outputs; i < length; i += 1) {
+        await bundle.write(outputs[i]!)
+      }
     } finally {
       await bundle.close()
     }
@@ -83,12 +100,8 @@ export async function buildSource(options = {}) {
 /**
  * Build TypeScript declarations. Returns exitCode for external logging.
  */
-export async function buildTypes(options = {}) {
-  const {
-    quiet = false,
-    skipClean = false,
-    verbose: _verbose = false,
-  } = options
+export async function buildTypes(options: BuildOptions = {}) {
+  const { quiet = false, skipClean = false } = options
 
   const commands = []
 
@@ -148,7 +161,7 @@ export function isBuildNeeded() {
   // Find newest source file timestamp.
   let newestSource = 0
   for (let i = 0, { length } = sourceFiles; i < length; i += 1) {
-    const file = sourceFiles[i]
+    const file = sourceFiles[i]!
     const stat = statSync(file)
     if (stat.mtimeMs > newestSource) {
       newestSource = stat.mtimeMs
@@ -167,7 +180,7 @@ export function isBuildNeeded() {
 
   let oldestOutput = Number.POSITIVE_INFINITY
   for (let i = 0, { length } = outputFiles; i < length; i += 1) {
-    const file = outputFiles[i]
+    const file = outputFiles[i]!
     const stat = statSync(file)
     if (stat.mtimeMs < oldestOutput) {
       oldestOutput = stat.mtimeMs
@@ -181,17 +194,20 @@ export function isBuildNeeded() {
 /**
  * Watch mode for development with incremental builds (68% faster rebuilds).
  */
-export async function watchBuild(options = {}) {
+export async function watchBuild(options: BuildOptions = {}): Promise<number> {
   const { quiet = false } = options
 
   if (!quiet) {
     logger.info('Starting watch mode with incremental builds')
-    logger.indent('Watching for file changes…')
+    logger.log('Watching for file changes…')
   }
 
   try {
     const { output, ...inputOptions } = buildConfig
-    const watcher = watch({ ...inputOptions, output })
+    const watcher = watch({
+      ...(inputOptions as InputOptions),
+      ...(output ? { output } : {}),
+    })
 
     // rolldown requires closing each build's result on BUNDLE_END to avoid
     // leaking native handles; ERROR surfaces a failed rebuild.
@@ -215,7 +231,7 @@ export async function watchBuild(options = {}) {
     })
 
     // Wait indefinitely.
-    await new Promise(() => {})
+    return await new Promise<number>(() => {})
   } catch (e) {
     if (!quiet) {
       logger.error('Watch mode failed:', e)
@@ -271,7 +287,7 @@ async function main() {
     })
 
     // Show help if requested.
-    if (values.help) {
+    if (values['help']) {
       logger.log('Build Runner')
       logger.log('')
       logger.log('Usage: pnpm build [options]')
@@ -305,10 +321,11 @@ async function main() {
     }
 
     const quiet = isQuiet(values)
-    const verbose = values.verbose
+    const verbose = Boolean(values['verbose'])
+    const analyze = Boolean(values['analyze'])
 
     // Check if build is needed.
-    if (values.needed && !isBuildNeeded()) {
+    if (values['needed'] && !isBuildNeeded()) {
       if (!quiet) {
         logger.info('Build artifacts exist, skipping build')
       }
@@ -319,35 +336,35 @@ async function main() {
     let exitCode = 0
 
     // Handle watch mode.
-    if (values.watch) {
+    if (values['watch']) {
       if (!quiet) {
         printHeader('Build Runner (Watch Mode)')
       }
       exitCode = await watchBuild({ quiet, verbose })
     }
     // Build types only.
-    else if (values.types && !values.src) {
+    else if (values['types'] && !values['src']) {
       if (!quiet) {
         printHeader('Building TypeScript Declarations')
       }
       exitCode = await buildTypes({ quiet, verbose })
       if (exitCode === 0 && !quiet) {
-        logger.indent('Type declarations built')
+        logger.log('Type declarations built')
       }
     }
     // Build source only.
-    else if (values.src && !values.types) {
+    else if (values['src'] && !values['types']) {
       if (!quiet) {
         printHeader('Building Source')
       }
       const { buildTime, exitCode: srcExitCode } = await buildSource({
         quiet,
         verbose,
-        analyze: values.analyze,
+        analyze,
       })
       exitCode = srcExitCode
       if (exitCode === 0 && !quiet) {
-        logger.indent(`Source build complete in ${buildTime}ms`)
+        logger.log(`Source build complete in ${buildTime}ms`)
       }
     }
     // Build everything (default).
@@ -357,7 +374,7 @@ async function main() {
       }
 
       // Check if build is needed when --needed flag is used.
-      const buildNeeded = !values.needed || isBuildNeeded()
+      const buildNeeded = !values['needed'] || isBuildNeeded()
       if (!buildNeeded) {
         if (!quiet) {
           logger.info('Build artifacts exist, skipping build')
@@ -402,7 +419,7 @@ async function main() {
           quiet,
           verbose,
           skipClean: true,
-          analyze: values.analyze,
+          analyze,
         }),
         buildTypes({ quiet, verbose, skipClean: true }),
       ])
@@ -425,7 +442,7 @@ async function main() {
       process.exitCode = exitCode
     }
   } catch (e) {
-    logger.error(`Build runner failed: ${e.message}`)
+    logger.error(`Build runner failed: ${errorMessage(e)}`)
     process.exitCode = 1
   }
 }

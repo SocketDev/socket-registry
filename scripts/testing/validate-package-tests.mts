@@ -47,6 +47,7 @@ const { values: cliArgs } = parseArgs({
 const VALIDATION_CHECKS = {
   BUILD_ARTIFACTS: 'build-artifacts',
   DEPENDENCIES: 'dependencies',
+  // oxlint-disable-next-line socket/no-eslint-biome-config-ref -- validation-check id; this script validates target packages' real ESLint config, not the fleet's.
   ESLINT_CONFIG: 'eslint-config',
   MODULE_RESOLUTION: 'module-resolution',
   PACKAGE_JSON: 'package-json',
@@ -204,18 +205,19 @@ export async function validateDependencies(packageName, packageDir) {
  */
 export async function validateEslintConfig(_packageName, packageDir) {
   const issues = []
-  const eslintConfigPath = path.join(packageDir, '.eslintrc')
-  const eslintConfigJsPath = path.join(packageDir, '.eslintrc.js')
-  const eslintConfigJsonPath = path.join(packageDir, '.eslintrc.json')
+  // Filenames of ESLint configs the validated package may ship. These are the
+  // target package's files, not the fleet's tooling.
+  // oxlint-disable-next-line socket/no-eslint-biome-config-ref -- validates target packages' real ESLint config filenames.
+  const eslintConfigNames = ['.eslintrc', '.eslintrc.js', '.eslintrc.json']
 
-  const hasEslintConfig =
-    existsSync(eslintConfigPath) ||
-    existsSync(eslintConfigJsPath) ||
-    existsSync(eslintConfigJsonPath)
+  const hasEslintConfig = eslintConfigNames.some(name =>
+    existsSync(path.join(packageDir, name)),
+  )
 
   if (hasEslintConfig) {
     try {
       // Try to validate ESLint config by running eslint --print-config.
+      // oxlint-disable-next-line socket/no-eslint-biome-config-ref -- runs the validated package's own ESLint to verify its config, not the fleet's tooling.
       const result = await spawn('pnpm', ['eslint', '--print-config', '.'], {
         cwd: packageDir,
         stdio: 'pipe',

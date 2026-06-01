@@ -8,7 +8,7 @@ import path from 'node:path'
 
 import { PackageURL } from '@socketregistry/packageurl-js-stable'
 
-import manifestData from '../../../registry/manifest.json' with { type: 'json' }
+import registryManifest from '../../../registry/manifest.json' with { type: 'json' }
 import { joinAnd } from '@socketsecurity/lib-stable/arrays/join'
 import { globStreamLicenses } from '@socketsecurity/lib-stable/globs/stream'
 import { isObject } from '@socketsecurity/lib-stable/objects/predicates'
@@ -18,7 +18,8 @@ import { determineArticle } from '@socketsecurity/lib-stable/words/article'
 import { capitalize } from '@socketsecurity/lib-stable/words/capitalize'
 import { Eta } from 'eta'
 import fastGlob from 'fast-glob'
-import semver from '@socketsecurity/lib-stable/external/semver'
+// oxlint-disable-next-line socket/prefer-stable-external-semver -- @socketsecurity/lib-stable has no ./external/semver export at the pinned version; semver is a devDependency (scripts/tests only, not bundled).
+import semver from 'semver'
 
 import { UTF8 } from '@socketsecurity/lib-stable/constants/encoding'
 import {
@@ -52,9 +53,9 @@ const PACKAGE_DEFAULT_VERSION = '1.0.0'
  */
 export function getManifestData(ecosystem, packageName) {
   if (!ecosystem) {
-    return manifestData
+    return registryManifest
   }
-  const ecoData = manifestData[ecosystem]
+  const ecoData = registryManifest[ecosystem]
   if (!ecoData) {
     return undefined
   }

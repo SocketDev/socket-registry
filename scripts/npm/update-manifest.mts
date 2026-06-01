@@ -53,7 +53,7 @@ const logger = getDefaultLogger()
 
 const require = createRequire(import.meta.url)
 
-const spinner = getDefaultSpinner()
+const defaultSpinner = getDefaultSpinner()
 const npmPackageNames = getNpmPackageNames()
 
 const { values: cliArgs } = parseArgs({
@@ -239,13 +239,13 @@ async function main(): Promise<void> {
     message: `Updating ${REL_REGISTRY_MANIFEST_JSON_PATH}...`,
     operation: async () => {
       const manifest = {}
-      await addNpmManifestData(manifest, { spinner })
+      await addNpmManifestData(manifest, { spinner: defaultSpinner })
       const output = await biomeFormat(JSON.stringify(manifest, null, 2), {
         filepath: REGISTRY_MANIFEST_JSON_PATH,
       })
       await fs.writeFile(REGISTRY_MANIFEST_JSON_PATH, output, 'utf8')
     },
-    spinner,
+    spinner: defaultSpinner,
   })
 }
 

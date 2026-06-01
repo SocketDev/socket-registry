@@ -40,6 +40,7 @@ export function normalizePath(p: string): string {
 // File and directory names.
 export const CHANGELOG_MD = 'CHANGELOG.md'
 export const DOT_GITHUB = '.github'
+// oxlint-disable-next-line socket/no-eslint-biome-config-ref -- real ESLint config filename; registry validates packages that may ship eslint.config.js.
 export const ESLINT_CONFIG_JS = 'eslint.config.js'
 export const EXTENSIONS_JSON = 'extensions.json'
 export const LICENSE = 'LICENSE'
