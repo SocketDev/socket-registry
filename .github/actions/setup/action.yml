@@ -513,9 +513,10 @@ runs:
         # root scripts can import them at module-load time. Order
         # matters only for log readability.
         PACKAGES=(
-          '@socketsecurity/lib'
           '@socketregistry/packageurl-js'
           '@sinclair/typebox'
+          '@socketsecurity/lib'
+          '@socketsecurity/lib-stable'
         )
         for PKG in "${PACKAGES[@]}"; do
           # Already resolvable? Skip.
