@@ -11,7 +11,7 @@ module.exports = function whichBoxedPrimitive(value) {
     value === null ||
     (typeof value !== 'object' && typeof value !== 'function')
   ) {
-    return undefined
+    return null
   }
   if (typeof value !== 'function') {
     try {
