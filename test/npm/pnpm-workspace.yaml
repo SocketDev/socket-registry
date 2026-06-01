@@ -11,3 +11,5 @@ overrides:
   # advisory #271 postcss / advisories #268/#269/#270 vite (all dev-only)
   postcss: 8.5.15
   vite: 7.3.2
+  # GHSA-5xrq-8626-4rwp vitest UI arbitrary file read/exec (dev-only)
+  vitest: 4.1.6
