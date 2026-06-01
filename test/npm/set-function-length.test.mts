@@ -47,7 +47,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       [],
       {},
       1.5,
-      0xffffffff + 1,
+      0xff_ff_ff_ff + 1,
     ]
     for (let i = 0, { length } = nonIntegers; i < length; i += 1) {
       const nonInt = nonIntegers[i]

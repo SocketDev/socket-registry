@@ -68,7 +68,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
       const x = new String('x')
       ;(x as any).y = 1
-      expect(objectKeys(x).sort()).toEqual(['0', 'y'].sort())
+      expect(objectKeys(x).toSorted()).toEqual(['0', 'y'].toSorted())
     })
 
     it('should work with a function', () => {
@@ -118,7 +118,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       instance.bar = true
       const keys = objectKeys(instance)
       expect(Array.isArray(keys)).toBe(true)
-      expect(keys.sort()).toEqual(['bar', 'foo'].sort())
+      expect(keys.toSorted()).toEqual(['bar', 'foo'].toSorted())
     })
   })
 

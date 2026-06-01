@@ -1,14 +1,6 @@
 'use strict'
 
 let _localeCompare
-function localeCompare(x, y) {
-  if (_localeCompare === undefined) {
-    // Lazily call new Intl.Collator() because in Node it can take 10-14ms.
-    _localeCompare = new Intl.Collator().compare
-  }
-  return _localeCompare(x, y)
-}
-
 function assert(truthy, message = 'assert failed') {
   if (truthy) {
     return
@@ -229,45 +221,12 @@ function is_scp(s) {
   return false
 }
 
-function quote(s) {
-  return s.startsWith('true') ||
-    s.startsWith('false') ||
-    /[:\s\n\\",[\]|\t!]/g.test(s) ||
-    /^[0-9]/g.test(s) ||
-    !/^[a-zA-Z]/g.test(s)
-    ? JSON.stringify(s)
-    : s
-}
-
-function slice(data, a, item) {
-  const { 0: off, 1: length } = to_u32(a)
-  return Array.from({ length }, (_, i) =>
-    data.subarray(item * off + item * i, item * off + item * i + item),
-  )
-}
-
-function str(a, buffers) {
-  if ((a[7] & 128) === 0) {
-    const i = a.indexOf(0)
-    if (i >= 0) {
-      a = a.subarray(0, i)
-    }
-    return new TextDecoder().decode(a)
+function localeCompare(x, y) {
+  if (_localeCompare === undefined) {
+    // Lazily call new Intl.Collator() because in Node it can take 10-14ms.
+    _localeCompare = new Intl.Collator().compare
   }
-  const [off, len] = to_u32(a)
-  return new TextDecoder().decode(
-    buffers.string_bytes.subarray(off, off + (len & ~2_147_483_648)),
-  )
-}
-
-function to_u32(a) {
-  if (a.byteOffset % 4 === 0) {
-    return new Uint32Array(a.buffer, a.byteOffset, a.byteLength / 4)
-  }
-  const view2 = new DataView(a.buffer, a.byteOffset, a.byteLength)
-  return Uint32Array.from({ length: a.byteLength / 4 }, (_, i) =>
-    view2.getUint32(i * 4, true),
-  )
+  return _localeCompare(x, y)
 }
 
 function parse(buf) {
@@ -461,6 +420,47 @@ function parse(buf) {
   }
   out.push('')
   return out.join('\n')
+}
+
+function quote(s) {
+  return s.startsWith('true') ||
+    s.startsWith('false') ||
+    /[:\s\n\\",[\]|\t!]/g.test(s) ||
+    /^[0-9]/g.test(s) ||
+    !/^[a-zA-Z]/g.test(s)
+    ? JSON.stringify(s)
+    : s
+}
+
+function slice(data, a, item) {
+  const { 0: off, 1: length } = to_u32(a)
+  return Array.from({ length }, (_, i) =>
+    data.subarray(item * off + item * i, item * off + item * i + item),
+  )
+}
+
+function str(a, buffers) {
+  if ((a[7] & 128) === 0) {
+    const i = a.indexOf(0)
+    if (i >= 0) {
+      a = a.subarray(0, i)
+    }
+    return new TextDecoder().decode(a)
+  }
+  const [off, len] = to_u32(a)
+  return new TextDecoder().decode(
+    buffers.string_bytes.subarray(off, off + (len & ~2_147_483_648)),
+  )
+}
+
+function to_u32(a) {
+  if (a.byteOffset % 4 === 0) {
+    return new Uint32Array(a.buffer, a.byteOffset, a.byteLength / 4)
+  }
+  const view2 = new DataView(a.buffer, a.byteOffset, a.byteLength)
+  return Uint32Array.from({ length: a.byteLength / 4 }, (_, i) =>
+    view2.getUint32(i * 4, true),
+  )
 }
 
 module.exports = {

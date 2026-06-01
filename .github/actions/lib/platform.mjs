@@ -11,11 +11,11 @@
 
 import { existsSync, readdirSync } from 'node:fs'
 
-const archMap = { __proto__: null, x64: 'x64', arm64: 'arm64' }
+const archMap = { __proto__: null, arm64: 'arm64', x64: 'x64' }
 const platformMap = {
   __proto__: null,
-  linux: 'linux',
   darwin: 'darwin',
+  linux: 'linux',
   win32: 'win',
 }
 

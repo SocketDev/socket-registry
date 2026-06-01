@@ -10,15 +10,19 @@ function decode(encoded) {
 function parse(query) {
   const result = {}
   if (typeof query === 'string' && query.length > 0) {
-    new URLSearchParams(
+    for (let key_ = 0, { length } = new URLSearchParams(
       query.charCodeAt(0) === 35 /*'#'*/ ? query.slice(1) : query,
-    ).forEach((value, key_) => {
+    ); key_ < length; key_ += 1) {
+      const value = new URLSearchParams(
+      query.charCodeAt(0) === 35 /*'#'*/ ? query.slice(1) : query,
+    )[key_]!
       const key = decode(key_)
       if (key === undefined || key in result) {
         return
       }
       result[key] = decode(value)
-    })
+    
+    }
   }
   return result
 }

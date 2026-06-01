@@ -18,13 +18,13 @@ const {
 describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   it('normal object', () => {
     const o = { a: 1, b: 2 }
-    expect(ownKeys(o).sort()).toEqual(['a', 'b'].sort())
+    expect(ownKeys(o).toSorted()).toEqual(['a', 'b'].toSorted())
   })
 
   it('object with prototype', () => {
     const p = { a: 1, b: 2 }
     const o = { c: 3, d: 4, __proto__: p }
-    expect(ownKeys(o).sort()).toEqual(['c', 'd'].sort())
+    expect(ownKeys(o).toSorted()).toEqual(['c', 'd'].toSorted())
   })
 
   it('object with non-enumerable properties', () => {
@@ -39,7 +39,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       },
       enumerable: false,
     })
-    expect(ownKeys(o).sort()).toEqual(['a', 'b'].sort())
+    expect(ownKeys(o).toSorted()).toEqual(['a', 'b'].toSorted())
   })
 
   describe('Symbols', () => {

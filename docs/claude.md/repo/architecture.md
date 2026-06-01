@@ -13,17 +13,17 @@ The CLAUDE.md `## 🏗️ Registry-Specific` section is the headline. This file 
 
 ## Commands
 
-| Command | Purpose |
-|---|---|
-| `pnpm run build` | Build the registry (esbuild → CJS). |
-| `pnpm test` | Run vitest suite. |
-| `pnpm run check` | Lint + type check together. |
-| `pnpm run fix` | Auto-fix lint + format. |
-| `pnpm run type` | Type check only (`tsgo`, no emit). |
-| `pnpm run update` | Refresh dependencies via taze. |
-| `pnpm run make-npm-override` | Scaffold a new NPM package override under `/packages/npm/`. |
-| `pnpm run release-npm` | Publish NPM overrides. |
-| `node scripts/npm/test-npm-packages.mts` | Long-running NPM-package test driver. |
+| Command                                  | Purpose                                                     |
+| ---------------------------------------- | ----------------------------------------------------------- |
+| `pnpm run build`                         | Build the registry (esbuild → CJS).                         |
+| `pnpm test`                              | Run vitest suite.                                           |
+| `pnpm run check`                         | Lint + type check together.                                 |
+| `pnpm run fix`                           | Auto-fix lint + format.                                     |
+| `pnpm run type`                          | Type check only (`tsgo`, no emit).                          |
+| `pnpm run update`                        | Refresh dependencies via taze.                              |
+| `pnpm run make-npm-override`             | Scaffold a new NPM package override under `/packages/npm/`. |
+| `pnpm run release-npm`                   | Publish NPM overrides.                                      |
+| `node scripts/npm/test-npm-packages.mts` | Long-running NPM-package test driver.                       |
 
 ## Build system
 

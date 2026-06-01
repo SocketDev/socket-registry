@@ -20,8 +20,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       expect(codePointAt('abc\uD834\uDF06def', -1)).toBe(undefined)
       expect(codePointAt('abc\uD834\uDF06def', -0)).toBe(0x61)
       expect(codePointAt('abc\uD834\uDF06def', 0)).toBe(0x61)
-      expect(codePointAt('abc\uD834\uDF06def', 3)).toBe(0x1d306)
-      expect(codePointAt('abc\uD834\uDF06def', 4)).toBe(0xdf06)
+      expect(codePointAt('abc\uD834\uDF06def', 3)).toBe(0x1_d3_06)
+      expect(codePointAt('abc\uD834\uDF06def', 4)).toBe(0xdf_06)
       expect(codePointAt('abc\uD834\uDF06def', 5)).toBe(0x64)
       expect(codePointAt('abc\uD834\uDF06def', 42)).toBe(undefined)
     })
@@ -44,38 +44,38 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   describe('String that starts with an astral symbol', () => {
     it('returns correct code points', () => {
       expect(codePointAt('\uD834\uDF06def', -1)).toBe(undefined)
-      expect(codePointAt('\uD834\uDF06def', -0)).toBe(0x1d306)
-      expect(codePointAt('\uD834\uDF06def', 0)).toBe(0x1d306)
-      expect(codePointAt('\uD834\uDF06def', 1)).toBe(0xdf06)
+      expect(codePointAt('\uD834\uDF06def', -0)).toBe(0x1_d3_06)
+      expect(codePointAt('\uD834\uDF06def', 0)).toBe(0x1_d3_06)
+      expect(codePointAt('\uD834\uDF06def', 1)).toBe(0xdf_06)
       expect(codePointAt('\uD834\uDF06def', 42)).toBe(undefined)
     })
   })
 
   describe('String that starts with an astral symbol - cast position', () => {
     it('casts position argument', () => {
-      expect(codePointAt('\uD834\uDF06def', '')).toBe(0x1d306)
-      expect(codePointAt('\uD834\uDF06def', '1')).toBe(0xdf06)
-      expect(codePointAt('\uD834\uDF06def', '_')).toBe(0x1d306)
-      expect(codePointAt('\uD834\uDF06def')).toBe(0x1d306)
-      expect(codePointAt('\uD834\uDF06def', false)).toBe(0x1d306)
-      expect(codePointAt('\uD834\uDF06def', undefined)).toBe(0x1d306)
-      expect(codePointAt('\uD834\uDF06def', undefined)).toBe(0x1d306)
+      expect(codePointAt('\uD834\uDF06def', '')).toBe(0x1_d3_06)
+      expect(codePointAt('\uD834\uDF06def', '1')).toBe(0xdf_06)
+      expect(codePointAt('\uD834\uDF06def', '_')).toBe(0x1_d3_06)
+      expect(codePointAt('\uD834\uDF06def')).toBe(0x1_d3_06)
+      expect(codePointAt('\uD834\uDF06def', false)).toBe(0x1_d3_06)
+      expect(codePointAt('\uD834\uDF06def', undefined)).toBe(0x1_d3_06)
+      expect(codePointAt('\uD834\uDF06def', undefined)).toBe(0x1_d3_06)
     })
   })
 
   describe('Lone high surrogates', () => {
     it('returns surrogate code point', () => {
       expect(codePointAt('\uD834abc', -1)).toBe(undefined)
-      expect(codePointAt('\uD834abc', -0)).toBe(0xd834)
-      expect(codePointAt('\uD834abc', 0)).toBe(0xd834)
+      expect(codePointAt('\uD834abc', -0)).toBe(0xd8_34)
+      expect(codePointAt('\uD834abc', 0)).toBe(0xd8_34)
     })
   })
 
   describe('Lone low surrogates', () => {
     it('returns surrogate code point', () => {
       expect(codePointAt('\uDF06abc', -1)).toBe(undefined)
-      expect(codePointAt('\uDF06abc', -0)).toBe(0xdf06)
-      expect(codePointAt('\uDF06abc', 0)).toBe(0xdf06)
+      expect(codePointAt('\uDF06abc', -0)).toBe(0xdf_06)
+      expect(codePointAt('\uDF06abc', 0)).toBe(0xdf_06)
     })
   })
 

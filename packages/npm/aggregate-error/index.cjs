@@ -7,15 +7,13 @@ const ErrorCtor = Error
 const { assign: ObjectAssign } = Object
 const StringCtor = String
 
-const desc = (value, configurable = true, writable = true) => ({
-  __proto__: null,
-  configurable,
-  value,
-  writable,
-})
-
-function indentString(str, count = 1) {
-  return str.replace(/^(?!\s*$)/gm, ' '.repeat(count))
+function desc(value, configurable = true, writable = true) {
+  return {
+    __proto__: null,
+    configurable,
+    value,
+    writable,
+  }
 }
 
 function AggregateErrorLike(errors, message) {
@@ -55,6 +53,10 @@ function AggregateErrorLike(errors, message) {
     errorObjs,
     `\n${indentString(stacks.join('\n'), 4)}`,
   )
+}
+
+function indentString(str, count = 1) {
+  return str.replace(/^(?!\s*$)/gm, ' '.repeat(count))
 }
 
 // The %AggregateError.prototype% is a plain object

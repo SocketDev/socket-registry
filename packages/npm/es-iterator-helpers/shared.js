@@ -305,7 +305,7 @@ function isIteratorProtoNextCheckBuggy(method, arg) {
   if (typeof method === 'function') {
     // https://issues.chromium.org/issues/336839115
     try {
-      ReflectApply(method, { next: null }, [arg]).next()
+      ReflectApply(method, { next: undefined }, [arg]).next()
       return true
     } catch {}
   }
@@ -400,7 +400,7 @@ function iteratorZip(iters, mode, padding, finishResults = v => v) {
           // Step 3.b.iii.3.d: If result is done, then.
           if (next.done) {
             // Step 3.b.iii.3.d.i: Remove iter from openIters.
-            openIters[i] = null
+            openIters[i] = undefined
             if (mode === 'shortest') {
               // Step 3.b.iii.3.d.ii: Return { value: undefined, done: true } in "shortest" mode.
               return { value: undefined, done: true }
@@ -413,7 +413,7 @@ function iteratorZip(iters, mode, padding, finishResults = v => v) {
           }
         } catch (e) {
           // Step 3.b.iii.3.b.i: Remove iter from openIters on abrupt completion.
-          openIters[i] = null
+          openIters[i] = undefined
           // Step 3.b.iii.3.b.ii: Return ? IteratorCloseAll(openIters, result).
           return iteratorCloseAll(openIters, e)
         }

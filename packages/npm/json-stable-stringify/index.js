@@ -19,6 +19,121 @@ const { stringify: JSONStringify } = JSON
 const SUPPORTS_TO_SORTED = typeof Array.prototype.toSorted === 'function'
 
 /**
+ * Sort and stringify with custom space/indentation in ONE pass.
+ *
+ * Combines sorting and stringification to avoid double traversal.
+ */
+function sortAndStringifyWithSpace(value, space, opts) {
+  const seen = new Set()
+
+  function stringify(val, key, indent, childIndent) {
+    // Handle toJSON()
+    if (val && typeof val === 'object' && typeof val.toJSON === 'function') {
+      val = val.toJSON()
+    }
+
+    // Apply replacer
+    if (opts.replacer) {
+      val = opts.replacer.call(val, key, val)
+    }
+
+    if (val === null) {
+      return 'null'
+    }
+    if (val === undefined) {
+      return 'undefined'
+    }
+
+    const valType = typeof val
+
+    if (valType === 'boolean') {
+      return val ? 'true' : 'false'
+    }
+    if (valType === 'number' || valType === 'string' || valType === 'bigint') {
+      return JSONStringify(val)
+    }
+
+    if (valType !== 'object') {
+      return JSONStringify(val)
+    }
+
+    // Cycle check
+    if (seen.has(val)) {
+      if (opts.cycles) {
+        return '"__cycle__"'
+      }
+      throw new TypeError('Converting circular structure to JSON')
+    }
+
+    if (ArrayIsArray(val)) {
+      const { length } = val
+      if (length === 0) {
+        return opts.collapseEmpty ? '[]' : '[]'
+      }
+
+      seen.add(val)
+      const joiner = `,\n${childIndent}`
+      const nextIndent = childIndent + space
+      let result = `[\n${childIndent}`
+
+      for (let i = 0, j = 0; i < length; i++) {
+        result = `${result}${j ? joiner : ''}${stringify(val[i], String(i), childIndent, nextIndent)}`
+        j = 1
+      }
+
+      seen.delete(val)
+      return `${result}\n${indent}]`
+    }
+
+    // Object - sort keys inline
+    let keys = ObjectKeys(val)
+    const { length } = keys
+
+    if (length === 0) {
+      return opts.collapseEmpty ? '{}' : '{}'
+    }
+
+    // Sort keys with custom comparator if provided
+    if (opts.cmp) {
+      const sortMethod = SUPPORTS_TO_SORTED ? 'toSorted' : 'sort'
+      keys = keys[sortMethod]((a, b) => {
+        const get = opts.cmp.length > 2 ? k => val[k] : undefined
+        return opts.cmp(
+          { key: a, value: val[a] },
+          { key: b, value: val[b] },
+          get ? { __proto__: null, get } : undefined,
+        )
+      })
+    } else {
+      keys = SUPPORTS_TO_SORTED ? keys.toSorted() : keys.sort()
+    }
+
+    seen.add(val)
+    const joiner = `,\n${childIndent}`
+    const nextIndent = childIndent + space
+    let result = `{\n${childIndent}`
+
+    for (let i = 0, j = 0; i < length; i += 1) {
+      const k = keys[i]
+      const v = stringify(val[k], k, childIndent, nextIndent)
+
+      // Skip undefined values
+      if (v === undefined) {
+        continue
+      }
+
+      result = `${result}${j ? joiner : ''}${JSONStringify(k)}: ${v}`
+      j = 1
+    }
+
+    seen.delete(val)
+    return `${result}\n${indent}}`
+  }
+
+  return stringify(value, '', '', space)
+}
+
+/**
  * Fast path: Sort keys recursively (no options)
  */
 function sortKeysFast(value) {
@@ -221,121 +336,6 @@ function sortKeysWithOptions(value, opts, seen) {
   } finally {
     seen.delete(value)
   }
-}
-
-/**
- * Sort and stringify with custom space/indentation in ONE pass.
- *
- * Combines sorting and stringification to avoid double traversal.
- */
-function sortAndStringifyWithSpace(value, space, opts) {
-  const seen = new Set()
-
-  function stringify(val, key, indent, childIndent) {
-    // Handle toJSON()
-    if (val && typeof val === 'object' && typeof val.toJSON === 'function') {
-      val = val.toJSON()
-    }
-
-    // Apply replacer
-    if (opts.replacer) {
-      val = opts.replacer.call(val, key, val)
-    }
-
-    if (val === null) {
-      return 'null'
-    }
-    if (val === undefined) {
-      return 'undefined'
-    }
-
-    const valType = typeof val
-
-    if (valType === 'boolean') {
-      return val ? 'true' : 'false'
-    }
-    if (valType === 'number' || valType === 'string' || valType === 'bigint') {
-      return JSONStringify(val)
-    }
-
-    if (valType !== 'object') {
-      return JSONStringify(val)
-    }
-
-    // Cycle check
-    if (seen.has(val)) {
-      if (opts.cycles) {
-        return '"__cycle__"'
-      }
-      throw new TypeError('Converting circular structure to JSON')
-    }
-
-    if (ArrayIsArray(val)) {
-      const { length } = val
-      if (length === 0) {
-        return opts.collapseEmpty ? '[]' : '[]'
-      }
-
-      seen.add(val)
-      const joiner = `,\n${childIndent}`
-      const nextIndent = childIndent + space
-      let result = `[\n${childIndent}`
-
-      for (let i = 0, j = 0; i < length; i++) {
-        result = `${result}${j ? joiner : ''}${stringify(val[i], String(i), childIndent, nextIndent)}`
-        j = 1
-      }
-
-      seen.delete(val)
-      return `${result}\n${indent}]`
-    }
-
-    // Object - sort keys inline
-    let keys = ObjectKeys(val)
-    const { length } = keys
-
-    if (length === 0) {
-      return opts.collapseEmpty ? '{}' : '{}'
-    }
-
-    // Sort keys with custom comparator if provided
-    if (opts.cmp) {
-      const sortMethod = SUPPORTS_TO_SORTED ? 'toSorted' : 'sort'
-      keys = keys[sortMethod]((a, b) => {
-        const get = opts.cmp.length > 2 ? k => val[k] : undefined
-        return opts.cmp(
-          { key: a, value: val[a] },
-          { key: b, value: val[b] },
-          get ? { __proto__: null, get } : undefined,
-        )
-      })
-    } else {
-      keys = SUPPORTS_TO_SORTED ? keys.toSorted() : keys.sort()
-    }
-
-    seen.add(val)
-    const joiner = `,\n${childIndent}`
-    const nextIndent = childIndent + space
-    let result = `{\n${childIndent}`
-
-    for (let i = 0, j = 0; i < length; i += 1) {
-      const k = keys[i]
-      const v = stringify(val[k], k, childIndent, nextIndent)
-
-      // Skip undefined values
-      if (v === undefined) {
-        continue
-      }
-
-      result = `${result}${j ? joiner : ''}${JSONStringify(k)}: ${v}`
-      j = 1
-    }
-
-    seen.delete(val)
-    return `${result}\n${indent}}`
-  }
-
-  return stringify(value, '', '', space)
 }
 
 /**

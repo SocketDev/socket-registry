@@ -1,5 +1,5 @@
 /// <reference types="node" />
-import { Writable } from 'node:stream'
+import type { Writable } from 'node:stream'
 
 /**
  * Check if stdout or stderr is
@@ -28,7 +28,7 @@ declare namespace isInteractive {
      *
      * @default process.stdout
      */
-    readonly stream?: Writable
+    readonly stream?: Writable | undefined
   }
 }
 export = isInteractive

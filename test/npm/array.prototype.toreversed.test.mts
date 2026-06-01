@@ -63,8 +63,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     it('throws RangeError for length >= 2^32', () => {
       const arrayLike = {
         0: 0,
-        4294967295: 4294967295,
-        4294967296: 4294967296,
+        4_294_967_295: 4_294_967_295,
+        4_294_967_296: 4_294_967_296,
         length: Math.pow(2, 32),
       }
       expect(() => toReversed(arrayLike)).toThrow(RangeError)

@@ -1,6 +1,6 @@
 const { atob: builtinAtob, btoa: builtinBtoa } = globalThis
 
-const atobFn = function atob(...args) {
+function atobFn(...args) {
   try {
     return builtinAtob(...args)
   } catch (e) {
@@ -11,7 +11,7 @@ const atobFn = function atob(...args) {
   }
 }
 
-const btoaFn = function btoa(...args) {
+function btoaFn(...args) {
   try {
     return builtinBtoa(...args)
   } catch (e) {

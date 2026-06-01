@@ -4,14 +4,14 @@ declare type Options = {
    *
    * @default ' '
    */
-  readonly indent?: string
+  readonly indent?: string | undefined
 
   /**
    * Also indent empty lines.
    *
    * @default false
    */
-  readonly includeEmptyLines?: boolean
+  readonly includeEmptyLines?: boolean | undefined
 }
 /**
  * Indent each line in a string.

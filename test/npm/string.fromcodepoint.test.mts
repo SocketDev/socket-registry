@@ -32,11 +32,11 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
   describe('astral code points', () => {
     it('handles astral code points', () => {
-      expect(fromCodePoint(0x1d306)).toBe('\uD834\uDF06')
-      expect(fromCodePoint(0x1d306, 0x61, 0x1d307)).toBe(
+      expect(fromCodePoint(0x1_d3_06)).toBe('\uD834\uDF06')
+      expect(fromCodePoint(0x1_d3_06, 0x61, 0x1_d3_07)).toBe(
         '\uD834\uDF06a\uD834\uDF07',
       )
-      expect(fromCodePoint(0x61, 0x62, 0x1d307)).toBe('ab\uD834\uDF07')
+      expect(fromCodePoint(0x61, 0x62, 0x1_d3_07)).toBe('ab\uD834\uDF07')
     })
   })
 
@@ -46,7 +46,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       expect(() => fromCodePoint('+Infinity')).toThrow(RangeError)
       expect(() => fromCodePoint('-Infinity')).toThrow(RangeError)
       expect(() => fromCodePoint(-1)).toThrow(RangeError)
-      expect(() => fromCodePoint(0x10ffff + 1)).toThrow(RangeError)
+      expect(() => fromCodePoint(0x10_ff_ff + 1)).toThrow(RangeError)
       expect(() => fromCodePoint(3.14)).toThrow(RangeError)
       expect(() => fromCodePoint(3e-2)).toThrow(RangeError)
       expect(() => fromCodePoint(-Infinity)).toThrow(RangeError)
@@ -85,7 +85,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       counter = (Math.pow(2, 15) * 3) / 2
       result = []
       while (--counter >= 0) {
-        result.push(0xffff + 1)
+        result.push(0xff_ff + 1)
       }
       expect(() => fromCodePoint.apply(undefined, result)).not.toThrow()
     })

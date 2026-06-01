@@ -2,12 +2,14 @@
 
 const Impl = require('./implementation')
 
-const desc = value => ({
-  __proto__: null,
-  configurable: true,
-  value,
-  writable: true,
-})
+function desc(value) {
+  return {
+    __proto__: null,
+    configurable: true,
+    value,
+    writable: true,
+  }
+}
 
 module.exports = Object.defineProperties(Impl.bind(), {
   getPolyfill: desc(require('./polyfill')),

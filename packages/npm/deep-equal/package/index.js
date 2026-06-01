@@ -34,22 +34,6 @@ const $setDelete = callBound('Set.prototype.delete', true)
 const $setHas = callBound('Set.prototype.has', true)
 const $setSize = callBound('Set.prototype.size', true)
 
-// taken from https://github.com/browserify/commonjs-assert/blob/bba838e9ba9e28edf3127ce6974624208502f6bc/internal/util/comparisons.js#L401-L414
-function setHasEqualElement(set, val1, opts, channel) {
-  const i = getIterator(set)
-  let result
-  while ((result = i.next()) && !result.done) {
-    if (internalDeepEqual(val1, result.value, opts, channel)) {
-      // eslint-disable-line no-use-before-define
-      // Remove the matching element to make sure we do not check that again.
-      $setDelete(set, result.value)
-      return true
-    }
-  }
-
-  return false
-}
-
 // taken from https://github.com/browserify/commonjs-assert/blob/bba838e9ba9e28edf3127ce6974624208502f6bc/internal/util/comparisons.js#L416-L439
 function findLooseMatchingPrimitives(prim) {
   if (typeof prim === 'undefined') {
@@ -67,58 +51,6 @@ function findLooseMatchingPrimitives(prim) {
     return +prim === +prim // eslint-disable-line no-implicit-coercion
   }
   return true
-}
-
-// taken from https://github.com/browserify/commonjs-assert/blob/bba838e9ba9e28edf3127ce6974624208502f6bc/internal/util/comparisons.js#L449-L460
-function mapMightHaveLoosePrim(a, b, prim, item, opts, channel) {
-  const altValue = findLooseMatchingPrimitives(prim)
-  if (altValue != null) {
-    return altValue
-  }
-  const curB = $mapGet(b, altValue)
-  const looseOpts = assign({}, opts, { strict: false })
-  if (
-    (typeof curB === 'undefined' && !$mapHas(b, altValue)) ||
-    // eslint-disable-next-line no-use-before-define
-    !internalDeepEqual(item, curB, looseOpts, channel)
-  ) {
-    return false
-  }
-  // eslint-disable-next-line no-use-before-define
-  return (
-    !$mapHas(a, altValue) && internalDeepEqual(item, curB, looseOpts, channel)
-  )
-}
-
-// taken from https://github.com/browserify/commonjs-assert/blob/bba838e9ba9e28edf3127ce6974624208502f6bc/internal/util/comparisons.js#L441-L447
-function setMightHaveLoosePrim(a, b, prim) {
-  const altValue = findLooseMatchingPrimitives(prim)
-  if (altValue != null) {
-    return altValue
-  }
-
-  return $setHas(b, altValue) && !$setHas(a, altValue)
-}
-
-// taken from https://github.com/browserify/commonjs-assert/blob/bba838e9ba9e28edf3127ce6974624208502f6bc/internal/util/comparisons.js#L518-L533
-function mapHasEqualEntry(set, map, key1, item1, opts, channel) {
-  const i = getIterator(set)
-  let result
-  let key2
-  while ((result = i.next()) && !result.done) {
-    key2 = result.value
-    if (
-      // eslint-disable-next-line no-use-before-define
-      internalDeepEqual(key1, key2, opts, channel) &&
-      // eslint-disable-next-line no-use-before-define
-      internalDeepEqual(item1, $mapGet(map, key2), opts, channel)
-    ) {
-      $setDelete(set, key2)
-      return true
-    }
-  }
-
-  return false
 }
 
 function internalDeepEqual(actual, expected, options, channel) {
@@ -190,54 +122,6 @@ function isBuffer(x) {
   return !!(typeof Ctor?.isBuffer === 'function' && Ctor.isBuffer(x))
 }
 
-function setEquiv(a, b, opts, channel) {
-  if ($setSize(a) !== $setSize(b)) {
-    return false
-  }
-  const iA = getIterator(a)
-  const iB = getIterator(b)
-  let resultA
-  let resultB
-  let set
-  while ((resultA = iA.next()) && !resultA.done) {
-    if (resultA.value && typeof resultA.value === 'object') {
-      if (!set) {
-        set = new $Set()
-      }
-      $setAdd(set, resultA.value)
-    } else if (!$setHas(b, resultA.value)) {
-      if (opts.strict) {
-        return false
-      }
-      if (!setMightHaveLoosePrim(a, b, resultA.value)) {
-        return false
-      }
-      if (!set) {
-        set = new $Set()
-      }
-      $setAdd(set, resultA.value)
-    }
-  }
-  if (set) {
-    while ((resultB = iB.next()) && !resultB.done) {
-      // We have to check if a primitive value is already matching and only if it's not, go hunting for it.
-      if (resultB.value && typeof resultB.value === 'object') {
-        if (!setHasEqualElement(set, resultB.value, opts.strict, channel)) {
-          return false
-        }
-      } else if (
-        !opts.strict &&
-        !$setHas(a, resultB.value) &&
-        !setHasEqualElement(set, resultB.value, opts.strict, channel)
-      ) {
-        return false
-      }
-    }
-    return $setSize(set) === 0
-  }
-  return true
-}
-
 function mapEquiv(a, b, opts, channel) {
   if ($mapSize(a) !== $mapSize(b)) {
     return false
@@ -305,6 +189,48 @@ function mapEquiv(a, b, opts, channel) {
     return $setSize(set) === 0
   }
   return true
+}
+
+// taken from https://github.com/browserify/commonjs-assert/blob/bba838e9ba9e28edf3127ce6974624208502f6bc/internal/util/comparisons.js#L518-L533
+function mapHasEqualEntry(set, map, key1, item1, opts, channel) {
+  const i = getIterator(set)
+  let result
+  let key2
+  while ((result = i.next()) && !result.done) {
+    key2 = result.value
+    if (
+      // eslint-disable-next-line no-use-before-define
+      internalDeepEqual(key1, key2, opts, channel) &&
+      // eslint-disable-next-line no-use-before-define
+      internalDeepEqual(item1, $mapGet(map, key2), opts, channel)
+    ) {
+      $setDelete(set, key2)
+      return true
+    }
+  }
+
+  return false
+}
+
+// taken from https://github.com/browserify/commonjs-assert/blob/bba838e9ba9e28edf3127ce6974624208502f6bc/internal/util/comparisons.js#L449-L460
+function mapMightHaveLoosePrim(a, b, prim, item, opts, channel) {
+  const altValue = findLooseMatchingPrimitives(prim)
+  if (altValue != null) {
+    return altValue
+  }
+  const curB = $mapGet(b, altValue)
+  const looseOpts = assign({}, opts, { strict: false })
+  if (
+    (typeof curB === 'undefined' && !$mapHas(b, altValue)) ||
+    // eslint-disable-next-line no-use-before-define
+    !internalDeepEqual(item, curB, looseOpts, channel)
+  ) {
+    return false
+  }
+  // eslint-disable-next-line no-use-before-define
+  return (
+    !$mapHas(a, altValue) && internalDeepEqual(item, curB, looseOpts, channel)
+  )
 }
 
 function objEquiv(a, b, opts, channel) {
@@ -482,6 +408,80 @@ function objEquiv(a, b, opts, channel) {
   }
 
   return true
+}
+
+function setEquiv(a, b, opts, channel) {
+  if ($setSize(a) !== $setSize(b)) {
+    return false
+  }
+  const iA = getIterator(a)
+  const iB = getIterator(b)
+  let resultA
+  let resultB
+  let set
+  while ((resultA = iA.next()) && !resultA.done) {
+    if (resultA.value && typeof resultA.value === 'object') {
+      if (!set) {
+        set = new $Set()
+      }
+      $setAdd(set, resultA.value)
+    } else if (!$setHas(b, resultA.value)) {
+      if (opts.strict) {
+        return false
+      }
+      if (!setMightHaveLoosePrim(a, b, resultA.value)) {
+        return false
+      }
+      if (!set) {
+        set = new $Set()
+      }
+      $setAdd(set, resultA.value)
+    }
+  }
+  if (set) {
+    while ((resultB = iB.next()) && !resultB.done) {
+      // We have to check if a primitive value is already matching and only if it's not, go hunting for it.
+      if (resultB.value && typeof resultB.value === 'object') {
+        if (!setHasEqualElement(set, resultB.value, opts.strict, channel)) {
+          return false
+        }
+      } else if (
+        !opts.strict &&
+        !$setHas(a, resultB.value) &&
+        !setHasEqualElement(set, resultB.value, opts.strict, channel)
+      ) {
+        return false
+      }
+    }
+    return $setSize(set) === 0
+  }
+  return true
+}
+
+// taken from https://github.com/browserify/commonjs-assert/blob/bba838e9ba9e28edf3127ce6974624208502f6bc/internal/util/comparisons.js#L401-L414
+function setHasEqualElement(set, val1, opts, channel) {
+  const i = getIterator(set)
+  let result
+  while ((result = i.next()) && !result.done) {
+    if (internalDeepEqual(val1, result.value, opts, channel)) {
+      // eslint-disable-line no-use-before-define
+      // Remove the matching element to make sure we do not check that again.
+      $setDelete(set, result.value)
+      return true
+    }
+  }
+
+  return false
+}
+
+// taken from https://github.com/browserify/commonjs-assert/blob/bba838e9ba9e28edf3127ce6974624208502f6bc/internal/util/comparisons.js#L441-L447
+function setMightHaveLoosePrim(a, b, prim) {
+  const altValue = findLooseMatchingPrimitives(prim)
+  if (altValue != null) {
+    return altValue
+  }
+
+  return $setHas(b, altValue) && !$setHas(a, altValue)
 }
 
 module.exports = function deepEqual(a, b, opts) {

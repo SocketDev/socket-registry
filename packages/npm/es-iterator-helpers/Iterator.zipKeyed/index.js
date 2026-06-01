@@ -3,12 +3,14 @@
 const getPolyfill = require('./polyfill')
 const polyfill = getPolyfill()
 
-const desc = value => ({
-  __proto__: null,
-  configurable: true,
-  value,
-  writable: true,
-})
+function desc(value) {
+  return {
+    __proto__: null,
+    configurable: true,
+    value,
+    writable: true,
+  }
+}
 
 module.exports = Object.defineProperties(
   function zipKeyed(...args) {

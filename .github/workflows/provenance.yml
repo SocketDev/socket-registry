@@ -27,7 +27,7 @@ on:
         type: string
         default: '0'
       environment:
-        description: 'GitHub environment to bind the publish job to. Set this to disambiguate the OIDC subject when publishing through this reusable workflow — npm trusted-publisher validation on the workflow_call path checks the calling workflow plus the environment claim. Configure the matching environment name on the package''s npm trusted publisher. Empty = no environment binding (back-compat).'
+        description: "GitHub environment to bind the publish job to. Set this to disambiguate the OIDC subject when publishing through this reusable workflow — npm trusted-publisher validation on the workflow_call path checks the calling workflow plus the environment claim. Configure the matching environment name on the package's npm trusted publisher. Empty = no environment binding (back-compat)."
         required: false
         type: string
         default: ''

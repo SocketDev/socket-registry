@@ -28,8 +28,8 @@ module.exports = function flatMap(mapper) {
   }
   // Step 4: GetIteratorDirect(O).
   const { iterator, next: nextMethod } = getIteratorDirect(this)
-  let innerNext = null
-  let innerIterator = null
+  let innerNext = undefined
+  let innerIterator = undefined
   let innerIteratorReturnCalled = false
   let outerIteratorDone = false
   // Step 5: Create the closure.
@@ -63,7 +63,7 @@ module.exports = function flatMap(mapper) {
         innerValue = innerIterator.next()
       }
       // Reset inner iterator for the next outer value.
-      innerIterator = null
+      innerIterator = undefined
     }
   })()
   // Step 5.b.viii.4.b: Handle abrupt completion of yield.

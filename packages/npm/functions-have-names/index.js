@@ -1,14 +1,14 @@
 'use strict'
 
-function functionsHaveNames() {
-  return true
-}
-
 function boundFunctionsHaveNames() {
   return true
 }
 
 function functionsHaveConfigurableNames() {
+  return true
+}
+
+function functionsHaveNames() {
   return true
 }
 

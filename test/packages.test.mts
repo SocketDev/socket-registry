@@ -154,7 +154,7 @@ for (let i = 0, { length } = ecosystems; i < length; i += 1) {
             cwd: pkgPath,
             dot: true,
           })
-        ).sort(naturalCompare)
+        ).toSorted(naturalCompare)
 
         it('package name should be valid', () => {
           expect(isValidPackageName(pkgJson.name ?? '')).toBe(true)
@@ -231,7 +231,7 @@ for (let i = 0, { length } = ecosystems; i < length; i += 1) {
 
         const jsonFiles = files
           .filter(p => path.extname(p) === EXT_JSON)
-          .sort(naturalCompare)
+          .toSorted(naturalCompare)
 
         if (jsonFiles.length) {
           it('should have valid .json files', async () => {
@@ -367,7 +367,7 @@ for (let i = 0, { length } = ecosystems; i < length; i += 1) {
               dot: true,
             },
           )
-        ).sort(naturalCompare)
+        ).toSorted(naturalCompare)
 
         const dotFilePatterns = filesPatternsAsArray.filter(isDotPattern)
         const dotFileMatches = new Set(
