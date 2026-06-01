@@ -15,7 +15,7 @@ const {
   pkgPath,
   skip,
   sockRegPkgName,
-} = await setupNpmPackageTest(import.meta.url)
+} = setupNpmPackageTest(import.meta.url)
 
 // assert package tests use old util.isError which was deprecated and removed
 // in Node.js 20+.

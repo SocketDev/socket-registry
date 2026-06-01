@@ -13,7 +13,7 @@ const {
   module: filter,
   skip,
   sockRegPkgName,
-} = await setupNpmPackageTest(import.meta.url)
+} = setupNpmPackageTest(import.meta.url)
 
 const truthy = () => true
 const oddIndexes = (_x: unknown, i: number) => i % 2 !== 0

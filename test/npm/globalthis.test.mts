@@ -13,7 +13,7 @@ const {
   module: getGlobal,
   skip,
   sockRegPkgName,
-} = await setupNpmPackageTest(import.meta.url)
+} = setupNpmPackageTest(import.meta.url)
 
 const theGlobal = skip ? undefined : getGlobal()
 

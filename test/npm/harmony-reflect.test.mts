@@ -7,7 +7,7 @@ import { describe, expect, it } from 'vitest'
 
 import { setupNpmPackageTest } from '../util/npm-package-helper.mts'
 
-const { eco, pkgPath, skip, sockRegPkgName } = await setupNpmPackageTest(
+const { eco, pkgPath, skip, sockRegPkgName } = setupNpmPackageTest(
   import.meta.url,
 )
 

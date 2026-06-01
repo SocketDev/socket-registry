@@ -12,7 +12,7 @@ const {
   module: fromCodePoint,
   skip,
   sockRegPkgName,
-} = await setupNpmPackageTest(import.meta.url)
+} = setupNpmPackageTest(import.meta.url)
 
 describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   it('returns empty string with no arguments', () => {

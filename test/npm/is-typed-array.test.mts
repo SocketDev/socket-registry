@@ -13,7 +13,7 @@ const {
   module: isTypedArray,
   skip,
   sockRegPkgName,
-} = await setupNpmPackageTest(import.meta.url)
+} = setupNpmPackageTest(import.meta.url)
 
 const hasToStringTag =
   typeof Symbol === 'function' && typeof Symbol.toStringTag === 'symbol'

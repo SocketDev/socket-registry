@@ -13,7 +13,7 @@ const {
   module: includes,
   skip,
   sockRegPkgName,
-} = await setupNpmPackageTest(import.meta.url)
+} = setupNpmPackageTest(import.meta.url)
 
 describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   const sparseish = { length: 5, 0: 'a', 1: 'b' }

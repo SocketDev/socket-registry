@@ -13,7 +13,7 @@ const {
   module: allSettled,
   skip,
   sockRegPkgName,
-} = await setupNpmPackageTest(import.meta.url)
+} = setupNpmPackageTest(import.meta.url)
 
 const yes = (value: unknown) => ({ status: 'fulfilled', value })
 const no = (reason: unknown) => ({ status: 'rejected', reason })

@@ -13,7 +13,7 @@ const {
   module: functionBind,
   skip,
   sockRegPkgName,
-} = await setupNpmPackageTest(import.meta.url)
+} = setupNpmPackageTest(import.meta.url)
 
 const getCurrentContext = function (this: unknown) {
   return this

@@ -13,7 +13,7 @@ const {
   module: isBigInt,
   skip,
   sockRegPkgName,
-} = await setupNpmPackageTest(import.meta.url)
+} = setupNpmPackageTest(import.meta.url)
 
 const hasBigInts = typeof BigInt === 'function'
 const hasToStringTag =

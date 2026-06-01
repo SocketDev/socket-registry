@@ -13,7 +13,7 @@ const {
   module: forEach,
   skip,
   sockRegPkgName,
-} = await setupNpmPackageTest(import.meta.url)
+} = setupNpmPackageTest(import.meta.url)
 
 const identity = (x: unknown) => x
 const arrayWrap = (x: unknown) => [x]

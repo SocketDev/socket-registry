@@ -13,7 +13,7 @@ const {
   module: arrayFrom,
   skip,
   sockRegPkgName,
-} = await setupNpmPackageTest(import.meta.url)
+} = setupNpmPackageTest(import.meta.url)
 
 const hasSymbols =
   typeof Symbol === 'function' && typeof Symbol('foo') === 'symbol'

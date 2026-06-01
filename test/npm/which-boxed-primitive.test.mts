@@ -12,7 +12,7 @@ const {
   module: whichBoxedPrimitive,
   skip,
   sockRegPkgName,
-} = await setupNpmPackageTest(import.meta.url)
+} = setupNpmPackageTest(import.meta.url)
 
 describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   describe('unboxed primitives', () => {

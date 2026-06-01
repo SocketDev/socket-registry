@@ -11,7 +11,7 @@ import { setupNpmPackageTest } from '../util/npm-package-helper.mts'
 
 const UTF8 = 'utf8'
 const testNpmFixturesPath = TEST_NPM_FIXTURES_PATH
-const { eco, pkgPath, skip, sockRegPkgName } = await setupNpmPackageTest(
+const { eco, pkgPath, skip, sockRegPkgName } = setupNpmPackageTest(
   import.meta.url,
 )
 

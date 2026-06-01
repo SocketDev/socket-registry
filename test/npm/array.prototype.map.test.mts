@@ -13,7 +13,7 @@ const {
   module: map,
   skip,
   sockRegPkgName,
-} = await setupNpmPackageTest(import.meta.url)
+} = setupNpmPackageTest(import.meta.url)
 
 const arrayWrap = (x: unknown) => [x]
 

@@ -13,7 +13,7 @@ const {
   module: every,
   skip,
   sockRegPkgName,
-} = await setupNpmPackageTest(import.meta.url)
+} = setupNpmPackageTest(import.meta.url)
 
 const trueThunk = () => true
 const falseThunk = () => false

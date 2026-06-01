@@ -13,7 +13,7 @@ const {
   module: gOPD,
   skip,
   sockRegPkgName,
-} = await setupNpmPackageTest(import.meta.url)
+} = setupNpmPackageTest(import.meta.url)
 
 describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   describe('supported', { skip: !gOPD }, () => {

@@ -12,7 +12,7 @@ import { setupNpmPackageTest } from '../util/npm-package-helper.mts'
 
 const logger = getDefaultLogger()
 
-const { eco, pkgPath, skip, sockRegPkgName } = await setupNpmPackageTest(
+const { eco, pkgPath, skip, sockRegPkgName } = setupNpmPackageTest(
   import.meta.url,
 )
 

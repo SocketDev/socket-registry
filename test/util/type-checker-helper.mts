@@ -111,7 +111,7 @@ export function createInvalidValuesExcluding(
  *
  * @example
  *   ;```ts
- *   const { module: isString } = await setupNpmPackageTest(import.meta.url)
+ *   const { module: isString } = setupNpmPackageTest(import.meta.url)
  *
  *   createTypeCheckerTests({
  *     checkerFn: isString,

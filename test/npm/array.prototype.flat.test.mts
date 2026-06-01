@@ -13,7 +13,7 @@ const {
   module: flat,
   skip,
   sockRegPkgName,
-} = await setupNpmPackageTest(import.meta.url)
+} = setupNpmPackageTest(import.meta.url)
 
 const testArray = (actual: unknown[], expected: unknown[], _msg: string) => {
   expect(actual).toEqual(expected)

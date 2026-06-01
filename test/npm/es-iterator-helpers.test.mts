@@ -16,7 +16,7 @@ const {
   pkgPath,
   skip,
   sockRegPkgName,
-} = await setupNpmPackageTest(import.meta.url)
+} = setupNpmPackageTest(import.meta.url)
 
 const loadSub = (subPath: string) => {
   if (skip) {

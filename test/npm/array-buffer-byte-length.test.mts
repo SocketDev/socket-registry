@@ -13,7 +13,7 @@ const {
   module: byteLength,
   skip,
   sockRegPkgName,
-} = await setupNpmPackageTest(import.meta.url)
+} = setupNpmPackageTest(import.meta.url)
 
 describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   it('returns NaN for non-ArrayBuffer values', () => {

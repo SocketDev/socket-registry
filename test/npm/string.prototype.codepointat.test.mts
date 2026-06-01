@@ -12,7 +12,7 @@ const {
   module: codePointAt,
   skip,
   sockRegPkgName,
-} = await setupNpmPackageTest(import.meta.url)
+} = setupNpmPackageTest(import.meta.url)
 
 describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   describe('String that starts with a BMP symbol', () => {

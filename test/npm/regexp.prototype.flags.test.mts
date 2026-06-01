@@ -13,7 +13,7 @@ const {
   module: flags,
   skip,
   sockRegPkgName,
-} = await setupNpmPackageTest(import.meta.url)
+} = setupNpmPackageTest(import.meta.url)
 
 const hasOwn = (obj: unknown, key: string) =>
   Object.prototype.hasOwnProperty.call(obj, key)

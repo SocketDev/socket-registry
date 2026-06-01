@@ -13,7 +13,7 @@ const {
   module: $defineProperty,
   skip,
   sockRegPkgName,
-} = await setupNpmPackageTest(import.meta.url)
+} = setupNpmPackageTest(import.meta.url)
 
 describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   describe('defineProperty: supported', { skip: !$defineProperty }, () => {

@@ -35,9 +35,9 @@ const SKIPPED_MODULE_STUB: unknown = new Proxy(function skippedModule() {}, {
 /**
  * Sets up an NPM package test by loading the module from packages/npm/.
  */
-export async function setupNpmPackageTest(
+export function setupNpmPackageTest(
   filename: string,
-): Promise<SetupNpmPackageTestResult> {
+): SetupNpmPackageTestResult {
   const sockRegPkgName = path.basename(filename, '.test.mts')
   const eco = NPM
   const skip = isPackageTestingSkipped(eco, sockRegPkgName)

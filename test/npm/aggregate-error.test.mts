@@ -11,7 +11,7 @@ const {
   module: AggregateError,
   skip,
   sockRegPkgName,
-} = await setupNpmPackageTest(import.meta.url)
+} = setupNpmPackageTest(import.meta.url)
 
 describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   it('should create AggregateError with array of errors', () => {

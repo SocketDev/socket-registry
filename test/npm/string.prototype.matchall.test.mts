@@ -12,7 +12,7 @@ const {
   module: matchAll,
   skip,
   sockRegPkgName,
-} = await setupNpmPackageTest(import.meta.url)
+} = setupNpmPackageTest(import.meta.url)
 
 const collectResults = (iterator: Iterator<RegExpMatchArray>) => {
   const results: RegExpMatchArray[] = []

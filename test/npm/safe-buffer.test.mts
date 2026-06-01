@@ -12,7 +12,7 @@ const {
   module: safeBufferModule,
   skip,
   sockRegPkgName,
-} = await setupNpmPackageTest(import.meta.url)
+} = setupNpmPackageTest(import.meta.url)
 
 const SafeBuffer = safeBufferModule?.Buffer
 

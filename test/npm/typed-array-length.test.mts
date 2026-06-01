@@ -12,7 +12,7 @@ const {
   module: typedArrayLength,
   skip,
   sockRegPkgName,
-} = await setupNpmPackageTest(import.meta.url)
+} = setupNpmPackageTest(import.meta.url)
 
 const typedArrayNames = [
   'Int8Array',
