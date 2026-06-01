@@ -335,6 +335,7 @@ trustPolicyExclude:
   # Trust-downgrade is a false positive here — same publisher, just an
   # older major branch maintained separately. 6.3.1 is the latest 6.x.
   - 'semver@6.3.1'
+  - 'ast-v8-to-istanbul@1.0.2'
 
 # Auto-install missing peer deps (pnpm default). Declared explicitly
 # so a future default flip can't silently change install behavior.
