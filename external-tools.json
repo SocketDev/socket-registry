@@ -1,4 +1,68 @@
 {
+  "agentshield": {
+    "notes": "ecc-agentshield is an npm-only package (no GitHub-release assets). Integrity is the npm dist.integrity sha512 SRI string from the registry packument — same value the setup-security-tools Claude hook stores in its own external-tools.json. The install action reads this entry as tier 0 for version resolution, replacing the old pnpm-workspace.yaml catalog lookup.",
+    "description": "Claude AI config security scanner (prompt injection, secrets)",
+    "purl": "pkg:npm/ecc-agentshield@1.4.0",
+    "integrity": "sha512-R98OO1Ujyk2lezDLb+iQmMhF6FwTJCHajy3G4FCB6x7wkSTqR9f8+eAelC5KDzYDsGSbc0sOZvjXOOPRBtMpDg=="
+  },
+  "pnpm": {
+    "notes": [
+      "pnpm publishes 7 platform-native binaries: linux-{x64,arm64}{,-musl}, darwin-arm64, win-{x64,arm64}. Verified against v11.5.1 (2026-06-02).",
+      "linux-*-musl tarballs are first-class assets with distinct integrity from the glibc tarballs — the binaries are linked against different libcs and only the matching one runs on its target. Don't 'simplify' by pointing musl keys at the glibc asset.",
+      "darwin-x64 is the odd one out: upstream dropped the SEA binary in 11.0.5 because of nodejs/node#62893 (upstream LIEF/Mach-O bug that the Node team has declined to fix). Intel Mac instead installs the npm-registry JS tarball + runs it through system Node — see the `source` + `binary` fields under `platforms.darwin-x64`.",
+      "v11.5.1 entries were hand-pinned (GitHub assets via crypto.hash('sha256', …, 'base64'); darwin-x64 from npm dist.integrity) on 2026-06-02, bypassing the 7-day minimumReleaseAge soak — pnpm releases are GitHub-asset distributions from a known publisher (the soak targets npm typosquats / malicious freshpubs). Bumped from 11.5.0. Future automated bumps go back through the soak."
+    ],
+    "description": "Fast, disk space efficient package manager",
+    "repository": "github:pnpm/pnpm",
+    "version": "11.5.1",
+    "release": "asset",
+    "platforms": {
+      "darwin-arm64": {
+        "asset": "pnpm-darwin-arm64.tar.gz",
+        "integrity": "sha256-ZTPcYvQur8GWXvMXD7C/dQrlwwZND9m8xQvHLFuV5MI="
+      },
+      "darwin-x64": {
+        "asset": "pnpm-11.5.1.tgz",
+        "integrity": "sha512-k/e1dCLqcGglcjW0wW62B2LraOHcI3IxmcxzkEPqm+LEFDJ0o5nYxt76KxF2Im2cocS2NILWIAwaj7qnjB0UhQ==",
+        "source": "npm-registry",
+        "binary": "package/dist/pnpm.cjs",
+        "notes": "Intel Mac uses the npm-registry JS tarball + system Node (no SEA binary). Upstream dropped darwin-x64 SEA in pnpm 11.0.5 due to nodejs/node#62893 (upstream LIEF/Mach-O bug Node has declined to fix)."
+      },
+      "linux-arm64": {
+        "asset": "pnpm-linux-arm64.tar.gz",
+        "integrity": "sha256-bx6dNtEqhKr9270CT56YEEqnAciI8F999fQUni/odHk="
+      },
+      "linux-arm64-musl": {
+        "asset": "pnpm-linux-arm64-musl.tar.gz",
+        "integrity": "sha256-JK98JY133Trwd753daZ9RiCXhkRDtb1IuTuvEcW/5QA="
+      },
+      "linux-x64": {
+        "asset": "pnpm-linux-x64.tar.gz",
+        "integrity": "sha256-XOvC+gAsq8IAgHUUhCfhqnuqp98X3Z9SJuKxtAHoNYM="
+      },
+      "linux-x64-musl": {
+        "asset": "pnpm-linux-x64-musl.tar.gz",
+        "integrity": "sha256-ED538lQigCqJxiBqCUZrBQQun45Akh2xd1UJRKvHiCw="
+      },
+      "win-arm64": {
+        "asset": "pnpm-win32-arm64.zip",
+        "integrity": "sha256-Tb6ctvh3ROQWIQQuamVq1FdiazGg3DUXyLmxKLJeYaU="
+      },
+      "win-x64": {
+        "asset": "pnpm-win32-x64.zip",
+        "integrity": "sha256-d277dweDomLT3nHuAAFGCEXosMy5wabOugBfpH3C2Qs="
+      }
+    }
+  },
+  "rust": {
+    "notes": "Rust toolchain — required by socket-btm's Node 26+ build to link the temporal_rs Rust crate that backs Temporal. Per Node BUILDING.md \"Building Node.js with Temporal support\": rustc/cargo >= 1.82 with LLVM >= 19. The minimum is what configure.py asserts at build time; downstream consumers (CI runners + local dev machines) typically have a newer stable toolchain via rustup, which is fine. Unlike pnpm/sfw/zizmor this entry has no per-platform integrity — Rust is installed via rustup or a runner-image preinstall, not by downloading a single tarball. Workflows install it via `dtolnay/rust-toolchain@stable` (CI) or `rustup default stable` (local).",
+    "description": "Rust toolchain — required for Node 26+ Temporal support",
+    "repository": "rust-lang/rust",
+    "minVersion": "1.82.0",
+    "minLlvmVersion": "19",
+    "release": "rustup",
+    "components": ["rustc", "cargo"]
+  },
   "sfw": {
     "notes": [
       "SFW (Socket Firewall) is published in two flavors: free (public, SocketDev/sfw-free) and enterprise (private, SocketDev/firewall-release). Both ship the same 7-platform set: linux-{x64,arm64}{,-musl}, darwin-{x64,arm64}, win-x64. win-arm64 is intentionally absent — upstream does not yet build it. Unlike zizmor (a security audit), SFW is a required dependency of the install flow, so consumers on win-arm64 must skip SFW-dependent steps until upstream support lands.",
@@ -76,6 +140,14 @@
       }
     }
   },
+  "skillspector": {
+    "notes": "NVIDIA/skillspector has no releases or semver tags — pinned to a commit SHA on main. version is the 8-char short SHA; versionDate is the committer date of that SHA (ISO 8601). The cascade tool bumps both by calling the GitHub commits API. Installed via pipx at CI time using the pipx-git release shape.",
+    "description": "NVIDIA skill security scanner (YARA + AST + OSV.dev CVE + optional LLM analysis)",
+    "repository": "github:NVIDIA/skillspector",
+    "release": "pipx-git",
+    "version": "2eb84478",
+    "versionDate": "2026-05-18"
+  },
   "zizmor": {
     "notes": "Socket fleet targets 8 platforms: linux-x64, linux-arm64, linux-x64-musl, linux-arm64-musl, darwin-x64, darwin-arm64, win-x64, win-arm64. zizmor upstream (zizmorcore/zizmor) only publishes 5 of those: linux-gnu x64+arm64, darwin x64+arm64, win-x64. The three unsupported combos (linux-x64-musl, linux-arm64-musl, win-arm64) are intentionally absent below — adding alias keys with mismatched binaries would break sha256 verification on those runners. Workflows that need zizmor on linux-musl or win-arm64 must conditionally skip the audit on those cells until upstream ships matching binaries.",
     "description": "GitHub Actions security linter",
@@ -102,70 +174,6 @@
       "win-x64": {
         "asset": "zizmor-x86_64-pc-windows-msvc.zip",
         "integrity": "sha256-ZdRqgUT3ASAGIbWA9jIHbYDQgtYIVt6fiHk6lftYgtc="
-      }
-    }
-  },
-  "rust": {
-    "notes": "Rust toolchain — required by socket-btm's Node 26+ build to link the temporal_rs Rust crate that backs Temporal. Per Node BUILDING.md \"Building Node.js with Temporal support\": rustc/cargo >= 1.82 with LLVM >= 19. The minimum is what configure.py asserts at build time; downstream consumers (CI runners + local dev machines) typically have a newer stable toolchain via rustup, which is fine. Unlike pnpm/sfw/zizmor this entry has no per-platform integrity — Rust is installed via rustup or a runner-image preinstall, not by downloading a single tarball. Workflows install it via `dtolnay/rust-toolchain@stable` (CI) or `rustup default stable` (local).",
-    "description": "Rust toolchain — required for Node 26+ Temporal support",
-    "repository": "rust-lang/rust",
-    "minVersion": "1.82.0",
-    "minLlvmVersion": "19",
-    "release": "rustup",
-    "components": ["rustc", "cargo"]
-  },
-  "agentshield": {
-    "notes": "ecc-agentshield is an npm-only package (no GitHub-release assets). Integrity is the npm dist.integrity sha512 SRI string from the registry packument — same value the setup-security-tools Claude hook stores in its own external-tools.json. The install action reads this entry as tier 0 for version resolution, replacing the old pnpm-workspace.yaml catalog lookup.",
-    "description": "Claude AI config security scanner (prompt injection, secrets)",
-    "purl": "pkg:npm/ecc-agentshield@1.4.0",
-    "integrity": "sha512-R98OO1Ujyk2lezDLb+iQmMhF6FwTJCHajy3G4FCB6x7wkSTqR9f8+eAelC5KDzYDsGSbc0sOZvjXOOPRBtMpDg=="
-  },
-  "pnpm": {
-    "notes": [
-      "pnpm publishes 7 platform-native binaries: linux-{x64,arm64}{,-musl}, darwin-arm64, win-{x64,arm64}. Verified against v11.5.1 (2026-06-02).",
-      "linux-*-musl tarballs are first-class assets with distinct integrity from the glibc tarballs — the binaries are linked against different libcs and only the matching one runs on its target. Don't 'simplify' by pointing musl keys at the glibc asset.",
-      "darwin-x64 is the odd one out: upstream dropped the SEA binary in 11.0.5 because of nodejs/node#62893 (upstream LIEF/Mach-O bug that the Node team has declined to fix). Intel Mac instead installs the npm-registry JS tarball + runs it through system Node — see the `source` + `binary` fields under `platforms.darwin-x64`.",
-      "v11.5.1 entries were hand-pinned (GitHub assets via crypto.hash('sha256', …, 'base64'); darwin-x64 from npm dist.integrity) on 2026-06-02, bypassing the 7-day minimumReleaseAge soak — pnpm releases are GitHub-asset distributions from a known publisher (the soak targets npm typosquats / malicious freshpubs). Bumped from 11.5.0. Future automated bumps go back through the soak."
-    ],
-    "description": "Fast, disk space efficient package manager",
-    "repository": "github:pnpm/pnpm",
-    "version": "11.5.1",
-    "release": "asset",
-    "platforms": {
-      "darwin-arm64": {
-        "asset": "pnpm-darwin-arm64.tar.gz",
-        "integrity": "sha256-ZTPcYvQur8GWXvMXD7C/dQrlwwZND9m8xQvHLFuV5MI="
-      },
-      "darwin-x64": {
-        "asset": "pnpm-11.5.1.tgz",
-        "integrity": "sha512-k/e1dCLqcGglcjW0wW62B2LraOHcI3IxmcxzkEPqm+LEFDJ0o5nYxt76KxF2Im2cocS2NILWIAwaj7qnjB0UhQ==",
-        "source": "npm-registry",
-        "binary": "package/dist/pnpm.cjs",
-        "notes": "Intel Mac uses the npm-registry JS tarball + system Node (no SEA binary). Upstream dropped darwin-x64 SEA in pnpm 11.0.5 due to nodejs/node#62893 (upstream LIEF/Mach-O bug Node has declined to fix)."
-      },
-      "linux-arm64": {
-        "asset": "pnpm-linux-arm64.tar.gz",
-        "integrity": "sha256-bx6dNtEqhKr9270CT56YEEqnAciI8F999fQUni/odHk="
-      },
-      "linux-arm64-musl": {
-        "asset": "pnpm-linux-arm64-musl.tar.gz",
-        "integrity": "sha256-JK98JY133Trwd753daZ9RiCXhkRDtb1IuTuvEcW/5QA="
-      },
-      "linux-x64": {
-        "asset": "pnpm-linux-x64.tar.gz",
-        "integrity": "sha256-XOvC+gAsq8IAgHUUhCfhqnuqp98X3Z9SJuKxtAHoNYM="
-      },
-      "linux-x64-musl": {
-        "asset": "pnpm-linux-x64-musl.tar.gz",
-        "integrity": "sha256-ED538lQigCqJxiBqCUZrBQQun45Akh2xd1UJRKvHiCw="
-      },
-      "win-arm64": {
-        "asset": "pnpm-win32-arm64.zip",
-        "integrity": "sha256-Tb6ctvh3ROQWIQQuamVq1FdiazGg3DUXyLmxKLJeYaU="
-      },
-      "win-x64": {
-        "asset": "pnpm-win32-x64.zip",
-        "integrity": "sha256-d277dweDomLT3nHuAAFGCEXosMy5wabOugBfpH3C2Qs="
       }
     }
   }
