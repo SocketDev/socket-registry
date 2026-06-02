@@ -116,50 +116,50 @@
   },
   "pnpm": {
     "notes": [
-      "pnpm publishes 7 platform-native binaries: linux-{x64,arm64}{,-musl}, darwin-arm64, win-{x64,arm64}. Verified against v11.5.0 (2026-06-01).",
+      "pnpm publishes 7 platform-native binaries: linux-{x64,arm64}{,-musl}, darwin-arm64, win-{x64,arm64}. Verified against v11.5.1 (2026-06-02).",
       "linux-*-musl tarballs are first-class assets with distinct integrity from the glibc tarballs — the binaries are linked against different libcs and only the matching one runs on its target. Don't 'simplify' by pointing musl keys at the glibc asset.",
       "darwin-x64 is the odd one out: upstream dropped the SEA binary in 11.0.5 because of nodejs/node#62893 (upstream LIEF/Mach-O bug that the Node team has declined to fix). Intel Mac instead installs the npm-registry JS tarball + runs it through system Node — see the `source` + `binary` fields under `platforms.darwin-x64`.",
-      "v11.5.0 entries were hand-pinned (GitHub assets via crypto.hash('sha256', …, 'base64'); darwin-x64 from npm dist.integrity) on 2026-06-01, bypassing the 7-day minimumReleaseAge soak — pnpm releases are GitHub-asset distributions from a known publisher (the soak targets npm typosquats / malicious freshpubs). Bumped from 11.4.0 to unblock fleet CI (runners pinned the project's packageManager floor). Future automated bumps go back through the soak."
+      "v11.5.1 entries were hand-pinned (GitHub assets via crypto.hash('sha256', …, 'base64'); darwin-x64 from npm dist.integrity) on 2026-06-02, bypassing the 7-day minimumReleaseAge soak — pnpm releases are GitHub-asset distributions from a known publisher (the soak targets npm typosquats / malicious freshpubs). Bumped from 11.5.0. Future automated bumps go back through the soak."
     ],
     "description": "Fast, disk space efficient package manager",
     "repository": "github:pnpm/pnpm",
-    "version": "11.5.0",
+    "version": "11.5.1",
     "release": "asset",
     "platforms": {
       "darwin-arm64": {
         "asset": "pnpm-darwin-arm64.tar.gz",
-        "integrity": "sha256-lm8u01h0V+ETW3ECVpsI8hxxf0nVZ21j+UNbrJaCxFs="
+        "integrity": "sha256-ZTPcYvQur8GWXvMXD7C/dQrlwwZND9m8xQvHLFuV5MI="
       },
       "darwin-x64": {
-        "asset": "pnpm-11.5.0.tgz",
-        "integrity": "sha512-2/zE+Bz0hZev1Lw5H/3xLBHxqfuDo5W/prCi2cwv2P/rr9scy9UpYyFT95OQTCYVt/Cf4aNFRz/Rw1hFFyqOsQ==",
+        "asset": "pnpm-11.5.1.tgz",
+        "integrity": "sha512-k/e1dCLqcGglcjW0wW62B2LraOHcI3IxmcxzkEPqm+LEFDJ0o5nYxt76KxF2Im2cocS2NILWIAwaj7qnjB0UhQ==",
         "source": "npm-registry",
         "binary": "package/dist/pnpm.cjs",
         "notes": "Intel Mac uses the npm-registry JS tarball + system Node (no SEA binary). Upstream dropped darwin-x64 SEA in pnpm 11.0.5 due to nodejs/node#62893 (upstream LIEF/Mach-O bug Node has declined to fix)."
       },
       "linux-arm64": {
         "asset": "pnpm-linux-arm64.tar.gz",
-        "integrity": "sha256-+BeEG+BD4r5GXLi4x93Rnc7fMSAhR4PcRzptp/jITak="
+        "integrity": "sha256-bx6dNtEqhKr9270CT56YEEqnAciI8F999fQUni/odHk="
       },
       "linux-arm64-musl": {
         "asset": "pnpm-linux-arm64-musl.tar.gz",
-        "integrity": "sha256-ZzPg9ClaCeNGUiRjnSEssMAcxDjj2xsuR9YeSf0/TQo="
+        "integrity": "sha256-JK98JY133Trwd753daZ9RiCXhkRDtb1IuTuvEcW/5QA="
       },
       "linux-x64": {
         "asset": "pnpm-linux-x64.tar.gz",
-        "integrity": "sha256-1FxDOCmcrlt/yvXpUpRkPtsQ3pglj8Cx1Wb/oAsMNTw="
+        "integrity": "sha256-XOvC+gAsq8IAgHUUhCfhqnuqp98X3Z9SJuKxtAHoNYM="
       },
       "linux-x64-musl": {
         "asset": "pnpm-linux-x64-musl.tar.gz",
-        "integrity": "sha256-8RT6Bou1tFRy4zibGXIv65y0e3LKZW+1pcu31fu37QY="
+        "integrity": "sha256-ED538lQigCqJxiBqCUZrBQQun45Akh2xd1UJRKvHiCw="
       },
       "win-arm64": {
         "asset": "pnpm-win32-arm64.zip",
-        "integrity": "sha256-nDR1ZFzBULP/2tte+OmV1PLpX4mHWk09wAUSKp/yVy8="
+        "integrity": "sha256-Tb6ctvh3ROQWIQQuamVq1FdiazGg3DUXyLmxKLJeYaU="
       },
       "win-x64": {
         "asset": "pnpm-win32-x64.zip",
-        "integrity": "sha256-+F9cOZyqQeL7zoohJ7aepNKrm0UpZ1alV7JhENAdzv0="
+        "integrity": "sha256-d277dweDomLT3nHuAAFGCEXosMy5wabOugBfpH3C2Qs="
       }
     }
   }

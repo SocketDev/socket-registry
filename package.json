@@ -152,9 +152,9 @@
   },
   "engines": {
     "node": ">=18",
-    "pnpm": ">=11.5.0"
+    "pnpm": ">=11.5.1"
   },
-  "packageManager": "pnpm@11.5.0",
+  "packageManager": "pnpm@11.5.1",
   "allowScripts": {
     "cpu-features": false,
     "esbuild": true,
