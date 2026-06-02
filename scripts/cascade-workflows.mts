@@ -269,6 +269,6 @@ async function main(): Promise<void> {
 
 main().catch((e: unknown) => {
   const msg = errorMessage(e)
-  logger.fail(`cascade-internal: ${msg}`)
+  logger.fail(`cascade-workflows: ${msg}`)
   process.exitCode = 1
 })

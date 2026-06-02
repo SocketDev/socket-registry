@@ -11,7 +11,7 @@
 // propagation SHA to all consumer repos via the /updating-workflows
 // skill (Phase 4 in the skill doc).
 //
-// WHY A HOOK RATHER THAN INLINE: Claude routinely runs cascade-internal,
+// WHY A HOOK RATHER THAN INLINE: Claude routinely runs cascade-workflows,
 // lands the Layer 4 commit, then moves on without touching external
 // consumers. The hook breaks that flow: it fires the moment a shared
 // workflow file is committed, and refuses to proceed until the agent

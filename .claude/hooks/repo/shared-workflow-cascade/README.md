@@ -9,7 +9,7 @@ touches a shared workflow file in socket-registry:
 
 ## Why
 
-After `cascade-internal.mts` converges, the Layer 3 propagation SHA
+After `cascade-workflows.mts` converges, the Layer 3 propagation SHA
 changes. Every fleet consumer repo (socket-lib, socket-cli, socket-btm,
 socket-sdk-js, socket-packageurl-js, sdxgen, ultrathink) has a SHA pin
 pointing at socket-registry's reusable workflows. That pin is now stale.
