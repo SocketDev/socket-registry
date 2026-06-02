@@ -43,7 +43,7 @@ runs:
   using: 'composite'
   steps:
     - name: Check GitHub platform health
-      uses: SocketDev/socket-registry/.github/actions/github-status-check@17259cdff0ce7bbada95417d2e35201ed1825dad # main (2026-06-02)
+      uses: SocketDev/socket-registry/.github/actions/github-status-check@067d315988724d6544231d1e1aac70e53cf14226 # main (2026-06-02)
 
     - name: Setup debug
       uses: SocketDev/socket-registry/.github/actions/debug@a3f89d93bd5107e3a3ab294d0a3050509e0d51a7 # main (2026-05-28)
