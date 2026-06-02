@@ -255,14 +255,54 @@ runs:
         # active SKUs". Detect that ONCE here and silently downgrade
         # to sfw-free so CI keeps working with whatever token the repo
         # has, rather than every downstream pnpm/npm call failing.
+        #
+        # Two failure modes are handled here:
+        #
+        #   1. 403 / "identifying active SKUs" — terminal: the token
+        #      lacks the enterprise SKU. Fall back to sfw-free.
+        #   2. 5xx (e.g. 503 Service Unavailable) — transient: Socket
+        #      API is having a moment. Retry the probe with backoff
+        #      (1s, 3s, 9s). If still 5xx after 3 attempts, fall back
+        #      to sfw-free so CI doesn't block on a Socket-side
+        #      outage. **Why:** 2026-06-02 a 503 during v6.0.7 CI
+        #      blocked release on two consecutive runs.
         if [ "$SFW_FLAVOR" = "enterprise" ]; then
-          SFW_PROBE_OUT="$("$SFW_BIN" --version 2>&1 || true)"
-          if echo "$SFW_PROBE_OUT" | grep -q "identifying active SKUs"; then
+          PROBE_DELAYS=(1 3 9)
+          PROBE_ATTEMPT=0
+          PROBE_SUCCESS=false
+          SFW_PROBE_OUT=""
+          for delay in "${PROBE_DELAYS[@]}"; do
+            PROBE_ATTEMPT=$((PROBE_ATTEMPT + 1))
+            SFW_PROBE_OUT="$("$SFW_BIN" --version 2>&1 || true)"
+            # Success = probe didn't surface a 5xx response. Anything
+            # else (clean version output, 403/SKU error, hostname
+            # resolution failure) takes us to the post-probe branches.
+            #
+            # 5xx shapes seen in the wild:
+            #   "Socket API returned status code 503"   (sfw stdout)
+            #   "validation got status of 503"          (setup-and-install)
+            if ! echo "$SFW_PROBE_OUT" | grep -qE "status (code|of) 5[0-9][0-9]"; then
+              PROBE_SUCCESS=true
+              break
+            fi
+            echo "Note: sfw-enterprise probe attempt $PROBE_ATTEMPT/${#PROBE_DELAYS[@]} got 5xx from Socket API; retrying in ${delay}s…" >&2
+            sleep "$delay"
+          done
+          if ! "$PROBE_SUCCESS"; then
+            echo "Note: sfw-enterprise probe still 5xx after ${#PROBE_DELAYS[@]} attempts — Socket API likely having an outage." >&2
+            echo "  Last probe output:" >&2
+            echo "$SFW_PROBE_OUT" | head -3 | sed 's/^/    /' >&2
+            echo "  Falling back to sfw-free for the rest of the workflow." >&2
+            SFW_FLAVOR="free"
+            SFW_REPO="SocketDev/sfw-free"
+          elif echo "$SFW_PROBE_OUT" | grep -q "identifying active SKUs"; then
             echo "Note: sfw-enterprise SKU probe returned 403 — the SOCKET_API_TOKEN" >&2
             echo "  in this CI is valid but lacks the firewall-enterprise SKU." >&2
             echo "  Falling back to sfw-free for the rest of the workflow." >&2
             SFW_FLAVOR="free"
             SFW_REPO="SocketDev/sfw-free"
+          fi
+          if [ "$SFW_FLAVOR" = "free" ]; then
             if ! ASSET="$(node "$JQ" "$TOOLS_FILE" sfw "$SFW_FLAVOR" platforms "$PLATFORM" asset 2>/dev/null)"; then
               echo "× SFW-free fallback: no asset for ${PLATFORM} at v${SFW_VERSION}." >&2
               exit 1
