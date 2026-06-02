@@ -114,6 +114,12 @@
     "release": "rustup",
     "components": ["rustc", "cargo"]
   },
+  "agentshield": {
+    "notes": "ecc-agentshield is an npm-only package (no GitHub-release assets). Integrity is the npm dist.integrity sha512 SRI string from the registry packument — same value the setup-security-tools Claude hook stores in its own external-tools.json. The install action reads this entry as tier 0 for version resolution, replacing the old pnpm-workspace.yaml catalog lookup.",
+    "description": "Claude AI config security scanner (prompt injection, secrets)",
+    "purl": "pkg:npm/ecc-agentshield@1.4.0",
+    "integrity": "sha512-R98OO1Ujyk2lezDLb+iQmMhF6FwTJCHajy3G4FCB6x7wkSTqR9f8+eAelC5KDzYDsGSbc0sOZvjXOOPRBtMpDg=="
+  },
   "pnpm": {
     "notes": [
       "pnpm publishes 7 platform-native binaries: linux-{x64,arm64}{,-musl}, darwin-arm64, win-{x64,arm64}. Verified against v11.5.1 (2026-06-02).",

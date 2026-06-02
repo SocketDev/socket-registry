@@ -82,7 +82,6 @@ catalog:
   dev-null-cli: 2.0.0
   didyoumean2: 7.0.4
   'dtu-github-actions': 0.16.2
-  ecc-agentshield: 1.4.0
   eslint: 9.35.0
   eslint-import-resolver-typescript: 4.4.4
   eslint-plugin-import-x: 4.16.1
@@ -218,7 +217,6 @@ minimumReleaseAgeExclude:
   - '@rolldown/binding-win32-arm64-msvc'
   - '@rolldown/binding-win32-x64-msvc'
   - '@socketdev/*'
-  - 'ecc-agentshield'
   - 'sfw'
   - 'socket-*'
   - '@redwoodjs/agent-ci@0.16.2'

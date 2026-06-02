@@ -4,7 +4,7 @@
 # .claude/skills/updating-workflows/.
 
 name: 'Install'
-description: 'Install pnpm dependencies and provision ecc-agentshield (sfw shims are set up by the setup action)'
+description: 'Install pnpm dependencies and provision agentshield (sfw shims are set up by the setup action)'
 
 inputs:
   frozen-lockfile:
@@ -40,7 +40,7 @@ runs:
       working-directory: ${{ inputs.working-directory }}
       run: |
         # @socketsecurity/lib is required for downloadPackage (used below
-        # to provision ecc-agentshield) and for several downstream build
+        # to provision agentshield) and for several downstream build
         # scripts across the Socket fleet. We resolve it via Node's own
         # resolver rather than a file check, so the guard fires the same
         # way we'd actually fail at runtime.
@@ -66,7 +66,7 @@ runs:
           cat >&2 <<EOF
         × @socketsecurity/lib not resolvable from ${CWD}.
           The socket-registry install action requires it at runtime for
-          downloadPackage (used to provision ecc-agentshield and related
+          downloadPackage (used to provision agentshield and related
           tools). Expected Node's module resolver to find the package
           after \`pnpm install\` completed, but
           \`require('@socketsecurity/lib/package.json')\` failed.
@@ -123,7 +123,7 @@ runs:
         fi
         echo "@socketsecurity/lib ${ACTUAL_VERSION} >= ${MIN_VERSION} (${MIN_SOURCE})"
 
-    - name: Install ecc-agentshield
+    - name: Install agentshield
       # Auto-skip in matrix cells: AgentShield's scan is
       # Node-version-indifferent and belongs in a single scan job
       # (the check / lint / type-check jobs in the reusable ci.yml),
@@ -137,51 +137,25 @@ runs:
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       run: | # zizmor: ignore[github-env]
-        # Version resolution precedence (highest to lowest):
-        #   1. package.json dependencies["ecc-agentshield"]      (literal, not "catalog:")
-        #   2. package.json devDependencies["ecc-agentshield"]   (literal, not "catalog:")
-        #   3. pnpm-workspace.yaml catalog ecc-agentshield
-        #   4. Hardcoded fallback "1.4.0"
-        #
-        # Install goes through @socketsecurity/lib's downloadPackage
-        # (the same helper the setup-security-tools Claude hook uses),
-        # which caches into ~/.socket/_dlx/<hash>/. Every consumer that
-        # uses this action gets agentshield provisioned regardless of
-        # whether they declare a dep on it — the fallback ensures that.
+        # Version comes from socket-registry/external-tools.json agentshield.purl,
+        # which the cascade tool keeps up to date. Hard fallback if the file is
+        # absent or unparseable.
         FALLBACK_VERSION="1.4.0"
-        # JSON path reader shared with setup/checkout actions. Node
-        # is universally preinstalled where jq is not.
         JQ="${GITHUB_ACTION_PATH}/../lib/jq.mjs"
+        EXTERNAL_TOOLS="${GITHUB_ACTION_PATH}/../../external-tools.json"
         resolve_version() {
-          if [ -f package.json ]; then
-            local v
-            v="$(node "$JQ" package.json dependencies ecc-agentshield 2>/dev/null || true)"
-            if [ -n "$v" ] && [ "$v" != "catalog:" ]; then
-              echo "$v"
-              return
-            fi
-            v="$(node "$JQ" package.json devDependencies ecc-agentshield 2>/dev/null || true)"
-            if [ -n "$v" ] && [ "$v" != "catalog:" ]; then
-              echo "$v"
-              return
-            fi
-          fi
-          if [ -f pnpm-workspace.yaml ]; then
-            local v
-            v="$(grep -E '^[[:space:]]*ecc-agentshield:[[:space:]]*' pnpm-workspace.yaml \
-                 | sed -E 's/^[[:space:]]*ecc-agentshield:[[:space:]]*//' \
-                 | sed -E 's/[[:space:]]*#.*$//' \
-                 | head -n1 \
-                 | tr -d "\"'")"
-            if [ -n "$v" ]; then
-              echo "$v"
+          if [ -f "$EXTERNAL_TOOLS" ]; then
+            local purl
+            purl="$(node "$JQ" "$EXTERNAL_TOOLS" agentshield purl 2>/dev/null || true)"
+            if [ -n "$purl" ]; then
+              echo "${purl##*@}"
               return
             fi
           fi
           echo "$FALLBACK_VERSION"
         }
         AGENTSHIELD_VERSION="$(resolve_version)"
-        echo "ecc-agentshield version: $AGENTSHIELD_VERSION"
+        echo "agentshield version: $AGENTSHIELD_VERSION"
 
         # Strip leading range/comparison chars — downloadPackage wants an
         # exact version. Discouraged forms like "^1.4.0" or "~1.4.0"
