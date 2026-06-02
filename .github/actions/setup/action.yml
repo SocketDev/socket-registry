@@ -43,10 +43,10 @@ runs:
   using: 'composite'
   steps:
     - name: Check GitHub platform health
-      uses: SocketDev/socket-registry/.github/actions/github-status-check@b80be3f0a25e9b4b2966f979faca89d8f90f157f # main (2026-06-02)
+      uses: SocketDev/socket-registry/.github/actions/github-status-check@a3f89d93bd5107e3a3ab294d0a3050509e0d51a7 # main (2026-06-02)
 
     - name: Setup debug
-      uses: SocketDev/socket-registry/.github/actions/debug@5cd9c7d622dabb56087189c8858917b4fe011099 # main (2026-05-28)
+      uses: SocketDev/socket-registry/.github/actions/debug@a3f89d93bd5107e3a3ab294d0a3050509e0d51a7 # main (2026-05-28)
       with:
         debug: ${{ inputs.debug }}
 

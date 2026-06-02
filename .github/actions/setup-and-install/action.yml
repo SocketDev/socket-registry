@@ -77,14 +77,14 @@ runs:
   steps:
     - name: Checkout
       if: inputs.checkout == 'true'
-      uses: SocketDev/socket-registry/.github/actions/checkout@5cd9c7d622dabb56087189c8858917b4fe011099 # main (2026-06-01)
+      uses: SocketDev/socket-registry/.github/actions/checkout@a3f89d93bd5107e3a3ab294d0a3050509e0d51a7 # main (2026-06-01)
       with:
         fetch-depth: ${{ inputs.checkout-fetch-depth }}
         ref: ${{ inputs.checkout-ref }}
         working-directory: ${{ inputs.working-directory }}
 
     - name: Setup environment
-      uses: SocketDev/socket-registry/.github/actions/setup@087c15836c21fbb888b92d0e9fe44114d1283d4a # main (2026-06-01)
+      uses: SocketDev/socket-registry/.github/actions/setup@a3f89d93bd5107e3a3ab294d0a3050509e0d51a7 # main (2026-06-01)
       with:
         debug: ${{ inputs.debug }}
         node-version: ${{ inputs.node-version }}
@@ -94,12 +94,12 @@ runs:
         working-directory: ${{ inputs.working-directory }}
 
     - name: Install dependencies
-      uses: SocketDev/socket-registry/.github/actions/install@43245041fd6f7d30cb3de7e3df572b757ebe171f # main (2026-06-01)
+      uses: SocketDev/socket-registry/.github/actions/install@a3f89d93bd5107e3a3ab294d0a3050509e0d51a7 # main (2026-06-01)
       with:
         working-directory: ${{ inputs.working-directory }}
 
     - name: Setup Go toolchain
       if: inputs.setup-go == 'true'
-      uses: SocketDev/socket-registry/.github/actions/setup-go-toolchain@5cd9c7d622dabb56087189c8858917b4fe011099 # main (2026-06-01)
+      uses: SocketDev/socket-registry/.github/actions/setup-go-toolchain@a3f89d93bd5107e3a3ab294d0a3050509e0d51a7 # main (2026-06-01)
       with:
         version: ${{ inputs.setup-go-version }}
