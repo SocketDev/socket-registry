@@ -249,6 +249,7 @@ minimumReleaseAgeExclude:
   - '@stuie/*'
   - '@ultrathink/*'
   - '@yuku-parser/*'
+  - 'ecc-agentshield'
 
 # Refuse transitive dependencies declared via git/tarball/local-tarball
 # specs — an npm package shouldn't be allowed to drag in a git URL we
