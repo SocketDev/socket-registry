@@ -95,12 +95,8 @@ runs:
           if [ "$COMPONENT_STATUS" != "operational" ]; then
             MESSAGES+=("$NAME: $COMPONENT_STATUS")
           fi
-        done < <(echo "$RESPONSE" | python3 -c "
-import sys, json
-data = json.load(sys.stdin)
-for c in data.get('components', []):
-    print(c['id'] + '|' + c['status'])
-")
+        done < <(echo "$RESPONSE" | python3 -c \
+          'import sys,json;[print(c["id"]+"|"+c["status"]) for c in json.load(sys.stdin).get("components",[])]')
 
         if [ "${#MESSAGES[@]}" -eq 0 ]; then
           SUMMARY="All monitored GitHub components operational"
