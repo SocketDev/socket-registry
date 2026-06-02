@@ -24,7 +24,7 @@ permissions:
 jobs:
   ci:
     name: Run CI Pipeline
-    uses: SocketDev/socket-registry/.github/workflows/ci.yml@34f4a32a58a0af818f76b17fdda2934e846f3590 # main (2026-05-28)
+    uses: SocketDev/socket-registry/.github/workflows/ci.yml@46f78a3734077312d1e31e55cda1ce83cb3ea3b2 # main (2026-05-28)
     with:
       test-script: 'pnpm run test --all --fast'
       node-versions: '["22", "24"]'
