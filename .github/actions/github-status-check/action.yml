@@ -41,6 +41,8 @@ runs:
     - name: Probe githubstatus.com
       id: probe
       shell: bash
+      env:
+        FAIL_ON_INCIDENT: ${{ inputs.fail-on-incident }}
       run: |
         set -euo pipefail
 
@@ -60,8 +62,6 @@ runs:
           ["under_maintenance"]=1
           ["operational"]=0
         )
-
-        FAIL_ON_INCIDENT="${{ inputs.fail-on-incident }}"
 
         # Probe with a short timeout so a slow status page doesn't stall CI.
         RESPONSE="$(curl -sf --max-time 8 \
