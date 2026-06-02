@@ -94,7 +94,7 @@ runs:
         working-directory: ${{ inputs.working-directory }}
 
     - name: Install dependencies
-      uses: SocketDev/socket-registry/.github/actions/install@5cd9c7d622dabb56087189c8858917b4fe011099 # main (2026-06-01)
+      uses: SocketDev/socket-registry/.github/actions/install@43245041fd6f7d30cb3de7e3df572b757ebe171f # main (2026-06-01)
       with:
         working-directory: ${{ inputs.working-directory }}
 
