@@ -381,10 +381,33 @@ runs:
             # firewall/src/lib/firewall/connect.ts.
             SHIM_LINES=('#!/bin/bash' "export PATH=\"\$(echo \"\$PATH\" | tr ':' '\n' | grep -vxF '${SHIM_DIR}' | paste -sd: -)\"")
             SHIM_LINES+=('export SFW_UNKNOWN_HOST_ACTION=ignore')
-            SHIM_LINES+=("exec \"${SFW_BIN}\" \"${REAL}\" \"\$@\"")
+            # Run sfw in its OWN process group and reap the whole group on
+            # exit, instead of `exec`-ing it. sfw spawns the real package
+            # manager, which spawns probe children (--version, list, install
+            # workers); if the shim's caller (a CI step, a shell ^C, an
+            # interrupted agent Bash call) dies, an `exec`-ed sfw + its
+            # descendants reparent to init and leak. `set -m` puts the
+            # backgrounded sfw in a fresh process group ($! == its pgid); the
+            # trap kills that whole group (negative pid) on any exit path, so
+            # nothing is orphaned. We forward the same SIGTERM/SIGINT we
+            # receive, then wait and propagate sfw's exit code. This is a
+            # safety net independent of the sfw binary's own signal handling.
+            SHIM_LINES+=('set -m')
+            SHIM_LINES+=("\"${SFW_BIN}\" \"${REAL}\" \"\$@\" &")
+            SHIM_LINES+=('sfw_pid=$!')
+            SHIM_LINES+=('trap "kill -TERM -$sfw_pid 2>/dev/null" EXIT')
+            SHIM_LINES+=('trap "kill -INT  -$sfw_pid 2>/dev/null" INT')
+            SHIM_LINES+=('trap "kill -TERM -$sfw_pid 2>/dev/null" TERM HUP')
+            SHIM_LINES+=('wait "$sfw_pid"')
+            SHIM_LINES+=('exit $?')
             printf '%s\n' "${SHIM_LINES[@]}" > "$SHIM_DIR/$CMD"
             chmod +x "$SHIM_DIR/$CMD"
             if $IS_WINDOWS; then
+              # No trap-and-reap on the .cmd path: Windows has no POSIX
+              # process groups, and the GitHub runner tears down the whole
+              # job object when a step ends, so a killed step's descendants
+              # don't survive the way a POSIX orphan reparents to init. The
+              # sfw binary's own signal handling covers the rest.
               printf '@echo off\r\nset "PATH=;%%PATH%%;"\r\nset "PATH=%%PATH:;%s;=;%%"\r\nset "PATH=%%PATH:~1,-1%%"\r\nset "SFW_UNKNOWN_HOST_ACTION=ignore"\r\n"%s" "%s" %%*\r\n' \
                 "$SHIM_DIR" "$SFW_BIN" "$REAL" > "$SHIM_DIR/$CMD.cmd"
             fi
