@@ -1,4 +1,4 @@
-// node --test specs for the merged prose-tone-reminder hook. Asserts each of
+// node --test specs for the merged voice-and-tone-reminder hook. Asserts each of
 // the 3 source pattern sets still fires AND each disable env var silences only
 // its own group (the regression contract for the merge).
 

@@ -1,0 +1,7 @@
+{
+  "suites": {
+    "shared": {
+      "runExclude": ["test/packages.test.mts"]
+    }
+  }
+}
