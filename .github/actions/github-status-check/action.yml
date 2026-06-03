@@ -46,22 +46,33 @@ runs:
       run: |
         set -euo pipefail
 
-        # Component IDs to monitor.  Stable IDs from the components API;
-        # the human-readable names are used only in the output summary.
-        declare -A MONITORED=(
-          ["br0l2tvcx85d"]="Actions"
-          ["8l4ygp009s5s"]="Git Operations"
-          ["brv1bkgrwx7q"]="API Requests"
-        )
+        # NOTE: no `declare -A` (associative arrays). macOS GitHub runners run
+        # this step under /bin/bash 3.2, which lacks them — `declare -A M=([k]=v)`
+        # there parses `[k]` as an arithmetic index, evaluating the bare key as
+        # an (unbound, under `set -u`) variable and aborting the step. The
+        # `case` lookups below are bash-3.2 portable.
 
-        # Severity order (worst → best); used to pick the aggregate.
-        declare -A SEVERITY=(
-          ["major_outage"]=4
-          ["partial_outage"]=3
-          ["degraded_performance"]=2
-          ["under_maintenance"]=1
-          ["operational"]=0
-        )
+        # Component IDs to monitor → human-readable name (empty = not monitored).
+        # Stable IDs from the components API; names are output-only.
+        monitored_name() {
+          case "$1" in
+            br0l2tvcx85d) printf '%s' "Actions" ;;
+            8l4ygp009s5s) printf '%s' "Git Operations" ;;
+            brv1bkgrwx7q) printf '%s' "API Requests" ;;
+            *) printf '' ;;
+          esac
+        }
+
+        # Severity rank (worst → best). Unknown status → 0 (operational).
+        severity_rank() {
+          case "$1" in
+            major_outage) printf '4' ;;
+            partial_outage) printf '3' ;;
+            degraded_performance) printf '2' ;;
+            under_maintenance) printf '1' ;;
+            *) printf '0' ;;
+          esac
+        }
 
         # Probe with a short timeout so a slow status page doesn't stall CI.
         RESPONSE="$(curl -sf --max-time 8 \
@@ -77,40 +88,45 @@ runs:
 
         WORST_SEVERITY=0
         WORST_STATUS="operational"
-        MESSAGES=()
+        MESSAGES=""
 
         while IFS= read -r line; do
           COMPONENT_ID="$(echo "$line" | cut -d'|' -f1)"
           COMPONENT_STATUS="$(echo "$line" | cut -d'|' -f2)"
 
-          NAME="${MONITORED[$COMPONENT_ID]:-}"
+          NAME="$(monitored_name "$COMPONENT_ID")"
           [ -z "$NAME" ] && continue
 
-          SEV="${SEVERITY[$COMPONENT_STATUS]:-0}"
+          SEV="$(severity_rank "$COMPONENT_STATUS")"
           if [ "$SEV" -gt "$WORST_SEVERITY" ]; then
             WORST_SEVERITY=$SEV
             WORST_STATUS="$COMPONENT_STATUS"
           fi
 
           if [ "$COMPONENT_STATUS" != "operational" ]; then
-            MESSAGES+=("$NAME: $COMPONENT_STATUS")
+            # Accumulate as a space-joined string (no arrays — 3.2 portable).
+            if [ -z "$MESSAGES" ]; then
+              MESSAGES="$NAME: $COMPONENT_STATUS"
+            else
+              MESSAGES="$MESSAGES $NAME: $COMPONENT_STATUS"
+            fi
           fi
         done < <(echo "$RESPONSE" | python3 -c \
           'import sys,json;[print(c["id"]+"|"+c["status"]) for c in json.load(sys.stdin).get("components",[])]')
 
-        if [ "${#MESSAGES[@]}" -eq 0 ]; then
+        if [ -z "$MESSAGES" ]; then
           SUMMARY="All monitored GitHub components operational"
           echo "status=operational" >> "$GITHUB_OUTPUT"
           echo "summary=$SUMMARY" >> "$GITHUB_OUTPUT"
           echo "ℹ️  $SUMMARY"
         else
-          SUMMARY="⚠️  ${MESSAGES[*]}"
+          SUMMARY="⚠️  $MESSAGES"
           echo "status=$WORST_STATUS" >> "$GITHUB_OUTPUT"
           echo "summary=$SUMMARY" >> "$GITHUB_OUTPUT"
           echo "::warning title=GitHub Status::$SUMMARY — CI failures may be related to upstream degradation"
 
           if [ "$FAIL_ON_INCIDENT" = "true" ] && \
-             [ "$WORST_SEVERITY" -ge "${SEVERITY[partial_outage]}" ]; then
+             [ "$WORST_SEVERITY" -ge "$(severity_rank partial_outage)" ]; then
             echo "::error title=GitHub Status::$SUMMARY — aborting due to fail-on-incident=true"
             exit 1
           fi
