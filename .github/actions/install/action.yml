@@ -39,7 +39,7 @@ runs:
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       run: |
-        # @socketsecurity/lib is required for downloadPackage (used below
+        # @socketsecurity/lib is required for downloadNpmPackage (used below
         # to provision agentshield) and for several downstream build
         # scripts across the Socket fleet. We resolve it via Node's own
         # resolver rather than a file check, so the guard fires the same
@@ -50,7 +50,7 @@ runs:
         # manual bumps in this action. If the npm query fails (offline,
         # rate-limited, registry down), fall back to HARDCODED_FLOOR —
         # the lowest version known to contain the un-stubbed pacote
-        # fetchers required by downloadPackage (commit 320c757, shipped
+        # fetchers required by downloadNpmPackage (commit 320c757, shipped
         # in 5.24.0). Older versions throw "this pacote fetcher is
         # stubbed out" at runtime.
         HARDCODED_FLOOR="5.24.0"
@@ -66,7 +66,7 @@ runs:
           cat >&2 <<EOF
         × @socketsecurity/lib not resolvable from ${CWD}.
           The socket-registry install action requires it at runtime for
-          downloadPackage (used to provision agentshield and related
+          downloadNpmPackage (used to provision agentshield and related
           tools). Expected Node's module resolver to find the package
           after \`pnpm install\` completed, but
           \`require('@socketsecurity/lib/package.json')\` failed.
@@ -112,7 +112,7 @@ runs:
           The socket-registry install action requires
           @socketsecurity/lib >= ${MIN_VERSION}; older versions either
           ship a stubbed pacote fetcher (< ${HARDCODED_FLOOR}) or are
-          missing fixes consumed by downloadPackage and related fleet
+          missing fixes consumed by downloadNpmPackage and related fleet
           tooling.
           Fix: bump "@socketsecurity/lib" in package.json (or the
           pnpm-workspace.yaml catalog entry) to "${MIN_VERSION}" — pin
@@ -157,27 +157,57 @@ runs:
         AGENTSHIELD_VERSION="$(resolve_version)"
         echo "agentshield version: $AGENTSHIELD_VERSION"
 
-        # Strip leading range/comparison chars — downloadPackage wants an
+        # Strip leading range/comparison chars — downloadNpmPackage wants an
         # exact version. Discouraged forms like "^1.4.0" or "~1.4.0"
         # still work here but we prefer exact pins.
         CLEAN_VERSION="${AGENTSHIELD_VERSION#[\^~>=<]}"
         CLEAN_VERSION="${CLEAN_VERSION#=}"
 
-        # Invoke downloadPackage via Node. Node sees the consumer repo's
-        # node_modules (already installed above), so the dynamic import
+        # Invoke the npm-package downloader via Node. Node sees the consumer
+        # repo's node_modules (already installed above), so the dynamic import
         # of @socketsecurity/lib/dlx/package resolves the workspace copy.
+        #
+        # Name + option compat across the @socketsecurity/lib rename boundary:
+        # <= 6.0.6 exports `downloadPackage({ package })`; >= 6.0.7 renamed it
+        # to `downloadNpmPackage({ spec })`. The action runs against whatever
+        # version the consumer has installed, so accept BOTH — pick whichever
+        # export the module provides and pass both option keys.
+        # `|| true` + a SKIP sentinel: the import can legitimately fail to
+        # RESOLVE when the consumer IS @socketsecurity/lib itself and its dist/
+        # isn't built yet at this setup-time step (chicken-and-egg). AgentShield
+        # is a scan convenience, not a build prerequisite — skip with a warning
+        # rather than failing the whole job. A genuine download failure (module
+        # resolved, download threw) still surfaces as an empty binaryPath below.
         RESULT_JSON="$(AGENTSHIELD_SPEC="ecc-agentshield@${CLEAN_VERSION}" \
           node --input-type=module -e "
-            import { downloadPackage } from '@socketsecurity/lib/dlx/package';
-            const { binaryPath, installed } = await downloadPackage({
-              package: process.env.AGENTSHIELD_SPEC,
+            let mod;
+            try {
+              mod = await import('@socketsecurity/lib/dlx/package');
+            } catch (e) {
+              process.stdout.write(JSON.stringify({ skip: 'import-failed', error: String(e && e.message || e) }));
+              process.exit(0);
+            }
+            const download = mod.downloadNpmPackage ?? mod.downloadPackage;
+            if (typeof download !== 'function') {
+              process.stdout.write(JSON.stringify({ skip: 'no-export' }));
+              process.exit(0);
+            }
+            const spec = process.env.AGENTSHIELD_SPEC;
+            const { binaryPath, installed } = await download({
+              spec,
+              package: spec,
               binaryName: 'agentshield',
             });
             process.stdout.write(JSON.stringify({ binaryPath, installed }));
-          ")"
+          " 2>/dev/null || true)"
+        SKIP="$(echo "$RESULT_JSON" | node "$JQ" - skip 2>/dev/null || true)"
+        if [ -n "$SKIP" ]; then
+          echo "⚠ Skipping AgentShield install ($SKIP) — @socketsecurity/lib/dlx/package unavailable at setup time. Scan jobs will run without AgentShield."
+          exit 0
+        fi
         BIN="$(echo "$RESULT_JSON" | node "$JQ" - binaryPath 2>/dev/null || true)"
         if [ -z "$BIN" ] || [ ! -x "$BIN" ]; then
-          echo "× ecc-agentshield install failed — downloadPackage did not return an executable binary path" >&2
+          echo "× ecc-agentshield install failed — the npm-package downloader did not return an executable binary path" >&2
           echo "  Got: $RESULT_JSON" >&2
           exit 1
         fi
