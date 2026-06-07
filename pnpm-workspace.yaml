@@ -143,6 +143,7 @@ resolutionMode: highest
 # Wait 7 days (10080 minutes) before installing newly published packages.
 minimumReleaseAge: 10080
 minimumReleaseAgeExclude:
+  # published: 2026-04-09 | removable: 2026-04-16
   - '@anthropic-ai/claude-code@2.1.98'
   - '@socketaddon/*'
   - '@socketbin/*'
@@ -150,7 +151,9 @@ minimumReleaseAgeExclude:
   - '@socketsecurity/*'
   # Network-mocking lib used in fleet test suites. v15 betas pre-date
   # npm's `time` field for the major; allow pinned beta until v15 GA.
+  # published: 2026-05-07 | removable: 2026-05-14
   - 'nock@15.0.0-beta.11'
+  # published: 2026-05-19 | removable: 2026-05-26
   - 'npm-run-all2@9.0.0'
   # vite 8.0.14 ships rolldown 1.0.2 natively; the override forces 1.0.3.
   # Scoped to the exact tag so a future vite 8.0.15 still soaks.
@@ -220,7 +223,9 @@ minimumReleaseAgeExclude:
   - '@socketdev/*'
   - 'sfw'
   - 'socket-*'
+  # published: 2026-05-22 | removable: 2026-05-29
   - '@redwoodjs/agent-ci@0.16.2'
+  # published: 2026-05-22 | removable: 2026-05-29
   - 'dtu-github-actions@0.16.2'
   # published: 2026-05-22 | removable: 2026-05-29
   - 'shell-quote@1.8.4'
