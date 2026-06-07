@@ -125,19 +125,19 @@ Exceptions (state the trade-off + ask): large refactor on a small bug, file belo
 
 🚨 Reverting tracked changes or bypassing a hook (--no-verify, DISABLE*PRECOMMIT*\*, --no-gpg-sign, force-push) requires the user to type **`Allow <X> bypass`** verbatim in a recent user turn (e.g. `Allow revert bypass`, `Allow no-verify bypass`). Paraphrases don't count (`.claude/hooks/fleet/no-revert-guard/`). Full phrase table: [`bypass-phrases`](docs/claude.md/fleet/bypass-phrases.md). The `Allow <X> bypass` phrase is the ONLY disable — hooks carry NO env kill-switch (`disabledEnvVar` / `SOCKET_*_DISABLED` / `process.env[...DISABLED]` are banned in a hook's `index.mts`; `.claude/hooks/fleet/no-env-kill-switch-guard/`).
 
-**Exception — wheelhouse cascade.** Prefix cascade Bash commands with `FLEET_SYNC=1` to bypass: allows (1) `git commit --no-verify` for `chore(wheelhouse): cascade template@…` messages; (2) `git push --no-verify`; (3) broad-stage `git add -A/-u/.` inside a fresh worktree. Everything else still needs the canonical phrase. (`.claude/hooks/fleet/no-revert-guard/` + `.claude/hooks/fleet/overeager-staging-guard/`.)
+**Exception — inline sentinels.** `FLEET_SYNC=1` (cascade): `git commit/push --no-verify` for `chore(wheelhouse): cascade template@…`, broad-stage in a worktree. `SQUASH_HISTORY=1` (`squashing-history`): one un-chained squash `git commit --amend` / `git push --force*`. Else needs the phrase; see [`bypass-phrases`](docs/claude.md/fleet/bypass-phrases.md). (`.claude/hooks/fleet/{no-revert-guard,overeager-staging-guard}/`.)
 
 ### Variant analysis on every High/Critical finding
 
 🚨 When a finding lands at severity High or Critical, **search the rest of the repo for the same shape** before closing it. Bugs cluster — same mental model, same antipattern. Three searches: same file (read the whole thing, not just the hunk), sibling files (`rg` the shape, not the names), cross-package (parallel implementations love to drift).
 
-Skip for style nits. Full taxonomy in [`.claude/skills/_shared/variant-analysis.md`](.claude/skills/_shared/variant-analysis.md). Cross-fleet variants become a _Drift watch_ task — open `chore(wheelhouse): cascade <fix>` (`.claude/hooks/fleet/variant-analysis-reminder/`).
+Skip for style nits. Full taxonomy in [`variant-analysis`](.claude/skills/fleet/_shared/variant-analysis.md). Cross-fleet variants become a _Drift watch_ task — open `chore(wheelhouse): cascade <fix>` (`.claude/hooks/fleet/variant-analysis-reminder/`).
 
 🚨 Verify-before-trust covers **subagent / audit output**: structural claims (counts, file lists, exit-code assertions) are leads not facts — `grep`/read the cited files before relaying or acting. Detail: [`agent-delegation`](docs/claude.md/fleet/agent-delegation.md) (`.claude/hooks/fleet/excuse-detector/`).
 
 ### Compound lessons into rules
 
-When the same kind of finding fires twice — across two runs, two PRs, or two fleet repos — **promote it to a rule** instead of fixing it again. Land it in CLAUDE.md, a `.claude/hooks/*` block, or a skill prompt — pick the lowest-friction surface. Always cite the original incident in a `**Why:**` line. Skip the retrospective doc; the rule is the artifact (`.claude/hooks/fleet/compound-lessons-reminder/`). Discipline: [`.claude/skills/_shared/compound-lessons.md`](.claude/skills/_shared/compound-lessons.md).
+When the same kind of finding fires twice — across two runs, two PRs, or two fleet repos — **promote it to a rule** instead of fixing it again. Land it in CLAUDE.md, a `.claude/hooks/*` block, or a skill prompt — pick the lowest-friction surface. Cite the motivating case in a `**Why:**` line **generically, as an example**, never a dated log — no dates/versions/percentages/SHAs (`.claude/hooks/fleet/dated-citation-reminder/`). The rule is the artifact, not a retro doc (`.claude/hooks/fleet/compound-lessons-reminder/`). Discipline: [`compound-lessons`](.claude/skills/fleet/_shared/compound-lessons.md).
 
 Every new `.claude/hooks/<name>/` hook must have a matching `(`.claude/hooks/<name>/`)` reference in CLAUDE.md before the hook's `index.mts` can be written (`.claude/hooks/fleet/new-hook-claude-md-guard/`). Hooks ignore CLAUDE.md themselves — citing the enforcer inline keeps the rule visible to whoever's reading either surface.
 
@@ -195,7 +195,7 @@ Soft cap **500 lines**, hard cap **1000 lines** per source file. Past those, spl
 
 ### c8 / v8 coverage ignore directives
 
-🚨 `/* c8 ignore next N */` is broken for multi-line bodies (the reporter counts physical lines, not statements) — always bracket the construct with `/* c8 ignore start - <reason> */` … `/* c8 ignore stop */`; single-line `/* c8 ignore next */` is fine. **Why:** 2026-05-24 socket-lib coverage rose 98.9%→99.15% just by rewriting `next N` to start/stop. Full catalog: [`c8-ignore-directives`](docs/claude.md/fleet/c8-ignore-directives.md).
+🚨 `/* c8 ignore next N */` is broken for multi-line bodies (the reporter counts physical lines, not statements) — always bracket the construct with `/* c8 ignore start - <reason> */` … `/* c8 ignore stop */`; single-line `/* c8 ignore next */` is fine. The `next N` miscount silently drops covered lines. Full catalog: [`c8-ignore-directives`](docs/claude.md/fleet/c8-ignore-directives.md).
 
 ### 1 path, 1 reference
 
@@ -252,9 +252,10 @@ Use `isError` / `isErrnoException` / `errorMessage` / `errorStack` from `@socket
 - `/fleet:scanning-quality` → report; `/fleet:looping-quality` loops it until clean
 - **Security loop** — `threat-modeling`→`scanning-vulns`→`triaging-findings`→`patching-findings` ([`security-stack.md`](docs/claude.md/fleet/security-stack.md))
 - `/fleet:rendering-chromium-to-png` — render a page / MV3 popup to PNG → `Read` the pixels (`_shared/visual-verify.md`)
+- `/fleet:researching-recency` — what the dev community said/shipped about a tool/lib/maintainer in the last 30 days ([`researching-recency`](docs/claude.md/fleet/researching-recency.md))
 - Shared subskills in `.claude/skills/fleet/_shared/`; telemetry via `.claude/hooks/fleet/skill-usage-logger/`
-- **Handing off to another agent** — see [`docs/claude.md/fleet/agent-delegation.md`](docs/claude.md/fleet/agent-delegation.md).
-- **Skill scope tiers** (fleet / partial / unique), the `updating` umbrella + `updating-*` siblings convention, and the `scripts/run-skill-fleet.mts` cross-fleet runner in [`docs/claude.md/fleet/agents-and-skills.md`](docs/claude.md/fleet/agents-and-skills.md).
+- Handing off to another agent: [`agent-delegation`](docs/claude.md/fleet/agent-delegation.md).
+- Skill scope tiers, the `updating-*` siblings convention, and the cross-fleet runner: [`agents-and-skills`](docs/claude.md/fleet/agents-and-skills.md).
 
 ### Hook registry
 

@@ -55,6 +55,13 @@ const steps: Array<() => boolean> = [
   // error-message-quality-reminder Stop hook — shares the classifier so the two
   // can't drift. Reporting candidates the human rewrites; never auto-fixed.
   () => run('node', ['scripts/fleet/check/error-messages-are-thorough.mts']),
+  // Rule citations are generic (CLAUDE.md "Compound lessons into rules"): a
+  // `**Why:**`/incident line in fleet rule prose (CLAUDE.md, docs/claude.md/
+  // fleet, SKILL.md, hook READMEs) must be a timeless example, not a dated log
+  // — no ISO dates, version deltas, percentages, or commit SHAs (they age into
+  // a changelog + leak detail in a fleet-duplicated file). Commit-time twin of
+  // the dated-citation-reminder hook; shares the matcher so the two can't drift.
+  () => run('node', ['scripts/fleet/check/rule-citations-are-generic.mts']),
   // Naming consistency: every check basename reads as an ASSERTION (states the
   // invariant it guarantees — paths-are-canonical, lock-step-refs-resolve), so
   // the check/ dir reads as a spec. A bare-topic name (paths, provenance) fails.
@@ -77,6 +84,13 @@ const steps: Array<() => boolean> = [
   // script leaves the doc instruction dead. Past incident (2026-06-06):
   // setup-repo/SKILL.md cited 3 setup scripts that didn't exist.
   () => run('node', ['scripts/fleet/check/doc-references-resolve.mts']),
+  // researching-recency SKILL.md must quote the engine's output markers
+  // verbatim (badge, evidence envelope, footer fences) so the model's
+  // pass-through/synthesis instructions match what the engine emits.
+  () =>
+    run('node', [
+      'scripts/fleet/check/researching-recency-contract-is-current.mts',
+    ]),
   () => run('pnpm', ['exec', 'tsgo', '--noEmit', '-p', 'tsconfig.check.json']),
   // Path-hygiene check (1 path, 1 reference). Mantra-driven gate;
   // see .claude/skills/path-guard/ + .claude/hooks/fleet/path-guard/.

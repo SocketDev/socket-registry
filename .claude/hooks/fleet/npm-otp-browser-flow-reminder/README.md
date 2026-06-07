@@ -26,10 +26,10 @@ npm's preferred OTP flow opens a browser and waits on an interactive TTY prompt
 headless driver — is not a TTY, so that prompt is swallowed and the command dies
 with `npm error code EOTP` without ever opening the browser.
 
-**Incident (2026-06-05):** `! npm deprecate socket-mcp "…"` looped on `EOTP`;
-the interactive "open a browser" step never fired through the `!` channel. The
-reminder steers the user to run it in a real terminal (preferred, browser auth)
-and offers `--otp=<code>` only as the no-TTY fallback.
+**Why:** an OTP-gated `npm` op run through the `!` channel loops on `EOTP` —
+the interactive "open a browser" step never fires without a TTY. The reminder
+steers the user to run it in a real terminal (preferred, browser auth) and
+offers `--otp=<code>` only as the no-TTY fallback.
 
 ## Action
 

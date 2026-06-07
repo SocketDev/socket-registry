@@ -40,6 +40,11 @@ const logger = getDefaultLogger()
 const HOOK_CITATION_RE =
   /\.claude\/hooks\/(fleet|repo)\/([a-z][a-z0-9-]*|\{[^}]+\})\//g
 const RULE_CITATION_RE = /`socket\/([a-z][a-z0-9-]*)`/g
+// A user-invocable skill cited as `/fleet:<name>` (the form the harness shows
+// and the Agents & skills bullets use). Must resolve to a real
+// .claude/skills/fleet/<name>/SKILL.md so a renamed/removed skill bullet can't
+// rot. Backticked or bare both count; the leading `/fleet:` is the anchor.
+const SKILL_CITATION_RE = /\/fleet:([a-z][a-z0-9-]*)/g
 
 // Expand a citation path's name part: `{a,b,c}` → [a,b,c]; `foo` → [foo].
 export function expandNames(raw: string): string[] {
@@ -70,6 +75,15 @@ export function citedHooks(
 export function citedRules(claudeMd: string): string[] {
   const out: string[] = []
   for (const m of claudeMd.matchAll(RULE_CITATION_RE)) {
+    out.push(m[1]!)
+  }
+  return [...new Set(out)]
+}
+
+// All `/fleet:<name>` skill citations, de-duplicated.
+export function citedSkills(claudeMd: string): string[] {
+  const out: string[] = []
+  for (const m of claudeMd.matchAll(SKILL_CITATION_RE)) {
     out.push(m[1]!)
   }
   return [...new Set(out)]
@@ -112,6 +126,15 @@ async function main(): Promise<void> {
   const rules = listRuleNames(
     path.join(REPO_ROOT, '.config/fleet/oxlint-plugin/rules'),
   )
+  // A skill resolves when .claude/skills/fleet/<name>/SKILL.md exists.
+  const fleetSkills = new Set(
+    [...listDirNames(path.join(REPO_ROOT, '.claude/skills/fleet'))].filter(
+      name =>
+        existsSync(
+          path.join(REPO_ROOT, '.claude/skills/fleet', name, 'SKILL.md'),
+        ),
+    ),
+  )
 
   const failures: string[] = []
 
@@ -135,6 +158,17 @@ async function main(): Promise<void> {
       if (!rules.has(rule)) {
         failures.push(
           `cited rule \`socket/${rule}\` is not a registered oxlint rule (renamed or removed?)`,
+        )
+      }
+    }
+  }
+
+  // Only check skill citations when this repo ships fleet skills.
+  if (fleetSkills.size > 0) {
+    for (const skill of citedSkills(claudeMd)) {
+      if (!fleetSkills.has(skill)) {
+        failures.push(
+          `cited skill \`/fleet:${skill}\` has no .claude/skills/fleet/${skill}/SKILL.md (renamed or removed?)`,
         )
       }
     }

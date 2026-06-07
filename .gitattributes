@@ -9,6 +9,7 @@
 .claude/commands/fleet linguist-generated=true
 .claude/hooks/fleet linguist-generated=true
 .claude/skills/fleet linguist-generated=true
+.claude/workflows linguist-generated=true
 .config/fleet/.markdownlint-cli2.jsonc linguist-generated=true
 .config/fleet/.prettierignore linguist-generated=true
 .config/fleet/markdownlint-rules linguist-generated=true
