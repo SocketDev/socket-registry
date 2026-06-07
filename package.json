@@ -19,7 +19,7 @@
     "build": "node scripts/build.mts",
     "check": "node scripts/fleet/check.mts",
     "check-trusted": "node scripts/npm/check-trusted-packages.mts",
-    "check:paths": "node scripts/fleet/check-paths.mts",
+    "check:paths": "node scripts/fleet/check/paths-are-canonical.mts",
     "clean": "node scripts/clean.mts",
     "cover": "node scripts/fleet/cover.mts",
     "fix": "node scripts/fleet/fix.mts",
@@ -50,7 +50,7 @@
     "validate-ci": "node scripts/testing/reproduce-ci-locally.mts",
     "validate-packages": "node scripts/testing/validate-package-tests.mts",
     "setup-security-tools": "node .claude/hooks/fleet/setup-security-tools/install.mts",
-    "ci:local": "agent-ci run --all"
+    "ci:local": "agent-ci run --all --quiet --pause-on-failure --github-token"
   },
   "devDependencies": {
     "@anthropic-ai/claude-code": "catalog:",

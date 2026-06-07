@@ -47,8 +47,8 @@ catalog:
   # version regardless of where the importing file lives. See
   # socket-wheelhouse@92cd3e3 for the full rationale.
   '@socketregistry/packageurl-js-stable': 'npm:@socketregistry/packageurl-js@1.4.2'
-  '@socketsecurity/lib': 6.0.6
-  '@socketsecurity/lib-stable': 'npm:@socketsecurity/lib@6.0.6'
+  '@socketsecurity/lib': 6.0.7
+  '@socketsecurity/lib-stable': 'npm:@socketsecurity/lib@6.0.7'
   '@socketsecurity/registry': 2.0.2
   '@socketsecurity/registry-stable': 'npm:@socketsecurity/registry@2.0.2'
   '@socketsecurity/sdk': 4.0.1
@@ -110,6 +110,7 @@ catalog:
   'oxfmt': 0.48.0
   'oxlint': 1.63.0
   pacote: 21.0.1
+  'playwright-core': 1.55.1
   read-yaml-file: 2.1.0
   # Fleet bundler (replaces esbuild) for the published registry/ subpackage's
   # per-file build. Fleet-latest, single-sourced.
@@ -250,6 +251,9 @@ minimumReleaseAgeExclude:
   - '@ultrathink/*'
   - '@yuku-parser/*'
   - 'ecc-agentshield'
+  - '@socketoverride/*'
+  # published: 2025-09-23 | removable: 2025-09-30
+  - 'playwright-core@1.55.1'
 
 # Refuse transitive dependencies declared via git/tarball/local-tarball
 # specs — an npm package shouldn't be allowed to drag in a git URL we
@@ -272,6 +276,8 @@ overrides:
   '@socketsecurity/lib': 'catalog:'
   '@socketsecurity/registry': 'catalog:'
   '@socketsecurity/sdk': 'catalog:'
+  'semver@>=5.0.0 <7.6.0': '7.8.1'
+  'update-notifier@>=4.0.0': '7.3.1'
   'uuid': '11.1.1'
 
   # Repo-specific overrides below.
