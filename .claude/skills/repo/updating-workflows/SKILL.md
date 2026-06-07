@@ -66,12 +66,11 @@ recommendation.** A Layer 3 commit landing on `main` only means it merged — NO
 that it works. A merged-but-red propagation SHA (broken action, missing
 `external-tools.json`, a malware-flagged dependency surfaced by the install
 step, a lint/type regression) gets blasted to every consumer and breaks the
-entire fleet's CI at once. **Why:** 2026-06-01 a socket-registry shared-workflow
-SHA was cascaded to socket-lib before its CI was confirmed; socket-lib's CI then
-failed three different ways (lint debt, a `setup-and-install` `external-tools.json`
-path break, and a Socket-firewall malware flag on `@redwoodjs/agent-ci@0.16.2`) —
-all of which a CI-green check on the propagation SHA would have caught before a
-single consumer was touched.
+entire fleet's CI at once. **Why:** a shared-workflow SHA cascaded to a consumer
+before its CI was confirmed can fail the consumer several ways at once — lint
+debt the source layer carried, a `setup-and-install` path break, a malware flag
+the install step surfaces on a transitive dep — all of which a CI-green check on
+the propagation SHA catches before a single consumer is touched.
 
 Confirm the propagation SHA's CI run concluded **success** before touching Layer 4
 or any consumer:
