@@ -3,5 +3,11 @@
     "shared": {
       "runExclude": ["test/packages.test.mts"]
     }
+  },
+  "thresholds": {
+    "statements": 90,
+    "branches": 77,
+    "functions": 88,
+    "lines": 89
   }
 }
