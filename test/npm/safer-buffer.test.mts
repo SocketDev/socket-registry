@@ -2,7 +2,7 @@
  * @file Tests for @socketregistry/safer-buffer npm package override.
  */
 /* eslint-disable n/no-deprecated-api */
-/* max-file-lines: legitimate — exhaustive Buffer API parity matrix; the test surface is intrinsic to the package being tested and splitting it scatters one describe-tree across files. */
+/* max-file-lines: test — exhaustive Buffer API parity matrix; the test surface is intrinsic to the package being tested and splitting it scatters one describe-tree across files. */
 import buffer from 'node:buffer'
 import path from 'node:path'
 // eslint-disable-next-line n/no-extraneous-import

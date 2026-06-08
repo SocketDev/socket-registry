@@ -1,4 +1,4 @@
-/* max-file-lines: legitimate — monolithic npm-install driver (resolution + override application + nested traversal + progress UI). The phases share enough live state (tasks queue, override map, scoped-vs-unscoped branch) that splitting them produces a tangle of cross-file mutables. */
+/* max-file-lines: installer — monolithic npm-install driver (resolution + override application + nested traversal + progress UI). The phases share enough live state (tasks queue, override map, scoped-vs-unscoped branch) that splitting them produces a tangle of cross-file mutables. */
 
 /**
  * @file Script for installing npm packages with Socket overrides for testing.

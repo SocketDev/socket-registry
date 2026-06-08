@@ -1,7 +1,7 @@
 /**
  * @file Publish npm packages with version bump detection and retry logic.
  */
-/* max-file-lines: legitimate — single end-to-end publish workflow (version detection + retry + GH release); splitting would fragment one phased pipeline across three files. */
+/* max-file-lines: orchestration — single end-to-end publish workflow (version detection + retry + GH release); splitting would fragment one phased pipeline across three files. */
 
 import path from 'node:path'
 

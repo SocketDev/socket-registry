@@ -1,4 +1,4 @@
-/* max-file-lines: legitimate — shared package.json toolkit; every helper is co-consumed by multiple npm scripts and splitting would fan-out imports without a real domain seam (only ~22 LOC over the soft cap). */
+/* max-file-lines: toolkit — shared package.json toolkit; every helper is co-consumed by multiple npm scripts and splitting would fan-out imports without a real domain seam (only ~22 LOC over the soft cap). */
 /**
  * @file Common utilities for working with package.json files. Provides helper
  *   functions for reading, updating, and managing package.json files across the
