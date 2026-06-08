@@ -69,7 +69,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       expect(includes('foo[a-z]+(bar)?', '[a-z]+')).toBe(true)
       expect(() => includes('foo[a-z]+(bar)?', /[a-z]+/)).toThrow(TypeError)
       expect(includes('foo[a-z]+(bar)?', '(bar)?')).toBe(true)
-      expect(() => includes('foo[a-z]+(bar)?', /(bar)?/)).toThrow(TypeError) // socket-hook: allow capture
+      expect(() => includes('foo[a-z]+(bar)?', /(bar)?/)).toThrow(TypeError) // socket-lint: allow
     })
   })
 

@@ -14,7 +14,7 @@ module.exports = !isDateParseDaysOfMonthBuggy(DateParse)
       // Order mirrors the ECMAScript Date Time String Format grammar (4-digit
       // year before signed expanded year); reordering would change match priority.
       const yyyMmDdRegExp =
-        /^(?<yyyy>\d{4}|[+-]\d{6})(?:-(?<mm>\d{2})(?:-(?<dd>\d{2}))?)?/ // socket-hook: allow regex-alternation-order
+        /^(?<yyyy>\d{4}|[+-]\d{6})(?:-(?<mm>\d{2})(?:-(?<dd>\d{2}))?)?/ // socket-lint: allow regex-alternation-order
       // const yyyMmDdRegExp = new RegExp('^'
       //   + '(\\d{4}|[+-]\\d{6})' // four-digit year capture or sign + 6-digit expanded year
       // 	 + '(?:-(\\d{2})' // optional month capture

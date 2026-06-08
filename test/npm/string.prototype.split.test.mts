@@ -84,18 +84,18 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     it('splits with capturing groups', () => {
       expect(split('test', 't')).toEqual(['', 'es', ''])
       expect(split('test', /t/)).toEqual(['', 'es', ''])
-      expect(split('test', /(t)/)).toEqual(['', 't', 'es', 't', '']) // socket-hook: allow capture
+      expect(split('test', /(t)/)).toEqual(['', 't', 'es', 't', '']) // socket-lint: allow
 
       expect(split('test', 'es')).toEqual(['t', 't'])
       expect(split('test', /es/)).toEqual(['t', 't'])
-      expect(split('test', /(es)/)).toEqual(['t', 'es', 't']) // socket-hook: allow capture
+      expect(split('test', /(es)/)).toEqual(['t', 'es', 't']) // socket-lint: allow
 
-      const reTest = /(t)(e)(s)(t)/ // socket-hook: allow capture
+      const reTest = /(t)(e)(s)(t)/ // socket-lint: allow
       expect(split('test', reTest)).toEqual(['', 't', 'e', 's', 't', ''])
     })
 
     it('splits with complex HTML pattern', () => {
-      const reHtml = /<(\/)?([^<>]+)>/ // socket-hook: allow capture
+      const reHtml = /<(\/)?([^<>]+)>/ // socket-lint: allow
       expect(split('A<B>bold</B>and<CODE>coded</CODE>', reHtml)).toEqual([
         'A',
         undefined,
@@ -114,8 +114,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
 
     it('splits with repeated capture groups', () => {
-      expect(split('tesst', /(s)*/)).toEqual(['t', undefined, 'e', 's', 't']) // socket-hook: allow capture
-      const reGreedy = /(s)*?/ // socket-hook: allow capture
+      expect(split('tesst', /(s)*/)).toEqual(['t', undefined, 'e', 's', 't']) // socket-lint: allow
+      const reGreedy = /(s)*?/ // socket-lint: allow
       expect(split('tesst', reGreedy)).toEqual([
         't',
         undefined,
@@ -127,8 +127,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
         undefined,
         't',
       ])
-      expect(split('tesst', /(s*)/)).toEqual(['t', '', 'e', 'ss', 't']) // socket-hook: allow capture
-      const reGreedyAll = /(s*?)/ // socket-hook: allow capture
+      expect(split('tesst', /(s*)/)).toEqual(['t', '', 'e', 'ss', 't']) // socket-lint: allow
+      const reGreedyAll = /(s*?)/ // socket-lint: allow
       expect(split('tesst', reGreedyAll)).toEqual([
         't',
         '',
