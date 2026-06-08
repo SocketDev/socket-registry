@@ -1,3 +1,8 @@
+# EditorConfig — editor-agnostic source of truth for whitespace + width.
+# Mirrors the fleet oxfmt config (.config/fleet/oxfmtrc.json: useTabs false,
+# tabWidth 2, printWidth 80). oxfmt formats JS/TS; this reaches every other
+# editor + file type (JSON, YAML, Markdown, shell) so the whole tree agrees.
+# https://editorconfig.org
 root = true
 
 [*]
@@ -8,3 +13,11 @@ indent_style = space
 insert_final_newline = true
 max_line_length = 80
 trim_trailing_whitespace = true
+
+# Markdown trailing whitespace is significant (two spaces = hard line break).
+[*.md]
+trim_trailing_whitespace = false
+
+# Go uses tabs by convention; don't fight gofmt.
+[*.go]
+indent_style = tab
