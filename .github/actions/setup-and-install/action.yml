@@ -12,6 +12,8 @@ description: 'Aggregate: checkout + setup environment + install dependencies'
 #   - SocketDev/socket-registry/.github/actions/setup
 #     - SocketDev/socket-registry/.github/actions/debug
 #     - actions/setup-node@v6.2.0
+#   - SocketDev/socket-registry/.github/actions/cache-pnpm-store
+#     - actions/cache@v5.0.5
 #   - SocketDev/socket-registry/.github/actions/install
 #   - SocketDev/socket-registry/.github/actions/setup-go-toolchain (when setup-go: 'true')
 
@@ -91,6 +93,11 @@ runs:
         scope: ${{ inputs.scope }}
         registry-url: ${{ inputs.registry-url }}
         socket-api-token: ${{ inputs.socket-api-token != '' && inputs.socket-api-token || inputs.socket-api-key }}
+        working-directory: ${{ inputs.working-directory }}
+
+    - name: Cache pnpm store
+      uses: SocketDev/socket-registry/.github/actions/cache-pnpm-store@212bfe97b779279ee94b0b9ca86a0b1f6296f9a5 # main (2026-06-09)
+      with:
         working-directory: ${{ inputs.working-directory }}
 
     - name: Install dependencies
