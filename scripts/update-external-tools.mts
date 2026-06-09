@@ -84,10 +84,15 @@ interface GhRelease {
   tag_name: string
 }
 
+export interface GhApiLatestReleaseOptions {
+  includePrerelease: boolean
+}
+
 export async function ghApiLatestRelease(
   repo: string,
-  includePrerelease: boolean,
+  options: GhApiLatestReleaseOptions,
 ): Promise<GhRelease> {
+  const { includePrerelease } = options
   // Two tracks:
   //   stable     → `/releases/latest` returns the latest non-prerelease
   //                non-draft release. Good default for mature tools.
@@ -350,7 +355,7 @@ export async function updateTool(
 
   let release: GhRelease
   try {
-    release = await ghApiLatestRelease(primaryRepo, includePrerelease)
+    release = await ghApiLatestRelease(primaryRepo, { includePrerelease })
   } catch (e) {
     const msg = errorMessage(e)
     logger.warn(`Failed to fetch ${name} releases: ${msg}`)
@@ -405,7 +410,7 @@ export async function updateTool(
       let flavorRelease: GhRelease = release
       if (flavorRepo !== primaryRepo) {
         // eslint-disable-next-line no-await-in-loop
-        flavorRelease = await ghApiLatestRelease(flavorRepo, includePrerelease)
+        flavorRelease = await ghApiLatestRelease(flavorRepo, { includePrerelease })
       }
       // eslint-disable-next-line no-await-in-loop
       flavor.platforms = await recomputePlatforms(

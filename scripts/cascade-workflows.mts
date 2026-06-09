@@ -182,10 +182,15 @@ export async function rewriteFile(
   await fs.writeFile(file, text)
 }
 
+export interface RunIterationOptions {
+  dryRun: boolean
+  noVerify?: boolean | undefined
+}
+
 export async function runIteration(
-  dryRun: boolean,
-  noVerify: boolean = false,
+  options: RunIterationOptions,
 ): Promise<{ commits: number; converged: boolean }> {
+  const { dryRun, noVerify = false } = options
   const head = git('rev-parse', 'HEAD')
   const pins = await scanPins()
   const stale = pins.filter(p => isStale(p, head))
@@ -272,7 +277,7 @@ async function main(): Promise<void> {
       )
     }
     passes += 1
-    const { commits, converged } = await runIteration(dryRun, noVerify)
+    const { commits, converged } = await runIteration({ dryRun, noVerify })
     total += commits
     if (converged) {
       logger.log(
