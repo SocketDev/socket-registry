@@ -15,27 +15,24 @@ const {
   sockRegPkgName,
 } = setupNpmPackageTest(import.meta.url)
 
-const testArray = (actual: unknown[], expected: unknown[], _msg: string) => {
-  expect(actual).toEqual(expected)
-  expect(actual.length).toBe(expected.length)
-}
-
+// Assertions are inlined into each it() (rather than a shared helper) so they
+// live inside the test body — a standalone expect() in a module-scope helper
+// runs at collection time, not as a test assertion
+// (socket/no-vitest-standalone-expect).
 describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   describe('flattens', () => {
     it('missing depth only flattens 1 deep', () => {
-      testArray(
-        flat([1, [2], [[3]], [[['four']]]]),
-        [1, 2, [3], [['four']]],
-        'missing depth only flattens 1 deep',
-      )
+      expect(flat([1, [2], [[3]], [[['four']]]])).toEqual([1, 2, [3], [['four']]])
+      expect(flat([1, [2], [[3]], [[['four']]]]).length).toBe(4)
     })
 
     it('depth of 1 only flattens 1 deep', () => {
-      testArray(
-        flat([1, [2], [[3]], [[['four']]]], 1),
-        [1, 2, [3], [['four']]],
-        'depth of 1 only flattens 1 deep',
-      )
+      expect(flat([1, [2], [[3]], [[['four']]]], 1)).toEqual([
+        1,
+        2,
+        [3],
+        [['four']],
+      ])
       expect(flat([1, [2], [[3]], [[['four']]]], 1)).not.toEqual([
         1,
         2,
@@ -45,11 +42,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
 
     it('depth of 2 only flattens 2 deep', () => {
-      testArray(
-        flat([1, [2], [[3]], [[['four']]]], 2),
-        [1, 2, 3, ['four']],
-        'depth of 2 only flattens 2 deep',
-      )
+      expect(flat([1, [2], [[3]], [[['four']]]], 2)).toEqual([1, 2, 3, ['four']])
       expect(flat([1, [2], [[3]], [[['four']]]], 2)).not.toEqual([
         1,
         2,
@@ -59,19 +52,16 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
 
     it('depth of 3 only flattens 3 deep', () => {
-      testArray(
-        flat([1, [2], [[3]], [[['four']]]], 3),
-        [1, 2, 3, 'four'],
-        'depth of 3 only flattens 3 deep',
-      )
+      expect(flat([1, [2], [[3]], [[['four']]]], 3)).toEqual([1, 2, 3, 'four'])
     })
 
     it('depth of Infinity flattens all the way', () => {
-      testArray(
-        flat([1, [2], [[3]], [[['four']]]], Infinity),
-        [1, 2, 3, 'four'],
-        'depth of Infinity flattens all the way',
-      )
+      expect(flat([1, [2], [[3]], [[['four']]]], Infinity)).toEqual([
+        1,
+        2,
+        3,
+        'four',
+      ])
     })
   })
 
