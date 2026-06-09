@@ -33,12 +33,10 @@ import { fetchPackageManifest } from '@socketsecurity/lib-stable/packages/manife
 import { isDirEmptySync } from '@socketsecurity/lib-stable/fs/inspect'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { isValidPackageName } from '@socketsecurity/lib-stable/packages/validation'
-import {
-  extractPackage,
-  readPackageJson,
-  resolveGitHubTgzUrl,
-  resolveRegistryPackageName,
-} from '@socketsecurity/lib-stable/packages/operations'
+import { resolveGitHubTgzUrl } from '@socketsecurity/lib-stable/packages/fetch'
+import { readPackageJson } from '@socketsecurity/lib-stable/packages/read'
+import { resolveRegistryPackageName } from '@socketsecurity/lib-stable/packages/specs'
+import { extractPackage } from '@socketsecurity/lib-stable/packages/tarball'
 import {
   confirm,
   input,

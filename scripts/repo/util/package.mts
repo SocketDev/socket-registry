@@ -12,7 +12,7 @@ import path from 'node:path'
 import process from 'node:process'
 
 import { WIN32 } from '@socketsecurity/lib-stable/constants/platform'
-import { readPackageJson } from '@socketsecurity/lib-stable/packages/operations'
+import { readPackageJson } from '@socketsecurity/lib-stable/packages/read'
 import { pEach } from '@socketsecurity/lib-stable/promises/iterate'
 import { withSpinner } from '@socketsecurity/lib-stable/spinner/with'
 

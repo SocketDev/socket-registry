@@ -22,10 +22,8 @@ import { fetchPackageManifest } from '@socketsecurity/lib-stable/packages/manife
 import { resolveOriginalPackageName } from '@socketsecurity/lib-stable/packages/normalize'
 import { isBlessedPackageName } from '@socketsecurity/lib-stable/packages/validation'
 import { resolvePackageJsonEntryExports } from '@socketsecurity/lib-stable/packages/exports'
-import {
-  extractPackage,
-  readPackageJson,
-} from '@socketsecurity/lib-stable/packages/operations'
+import { readPackageJson } from '@socketsecurity/lib-stable/packages/read'
+import { extractPackage } from '@socketsecurity/lib-stable/packages/tarball'
 import {
   NPM,
   NPM_PACKAGES_PATH,

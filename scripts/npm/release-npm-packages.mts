@@ -10,12 +10,9 @@ import process from 'node:process'
 import { execScript } from '@socketsecurity/lib-stable/eco/npm/script'
 import { getAbortSignal } from '@socketsecurity/lib-stable/process/abort'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
-import {
-  extractPackage,
-  getReleaseTag,
-  readPackageJson,
-  readPackageJsonSync,
-} from '@socketsecurity/lib-stable/packages/operations'
+import { readPackageJson, readPackageJsonSync } from '@socketsecurity/lib-stable/packages/read'
+import { getReleaseTag } from '@socketsecurity/lib-stable/packages/specs'
+import { extractPackage } from '@socketsecurity/lib-stable/packages/tarball'
 import { pEach } from '@socketsecurity/lib-stable/promises/iterate'
 import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 import { getDefaultSpinner } from '@socketsecurity/lib-stable/spinner/default'

@@ -5,7 +5,7 @@
 import path from 'node:path'
 import { isDebug } from '@socketsecurity/lib-stable/debug/namespace'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
-import { readPackageJson } from '@socketsecurity/lib-stable/packages/operations'
+import { readPackageJson } from '@socketsecurity/lib-stable/packages/read'
 import { trimLeadingDotSlash } from '@socketsecurity/lib-stable/paths/normalize'
 import { pluralize } from '@socketsecurity/lib-stable/words/pluralize'
 import fastGlob from 'fast-glob'

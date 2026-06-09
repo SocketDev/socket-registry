@@ -11,10 +11,8 @@ import { joinAnd } from '@socketsecurity/lib-stable/arrays/join'
 import { getChangedFiles } from '@socketsecurity/lib-stable/git/changed'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { isPlainObject as isObjectObject } from '@socketsecurity/lib-stable/objects/predicates'
-import {
-  getReleaseTag,
-  readPackageJsonSync,
-} from '@socketsecurity/lib-stable/packages/operations'
+import { readPackageJsonSync } from '@socketsecurity/lib-stable/packages/read'
+import { getReleaseTag } from '@socketsecurity/lib-stable/packages/specs'
 import { pEach } from '@socketsecurity/lib-stable/promises/iterate'
 import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 import { pluralize } from '@socketsecurity/lib-stable/words/pluralize'
