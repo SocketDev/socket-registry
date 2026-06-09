@@ -6,7 +6,6 @@
 import { existsSync, promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 import parseArgsModule from '@socketsecurity/lib-stable/argv/parse'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import promisesModule from '@socketsecurity/lib-stable/promises/iterate'
@@ -14,13 +13,12 @@ import spawnModule from '@socketsecurity/lib-stable/process/spawn/child'
 import { deleteAsync as del } from 'del'
 import process from 'node:process'
 
+import { NPM_PACKAGES_PATH } from '../constants/paths.mts'
+
 const { parseArgs } = parseArgsModule
 const logger = getDefaultLogger()
 const { spawn } = spawnModule
 const { pEach } = promisesModule
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const PACKAGES_DIR = path.join(__dirname, '..', '..', 'packages', 'npm')
 
 const { values: cliArgs } = parseArgs({
   options: {
@@ -91,7 +89,7 @@ export async function getPackagesToValidate() {
     return cliArgs.package
   }
 
-  const entries = await fs.readdir(PACKAGES_DIR, { withFileTypes: true })
+  const entries = await fs.readdir(NPM_PACKAGES_PATH, { withFileTypes: true })
   return entries
     .filter(entry => entry.isDirectory() && !entry.name.startsWith('.'))
     .map(entry => entry.name)
@@ -315,7 +313,7 @@ export async function validateModuleResolution(_packageName, packageDir) {
  * Run all validations for a package.
  */
 export async function validatePackage(packageName) {
-  const packageDir = path.join(PACKAGES_DIR, packageName)
+  const packageDir = path.join(NPM_PACKAGES_PATH, packageName)
   const allIssues = []
 
   if (cliArgs.verbose) {

@@ -5,13 +5,12 @@
 
 import { existsSync } from 'node:fs'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 
 import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const rootPath = path.join(__dirname, '..', '..')
-const distPath = path.join(rootPath, 'registry', 'dist')
+import { ROOT_PATH } from '../../constants/paths.mts'
+
+const distPath = path.join(ROOT_PATH, 'registry', 'dist')
 const externalPath = path.join(
   distPath,
   'external',
@@ -47,7 +46,7 @@ export async function ensureDistBuilt(
 
   try {
     const result = await spawn('pnpm', ['build', '--fast', '--needed'], {
-      cwd: rootPath,
+      cwd: ROOT_PATH,
       stdio: silent ? 'pipe' : 'inherit',
     })
     return result.code ?? 0

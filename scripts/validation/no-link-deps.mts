@@ -5,15 +5,13 @@
 
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
+import { ROOT_PATH } from '../constants/paths.mts'
 import { runValidationScript } from '../repo/util/validation-runner.mts'
 
 const logger = getDefaultLogger()
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const rootPath = path.join(__dirname, '..', '..')
 
 /**
  * Check if a package.json contains link: dependencies.
@@ -117,7 +115,7 @@ export async function findPackageJsonFiles(dir) {
 async function main(): Promise<void> {
   await runValidationScript(
     async () => {
-      const packageJsonFiles = await findPackageJsonFiles(rootPath)
+      const packageJsonFiles = await findPackageJsonFiles(ROOT_PATH)
       const allViolations = []
 
       for (let i = 0, { length } = packageJsonFiles; i < length; i += 1) {
@@ -135,7 +133,7 @@ async function main(): Promise<void> {
 
         for (let i = 0, { length } = allViolations; i < length; i += 1) {
           const violation = allViolations[i]
-          const relativePath = path.relative(rootPath, violation.file)
+          const relativePath = path.relative(ROOT_PATH, violation.file)
           logger.log(`  ${relativePath}`)
           logger.log(
             `    ${violation.field}.${violation.package}: "${violation.value}"`,

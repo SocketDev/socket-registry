@@ -15,16 +15,14 @@
 
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
+import { ROOT_PATH } from '../constants/paths.mts'
 import { runValidationScript } from '../repo/util/validation-runner.mts'
 
 const logger = getDefaultLogger()
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const rootPath = path.join(__dirname, '..', '..')
 
 // Allowed SCREAMING_CASE markdown files (without .md extension for comparison)
 const ALLOWED_SCREAMING_CASE = new Set([
@@ -94,7 +92,7 @@ export async function findMarkdownFiles(dir, files = []) {
  * .md files must be within docs/ or .claude/ directories.
  */
 export function isInAllowedLocationForRegularMd(filePath) {
-  const relativePath = path.relative(rootPath, filePath)
+  const relativePath = path.relative(ROOT_PATH, filePath)
   const dir = path.dirname(relativePath)
 
   // Must be within docs/ (any depth)
@@ -116,7 +114,7 @@ export function isInAllowedLocationForRegularMd(filePath) {
  * only).
  */
 export function isInAllowedLocationForScreamingCase(filePath) {
-  const relativePath = path.relative(rootPath, filePath)
+  const relativePath = path.relative(ROOT_PATH, filePath)
   const dir = path.dirname(relativePath)
 
   // Allow at root level
@@ -141,7 +139,7 @@ export function isInAllowedLocationForScreamingCase(filePath) {
  * Check if file is in a monorepo package directory.
  */
 export function isInPackageDirectory(filePath) {
-  const relativePath = path.relative(rootPath, filePath)
+  const relativePath = path.relative(ROOT_PATH, filePath)
   const dir = path.dirname(relativePath)
 
   // Check if parent directory is packages/* or registry
@@ -185,7 +183,7 @@ export function isScreamingCase(filename) {
 export function validateFilename(filePath) {
   const filename = path.basename(filePath)
   const nameWithoutExt = filename.replace(/\.(?:MD|md)$/, '')
-  const relativePath = path.relative(rootPath, filePath)
+  const relativePath = path.relative(ROOT_PATH, filePath)
 
   // README.md and LICENSE (including LICENSE.*) are special - allowed anywhere
   if (
@@ -229,7 +227,7 @@ export function validateFilename(filePath) {
   // Check if it has .MD extension (should be .md)
   if (filename.endsWith('.MD')) {
     return {
-      file: path.relative(rootPath, filePath),
+      file: path.relative(ROOT_PATH, filePath),
       filename,
       issue: 'Extension should be lowercase .md',
       suggestion: filename.replace(/\.MD$/, '.md'),
@@ -271,7 +269,7 @@ export function validateFilename(filePath) {
  * Validate all markdown filenames.
  */
 export async function validateMarkdownFilenames() {
-  const files = await findMarkdownFiles(rootPath)
+  const files = await findMarkdownFiles(ROOT_PATH)
   const violations = []
 
   for (let i = 0, { length } = files; i < length; i += 1) {

@@ -5,18 +5,17 @@
 import { mkdtempSync, promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 import parseArgsModule from '@socketsecurity/lib-stable/argv/parse'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import spawnModule from '@socketsecurity/lib-stable/process/spawn/child'
 import { deleteAsync as del } from 'del'
 import process from 'node:process'
 
+import { ROOT_PATH } from '../constants/paths.mts'
+
 const { parseArgs } = parseArgsModule
 const logger = getDefaultLogger()
 const { spawn } = spawnModule
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 const { values: cliArgs } = parseArgs({
   options: {
@@ -53,13 +52,12 @@ export async function createTestEnvironment() {
   const tempDir = mkdtempSync(path.join(os.tmpdir(), 'ci-reproduce-'))
   logger.info(`Created temporary directory: ${tempDir}`)
 
-  const projectRoot = path.join(__dirname, '..', '..')
   logger.info('Copying project files…')
 
-  await fs.cp(projectRoot, tempDir, {
+  await fs.cp(ROOT_PATH, tempDir, {
     recursive: true,
     filter: source => {
-      const relativePath = path.relative(projectRoot, source)
+      const relativePath = path.relative(ROOT_PATH, source)
       // Exclude directories that should be reinstalled or regenerated in CI.
       return !(
         relativePath.includes('node_modules') ||

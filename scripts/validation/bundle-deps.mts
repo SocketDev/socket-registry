@@ -12,16 +12,14 @@
 import { promises as fs } from 'node:fs'
 import { builtinModules } from 'node:module'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
+import { ROOT_PATH } from '../constants/paths.mts'
 import { runValidationScript } from '../repo/util/validation-runner.mts'
 
 const logger = getDefaultLogger()
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const rootPath = path.join(__dirname, '..', '..')
 
 // Node.js builtins to ignore (including node: prefix variants)
 const BUILTIN_MODULES = new Set([
@@ -288,7 +286,7 @@ export function isValidPackageSpecifier(specifier) {
  * Read and parse package.json.
  */
 export async function readPackageJson() {
-  const packageJsonPath = path.join(rootPath, 'package.json')
+  const packageJsonPath = path.join(ROOT_PATH, 'package.json')
   const content = await fs.readFile(packageJsonPath, 'utf8')
   return JSON.parse(content)
 }
@@ -297,7 +295,7 @@ export async function readPackageJson() {
  * Validate bundle dependencies.
  */
 export async function validateBundleDeps() {
-  const distPath = path.join(rootPath, 'dist')
+  const distPath = path.join(ROOT_PATH, 'dist')
   const pkg = await readPackageJson()
 
   const dependencies = new Set(Object.keys(pkg.dependencies || {}))

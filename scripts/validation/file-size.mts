@@ -9,16 +9,14 @@
 
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
+import { ROOT_PATH } from '../constants/paths.mts'
 import { runValidationScript } from '../repo/util/validation-runner.mts'
 
 const logger = getDefaultLogger()
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const rootPath = path.join(__dirname, '..', '..')
 
 // Maximum file size: 2MB (2,097,152 bytes)
 const MAX_FILE_SIZE = 2 * 1024 * 1024
@@ -89,7 +87,7 @@ export async function scanDirectory(dir, violations = []) {
           // oxlint-disable-next-line socket/prefer-exists-sync -- need .size metadata
           const stats = await fs.stat(fullPath)
           if (stats.size > MAX_FILE_SIZE) {
-            const relativePath = path.relative(rootPath, fullPath)
+            const relativePath = path.relative(ROOT_PATH, fullPath)
             if (ALLOWED_LARGE_FILES.has(relativePath)) {
               continue
             }
@@ -116,7 +114,7 @@ export async function scanDirectory(dir, violations = []) {
  * Validate file sizes in repository.
  */
 export async function validateFileSizes() {
-  const violations = await scanDirectory(rootPath)
+  const violations = await scanDirectory(ROOT_PATH)
 
   // Sort by size descending (largest first)
   violations.sort((a, b) => b.size - a.size)

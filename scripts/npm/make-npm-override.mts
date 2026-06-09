@@ -86,7 +86,6 @@ const logger = getDefaultLogger()
 const require = createRequire(import.meta.url)
 
 const npmPackagesPath = NPM_PACKAGES_PATH
-const rootPath = ROOT_PATH
 const tsLibsAvailable = TS_LIBS_AVAILABLE
 const tsTypesAvailable = TS_TYPES_AVAILABLE
 
@@ -198,7 +197,7 @@ async function main(): Promise<void> {
   const sockRegPkgName = resolveRegistryPackageName(origPkgName)
   const pkgPath = path.join(npmPackagesPath, sockRegPkgName)
   if (existsSync(pkgPath) && !isDirEmptySync(pkgPath)) {
-    const relPkgPath = path.relative(rootPath, pkgPath)
+    const relPkgPath = path.relative(ROOT_PATH, pkgPath)
     logger.warn(`${origPkgName} already exists at ${relPkgPath}`)
     if (
       !(await confirm({
@@ -486,7 +485,7 @@ async function main(): Promise<void> {
   // Update monorepo package.json workspaces definition and test/npm files.
   try {
     const spawnOptions = {
-      cwd: rootPath,
+      cwd: ROOT_PATH,
       stdio: 'inherit',
     }
     await execScript('update:manifest', [], spawnOptions)

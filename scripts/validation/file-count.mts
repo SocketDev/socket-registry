@@ -7,17 +7,15 @@
  */
 
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 
+import { ROOT_PATH } from '../constants/paths.mts'
 import { runValidationScript } from '../repo/util/validation-runner.mts'
 
 const logger = getDefaultLogger()
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const rootPath = path.join(__dirname, '..', '..')
 
 // Maximum number of files in a single commit
 const MAX_FILES_PER_COMMIT = 50
@@ -28,7 +26,7 @@ const MAX_FILES_PER_COMMIT = 50
 export async function validateStagedFileCount() {
   try {
     const gitRootResult = await spawn('git', ['rev-parse', '--show-toplevel'], {
-      cwd: rootPath,
+      cwd: ROOT_PATH,
       stdioString: true,
     })
     if (!(gitRootResult.stdout as string).trim()) {
@@ -36,7 +34,7 @@ export async function validateStagedFileCount() {
     }
 
     const { stdout } = await spawn('git', ['diff', '--cached', '--name-only'], {
-      cwd: rootPath,
+      cwd: ROOT_PATH,
       stdioString: true,
     })
 

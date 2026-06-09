@@ -7,7 +7,6 @@
 import { existsSync, promises as fs, readdirSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
 import { WIN32 } from '@socketsecurity/lib-stable/constants/platform'
 import { getCI } from '@socketsecurity/lib-stable/env/ci'
@@ -19,18 +18,14 @@ import { LOG_SYMBOLS } from '@socketsecurity/lib-stable/logger/symbols'
 import { resolveOriginalPackageName } from '@socketsecurity/lib-stable/packages/normalize'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
+import { NPM_PACKAGES_PATH, TEST_NPM_PATH } from '../constants/paths.mts'
+
 const logger = getDefaultLogger()
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
-const rootPath = path.resolve(__dirname, '..', '..')
-
-const npmPackagesPath = path.join(rootPath, 'packages', 'npm')
-const testNpmPath = path.join(rootPath, 'test', 'npm')
-const testNpmPkgJsonPath = path.join(testNpmPath, 'package.json')
+const testNpmPkgJsonPath = path.join(TEST_NPM_PATH, 'package.json')
 
 export function getNpmPackageNames() {
-  return readdirSync(npmPackagesPath, { withFileTypes: true })
+  return readdirSync(NPM_PACKAGES_PATH, { withFileTypes: true })
     .filter(dirent => dirent.isDirectory() && !dirent.name.startsWith('.'))
     .map(dirent => dirent.name)
 }
@@ -67,7 +62,7 @@ export function writeProgress() {
 export async function validatePackage(socketPkgName) {
   const origPkgName = resolveOriginalPackageName(socketPkgName)
 
-  const overridePath = path.join(npmPackagesPath, socketPkgName)
+  const overridePath = path.join(NPM_PACKAGES_PATH, socketPkgName)
 
   if (!existsSync(overridePath)) {
     writeProgress(LOG_SYMBOLS.fail)
@@ -80,7 +75,7 @@ export async function validatePackage(socketPkgName) {
   }
 
   // Check if there's a manual test file for this package.
-  const manualTestPath = path.join(testNpmPath, `${socketPkgName}.test.mts`)
+  const manualTestPath = path.join(TEST_NPM_PATH, `${socketPkgName}.test.mts`)
   const hasManualTest = existsSync(manualTestPath)
 
   if (hasManualTest) {

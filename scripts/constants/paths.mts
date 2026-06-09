@@ -6,6 +6,8 @@ import { existsSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { findUpPackageJson } from '@socketsecurity/lib-stable/packages/find'
+
 import { getTsxExecPath } from './utils.mts'
 
 /**
@@ -25,9 +27,12 @@ export function findProjectRoot(): string {
     currentPath = path.dirname(currentPath)
   }
 
-  // Fallback.
-  const __dirname = path.dirname(__filename)
-  return normalizePath(path.resolve(__dirname, '..', '..'))
+  // Fallback: the directory holding the nearest package.json (walks up via the
+  // fleet lib helper, so it stays correct if this file moves).
+  const nearestPkg = findUpPackageJson(import.meta)
+  return normalizePath(
+    nearestPkg ? path.dirname(nearestPkg) : path.dirname(__filename),
+  )
 }
 
 /**

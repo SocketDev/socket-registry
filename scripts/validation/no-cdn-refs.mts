@@ -13,16 +13,14 @@
 
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
+import { ROOT_PATH } from '../constants/paths.mts'
 import { runValidationScript } from '../repo/util/validation-runner.mts'
 
 const logger = getDefaultLogger()
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const rootPath = path.join(__dirname, '..', '..')
 
 // CDN domains to block
 const CDN_PATTERNS = [
@@ -96,7 +94,7 @@ export async function checkFileForCdnRefs(filePath) {
         if (pattern.test(line)) {
           const match = line.match(pattern)
           violations.push({
-            file: path.relative(rootPath, filePath),
+            file: path.relative(ROOT_PATH, filePath),
             line: lineNumber,
             content: line.trim(),
             cdnDomain: match[0],
@@ -159,7 +157,7 @@ export function shouldScanFile(filename) {
  * Validate all files for CDN references.
  */
 export async function validateNoCdnRefs() {
-  const files = await findTextFiles(rootPath)
+  const files = await findTextFiles(ROOT_PATH)
   const allViolations = []
 
   for (let i = 0, { length } = files; i < length; i += 1) {
