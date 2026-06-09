@@ -127,13 +127,26 @@ function runtimeFilesChanged(sha: string, head: string): boolean {
   )
 }
 
+// True when a pin references the very file it lives in (a self-pin). ci.yml's
+// caller half pins the previous reusable `ci.yml` snapshot; bumping that pin
+// rewrites ci.yml, which re-staleifies the self-pin against the new HEAD — an
+// infinite cascade. A file can't meaningfully cascade its own subtree (the bump
+// IS the change being diffed), so self-pins are never "stale" for this loop.
+// They're advanced deliberately by the reusable→caller refactor, not the pin
+// cascade.
+export function isSelfPin(pin: Pin): boolean {
+  const containing = path.relative(REPO_ROOT, pin.file).replace(/\\/g, '/')
+  return containing === pin.pinPath
+}
+
 // A pin is stale when either the subtree it references differs
 // between its pinned SHA and HEAD, OR any RUNTIME_FILES (read at
 // action runtime relative to the action's checkout) differ between
 // those two SHAs. `git diff --quiet <sha> HEAD -- <path>` returns
-// 0 (no diff) or 1 (diff). Anything else is an error.
+// 0 (no diff) or 1 (diff). Anything else is an error. A self-pin (a file
+// pinning its own subtree) is never stale — it would cascade forever.
 export function isStale(pin: Pin, head: string): boolean {
-  if (pin.sha === head) {
+  if (pin.sha === head || isSelfPin(pin)) {
     return false
   }
   const r = spawnSync(
@@ -243,8 +256,22 @@ async function main(): Promise<void> {
     throw new Error('working tree is dirty — commit your change first')
   }
 
+  // Backstop: the pin DAG is shallow (leaf → aggregator → workflow), so a real
+  // cascade converges in a few passes. A higher count means a pin keeps
+  // re-staleifying itself (a self-pin the isStale guard missed) — fail loud
+  // instead of spewing commits (a prior runaway hit 54 before being killed).
+  const MAX_PASSES = 12
   let total = 0
+  let passes = 0
   for (;;) {
+    if (passes >= MAX_PASSES) {
+      throw new Error(
+        `cascade did not converge after ${MAX_PASSES} passes (${total} commits) — ` +
+          'a pin is likely self-referential and re-staleifying each pass. ' +
+          'Check isSelfPin / the pin DAG; do NOT keep cascading.',
+      )
+    }
+    passes += 1
     const { commits, converged } = await runIteration(dryRun, noVerify)
     total += commits
     if (converged) {
