@@ -6,6 +6,8 @@ The CLAUDE.md `### Token hygiene` section is the headline rule plus the canonica
 
 Never emit the raw value of any secret to tool output, commits, comments, or replies. The `.claude/hooks/fleet/token-guard/` `PreToolUse` hook blocks the deterministic patterns (literal token shapes, env dumps, `.env*` reads, unfiltered `curl -H "Authorization:"`, sensitive-name commands without redaction). When the hook blocks a command, rewrite. Don't bypass.
 
+A Write/Edit whose content carries a secret VALUE shape (`AKIA…`, `ghp_…`, `sktsec_…`, a JWT, a PEM key) is blocked at edit time — the twin of the commit-time scan (`.claude/hooks/fleet/secret-content-guard/`; bypass `Allow secret-content bypass`).
+
 Behavior the hook can't catch: redact `token` / `jwt` / `access_token` / `refresh_token` / `api_key` / `secret` / `password` / `authorization` fields when citing API responses. Show key _names_ only when displaying `.env.local`. If a user pastes a secret, treat it as compromised and ask them to rotate.
 
 Full hook spec in [`.claude/hooks/fleet/token-guard/README.md`](../../.claude/hooks/fleet/token-guard/README.md).

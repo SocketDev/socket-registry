@@ -22,7 +22,7 @@ const isCoverageEnabled =
 
 // Repo opt-out: globs that are safe to run in the faster non-isolated pool.
 const NON_ISOLATED_CONFIG = '.config/repo/vitest-non-isolated.json'
-function readNonIsolatedGlobs(): string[] {
+export function readNonIsolatedGlobs(): string[] {
   if (!existsSync(NON_ISOLATED_CONFIG)) {
     return []
   }

@@ -114,7 +114,7 @@ catalog:
   read-yaml-file: 2.1.0
   # Fleet bundler (replaces esbuild) for the published registry/ subpackage's
   # per-file build. Fleet-latest, single-sourced.
-  rolldown: 1.0.3
+  rolldown: 1.1.0
   semver: 7.7.4
   source-map-support: 0.5.21
   spdx-correct: 3.2.0
@@ -147,44 +147,56 @@ minimumReleaseAgeExclude:
   - '@socketbin/*'
   - '@socketregistry/*'
   - '@socketsecurity/*'
-  # Network-mocking lib used in fleet test suites. v15 betas pre-date
-  # npm's `time` field for the major; allow pinned beta until v15 GA.
-  # vite 8.0.14 ships rolldown 1.0.2 natively; the override forces 1.0.3.
-  # Scoped to the exact tag so a future vite 8.0.15 still soaks.
-  # rolldown 1.0.3 is the fleet bundler for the registry/ subpackage build;
-  # the per-platform bindings share its pin. `@rolldown/pluginutils` versions
-  # independently — rolldown depends on `^1.0.0` → resolves to 1.0.1. Listed
-  # explicitly per the fleet "no scope globs in soak excludes" rule.
-  # rolldown's AST/types layer. rolldown 1.0.3 pins `=0.133.0`.
-  - '@redwoodjs/agent-ci'
-  - 'dtu-github-actions'
-  - 'vite'
-  - 'rolldown'
-  - '@rolldown/pluginutils'
-  - '@rolldown/binding-android-arm64'
-  - '@rolldown/binding-darwin-arm64'
-  - '@rolldown/binding-darwin-x64'
-  - '@rolldown/binding-freebsd-x64'
-  - '@rolldown/binding-linux-arm-gnueabihf'
-  - '@rolldown/binding-linux-arm64-gnu'
-  - '@rolldown/binding-linux-arm64-musl'
-  - '@rolldown/binding-linux-ppc64-gnu'
-  - '@rolldown/binding-linux-s390x-gnu'
-  - '@rolldown/binding-linux-x64-gnu'
-  - '@rolldown/binding-linux-x64-musl'
-  - '@rolldown/binding-openharmony-arm64'
-  - '@rolldown/binding-wasm32-wasi'
-  - '@rolldown/binding-win32-arm64-msvc'
-  - '@rolldown/binding-win32-x64-msvc'
   - '@socketdev/*'
   - 'sfw'
   - 'socket-*'
-  - 'shell-quote'
   - '@stuie/*'
   - '@ultrathink/*'
   - '@yuku-parser/*'
   - 'ecc-agentshield'
   - '@socketoverride/*'
+  # published: 2026-05-22 | removable: 2026-05-29
+  - '@redwoodjs/agent-ci@0.16.2'
+  # published: 2026-05-22 | removable: 2026-05-29
+  - 'dtu-github-actions@0.16.2'
+  # published: 2026-05-22 | removable: 2026-05-29
+  - 'shell-quote@1.8.4'
+  # published: 2026-05-21 | removable: 2026-05-28
+  - 'vite@8.0.14'
+  # published: 2026-05-27 | removable: 2026-06-03
+  - 'rolldown@1.0.3'
+  # published: 2026-05-13 | removable: 2026-05-20
+  - '@rolldown/pluginutils@1.0.1'
+  # published: 2026-05-27 | removable: 2026-06-03
+  - '@rolldown/binding-android-arm64@1.0.3'
+  # published: 2026-05-27 | removable: 2026-06-03
+  - '@rolldown/binding-darwin-arm64@1.0.3'
+  # published: 2026-05-27 | removable: 2026-06-03
+  - '@rolldown/binding-darwin-x64@1.0.3'
+  # published: 2026-05-27 | removable: 2026-06-03
+  - '@rolldown/binding-freebsd-x64@1.0.3'
+  # published: 2026-05-27 | removable: 2026-06-03
+  - '@rolldown/binding-linux-arm-gnueabihf@1.0.3'
+  # published: 2026-05-27 | removable: 2026-06-03
+  - '@rolldown/binding-linux-arm64-gnu@1.0.3'
+  # published: 2026-05-27 | removable: 2026-06-03
+  - '@rolldown/binding-linux-arm64-musl@1.0.3'
+  # published: 2026-05-27 | removable: 2026-06-03
+  - '@rolldown/binding-linux-ppc64-gnu@1.0.3'
+  # published: 2026-05-27 | removable: 2026-06-03
+  - '@rolldown/binding-linux-s390x-gnu@1.0.3'
+  # published: 2026-05-27 | removable: 2026-06-03
+  - '@rolldown/binding-linux-x64-gnu@1.0.3'
+  # published: 2026-05-27 | removable: 2026-06-03
+  - '@rolldown/binding-linux-x64-musl@1.0.3'
+  # published: 2026-05-27 | removable: 2026-06-03
+  - '@rolldown/binding-openharmony-arm64@1.0.3'
+  # published: 2026-05-27 | removable: 2026-06-03
+  - '@rolldown/binding-wasm32-wasi@1.0.3'
+  # published: 2026-05-27 | removable: 2026-06-03
+  - '@rolldown/binding-win32-arm64-msvc@1.0.3'
+  # published: 2026-05-27 | removable: 2026-06-03
+  - '@rolldown/binding-win32-x64-msvc@1.0.3'
 
 # Refuse transitive dependencies declared via git/tarball/local-tarball
 # specs — an npm package shouldn't be allowed to drag in a git URL we

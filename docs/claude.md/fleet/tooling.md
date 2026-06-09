@@ -6,9 +6,33 @@ The CLAUDE.md `### Tooling` section is the short list. This file is the full set
 
 `pnpm`. Run scripts via `pnpm run foo --flag`, never `foo:bar`. After `package.json` edits, `pnpm install`.
 
-## No `npx` / `dlx`
+## No `npx` / `dlx` / `<pm> exec`
 
-NEVER use `npx`, `pnpm dlx`, or `yarn dlx`. Use `pnpm exec <package>` or `pnpm run <script>` # socket-lint: allow npx
+NEVER use `npx`, `pnpm dlx`, `yarn dlx`, NOR `pnpm`/`npm`/`yarn exec`. Run `node_modules/.bin/<tool>` or `pnpm run <script>`. Enforced by `.claude/hooks/fleet/no-pm-exec-guard/`; bypass `Allow pm-exec bypass`.
+
+## No `--experimental-strip-types`
+
+NEVER pass `--experimental-strip-types` to `node`. Runners are `.mts` executed by a Node version that strips types natively, or via the repo's own toolchain — the experimental flag changes parsing/semantics and is forbidden (`.claude/hooks/fleet/no-strip-types-guard/`).
+
+## Never pipe install/check/test/build to `tail`/`head`
+
+The Socket Firewall (SFW) footer carries malware/soak warnings; piping `pnpm install`/`check`/`test`/`build` output to `tail` or `head` hides it. Let the full output through (`.claude/hooks/fleet/no-tail-install-out-guard/`).
+
+## Python: never `pip` / `pip3`
+
+Python tooling goes through `@socketsecurity/lib/external-tools/pypa-tool`; the dev shortcut is `pipx install <pkg>==<ver>` (pinned). Never bare `pip`/`pip3` (`.claude/hooks/fleet/prefer-pipx-over-pip-guard/`).
+
+## Reserved `scripts/` dir names
+
+Script tiers are `scripts/fleet/` + `scripts/repo/`; name any other dir for its job, never a build/output concept (`build`, `dist`, `node_modules`, `coverage`, `cache`). Bypass `Allow reserved-script-dir bypass` (`.claude/hooks/fleet/reserved-script-dir-guard/`).
+
+## CDN allowlist
+
+A `curl`/`wget`/`fetch` to an off-allowlist host is blocked — fetch only from approved public package registries / CDNs (`_shared/cdn-allowlist.mts` seed; public hosts only, NEVER an internal `*.svc.cluster.local`). Bypass `Allow cdn-allowlist bypass` (`.claude/hooks/fleet/cdn-allowlist-guard/`).
+
+## Package-manager auto-update OFF
+
+Every package manager the fleet uses for tooling (`brew`/`choco`/`winget`/`scoop`/`npm`/`pnpm`) must have auto-update disabled, so an invocation can't change a tool version mid-task or pull an unsoaked package. Knobs set by `setup-security-tools`, audited in `check --all`, enforced at invocation. Bypass `Allow package-manager-auto-update bypass` (or `Allow <name> auto-update bypass` per manager) (`.claude/hooks/fleet/package-manager-auto-update-guard/`).
 
 ## Docs lead with pnpm
 

@@ -37,23 +37,49 @@ interface Payload {
   transcript_path?: unknown | undefined
 }
 
+// Matches a test-file path argument (`foo.test.mts`, `bar.spec.ts`, or a
+// glob like `test/*.test.mts`).
+function looksLikeTestFile(arg: string): boolean {
+  return (
+    /\.(?:test|spec)\.[cm]?[jt]sx?\b/.test(arg) ||
+    /[*?].*\.(?:test|spec)\./.test(arg)
+  )
+}
+
 function isNodeTestCommand(command: string): {
   detected: boolean
   testFiles: string[]
+  reason: 'node --test' | 'tsx loader' | 'tsx runner'
 } {
-  const cmds = commandsFor(command, 'node')
-  for (const { args } of cmds) {
-    const hasTestFlag = args.includes('--test')
-    if (!hasTestFlag) {
+  // (a) `node --test [--import tsx] <files>` — the built-in runner.
+  const nodeCmds = commandsFor(command, 'node')
+  for (const { args } of nodeCmds) {
+    if (!args.includes('--test')) {
       continue
     }
-    // Collect positional args (test file paths) — everything after --test
-    // that doesn't start with --
     const testIdx = args.indexOf('--test')
     const files = args.slice(testIdx + 1).filter(a => !a.startsWith('-'))
-    return { detected: true, testFiles: files }
+    // `--import tsx` / `--loader tsx` on a node --test run is the same
+    // anti-pattern wearing a TS loader.
+    const usesTsx = args.some(a => a === 'tsx' || a.includes('tsx'))
+    return {
+      detected: true,
+      testFiles: files,
+      reason: usesTsx ? 'tsx loader' : 'node --test',
+    }
   }
-  return { detected: false, testFiles: [] }
+  // (b) bare `tsx <file.test.mts>` / `ts-node <file.test.mts>` — running a
+  // test file through a TS loader instead of vitest.
+  for (const bin of ['tsx', 'ts-node'] as const) {
+    const cmds = commandsFor(command, bin)
+    for (const { args } of cmds) {
+      const files = args.filter(a => looksLikeTestFile(a))
+      if (files.length > 0) {
+        return { detected: true, testFiles: files, reason: 'tsx runner' }
+      }
+    }
+  }
+  return { detected: false, testFiles: [], reason: 'node --test' }
 }
 
 async function main(): Promise<void> {
@@ -77,7 +103,7 @@ async function main(): Promise<void> {
     process.exit(0)
   }
 
-  const { detected, testFiles } = isNodeTestCommand(command)
+  const { detected, testFiles, reason } = isNodeTestCommand(command)
   if (!detected) {
     process.exit(0)
   }
@@ -98,11 +124,19 @@ async function main(): Promise<void> {
       ? `node_modules/.bin/vitest run ${testFiles.join(' ')}`
       : 'node_modules/.bin/vitest run path/to/your.test.mts'
 
+  const blocked =
+    reason === 'node --test'
+      ? '`node --test` is the Node.js built-in runner.'
+      : reason === 'tsx loader'
+        ? '`node --test --import tsx` runs the built-in runner under a TS loader.'
+        : '`tsx`/`ts-node` is running a test file directly.'
+
   process.stderr.write(
     [
-      '[prefer-vitest-guard] Blocked: `node --test` is the Node.js built-in runner.',
+      `[prefer-vitest-guard] Blocked: ${blocked}`,
       '',
-      '  Fleet repos use vitest. Run the specific test file instead:',
+      '  Fleet repos use vitest for all tests — never node --test, tsx, or',
+      '  ts-node as a test runner. Run the specific test file instead:',
       `    ${suggestion}`,
       '',
       '  Or run the full suite:',
@@ -110,7 +144,7 @@ async function main(): Promise<void> {
       '',
       '  Targeting a specific file is faster and scopes coverage to your change.',
       '',
-      `  Bypass: type "${BYPASS_PHRASE}" to allow node --test for this invocation.`,
+      `  Bypass: type "${BYPASS_PHRASE}" to allow it for this invocation.`,
     ].join('\n') + '\n',
   )
   process.exit(2)

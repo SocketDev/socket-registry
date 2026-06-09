@@ -1126,10 +1126,13 @@ export const runStagedTestsReminder = (
 // actually present, and reads the whole file for the keys (they're often on
 // separate lines), so a call with the options nearby passes.
 //
-// The SDK `query` is the bare imported function — `query({…})`, never a method.
-// The negative lookbehind on `.` excludes unrelated method calls that happen to
-// be named query (`chrome.tabs.query(…)`, `db.query(…)`), which are not the SDK.
-const CLAUDE_DRIVER_RE = /(?:(?<!\.)\bquery|new\s+ClaudeSDKClient)\s*\(/
+// The SDK `query` is the bare imported function — `query({…})`, never a method
+// and never inside a string. The negative lookbehind excludes:
+//   - method calls named query (`chrome.tabs.query(…)`, `db.query(…)`) — the `.`
+//   - a `query(` opening INSIDE a string / template literal — the `` ` ``/`'`/`"`.
+//     The canonical false positive is a GraphQL request body
+//     (`query: ` + a backtick + `query($owner: …`), which is data, not a driver.
+const CLAUDE_DRIVER_RE = /(?:(?<![.`'"])\bquery|new\s+ClaudeSDKClient)\s*\(/
 const LOCKDOWN_KEYS = [
   'tools',
   'allowedTools',
@@ -1243,4 +1246,51 @@ export const scanAiConfigPoison = (text: string): LineHit[] => {
     }
   }
   return hits
+}
+
+// ── Catastrophic mass-deletion (pre-commit tier) ────────────────────
+//
+// The PreToolUse `mass-delete-guard` inspects the staged index when the `git
+// commit` Bash command is FIRST seen — but a pre-commit step (lint/test) can
+// stage deletions DURING the commit, after that check passed. A wedged
+// `pnpm test` once left the entire `.claude/` tree staged-for-deletion mid
+// commit, and the index snapshotted ~2400 deletions. This re-runs the same
+// catastrophic-deletion check at pre-commit time — the index here IS the
+// about-to-commit tree, post-churn — so no commit path can land a wipe.
+//
+// Thresholds kept in sync with .claude/hooks/fleet/mass-delete-guard/index.mts.
+const DELETE_FLOOR = 50
+const DELETE_RATIO = 0.75
+
+// The catastrophic-deletion reason for the CURRENT staged index, or undefined
+// when the staged deletions are within normal bounds. Pure of side effects
+// beyond the git reads; the test drives `catastrophicDeletionFromCounts`.
+export function catastrophicDeletionFromCounts(
+  deletions: number,
+  tracked: number,
+): string | undefined {
+  if (deletions >= DELETE_FLOOR) {
+    return `${deletions} files staged for deletion (≥ ${DELETE_FLOOR})`
+  }
+  const denom = Math.max(tracked, 1)
+  if (deletions / denom > DELETE_RATIO) {
+    return `${deletions} of ${tracked} tracked files staged for deletion (> ${Math.round(
+      DELETE_RATIO * 100,
+    )}%)`
+  }
+  return undefined
+}
+
+export function catastrophicDeletionReason(): string | undefined {
+  const deletions = gitLines(
+    'diff',
+    '--cached',
+    '--diff-filter=D',
+    '--name-only',
+  ).length
+  if (deletions === 0) {
+    return undefined
+  }
+  const tracked = gitLines('ls-files').length
+  return catastrophicDeletionFromCounts(deletions, tracked)
 }

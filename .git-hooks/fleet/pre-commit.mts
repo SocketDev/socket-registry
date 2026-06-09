@@ -14,6 +14,7 @@ import process from 'node:process'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
 import {
+  catastrophicDeletionReason,
   checkOxlintRuleWiringStaged,
   git,
   gitLines,
@@ -38,6 +39,24 @@ const logger = getDefaultLogger()
 
 const main = (): number => {
   logger.info('Running Socket Security checks…')
+  // Catastrophic mass-deletion gate — FIRST, unconditionally. The PreToolUse
+  // mass-delete-guard checked the index when the `git commit` command was seen,
+  // but a pre-commit step (lint/test) can stage deletions mid-commit, after
+  // that check passed. The index here IS the about-to-commit tree, so this is
+  // the last line of defense against a wipe (a wedged pnpm test once staged the
+  // whole .claude/ tree for deletion). Runs before the ACM-staged read because
+  // a pure-deletion commit has zero ACM files. No bypass — a wipe is never
+  // intentional; finish/abort the operation that staged it.
+  const wipeReason = catastrophicDeletionReason()
+  if (wipeReason) {
+    logger.fail('Refusing to commit: catastrophic mass deletion staged.')
+    logger.info(`  ${wipeReason}.`)
+    logger.info('')
+    logger.info('  A pre-commit step (lint/test) or a clobbered index likely')
+    logger.info('  staged these deletions. Inspect: git diff --cached --stat')
+    logger.info('  | tail. Restore the tree, then commit only what you meant.')
+    return 1
+  }
   // Normalize to POSIX forward slashes so downstream
   // `startsWith('.git-hooks/')` / `includes('/external/')` matchers
   // work the same on Windows (where git can return `\` separators).

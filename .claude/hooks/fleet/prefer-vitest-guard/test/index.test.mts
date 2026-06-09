@@ -48,6 +48,28 @@ test('blocks node --require hook --test file', () => {
   assert.equal(code, 2)
 })
 
+test('blocks node --test --import tsx <file>', () => {
+  const { code, stderr } = run('node --test --import tsx test/foo.test.mts')
+  assert.equal(code, 2)
+  assert.match(stderr, /node_modules\/\.bin\/vitest run/)
+})
+
+test('blocks bare tsx running a test file', () => {
+  const { code, stderr } = run('tsx test/unit/foo.test.mts')
+  assert.equal(code, 2)
+  assert.match(stderr, /vitest/)
+})
+
+test('blocks ts-node running a spec file', () => {
+  const { code } = run('ts-node src/foo.spec.ts')
+  assert.equal(code, 2)
+})
+
+test('allows tsx running a non-test script', () => {
+  const { code } = run('tsx scripts/build.mts')
+  assert.equal(code, 0)
+})
+
 test('allows node --run (pnpm script runner)', () => {
   const { code } = run('node --run test')
   assert.equal(code, 0)
