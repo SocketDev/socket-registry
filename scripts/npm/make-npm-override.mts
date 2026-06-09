@@ -21,7 +21,7 @@ import { isObject } from '@socketsecurity/lib-stable/objects/predicates'
 import { transform } from '@socketsecurity/lib-stable/streams/transform'
 import { indentString } from '@socketsecurity/lib-stable/strings/format'
 import { pluralize } from '@socketsecurity/lib-stable/words/pluralize'
-import { ReturnTypeEnums, default as didYouMean } from 'didyoumean2'
+import { default as didYouMean, ReturnTypeEnums } from 'didyoumean2'
 import fastGlob from 'fast-glob'
 import { open } from 'out-url'
 // oxlint-disable-next-line socket/prefer-stable-external-semver -- @socketsecurity/lib-stable has no ./external/semver export at the pinned version; semver is a devDependency (scripts/tests only, not bundled).

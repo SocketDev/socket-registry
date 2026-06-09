@@ -19,10 +19,10 @@ import { filterPackagesByChanges } from '../repo/util/git.mts'
 import { suppressMaxListenersWarning } from '../repo/util/suppress-warnings.mts'
 import { resolveOriginalPackageName } from '@socketsecurity/lib-stable/packages/normalize'
 import {
+  buildTestEnv,
   PNPM_HOISTED_INSTALL_FLAGS,
   PNPM_INSTALL_BASE_FLAGS,
   PNPM_INSTALL_ENV,
-  buildTestEnv,
   spawnCapture,
 } from '../repo/util/package.mts'
 

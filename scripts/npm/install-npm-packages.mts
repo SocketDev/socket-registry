@@ -122,9 +122,9 @@ import {
   TEST_NPM_PATH,
 } from '../constants/paths.mts'
 import {
+  copySocketOverride,
   PNPM_HOISTED_INSTALL_FLAGS,
   PNPM_INSTALL_ENV,
-  copySocketOverride,
 } from '../repo/util/package.mts'
 
 const ENV = { CI: getCI() }

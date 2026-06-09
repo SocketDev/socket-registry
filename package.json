@@ -150,7 +150,7 @@
     "strict": true
   },
   "engines": {
-    "node": ">=18",
+    "node": ">=22",
     "pnpm": ">=11.5.1"
   },
   "packageManager": "pnpm@11.5.1",
