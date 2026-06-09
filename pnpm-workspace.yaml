@@ -155,7 +155,8 @@ minimumReleaseAgeExclude:
   - '@yuku-parser/*'
   - 'ecc-agentshield'
   - '@socketoverride/*'
-  - 'shell-quote'
+  # published: 2026-05-22 | removable: 2026-05-29
+  - 'shell-quote@1.8.4'
 
 # Refuse transitive dependencies declared via git/tarball/local-tarball
 # specs — an npm package shouldn't be allowed to drag in a git URL we

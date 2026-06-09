@@ -35,6 +35,14 @@ describe('socket/require-regex-comment', () => {
           name: 'escape marker on the line suppresses the report',
           code: 'export const r = /(foo|bar|baz)+/ // socket-lint: allow uncommented-regex\n',
         },
+        {
+          name: 'comment above a wrapped assignment (regex on its own line) is fine',
+          code: '// breakdown of the parts\nconst r =\n  /(foo|bar|baz)+/\n',
+        },
+        {
+          name: 'comment above a wrapped call arg (regex on its own line) is fine',
+          code: 'const m = s.match(\n  // breakdown of the parts\n  /(foo|bar|baz)+/,\n)\n',
+        },
       ],
       invalid: [
         {

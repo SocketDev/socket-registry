@@ -77,7 +77,27 @@ function isComplexPattern(pattern: string): boolean {
   if (hasBackref) {
     return true
   }
+  // A group of ANY kind (capturing, non-capturing `(?:`, or lookaround)
+  // combined with an alternation is a multi-way structural switch (the
+  // docstring's "TOP-LEVEL alternation between non-trivial branches"). A bare
+  // `a|b` with no group is a simple either/or and stays exempt; `(?:x|^)y[…]`
+  // or `(a|b|c)+` is where a reader needs the breakdown. Use a plain paren
+  // presence check (not the capturing-only `groups` count, which a `(?:` can
+  // slip past depending on how the engine surfaces the pattern). The `|` must
+  // be a real alternation operator, not a literal inside a char class.
+  const stripped = stripCharClasses(pattern)
+  const hasAnyGroup = stripped.includes('(')
+  const hasAlternation = /(?:^|[^\\])\|/.test(stripped)
+  if (hasAnyGroup && hasAlternation) {
+    return true
+  }
   return false
+}
+
+// Remove `[...]` char-class contents so a `|` inside a class (a literal pipe,
+// e.g. `[a|b]`) isn't mistaken for an alternation operator.
+function stripCharClasses(pattern: string): string {
+  return pattern.replace(/\[(?:\\.|[^\]\\])*\]/g, '')
 }
 
 // Test files document their regexes through the test name + assertion; a
@@ -144,10 +164,22 @@ const rule = {
       if (isLineMarkered(ownLine)) {
         return
       }
-      // Explained when the regex's own line OR the line directly above carries
-      // a comment — the two places a reader looks for the pattern's intent.
+      // Explained when the regex's own line carries a comment, OR the line
+      // directly above does. A regex often wraps onto its own line
+      // (`const x =\n  /re/` or `s.match(\n  /re/)`); when the line directly
+      // above is JUST a continuation opener (ends with `=` or `(` — the
+      // assignment/call the regex completes), the breakdown comment sits one
+      // line higher, above the whole statement. Look there too. Bounded to that
+      // single extra hop so a comment isn't matched from arbitrarily far away.
+      if (lineHasComment(ownLine)) {
+        return
+      }
       const lineAbove = lineIdx > 0 ? lines[lineIdx - 1] : undefined
-      if (lineHasComment(ownLine) || lineHasComment(lineAbove)) {
+      if (lineHasComment(lineAbove)) {
+        return
+      }
+      const isContinuationOpener = /[=(]\s*$/.test(lineAbove ?? '')
+      if (isContinuationOpener && lineIdx > 1 && lineHasComment(lines[lineIdx - 2])) {
         return
       }
       context.report({
