@@ -44,7 +44,7 @@ export function ciLocalScript(repoDir: string): string | undefined {
     return undefined
   }
   const pkg = JSON.parse(readFileSync(pkgPath, 'utf8')) as {
-    scripts?: Record<string, string>
+    scripts?: Record<string, string> | undefined
   }
   return pkg.scripts?.['ci:local']
 }
