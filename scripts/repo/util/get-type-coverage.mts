@@ -25,6 +25,8 @@ export async function getTypeCoverage() {
   const percentageLine = lines.find(line => line.includes('%'))
 
   if (percentageLine) {
+    // Capture a percentage number before the `%` — integer or decimal (e.g.
+    // `98` or `98.7`).
     const match = percentageLine.match(/(\d+(?:\.\d+)?)%/)
     if (match) {
       return Number.parseFloat(match[1])

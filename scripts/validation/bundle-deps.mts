@@ -20,7 +20,6 @@ import { runValidationScript } from '../repo/util/validation-runner.mts'
 
 const logger = getDefaultLogger()
 
-
 // Node.js builtins to ignore (including node: prefix variants)
 const BUILTIN_MODULES = new Set([
   ...builtinModules,
@@ -34,11 +33,12 @@ export async function extractBundledPackages(filePath) {
   const content = await fs.readFile(filePath, 'utf8')
   const bundled = new Set()
 
-  // Match node_modules paths in comments: node_modules/.pnpm/@scope+package@version/...
-  // or node_modules/@scope/package/...
-  // or node_modules/package/...
+  // Match node_modules paths in comments and capture the package name. After
+  // `node_modules/` (+ optional `.pnpm/`), the alternation captures one of:
+  // (a) a pnpm-flattened scoped dir `@scope+pkg`, (b) a scoped pkg `@scope/pkg`,
+  // or (c) a plain unscoped pkg. Global.
   const nodeModulesPattern =
-    /node_modules\/(?:\.pnpm\/)?(@[^/]+\+[^@/]+|@[^/]+\/[^/]+|[^/@]+)/g
+    /node_modules\/(?:\.pnpm\/)?(@[^/]+\+[^@/]+|@[^/]+\/[^/]+|[^/@]+)/g // socket-lint: allow uncommented-regex
 
   let match = nodeModulesPattern.exec(content)
   while (match !== null) {

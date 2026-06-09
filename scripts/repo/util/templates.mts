@@ -226,10 +226,10 @@ export function prepareTemplate(content) {
     content
       // Replace strings that look like "//_ <%...%>" with <%...%>.
       // Enquoting the tags avoids syntax errors in JSON template files.
-      .replace(
-        /(["'])\/\/_\s*(<%[-_]?[=~]?[\s\S]+%>)\1/g,
-        (_match, _quote, tag) => tag,
-      )
+      // Regex: (1) an opening quote ' or ", then the literal `//_` + optional
+      // space, (2) the EJS tag `<%…%>` (with optional -/_/=/~ modifiers), then
+      // a backreference \1 to the SAME closing quote.
+      .replace(/(["'])\/\/_\s*(<%[-_]?[=~]?[\s\S]+%>)\1/g, (_m, _q, tag) => tag)
       // Strip single line comments start with //_
       .replace(/\/\/_\s*/g, '')
   )

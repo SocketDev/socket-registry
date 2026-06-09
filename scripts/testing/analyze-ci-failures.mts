@@ -48,8 +48,10 @@ const FAILURE_PATTERNS = {
     ],
   },
   ESLINT_PLUGIN_FAILED: {
+    // Match the ESLint "Failed to load plugin '<name>' declared in '<config>'"
+    // error: (1) the plugin name, (2) the config path — quotes are ' or ".
     pattern:
-      /Failed to load plugin ['"]([^'"]+)['"] declared in ['"]([^'"]+)['"]/,
+      /Failed to load plugin ['"]([^'"]+)['"] declared in ['"]([^'"]+)['"]/, // socket-lint: allow uncommented-regex
     category: 'ESLint Configuration',
     severity: 'error',
     extract: match => ({ plugin: match[1], config: match[2] }),

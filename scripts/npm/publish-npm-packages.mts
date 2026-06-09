@@ -134,6 +134,7 @@ export async function findVersionBumpCommits() {
 
   for (let i = 0, { length } = lines; i < length; i += 1) {
     const line = lines[i]
+    // Parse a `<hex-hash> <name>` line: (1) the leading hex digest, (2) the rest.
     const match = /^([a-f0-9]+) (.+)$/.exec(line)
     if (!match) {
       continue

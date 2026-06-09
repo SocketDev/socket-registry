@@ -50,6 +50,8 @@ export function extractDependencies(content) {
  */
 export function extractUsesStatements(content) {
   const statements = []
+  // Match a workflow `uses:` line: (1) leading indent, (2) owner, (3) repo+path,
+  // (4) the @ref (tag/sha), (5) optional trailing ` # comment`. Multiline+global.
   const usesRegex = /^(\s*)uses:\s*([^/\s]+)\/([^@\s]+)@([^\s#]+)(\s*#.*)?$/gm
 
   let match
