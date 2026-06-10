@@ -19,38 +19,35 @@
     "platforms": {
       "darwin-arm64": {
         "asset": "pnpm-darwin-arm64.tar.gz",
-        "integrity": "sha256-ZTPcYvQur8GWXvMXD7C/dQrlwwZND9m8xQvHLFuV5MI="
+        "integrity": "sha512-+njCJyMne1CsY+zbEQ5jtZcra4ivF0Qoqz33i4Y11CK3qpUtRF82Pri5cd7MkNOL6z9DZC+Yh74oTK/hPHizoQ=="
       },
       "darwin-x64": {
         "asset": "pnpm-11.5.1.tgz",
-        "integrity": "sha512-k/e1dCLqcGglcjW0wW62B2LraOHcI3IxmcxzkEPqm+LEFDJ0o5nYxt76KxF2Im2cocS2NILWIAwaj7qnjB0UhQ==",
-        "source": "npm-registry",
-        "binary": "package/dist/pnpm.cjs",
-        "notes": "Intel Mac uses the npm-registry JS tarball + system Node (no SEA binary). Upstream dropped darwin-x64 SEA in pnpm 11.0.5 due to nodejs/node#62893 (upstream LIEF/Mach-O bug Node has declined to fix)."
+        "integrity": "sha512-k/e1dCLqcGglcjW0wW62B2LraOHcI3IxmcxzkEPqm+LEFDJ0o5nYxt76KxF2Im2cocS2NILWIAwaj7qnjB0UhQ=="
       },
       "linux-arm64": {
         "asset": "pnpm-linux-arm64.tar.gz",
-        "integrity": "sha256-bx6dNtEqhKr9270CT56YEEqnAciI8F999fQUni/odHk="
+        "integrity": "sha512-ZQAphP4hXGXJsKhndmuw/kEnY5dTO4/cKbFRp3eUaaNOIYNz09OSQ7s413zXAPaglAX/ouMkHGM9lrOwVZluUw=="
       },
       "linux-arm64-musl": {
         "asset": "pnpm-linux-arm64-musl.tar.gz",
-        "integrity": "sha256-JK98JY133Trwd753daZ9RiCXhkRDtb1IuTuvEcW/5QA="
+        "integrity": "sha512-d1/Y5lZCTcxaTnozWWc2+csJJNYt8WMqpHAkwnRLJ1Zy25Jv51Qn2FjV+ouby4cmcQXpeHZ8r9rf87BKIOUC5w=="
       },
       "linux-x64": {
         "asset": "pnpm-linux-x64.tar.gz",
-        "integrity": "sha256-XOvC+gAsq8IAgHUUhCfhqnuqp98X3Z9SJuKxtAHoNYM="
+        "integrity": "sha512-CTF5w6EkAGDRzzlazYX4bN7vIg9n+/vtJ4F+sKRopmwO6k4cu8JHK4eCmv4inrci1n6MuHQM5+HnyRJr1DaPoA=="
       },
       "linux-x64-musl": {
         "asset": "pnpm-linux-x64-musl.tar.gz",
-        "integrity": "sha256-ED538lQigCqJxiBqCUZrBQQun45Akh2xd1UJRKvHiCw="
+        "integrity": "sha512-99DCyFxXBM4bKyAtv8Obg1mK4qtpklTIJctJry6x3tWvBEDZ1434+60UWDLhja1jfxlHtZfjn0GhDHoQVFosYQ=="
       },
       "win-arm64": {
         "asset": "pnpm-win32-arm64.zip",
-        "integrity": "sha256-Tb6ctvh3ROQWIQQuamVq1FdiazGg3DUXyLmxKLJeYaU="
+        "integrity": "sha512-bt+82stLlVQfozlVNApu9H0xvfYw5q43CVNd7KLNvYd9Ux5uW9CBnG9irhV7GzLNwBE4Qkqmfv91LUIu65w/mg=="
       },
       "win-x64": {
         "asset": "pnpm-win32-x64.zip",
-        "integrity": "sha256-d277dweDomLT3nHuAAFGCEXosMy5wabOugBfpH3C2Qs="
+        "integrity": "sha512-lTEm30JfT/Osq/pfTsyEONVgtYWqGTA2NwRtMvZCfDfrkCcUlNYES91IQ99CdAIvzJ6Sym/Cxi9dzO1ANGHw5g=="
       }
     }
   },
@@ -61,7 +58,10 @@
     "minVersion": "1.82.0",
     "minLlvmVersion": "19",
     "release": "rustup",
-    "components": ["rustc", "cargo"]
+    "components": [
+      "rustc",
+      "cargo"
+    ]
   },
   "sfw": {
     "notes": [
@@ -77,31 +77,31 @@
       "platforms": {
         "darwin-arm64": {
           "asset": "sfw-free-macos-arm64",
-          "integrity": "sha256-MZrrqT1eV8LbaNZwnloEqhIuMmstlaJ8EHTQqExWcDE="
+          "integrity": "sha512-lwh/AIf7HXVIrE28LDfvtJqnaGb7azC+Up8Hi/c9hIfn9wMRt55misCKx9b6CjYi+d3bHladYNYPlqVtlqNpcQ=="
         },
         "darwin-x64": {
           "asset": "sfw-free-macos-x86_64",
-          "integrity": "sha256-sF/KJci6E/rQGhbwW5nSG4Zlkca0b5xmL2i6MSC1obM="
+          "integrity": "sha512-iBLJ7bzrnnUPmUbN8FFzmXNYowWnahOD4DWzKYbneeCsvFa1xlHT4LaLWTysatd5npJIO7QOiRow6yw/tgjCWw=="
         },
         "linux-arm64": {
           "asset": "sfw-free-linux-arm64",
-          "integrity": "sha256-WYyNGcgIMu9cp/2wqfw1wEWEf9AoiRJqcRXANFpHjaM="
+          "integrity": "sha512-TZ0hzAzPyNfi1PgqU5+TzkrlBcWXZlXaSHkx1/wzIck4vlZXFQI8i7CCvWYihrJQ3zgEwVI30MmrqsJ9W7xWQw=="
         },
         "linux-arm64-musl": {
           "asset": "sfw-free-musl-linux-arm64",
-          "integrity": "sha256-sDbKuadvoHhUBID6ktZVm8LO3jaDqsu8WbkYkBVyBK4="
+          "integrity": "sha512-O+X0JxQJJn2YpAJFP38ZuG156pewgk+HJBVUTJZM8AMZSbERLy6LLDD2S8uwPXpMXDD9uRy8/h7EpRcu1OQLcw=="
         },
         "linux-x64": {
           "asset": "sfw-free-linux-x86_64",
-          "integrity": "sha256-UYJPAqJC+JLGHEIiPgW36Cu2JHYjN/Amr8KsIp/8rec="
+          "integrity": "sha512-Yuu+qoqxa0n7WIS9NMI3uuitUMoELbbUqJm3W6L2AsMJNZpVekXKmrZIhEjxWjJqvKt3mErKxK+izdP3/F+64Q=="
         },
         "linux-x64-musl": {
           "asset": "sfw-free-musl-linux-x86_64",
-          "integrity": "sha256-/jIdCw8MO7nITKYcQUVjIFs9J7ILAGGtXwwQjnCzlIg="
+          "integrity": "sha512-U4WJeq+/Z634uFvW0+Hvmb/BUutMeiZQ1dwP40/wKMiCDwKGPr+Unl4KqwaG3qaLjkTRJ938sUWQy+/gFeEmDg=="
         },
         "win-x64": {
           "asset": "sfw-free-windows-x86_64.exe",
-          "integrity": "sha256-gg0IaLeHCvtHwJTJNoZmv5rxh0TXXJRlM6M0tX7Z8Yo="
+          "integrity": "sha512-tkZHeaxydBStW6SsCi5S2jLMtdj2UQ/PdZb/ch8W532UjFdZUJD0oygW/YWliK0HQkcyw5GQm2d1iZU0P/yElg=="
         }
       }
     },
@@ -111,31 +111,31 @@
       "platforms": {
         "darwin-arm64": {
           "asset": "sfw-macos-arm64",
-          "integrity": "sha256-D52Q9TM9YuYwvSo+ZGDJlZld0T2+xCxY0RLJr/vCvMQ="
+          "integrity": "sha512-G7te2xB1Q+K/k/2Wijbn96eJZUZoNFlDNKURydLBLB69Jkuc1M1lNFbqxiyP8tfOlMIBKWxRwfZyeX9ipPy4Ew=="
         },
         "darwin-x64": {
           "asset": "sfw-macos-x86_64",
-          "integrity": "sha256-b2Q2wZlUhNyhUg501J0sKjNfOUKFGyZoVSvEolhqh0M="
+          "integrity": "sha512-/ogpJY01pDTEcvDPq09FNxGP5eXu4d+ab2RxT1r4he0ptfCOGOO3rQXfxTFqrOmS+OSz5RZe+4qPupM4nGriMQ=="
         },
         "linux-arm64": {
           "asset": "sfw-linux-arm64",
-          "integrity": "sha256-705i7ErN2Yk8NV6ni/zUWEsFYGI6cOGbzM2OMZ0tI6k="
+          "integrity": "sha512-oXhTWx/I/1yZRn0ik3DL5y2/4RZqv/msJpTi6m190jBGg/x7bgqJO4uCOUJe1+iudK3bNGsYB8zs6vIJTLwA7g=="
         },
         "linux-arm64-musl": {
           "asset": "sfw-musl-linux-arm64",
-          "integrity": "sha256-N9ZS28BhD5QIcSH1m95R2+oYyQpmkROTbdXCGZfvDo0="
+          "integrity": "sha512-VtvO4OkLNO7XW1YwY73WoIZeRp7sMg+LbdeL2CVy5bgysTnuBxKrkkJvW41BsuScVdf7nt/bh5V8ZBAMN993rg=="
         },
         "linux-x64": {
           "asset": "sfw-linux-x86_64",
-          "integrity": "sha256-klirLZpQsTIoESFp1yAQ86WswmiQI9E268x6omPu3us="
+          "integrity": "sha512-91W90AOLI0RBN6lsPor2wf7wUvV3hzebXf0SM7SEzVPGM76Yjwj2D5E/jtJ8LjNNE7afggUDEtgMvFSTmgnZDg=="
         },
         "linux-x64-musl": {
           "asset": "sfw-musl-linux-x86_64",
-          "integrity": "sha256-MqYo5paEQ1ChIF+O6LdvZmXK2uIjNnp+QyYeOcythxE="
+          "integrity": "sha512-5CUE3LnXKzRqoT7SmT/yDBtyVyiUqwKtgS11j7qEhb2KJI3kztBuUQwBoOKPxxwpS0X7R/DuANvax7pQ76f4xw=="
         },
         "win-x64": {
           "asset": "sfw-windows-x86_64.exe",
-          "integrity": "sha256-/Oac58s/MglUVyeFi3pdoxnaQp50zWk854iazWUbXOw="
+          "integrity": "sha512-GXKV67rN0XTP+2v9VTfzz84N09x9UkEItj2wmcA7pmy5YoLPF/+Z/XkVGoUHzVSTTeivbYicRLAxl8BNkoUZ6w=="
         }
       }
     }
@@ -157,23 +157,23 @@
     "platforms": {
       "darwin-arm64": {
         "asset": "zizmor-aarch64-apple-darwin.tar.gz",
-        "integrity": "sha256-Yk7w4JUhrs2GISa+D213VGaa8mRnUNaKxIoRS+M8MUY="
+        "integrity": "sha512-LUPNdfltqkBiFfPSUAWJovrH4kaqOoFQgn1ISEKc6yOmsUD1cYmKvnnsYfDP/Y1KsMua+BKNWJ3B9IMb0D1lpg=="
       },
       "darwin-x64": {
         "asset": "zizmor-x86_64-apple-darwin.tar.gz",
-        "integrity": "sha256-NTJxuewwHdS6FYr0gTI8gxxum0lNWsP1qljPSyB2mcw="
+        "integrity": "sha512-M/T9PX+FRG1VvfS34T3aXXJ95DjpnsxcJV767BHYfKhmy/oUecI4v3jIwDBGnDt52oDtZTHx9H0uMVKg9NaNOA=="
       },
       "linux-arm64": {
         "asset": "zizmor-aarch64-unknown-linux-gnu.tar.gz",
-        "integrity": "sha256-S0uUkREsKgmzGBAcDTNJtzrxxPUy4JfdbQFk8qvadg0="
+        "integrity": "sha512-SBFp8h++QWZEZ5SfkmPxElDUYy5u0JUkgbzlz90gmB3UPbKgOcYqKOn6mY1tha5+RriMmuNtZxtrAiihECMOFA=="
       },
       "linux-x64": {
         "asset": "zizmor-x86_64-unknown-linux-gnu.tar.gz",
-        "integrity": "sha256-qh+s0QXw2D/lxVsa3NnXQX3l2DqidHH5HcC2bPOANXc="
+        "integrity": "sha512-FSmYWvlOzySHwlI2IkoEQNHfRU/UitumuQJc+umYyYcDr50colg0Bzio74YS19sGH41leMdXu4KJtB5XM45eUg=="
       },
       "win-x64": {
         "asset": "zizmor-x86_64-pc-windows-msvc.zip",
-        "integrity": "sha256-ZdRqgUT3ASAGIbWA9jIHbYDQgtYIVt6fiHk6lftYgtc="
+        "integrity": "sha512-OhgPngI8gKygJFKa3VGk5y4S7KUuW5CPyBiI1WvfM58OHd5rUbdillfJeLsLhRbOMFAdigdUeZtNDyR6VPIs1A=="
       }
     }
   }
