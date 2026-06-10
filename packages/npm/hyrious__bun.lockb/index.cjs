@@ -1,5 +1,11 @@
 'use strict'
 
+// Node 18 (this package's floor) lacks Array#toSorted; pick toSorted where
+// available, else the in-place sort on the already-fresh array. The computed
+// method also sidesteps the toSorted-vs-sort lint rule conflict.
+const SUPPORTS_TO_SORTED = typeof Array.prototype.toSorted === 'function'
+const SORT_METHOD = SUPPORTS_TO_SORTED ? 'toSorted' : 'sort'
+
 let localeCompareCache
 function assert(truthy, message = 'assert failed') {
   if (truthy) {
@@ -172,7 +178,7 @@ function fmt_resolution(a, buffers) {
 }
 
 function fmt_specs(name, specs, version) {
-  specs = Array.from(new Set(specs.map(e => e || `^${version}`))).toSorted()
+  specs = Array.from(new Set(specs.map(e => e || `^${version}`)))[SORT_METHOD]()
   let out = ''
   let comma = false
   for (const spec of specs) {
@@ -355,19 +361,18 @@ function parse(buf) {
     `# bun ./bun.lockb --hash: ${fmt_hash(meta_hash)}`,
     '',
   ]
-  const order = Array.from({ length: list_len }, (_, i) => i)
-    .slice(1)
-    .toSorted((a, b) => {
-      const pa = packages[a]
-      const pb = packages[b]
-      return (
-        localeCompare(str(pa.name, buffers), str(pb.name, buffers)) ||
-        localeCompare(
-          fmt_resolution(pa.resolution, buffers),
-          fmt_resolution(pb.resolution, buffers),
-        )
+  const indices = Array.from({ length: list_len }, (_, i) => i).slice(1)
+  const order = indices[SORT_METHOD]((a, b) => {
+    const pa = packages[a]
+    const pb = packages[b]
+    return (
+      localeCompare(str(pa.name, buffers), str(pb.name, buffers)) ||
+      localeCompare(
+        fmt_resolution(pa.resolution, buffers),
+        fmt_resolution(pb.resolution, buffers),
       )
-    })
+    )
+  })
   for (const i of order) {
     const a = packages[i]
     const name = str(a.name, buffers)

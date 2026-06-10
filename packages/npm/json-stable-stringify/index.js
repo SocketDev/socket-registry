@@ -105,7 +105,7 @@ function sortAndStringifyWithSpace(value, space, opts) {
         )
       })
     } else {
-      keys = SUPPORTS_TO_SORTED ? keys.toSorted() : keys.toSorted()
+      keys = keys[SUPPORTS_TO_SORTED ? 'toSorted' : 'sort']()
     }
 
     seen.add(val)
@@ -153,7 +153,7 @@ function sortKeysFast(value) {
   }
   // Sort object keys
   const sorted = {}
-  const keys = ObjectKeys(value).toSorted()
+  const keys = ObjectKeys(value)[SUPPORTS_TO_SORTED ? 'toSorted' : 'sort']()
   for (let i = 0, { length } = keys; i < length; i += 1) {
     const key = keys[i]
     sorted[key] = sortKeysFast(value[key])
@@ -229,7 +229,7 @@ function sortKeysIterative(root) {
         parent[key] = obj
       }
 
-      const keys = ObjectKeys(value).toSorted()
+      const keys = ObjectKeys(value)[SUPPORTS_TO_SORTED ? 'toSorted' : 'sort']()
       const { length } = keys
       for (let i = length - 1; i >= 0; i -= 1) {
         const k = keys[i]
@@ -310,7 +310,7 @@ function sortKeysWithOptions(value, opts, seen) {
         )
       })
     } else {
-      keys = SUPPORTS_TO_SORTED ? keys.toSorted() : keys.toSorted()
+      keys = keys[SUPPORTS_TO_SORTED ? 'toSorted' : 'sort']()
     }
 
     const sorted = {}
