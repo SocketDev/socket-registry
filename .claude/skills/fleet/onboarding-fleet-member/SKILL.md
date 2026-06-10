@@ -77,14 +77,14 @@ Detect and record (the marker groups these as `repo` + `build`):
 
 5. **Linter/formatter → oxlint + oxfmt.** Remove `.eslintrc*` / `eslint.config.*` /
    `biome.json` / `.prettierrc*` and their deps. Install the fleet oxlint plugin
-   (cascaded under `.config/fleet/oxlint-plugin/`) + `oxlintrc.json` (comes via the
+   (cascaded under `.config/oxlint-plugin/`) + `oxlintrc.json` (comes via the
    cascade in step 6). Rewrite `lint`/`fix` scripts to the fleet form. Genuinely
    repo-specific rules → `.config/repo/` overrides, never inline disables.
 
 6. **Scaffolding cascade.** Run `pnpm run onboard -- --target <repo>` (which backs up,
    spins a temp worktree, runs `sync-scaffolding --fix`) OR the `cascading-fleet` skill.
    This installs the fleet-canonical trees (`.claude/`, `.config/fleet/`, `.git-hooks/`,
-   `scripts/fleet/`, `docs/claude.md/fleet/`, canonical scripts). Review the diff.
+   `scripts/fleet/`, `docs/agents.md/fleet/`, canonical scripts). Review the diff.
 
 7. **Bundler → rolldown, CJS output.** The fleet ships a **CJS bundle** built by rolldown
    (`format: 'cjs'`), even though source is ESM. Convert esbuild/tsup/tsc-emit to a
@@ -110,7 +110,7 @@ Detect and record (the marker groups these as `repo` + `build`):
     replace the bespoke parser with the fleet impl + catalog dep + override.
 
 12. **repo/\* overlays.** Move genuinely repo-specific hooks/docs/scripts/config to the
-    `repo/` tier: `.claude/hooks/repo/`, `docs/claude.md/repo/`, `scripts/repo/`,
+    `repo/` tier: `.claude/hooks/repo/`, `docs/agents.md/repo/`, `scripts/repo/`,
     `.config/repo/` — so they survive the cascade and aren't fleet-canonical forks.
 
 13. **CLAUDE.md.** Run `node scripts/repo/migrate-claude-md.mts --target <repo> --apply`
@@ -124,17 +124,11 @@ Detect and record (the marker groups these as `repo` + `build`):
     `<PUBLISHED_NAME>` (the npm name), `<REPO_SLUG>` (the GitHub repo), `<PCT>` (measured
     coverage). No `socket-wheelhouse` mentions, no sibling-relative script paths. Include
     the **light/dark Socket logo footer** after License — the `<picture>` block from
-    `template/README.md` referencing `assets/socket-logo-dark.svg` (dark mode) +
-    `assets/socket-logo-light.svg` (light mode). If the repo has an OLD logo block (a
+    `template/README.md` referencing the cascaded `assets/socket-logo-dark.svg` (dark mode)
+    + `assets/socket-logo-light.svg` (light mode). If the repo has an OLD logo block (a
     plain `<img>`, or broken `logo-white.png`/`logo-black.png` refs like socket-mcp's),
-    REPLACE it with the canonical `<picture>` form.
-    **Prerequisite — install the assets first.** The wordmark SVGs live in
-    `OPTIONAL_IDENTICAL_FILES` (opt-in: the cascade only mirrors `assets/` when the dir
-    already exists). A footer referencing absent assets is a BROKEN image (the exact bug
-    in socket-mcp). So before adding the footer, create the repo's `assets/` dir and copy
-    `socket-logo-{dark,light}.svg` (+ the `.png` fallbacks) from `template/assets/`, then
-    re-run the cascade so the assets are tracked. Verify the srcset paths resolve to real
-    files before committing.
+    REPLACE it with the canonical `<picture>` form. The SVG wordmarks ship via the
+    `assets/` cascade, so the relative `assets/...` srcset resolves in every repo.
 
 15. **Dependency dedupe via overrides.** Add the repo's shared fleet deps to
     `pnpm-workspace.yaml` `overrides:` pinned to `catalog:` so the bundle collapses

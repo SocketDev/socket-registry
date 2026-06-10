@@ -9,7 +9,47 @@ import {
   scanAiConfigPoison,
   scanProgrammaticClaudeLockdown,
   scanSoakExcludeDateAnnotations,
+  stripScanLabels,
 } from '../helpers.mts'
+
+// ── stripScanLabels (commit-msg twin of scan-label-in-commit-guard) ──
+
+test('scan-label: scrubs a label from the subject and counts it', () => {
+  const { cleaned, removed } = stripScanLabels(
+    'fix(http-request): B5 download truncation race',
+  )
+  assert.equal(removed, 1)
+  assert.equal(cleaned, 'fix(http-request): download truncation race')
+})
+
+test('scan-label: scrubs every B/M/H/L shape and counts each', () => {
+  const { cleaned, removed } = stripScanLabels('fix: B1 M9 H3 L4 cleanup')
+  assert.equal(removed, 4)
+  assert.equal(cleaned, 'fix: cleanup')
+})
+
+test('scan-label: leaves a clean message untouched (removed === 0)', () => {
+  const msg = 'fix(scan): handle empty manifest'
+  const { cleaned, removed } = stripScanLabels(msg)
+  assert.equal(removed, 0)
+  assert.equal(cleaned, msg)
+})
+
+test('scan-label: does NOT scrub 5+-digit IDs or hyphen-adjacent shapes', () => {
+  // B12345 (5 digits = a real ID) and GHSA-B1-… (hyphen-adjacent) are the
+  // guard\'s documented non-matches.
+  const msg = 'fix: bump B12345 and cite GHSA-B1-xxxx'
+  const { cleaned, removed } = stripScanLabels(msg)
+  assert.equal(removed, 0)
+  assert.equal(cleaned, msg)
+})
+
+test('scan-label: preserves labels inside fenced code blocks', () => {
+  const msg = 'fix: real change\n\n```\nB5 came from the report output\n```'
+  const { cleaned, removed } = stripScanLabels(msg)
+  assert.equal(removed, 0)
+  assert.equal(cleaned, msg)
+})
 
 // ── scanProgrammaticClaudeLockdown (HARD block) ─────────────────
 

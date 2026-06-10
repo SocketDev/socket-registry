@@ -70,7 +70,7 @@ test('blocks a CHANGELOG.md write carrying an antipattern', () => {
 
 test('blocks a docs/**/*.md write carrying an antipattern', () => {
   const { exitCode } = runGuard({
-    file_path: '/p/socket-lib/docs/claude.md/fleet/foo.md',
+    file_path: '/p/socket-lib/docs/agents.md/fleet/foo.md',
     content: "Here's the thing about caching.",
   })
   assert.equal(exitCode, 2)

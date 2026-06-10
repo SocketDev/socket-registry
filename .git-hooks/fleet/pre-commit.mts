@@ -18,6 +18,7 @@ import {
   checkOxlintRuleWiringStaged,
   git,
   gitLines,
+  mergeInProgress,
   normalizePath,
   readFileForScan,
   runStagedTestsReminder,
@@ -30,9 +31,11 @@ import {
   scanPackageJsonPnpmOverrides,
   scanPersonalPaths,
   scanPrivateKeys,
+  scanSoakExcludeDateAnnotations,
   scanSocketApiKeys,
   shouldSkipFile,
   socketLintMarkerFor,
+  stagedIndexIsEmpty,
 } from '../_shared/helpers.mts'
 
 const logger = getDefaultLogger()
@@ -57,6 +60,35 @@ const main = (): number => {
     logger.info('  | tail. Restore the tree, then commit only what you meant.')
     return 1
   }
+  // Empty-commit gate — the commit-time twin of the no-empty-commit-guard
+  // PreToolUse hook (which blocks `git commit --allow-empty` at Claude tool
+  // time). A commit made outside Claude — or one that reaches the index empty
+  // for any other reason — must not produce a zero-diff commit: empty commits
+  // pollute `git log`, break CHANGELOG generators (which expect each commit to
+  // carry a diff), and hide intent. `git diff --cached --quiet` is the
+  // canonical emptiness signal (spans every filter, so a pure-deletion commit
+  // — already cleared by the catastrophic-deletion gate above — reports
+  // non-empty and is allowed through). A merge / cherry-pick / revert in
+  // progress legitimately records no staged delta of its own, so it is
+  // exempt. Bypass: --no-verify (skips this hook entirely; matches the
+  // --allow-empty channel's intent for the rare deliberate waypoint).
+  if (stagedIndexIsEmpty() && !mergeInProgress()) {
+    logger.fail('Refusing to commit: the staged index is empty.')
+    logger.info('  where: git index (nothing staged relative to HEAD)')
+    logger.info('  saw:   an empty commit (no file added, changed, or deleted)')
+    logger.info('  want:  every commit carries a diff')
+    logger.info('')
+    logger.info('Fix:')
+    logger.info('  stage your change (git add <file>), then commit; or')
+    logger.info('  to anchor a release tag forward, tag the real content')
+    logger.info('  commit instead: git tag -f vX.Y.Z <real-content-commit>.')
+    logger.info('')
+    logger.info(
+      '  A genuine no-content waypoint needs git commit --no-verify.',
+    )
+    return 1
+  }
+
   // Normalize to POSIX forward slashes so downstream
   // `startsWith('.git-hooks/')` / `includes('/external/')` matchers
   // work the same on Windows (where git can return `\` separators).
@@ -66,8 +98,11 @@ const main = (): number => {
     '--name-only',
     '--diff-filter=ACM',
   ).map(normalizePath)
+  // No add/change/modify staged — but the empty-index gate above already
+  // proved the commit is non-empty (a pure-deletion or merge commit). Nothing
+  // for the content scanners to read, so the security sweep is a no-op.
   if (stagedFiles.length === 0) {
-    logger.success('No files to check')
+    logger.success('No files to scan')
     return 0
   }
 
@@ -269,6 +304,35 @@ const main = (): number => {
         'Move dependency overrides to pnpm-workspace.yaml `overrides:`.',
       )
       errors++
+    }
+  }
+
+  // Soak-exclude date annotations (HARD block, pnpm-workspace.yaml). Every
+  // exact-pin soak-bypass entry under `minimumReleaseAgeExclude:` must carry the
+  // `# published: YYYY-MM-DD | removable: YYYY-MM-DD` line above it — the 7-day
+  // soak is malware protection. The edit-time soak-exclude-date-guard catches
+  // Claude edits; pre-push catches non-Claude pushes; this is the commit-time
+  // twin so a staged bypass entry can't slip past `git commit`. Scans the staged
+  // working-tree content via readFileForScan (parity with the other scanners).
+  logger.info('Checking soak-bypass date annotations…')
+  if (stagedFiles.includes('pnpm-workspace.yaml')) {
+    const text = readFileForScan('pnpm-workspace.yaml')
+    if (text) {
+      const hits = scanSoakExcludeDateAnnotations(text)
+      if (hits.length > 0) {
+        logger.fail(
+          `${hits.length} soak-bypass entr${hits.length === 1 ? 'y' : 'ies'} in pnpm-workspace.yaml missing the date annotation:`,
+        )
+        for (const h of hits.slice(0, 5)) {
+          logger.info(`  ${h.lineNumber}: ${h.line.trim()}`)
+        }
+        logger.info(
+          '  Add the line above each exact-pin: ' +
+            '`# published: YYYY-MM-DD | removable: YYYY-MM-DD` ' +
+            '(removable = published + 7d). The 7-day soak is malware protection.',
+        )
+        errors++
+      }
     }
   }
 

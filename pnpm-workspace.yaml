@@ -114,6 +114,7 @@ catalog:
   read-yaml-file: 2.1.0
   # Fleet bundler (replaces esbuild) for the published registry/ subpackage's
   # per-file build. Fleet-latest, single-sourced.
+  'regjsparser': 0.13.1
   rolldown: 1.1.0
   semver: 7.7.4
   source-map-support: 0.5.21
@@ -155,8 +156,6 @@ minimumReleaseAgeExclude:
   - '@yuku-parser/*'
   - 'ecc-agentshield'
   - '@socketoverride/*'
-  # published: 2026-05-22 | removable: 2026-05-29
-  - 'shell-quote@1.8.4'
 
 # Refuse transitive dependencies declared via git/tarball/local-tarball
 # specs — an npm package shouldn't be allowed to drag in a git URL we

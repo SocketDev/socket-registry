@@ -75,6 +75,42 @@ test('allows node --run (pnpm script runner)', () => {
   assert.equal(code, 0)
 })
 
+test('allows node --test for a hook test (canonical cwd-relative glob)', () => {
+  // The form scripts/repo/run-hook-tests.mts uses, cwd = the hook dir.
+  const { code } = run('node --test test/*.test.mts')
+  assert.equal(code, 0)
+})
+
+test('allows node --test for a hook test (full .claude/hooks path)', () => {
+  const { code } = run(
+    'node --test .claude/hooks/fleet/some-guard/test/index.test.mts',
+  )
+  assert.equal(code, 0)
+})
+
+test('allows node --test for an oxlint-plugin rule test', () => {
+  // .config/fleet/oxlint-plugin/test/** is vitest-excluded → node --test tier.
+  const { code } = run(
+    'node --test .config/fleet/oxlint-plugin/test/max-file-lines.test.mts',
+  )
+  assert.equal(code, 0)
+})
+
+test('allows node --test for an oxlint-plugin test glob', () => {
+  const { code } = run(
+    'node --test .config/fleet/oxlint-plugin/test/*.test.mts',
+  )
+  assert.equal(code, 0)
+})
+
+test('blocks node --test mixing a hook test with a src test', () => {
+  // Not every target is node-test-tier → still a vitest-tier misuse.
+  const { code } = run(
+    'node --test .claude/hooks/fleet/x/test/a.test.mts test/unit/b.test.mts',
+  )
+  assert.equal(code, 2)
+})
+
 test('allows node_modules/.bin/vitest run', () => {
   const { code } = run('node_modules/.bin/vitest run test/unit/foo.test.mts')
   assert.equal(code, 0)
