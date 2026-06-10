@@ -63,6 +63,8 @@ if (!url || !integrityArg || !destDir) {
 // call sites pass SRI directly.
 // oxlint-disable-next-line socket/export-top-level-functions -- composite-action helper runs on the raw runner before setup-node; no node_modules, no module boundary worth exporting across.
 function parseIntegrity(s) {
+  // Parse an SRI string: (1) the algorithm (sha256/384/512), (2) the base64
+  // digest after the dash.
   const m = /^(sha(?:256|384|512))-(.+)$/.exec(s)
   if (m) {
     return { algo: m[1], expected: m[2] }

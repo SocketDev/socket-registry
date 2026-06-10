@@ -11,8 +11,14 @@ module.exports = !isDateParseDaysOfMonthBuggy(DateParse)
 
       // 15.9.1.15 Date Time String Format.
       // https://tc39.es/ecma262/#sec-date-time-string-format
-      // Order mirrors the ECMAScript Date Time String Format grammar (4-digit
-      // year before signed expanded year); reordering would change match priority.
+      // Matches the ISO date head, anchored at start:
+      //   (?<yyyy> \d{4} | [+-]\d{6} )  — a 4-digit year OR a signed 6-digit
+      //                                   expanded year (e.g. +002024, -000001).
+      //   (?: - (?<mm>\d{2})            — optional `-MM` month group, and within
+      //         (?: - (?<dd>\d{2}) )?   — it an optional `-DD` day group.
+      //       )?
+      // Branch order mirrors the ECMAScript grammar (4-digit year before signed
+      // expanded year); reordering would change match priority.
       const yyyMmDdRegExp =
         /^(?<yyyy>\d{4}|[+-]\d{6})(?:-(?<mm>\d{2})(?:-(?<dd>\d{2}))?)?/ // socket-lint: allow regex-alternation-order
       // const yyyMmDdRegExp = new RegExp('^'

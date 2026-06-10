@@ -18,6 +18,8 @@ const logger = {
  *   - Exit 2 if either is invalid (stderr names which).
  */
 
+// Plain semver: (1) major, (2) minor, (3) patch, then an optional
+// prerelease/build suffix after `-` or `+`.
 const SEMVER_RE = /^(\d+)\.(\d+)\.(\d+)(?:[-+][0-9A-Za-z.+-]+)?$/
 
 function parts(v) {

@@ -33,6 +33,8 @@ const stripRange = (v: string): string => v.replace(/^[\^~>=<]+/, '').trim()
 // name too, so emit `<pkg>\t<version>` (TAB-separated); plain
 // versions emit `<version>` alone.
 const aliasOf = (v: string): { pkg: string; version: string } | undefined => {
+  // Parse an `npm:<pkg>@<version>` alias spec: (1) the package (optionally
+  // @scoped, no inner @), (2) the version after the final @.
   const m = v.match(/^npm:(@?[^@]+)@(.+)$/)
   if (!m) {
     return undefined
@@ -63,6 +65,8 @@ const fromCatalog = (pkg: string): string | undefined => {
       inCatalog = false
       continue
     }
+    // Parse an indented `  "<name>": "<version>"` catalog/deps line: (1) the
+    // package key (optionally quoted), (2) the value (optionally quoted).
     const m = line.match(
       /^\s+['"]?([@A-Za-z0-9_/-]+)['"]?\s*:\s*['"]?([^'"\s]+)['"]?\s*$/,
     )
