@@ -265,4 +265,4 @@ Hooks under `.claude/hooks/fleet/<name>/` (fleet-canonical); host-repo-only hook
 
 🚨 **Headline invariants:** Node ≥18; ES2023+ array methods forbidden (`toReversed/toSorted/toSpliced/with()`); never type/guess SHAs in cascade — `git rev-parse origin/main` AFTER merge; never `sed`/`awk`/`perl -i` workflow YAML — use Edit; never `--` before vitest paths (runs ALL tests); coverage mandatory + `c8 ignore` reasons end with `.`; never the split `@typescript-eslint/*` packages; never swap tsgo for tsc.
 
-Full layout / commands / build / GHA SHA-pin cascade / testing / vitest config / dependency policy / scratch-doc convention in [`docs/claude.md/repo/architecture.md`](docs/claude.md/repo/architecture.md).
+Full layout / commands / build / GHA SHA-pin cascade / testing / vitest config / dependency policy / scratch-doc convention in [`docs/agents.md/repo/architecture.md`](docs/agents.md/repo/architecture.md).
