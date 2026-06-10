@@ -17,7 +17,6 @@ import { runValidationScript } from '../repo/util/validation-runner.mts'
 
 const logger = getDefaultLogger()
 
-
 // Maximum file size: 2MB (2,097,152 bytes)
 const MAX_FILE_SIZE = 2 * 1024 * 1024
 

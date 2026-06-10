@@ -23,7 +23,6 @@ import { runValidationScript } from '../repo/util/validation-runner.mts'
 
 const logger = getDefaultLogger()
 
-
 // Allowed SCREAMING_CASE markdown files (without .md extension for comparison)
 const ALLOWED_SCREAMING_CASE = new Set([
   'AUTHORS',

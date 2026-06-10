@@ -16,7 +16,6 @@ import { runValidationScript } from '../repo/util/validation-runner.mts'
 
 const logger = getDefaultLogger()
 
-
 // Maximum number of files in a single commit
 const MAX_FILES_PER_COMMIT = 50
 

@@ -410,7 +410,9 @@ export async function updateTool(
       let flavorRelease: GhRelease = release
       if (flavorRepo !== primaryRepo) {
         // eslint-disable-next-line no-await-in-loop
-        flavorRelease = await ghApiLatestRelease(flavorRepo, { includePrerelease })
+        flavorRelease = await ghApiLatestRelease(flavorRepo, {
+          includePrerelease,
+        })
       }
       // eslint-disable-next-line no-await-in-loop
       flavor.platforms = await recomputePlatforms(

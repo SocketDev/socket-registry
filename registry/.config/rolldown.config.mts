@@ -37,6 +37,8 @@ for (let i = 0, { length } = entryFiles; i < length; i += 1) {
   const abs = entryFiles[i]!
   const rel = path
     .relative(srcPath, abs)
+    // Strip a trailing TS extension (`.ts`, `.cts`, or `.mts`) to get the
+    // entry's module name.
     .replace(/\.(?:c|m)?ts$/, '')
     .split(path.sep)
     .join('/')

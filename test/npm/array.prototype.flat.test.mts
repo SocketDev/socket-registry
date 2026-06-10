@@ -22,7 +22,12 @@ const {
 describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   describe('flattens', () => {
     it('missing depth only flattens 1 deep', () => {
-      expect(flat([1, [2], [[3]], [[['four']]]])).toEqual([1, 2, [3], [['four']]])
+      expect(flat([1, [2], [[3]], [[['four']]]])).toEqual([
+        1,
+        2,
+        [3],
+        [['four']],
+      ])
       expect(flat([1, [2], [[3]], [[['four']]]]).length).toBe(4)
     })
 
@@ -42,7 +47,12 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
 
     it('depth of 2 only flattens 2 deep', () => {
-      expect(flat([1, [2], [[3]], [[['four']]]], 2)).toEqual([1, 2, 3, ['four']])
+      expect(flat([1, [2], [[3]], [[['four']]]], 2)).toEqual([
+        1,
+        2,
+        3,
+        ['four'],
+      ])
       expect(flat([1, [2], [[3]], [[['four']]]], 2)).not.toEqual([
         1,
         2,

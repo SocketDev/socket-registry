@@ -21,7 +21,6 @@ import { runValidationScript } from '../repo/util/validation-runner.mts'
 
 const logger = getDefaultLogger()
 
-
 // CDN domains to block
 const CDN_PATTERNS = [
   /unpkg\.com/i,

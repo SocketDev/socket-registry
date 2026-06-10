@@ -122,6 +122,8 @@ const FAILURE_PATTERNS = {
     ],
   },
   TIMEOUT: {
+    // Any of the timeout phrasings CI logs emit: "Timed out" / "Time out",
+    // the bare word "timeout", or the Node `ETIMEDOUT` errno.
     pattern: /Timed? out|timeout|ETIMEDOUT/i,
     category: 'Timeout',
     severity: 'error',
