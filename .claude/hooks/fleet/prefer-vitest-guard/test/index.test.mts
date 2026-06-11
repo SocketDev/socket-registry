@@ -89,16 +89,16 @@ test('allows node --test for a hook test (full .claude/hooks path)', () => {
 })
 
 test('allows node --test for an oxlint-plugin rule test', () => {
-  // .config/fleet/oxlint-plugin/test/** is vitest-excluded → node --test tier.
+  // .config/oxlint-plugin/<tier>/<rule>/test/** is vitest-excluded → node --test tier.
   const { code } = run(
-    'node --test .config/fleet/oxlint-plugin/test/max-file-lines.test.mts',
+    'node --test .config/oxlint-plugin/fleet/max-file-lines/test/max-file-lines.test.mts',
   )
   assert.equal(code, 0)
 })
 
 test('allows node --test for an oxlint-plugin test glob', () => {
   const { code } = run(
-    'node --test .config/fleet/oxlint-plugin/test/*.test.mts',
+    'node --test .config/oxlint-plugin/fleet/max-file-lines/test/*.test.mts',
   )
   assert.equal(code, 0)
 })

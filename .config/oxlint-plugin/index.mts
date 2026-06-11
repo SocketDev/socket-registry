@@ -51,6 +51,8 @@ import noVitestSkippedTests from './fleet/no-vitest-skipped-tests/index.mts'
 import noVitestStandaloneExpect from './fleet/no-vitest-standalone-expect/index.mts'
 import noWhichForLocalBin from './fleet/no-which-for-local-bin/index.mts'
 import optionalExplicitUndefined from './fleet/optional-explicit-undefined/index.mts'
+import optionsNullProto from './fleet/options-null-proto/index.mts'
+import optionsParamNaming from './fleet/options-param-naming/index.mts'
 import personalPathPlaceholders from './fleet/personal-path-placeholders/index.mts'
 import preferAsyncSpawn from './fleet/prefer-async-spawn/index.mts'
 import preferCachedForLoop from './fleet/prefer-cached-for-loop/index.mts'
@@ -79,6 +81,7 @@ import preferUndefinedOverNull from './fleet/prefer-undefined-over-null/index.mt
 import preferWindowsTestHelpers from './fleet/prefer-windows-test-helpers/index.mts'
 import requireAsyncIifeEntry from './fleet/require-async-iife-entry/index.mts'
 import requireRegexComment from './fleet/require-regex-comment/index.mts'
+import requireVitestGlobalsImport from './fleet/require-vitest-globals-import/index.mts'
 import socketApiTokenEnv from './fleet/socket-api-token-env/index.mts'
 import sortArrayLiterals from './fleet/sort-array-literals/index.mts'
 import sortBooleanChains from './fleet/sort-boolean-chains/index.mts'
@@ -139,6 +142,8 @@ const plugin = {
     'no-vitest-standalone-expect': noVitestStandaloneExpect,
     'no-which-for-local-bin': noWhichForLocalBin,
     'optional-explicit-undefined': optionalExplicitUndefined,
+    'options-null-proto': optionsNullProto,
+    'options-param-naming': optionsParamNaming,
     'personal-path-placeholders': personalPathPlaceholders,
     'prefer-async-spawn': preferAsyncSpawn,
     'prefer-cached-for-loop': preferCachedForLoop,
@@ -167,6 +172,7 @@ const plugin = {
     'prefer-windows-test-helpers': preferWindowsTestHelpers,
     'require-async-iife-entry': requireAsyncIifeEntry,
     'require-regex-comment': requireRegexComment,
+    'require-vitest-globals-import': requireVitestGlobalsImport,
     'socket-api-token-env': socketApiTokenEnv,
     'sort-array-literals': sortArrayLiterals,
     'sort-boolean-chains': sortBooleanChains,

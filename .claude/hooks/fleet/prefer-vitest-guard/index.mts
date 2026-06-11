@@ -61,7 +61,8 @@ function looksLikeTestFile(arg: string): boolean {
 //     scripts/repo/run-hook-tests.mts: `node --test test/*.test.mts`, cwd =
 //     the hook dir, so the target is the bare `test/*.test.mts` glob; a direct
 //     invocation may spell the full `.claude/hooks/.../test/...` path).
-//   - `.config/fleet/oxlint-plugin/test/` — the socket/* lint-rule tests.
+//   - `.config/oxlint-plugin/<tier>/<rule>/test/` — the socket/* lint-rule
+//     tests (e.g. `.config/oxlint-plugin/fleet/options-null-proto/test/`).
 // A `node --test` whose targets are all in these tiers is allowed; blocking it
 // would break the sanctioned runners. Paths normalized to forward slashes so a
 // Windows-style target matches too.
@@ -70,7 +71,7 @@ function isNodeTestTierTarget(arg: string): boolean {
   if (/(?:^|\/)\.claude\/hooks\/(?:[^/]+\/)+test\//.test(p)) {
     return true
   }
-  if (/(?:^|\/)\.config\/fleet\/oxlint-plugin\/test\//.test(p)) {
+  if (/(?:^|\/)\.config\/oxlint-plugin\/(?:[^/]+\/)+test\//.test(p)) {
     return true
   }
   // The cwd-relative canonical form run from inside a hook dir.
@@ -79,14 +80,14 @@ function isNodeTestTierTarget(arg: string): boolean {
 
 // The shell-command parser drops bare globs, so the parsed arg list can lose
 // the `test/*.test.mts` target. Scan the raw command string for a node-test-
-// tier token as a fallback: a `.claude/hooks/<name>/test/` path, the
-// `.config/fleet/oxlint-plugin/test/` path, or the cwd-relative
+// tier token as a fallback: a `.claude/hooks/<name>/test/` path, a
+// `.config/oxlint-plugin/<tier>/<rule>/test/` path, or the cwd-relative
 // `test/*.test.mts` glob. Normalized to forward slashes first.
 function commandHasNodeTestTierTarget(command: string): boolean {
   const c = command.replace(/\\/g, '/')
   return (
     /(?:^|[\s'"/])\.claude\/hooks\/(?:[^/]+\/)+test\//.test(c) ||
-    /(?:^|[\s'"/])\.config\/fleet\/oxlint-plugin\/test\//.test(c) ||
+    /(?:^|[\s'"/])\.config\/oxlint-plugin\/(?:[^/]+\/)+test\//.test(c) ||
     /(?:^|\s)test\/\*\.test\.[cm]?[jt]sx?(?:\s|$|['"])/.test(c)
   )
 }
