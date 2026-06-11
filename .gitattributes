@@ -70,3 +70,5 @@ test/unit/fleet linguist-generated=true
 .claude/hooks/fleet/_shared/acorn/acorn.wasm binary
 template/.claude/hooks/fleet/_shared/acorn/acorn.wasm binary
 # ─── END fleet-canonical ────────────────────────────────────────
+
+.github/workflows/*.lock.yml linguist-generated=true merge=ours
