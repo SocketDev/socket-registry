@@ -533,7 +533,11 @@ async function migratePlatforms(
       const integrity = await computeIntegrityFromUrl(url)
       out[platform] = { asset: assetName, integrity }
     } catch (e) {
-      failures.push({ platform: `${label}/${platform}`, asset: assetName, reason: errorMessage(e) })
+      failures.push({
+        platform: `${label}/${platform}`,
+        asset: assetName,
+        reason: errorMessage(e),
+      })
       // Keep the existing (sha256) entry so we don't drop the pin.
       out[platform] = entry
     }
@@ -548,7 +552,12 @@ export async function migrateTool(
   logger.log(`=== Migrating ${name} (sha256 -> sha512) ===`)
   const toolConfig = config[name]
   if (!toolConfig || toolConfig.release !== 'asset') {
-    return { tool: name, skipped: true, updated: false, reason: 'not an asset tool' }
+    return {
+      tool: name,
+      skipped: true,
+      updated: false,
+      reason: 'not an asset tool',
+    }
   }
   const flavors: Array<{ key: 'free' | 'enterprise' }> = []
   if (toolConfig.free?.platforms) {
@@ -559,7 +568,12 @@ export async function migrateTool(
   }
   const version = toolConfig.version
   if (!version) {
-    return { tool: name, skipped: true, updated: false, reason: 'no pinned version' }
+    return {
+      tool: name,
+      skipped: true,
+      updated: false,
+      reason: 'no pinned version',
+    }
   }
   const failures: MigrateFailure[] = []
   if (flavors.length > 0) {
@@ -621,7 +635,12 @@ export async function migrateTool(
       reason: `re-hashed v${version} (${failures.length} platform(s) failed — left sha256)`,
     }
   }
-  return { tool: name, skipped: false, updated: true, reason: `re-hashed v${version} as sha512` }
+  return {
+    tool: name,
+    skipped: false,
+    updated: true,
+    reason: `re-hashed v${version} as sha512`,
+  }
 }
 
 async function main(): Promise<void> {

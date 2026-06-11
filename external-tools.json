@@ -58,10 +58,7 @@
     "minVersion": "1.82.0",
     "minLlvmVersion": "19",
     "release": "rustup",
-    "components": [
-      "rustc",
-      "cargo"
-    ]
+    "components": ["rustc", "cargo"]
   },
   "sfw": {
     "notes": [
