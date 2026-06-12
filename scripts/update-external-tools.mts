@@ -23,27 +23,36 @@
  * each script only handles 2–3 tools.
  */
 
-import crypto from 'node:crypto'
-import { existsSync, promises as fs, readFileSync } from 'node:fs'
-import os from 'node:os'
+import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
-import { Type } from '@sinclair/typebox'
-import type { Static } from '@sinclair/typebox'
-
-import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
-import { httpDownload } from '@socketsecurity/lib-stable/http-request/download'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
-import { parseSchema } from '@socketsecurity/lib-stable/schema/parse'
-import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
+
+import {
+  CONFIG_FILE,
+  ownerAndNameFromRepository,
+  readConfig,
+  writeConfig,
+} from './update-external-tools-config.mts'
+import type {
+  PlatformEntry,
+  RootConfig,
+  UpdateResult,
+} from './update-external-tools-config.mts'
+import {
+  computeIntegrityFromUrl,
+  ghApiLatestRelease,
+  resolvePinnedRelease,
+} from './update-external-tools-github.mts'
+import type { GhRelease } from './update-external-tools-github.mts'
+import { migrateTool } from './update-external-tools-migrate.mts'
 
 const logger = getDefaultLogger()
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const REPO_ROOT = path.resolve(__dirname, '..')
-const CONFIG_FILE = path.join(REPO_ROOT, 'external-tools.json')
 
 const MS_PER_MINUTE = 60_000
 const DEFAULT_COOLDOWN_MINUTES = 10_080
@@ -73,105 +82,6 @@ export function readCooldownMs(): number {
 
 const COOLDOWN_MS = readCooldownMs()
 
-interface GhAsset {
-  browser_download_url: string
-  name: string
-}
-
-interface GhRelease {
-  assets: GhAsset[]
-  published_at: string
-  tag_name: string
-}
-
-export interface GhApiLatestReleaseOptions {
-  includePrerelease: boolean
-}
-
-export async function ghApiLatestRelease(
-  repo: string,
-  options: GhApiLatestReleaseOptions,
-): Promise<GhRelease> {
-  const { includePrerelease } = options
-  // Two tracks:
-  //   stable     → `/releases/latest` returns the latest non-prerelease
-  //                non-draft release. Good default for mature tools.
-  //   prerelease → `/releases?per_page=20` + filter `prerelease: true`.
-  //                We sort by created_at so the first match is newest.
-  //                Used for tools we want to track ahead of stable
-  //                (e.g. while a major was still in rc, we tracked
-  //                pnpm@11.0.0-rc.x via this path; once stable 11
-  //                shipped the pin moved back to the stable track).
-  const endpoint = includePrerelease
-    ? `repos/${repo}/releases?per_page=20`
-    : `repos/${repo}/releases/latest`
-  const result = await spawn('gh', ['api', endpoint, '--cache', '1h'], {
-    stdio: 'pipe',
-  })
-  const stdout =
-    typeof result.stdout === 'string'
-      ? result.stdout
-      : (result.stdout ?? Buffer.alloc(0)).toString()
-  const parsed = JSON.parse(stdout) as GhRelease | GhRelease[]
-  if (Array.isArray(parsed)) {
-    // When on a prerelease track, only prerelease entries are
-    // candidates. `prerelease` and `draft` are both advisory — GitHub
-    // surfaces drafts only to authenticated callers, and we never
-    // want to pin an unpublished asset.
-    const newest = parsed.find(r => {
-      const withFlags = r as GhRelease & {
-        draft?: boolean | undefined
-        prerelease?: boolean | undefined
-      }
-      return !withFlags.draft && withFlags.prerelease === true
-    })
-    if (!newest) {
-      throw new Error(`No prerelease found for ${repo}`)
-    }
-    return newest
-  }
-  return parsed
-}
-
-// Fetch a specific release by tag (vs the latest). Used by the one-shot sha512
-// migration (remove with migrateTool once migrated): re-hashing a PINNED
-// version needs that version's real release — its actual `tag_name` and real
-// asset `browser_download_url`s — not a synthesized URL (tag formats vary per
-// tool: `v1.5.1` vs `1.5.1`). Returns undefined on 404 so the caller can try
-// the other tag form.
-export async function ghApiReleaseByTag(
-  repo: string,
-  tag: string,
-): Promise<GhRelease | undefined> {
-  try {
-    const result = await spawn(
-      'gh',
-      ['api', `repos/${repo}/releases/tags/${tag}`, '--cache', '1h'],
-      { stdio: 'pipe' },
-    )
-    const stdout =
-      typeof result.stdout === 'string'
-        ? result.stdout
-        : (result.stdout ?? Buffer.alloc(0)).toString()
-    return JSON.parse(stdout) as GhRelease
-  } catch {
-    return undefined
-  }
-}
-
-// Resolve the real release for a pinned version, trying the common tag forms
-// (`v<version>` then `<version>`). Returns undefined when neither resolves
-// (asset genuinely gone — surfaced loudly by the caller, never silently skipped).
-export async function resolvePinnedRelease(
-  repo: string,
-  version: string,
-): Promise<GhRelease | undefined> {
-  return (
-    (await ghApiReleaseByTag(repo, `v${version}`)) ??
-    (await ghApiReleaseByTag(repo, version))
-  )
-}
-
 export function isOlderThanCooldown(publishedAt: string): boolean {
   const published = new Date(publishedAt).getTime()
   return Date.now() - published >= COOLDOWN_MS
@@ -179,121 +89,6 @@ export function isOlderThanCooldown(publishedAt: string): boolean {
 
 export function versionFromTag(tag: string): string {
   return tag.replace(/^v/, '')
-}
-
-/**
- * Compute a Subresource Integrity (SRI) string for a file. Format:
- * `sha512-<base64>` — the fleet OUR-side integrity standard. Matches what npm /
- * pnpm / browser `<script integrity>` consume natively. Uses the one-shot
- * crypto.hash() API (Node 21.7+) — single Buffer read, no stream overhead.
- */
-export async function computeIntegrity(filePath: string): Promise<string> {
-  const content = await fs.readFile(filePath)
-  return `sha512-${crypto.hash('sha512', content, 'base64')}`
-}
-
-export async function computeIntegrityFromUrl(url: string): Promise<string> {
-  const tmpFile = path.join(
-    os.tmpdir(),
-    `external-tools-update-${Date.now()}-${Math.random().toString(36).slice(2)}`,
-  )
-  try {
-    await httpDownload(url, tmpFile, { retries: 2 })
-    return await computeIntegrity(tmpFile)
-  } finally {
-    // oxlint-disable-next-line socket/prefer-safe-delete -- finally cleanup with explicit catch
-    await fs.unlink(tmpFile).catch(() => {})
-  }
-}
-
-// Schema matches the sibling security-tools hook style (typebox +
-// parseSchema via @socketsecurity/lib-stable/schema/parse). Keep the two in
-// sync — both consume `external-tools.json`-shaped data.
-//
-// Two tool shapes are supported:
-//   1. Single-flavor (pnpm, zizmor): `{ repository, platforms, … }`
-//      with platforms at the top level.
-//   2. Multi-flavor (sfw): `{ free: { repository, binaryName, platforms },
-//      enterprise: { ... } }` — flavors carry their own repository
-//      and per-platform integrity values while sharing one `version`.
-//
-// The `integrity` field is Subresource Integrity (SRI): `sha256-<base64>`
-// (or `sha384-` / `sha512-`). Same shape npm / pnpm / browser
-// `<script integrity>` consume natively. Source-of-truth is the field
-// itself; the outer `platforms` map name describes the keying.
-const platformEntrySchema = Type.Object({
-  asset: Type.String(),
-  integrity: Type.String({ pattern: '^sha(256|384|512)-[A-Za-z0-9+/=]+$' }),
-})
-
-const platformsSchema = Type.Record(Type.String(), platformEntrySchema)
-
-const flavorSchema = Type.Object({
-  repository: Type.String(),
-  binaryName: Type.String(),
-  platforms: platformsSchema,
-})
-
-// `version` is optional at the schema level because some entries (e.g.
-// `rust`) declare a `minVersion` floor instead of a pinned version — they
-// resolve at install time via rustup / runner toolcache, not via downloads
-// from a fixed GitHub release. updateTool() enforces `version` at runtime
-// only for entries with `release: 'asset'`; floor-shape entries skip the
-// update path entirely.
-const toolSchema = Type.Object(
-  {
-    description: Type.Optional(Type.String()),
-    repository: Type.Optional(Type.String()),
-    version: Type.Optional(Type.String()),
-    minVersion: Type.Optional(Type.String()),
-    release: Type.Optional(Type.String()),
-    platforms: Type.Optional(platformsSchema),
-    free: Type.Optional(flavorSchema),
-    enterprise: Type.Optional(flavorSchema),
-    notes: Type.Optional(
-      Type.Union([Type.String(), Type.Array(Type.String())]),
-    ),
-    // Catch-all so floor-shape entries (rust: minLlvmVersion, components,
-    // …) don't trip schema validation. Stricter per-tool typing belongs in
-    // the entry's own validator, not this aggregate schema.
-  },
-  { additionalProperties: true },
-)
-
-const rootConfigSchema = Type.Record(Type.String(), toolSchema)
-
-type PlatformEntry = Static<typeof platformEntrySchema>
-type RootConfig = Static<typeof rootConfigSchema>
-
-export function readConfig(): RootConfig {
-  const raw = JSON.parse(readFileSync(CONFIG_FILE, 'utf8'))
-  return parseSchema(rootConfigSchema, raw)
-}
-
-export async function writeConfig(config: RootConfig): Promise<void> {
-  await fs.writeFile(
-    CONFIG_FILE,
-    JSON.stringify(config, undefined, 2) + '\n',
-    'utf8',
-  )
-}
-
-export function ownerAndNameFromRepository(
-  repository: string | undefined,
-): string {
-  if (!repository) {
-    throw new Error('Missing `repository` field on tool entry')
-  }
-  // Accept either "github:owner/name" or "owner/name".
-  const idx = repository.indexOf(':')
-  return idx === -1 ? repository : repository.slice(idx + 1)
-}
-
-interface UpdateResult {
-  tool: string
-  skipped: boolean
-  updated: boolean
-  reason: string
 }
 
 /**
@@ -480,169 +275,6 @@ export async function updateTool(
   }
 }
 
-// ---------------------------------------------------------------------------
-// One-shot sha256 -> sha512 integrity migration (remove once migrated).
-//
-// `computeIntegrity` now emits sha512, but updateTool() only re-hashes on a
-// VERSION bump — existing sha256- pins would linger until each tool happens to
-// release a new version. This `--migrate` path re-hashes every pin at its
-// CURRENTLY PINNED version (no version change, no cooldown, no GH-latest
-// fetch): for each tool it resolves the PINNED version's real GitHub release
-// (resolvePinnedRelease) and re-hashes each platform asset to sha512. Pins that
-// point at an npm tarball (`*.tgz`, e.g. pnpm's universal darwin-x64 fallback)
-// are fetched from the npm registry instead of a GH release. Delete this
-// function + migratePlatforms + ghApiReleaseByTag + resolvePinnedRelease + the
-// `--migrate` branch in main() once external-tools.json carries no sha256- pins
-// (a check enforces it; see fleet soak/integrity checks).
-// ---------------------------------------------------------------------------
-
-interface MigrateFailure {
-  platform: string
-  asset: string
-  reason: string
-}
-
-// Resilient per-platform re-hash for migration: resolve each platform's real
-// download URL (GH release asset, else npm-registry tarball for `*.tgz`, else
-// the GH releases/download fallback), recompute sha512, and record — never
-// throw — per-platform failures so one bad pin doesn't abort the whole run.
-async function migratePlatforms(
-  label: string,
-  repo: string,
-  npmPackage: string,
-  release: GhRelease,
-  platforms: Record<string, PlatformEntry>,
-  failures: MigrateFailure[],
-): Promise<Record<string, PlatformEntry>> {
-  const out: Record<string, PlatformEntry> = {}
-  for (const [platform, entry] of Object.entries(platforms)) {
-    const assetName = entry.asset
-    // An npm tarball pin (`<pkg>-<version>.tgz`) is the registry artifact, not a
-    // GH release asset — fetch it from the npm registry.
-    const isNpmTarball = assetName.endsWith('.tgz')
-    const ghAsset = release.assets.find(
-      a => a.name.toLowerCase() === assetName.toLowerCase(),
-    )
-    const url = isNpmTarball
-      ? `https://registry.npmjs.org/${npmPackage}/-/${assetName}`
-      : (ghAsset?.browser_download_url ??
-        `https://github.com/${repo}/releases/download/${release.tag_name}/${assetName}`)
-    logger.log(`  ${label}/${platform}: hashing ${assetName}`)
-    try {
-      // eslint-disable-next-line no-await-in-loop
-      const integrity = await computeIntegrityFromUrl(url)
-      out[platform] = { asset: assetName, integrity }
-    } catch (e) {
-      failures.push({
-        platform: `${label}/${platform}`,
-        asset: assetName,
-        reason: errorMessage(e),
-      })
-      // Keep the existing (sha256) entry so we don't drop the pin.
-      out[platform] = entry
-    }
-  }
-  return out
-}
-
-export async function migrateTool(
-  name: string,
-  config: RootConfig,
-): Promise<UpdateResult> {
-  logger.log(`=== Migrating ${name} (sha256 -> sha512) ===`)
-  const toolConfig = config[name]
-  if (!toolConfig || toolConfig.release !== 'asset') {
-    return {
-      tool: name,
-      skipped: true,
-      updated: false,
-      reason: 'not an asset tool',
-    }
-  }
-  const flavors: Array<{ key: 'free' | 'enterprise' }> = []
-  if (toolConfig.free?.platforms) {
-    flavors.push({ key: 'free' })
-  }
-  if (toolConfig.enterprise?.platforms) {
-    flavors.push({ key: 'enterprise' })
-  }
-  const version = toolConfig.version
-  if (!version) {
-    return {
-      tool: name,
-      skipped: true,
-      updated: false,
-      reason: 'no pinned version',
-    }
-  }
-  const failures: MigrateFailure[] = []
-  if (flavors.length > 0) {
-    for (const { key } of flavors) {
-      const flavor = toolConfig[key]!
-      const flavorRepo = ownerAndNameFromRepository(flavor.repository)
-      // eslint-disable-next-line no-await-in-loop
-      const release = await resolvePinnedRelease(flavorRepo, version)
-      if (!release) {
-        return {
-          tool: name,
-          skipped: true,
-          updated: false,
-          reason: `no release for ${flavorRepo}@${version} (tried v${version} / ${version})`,
-        }
-      }
-      // npm-package name for a `.tgz` fallback: the binaryName, else repo basename.
-      const npmPackage = flavor.binaryName ?? flavorRepo.split('/').pop() ?? key
-      // eslint-disable-next-line no-await-in-loop
-      flavor.platforms = await migratePlatforms(
-        key,
-        flavorRepo,
-        npmPackage,
-        release,
-        flavor.platforms,
-        failures,
-      )
-    }
-  } else {
-    const repo = ownerAndNameFromRepository(toolConfig.repository)
-    const release = await resolvePinnedRelease(repo, version)
-    if (!release) {
-      return {
-        tool: name,
-        skipped: true,
-        updated: false,
-        reason: `no release for ${repo}@${version} (tried v${version} / ${version})`,
-      }
-    }
-    // npm-package name for a `.tgz` fallback: the tool name (matches npm dist).
-    toolConfig.platforms = await migratePlatforms(
-      name,
-      repo,
-      name,
-      release,
-      toolConfig.platforms ?? {},
-      failures,
-    )
-  }
-  if (failures.length > 0) {
-    for (let i = 0, { length } = failures; i < length; i += 1) {
-      const f = failures[i]!
-      logger.warn(`  ${f.platform} (${f.asset}): ${f.reason}`)
-    }
-    return {
-      tool: name,
-      skipped: false,
-      updated: true,
-      reason: `re-hashed v${version} (${failures.length} platform(s) failed — left sha256)`,
-    }
-  }
-  return {
-    tool: name,
-    skipped: false,
-    updated: true,
-    reason: `re-hashed v${version} as sha512`,
-  }
-}
-
 async function main(): Promise<void> {
   const migrate = process.argv.includes('--migrate')
   if (migrate) {
@@ -654,9 +286,11 @@ async function main(): Promise<void> {
     }
     if (results.some(r => r.updated)) {
       await writeConfig(config)
-      logger.log(`\nWrote ${CONFIG_FILE} (sha512 migration)`)
+      logger.log('')
+      logger.log(`Wrote ${CONFIG_FILE} (sha512 migration)`)
     }
-    logger.log('\nMigration summary:')
+    logger.log('')
+    logger.log('Migration summary:')
     for (let i = 0, { length } = results; i < length; i += 1) {
       const r = results[i]!
       const tag = r.updated ? 're-hashed' : 'skipped'
