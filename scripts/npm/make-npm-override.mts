@@ -1,4 +1,3 @@
-/* max-file-lines: cli — interactive override-generator CLI; the package-extract / license-resolve / template-pick / file-write phases share enough live state (origPkgName, sockRegPkgName, nmPkgJson, licenseContents) that splitting them produces a tangle of cross-file mutables. Only a few LOC over the soft cap. */
 /**
  * @file Creates Socket registry package overrides for npm packages. Interactive
  *   CLI tool that guides users through creating secure package overrides:
@@ -12,13 +11,9 @@
  */
 
 import { existsSync, promises as fs } from 'node:fs'
-import { createRequire } from 'node:module'
 import path from 'node:path'
 import { execScript } from '@socketsecurity/lib-stable/eco/npm/script'
 import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
-import { globStreamLicenses } from '@socketsecurity/lib-stable/globs/stream'
-import { isObject } from '@socketsecurity/lib-stable/objects/predicates'
-import { transform } from '@socketsecurity/lib-stable/streams/transform'
 import { indentString } from '@socketsecurity/lib-stable/strings/format'
 import { pluralize } from '@socketsecurity/lib-stable/words/pluralize'
 import { default as didYouMean, ReturnTypeEnums } from 'didyoumean2'
@@ -72,6 +67,12 @@ import {
   writeAction,
 } from '../repo/util/templates.mts'
 import {
+  esShimChoices,
+  getCompatData,
+  readLicenses,
+  toChoice,
+} from './make-npm-override-helpers.mts'
+import {
   collectIncompatibleLicenses,
   collectLicenseWarnings,
   resolvePackageLicenses,
@@ -102,85 +103,8 @@ const { positionals: cliPositionals, values: cliArgs } = parseArgs({
   strict: false,
 })
 
-const bcaKeysMap = new WeakMap()
-
-const esShimChoices = [
-  {
-    name: 'es-shim prototype method',
-    value: TEMPLATE_ES_SHIM_PROTOTYPE_METHOD,
-  },
-  { name: 'es-shim static method', value: TEMPLATE_ES_SHIM_STATIC_METHOD },
-  { name: 'es-shim constructor', value: TEMPLATE_ES_SHIM_CONSTRUCTOR },
-]
-
 const possibleTsRefs = [...tsLibsAvailable, ...tsTypesAvailable]
 const maxTsRefLength = possibleTsRefs.reduce((n, v) => Math.max(n, v.length), 0)
-
-function getCompatData(props) {
-  const data = getCompatDataRaw(props)
-  return data?.__compat
-}
-
-function getCompatDataRaw(props) {
-  // Defer loading @mdn/browser-compat-data until needed.
-  // It's a single 15.3 MB json file.
-  const browserCompatData = require('@mdn/browser-compat-data')
-  let obj = browserCompatData.default
-  for (let i = 0, { length } = props; i < length; i += 1) {
-    const rawProp = props[i]
-    let prop = rawProp.toLowerCase()
-    if (prop === 'prototype') {
-      prop = 'proto'
-    } else {
-      // Trim double underscore property prefix/postfix.
-      prop = prop.replace(/^__(?!_)|(?<!_)__$/g, '')
-    }
-    const keysMap = getBcdKeysMap(obj)
-    const newObj = obj[keysMap.get(prop)]
-    if (!isObject(newObj)) {
-      if (prop === 'proto') {
-        continue
-      }
-      return undefined
-    }
-    obj = newObj
-  }
-  return obj
-}
-
-async function readLicenses(dirname) {
-  const stream = globStreamLicenses(dirname)
-  const results = []
-  for await (const license of transform(
-    stream,
-    async filepath => ({
-      name: path.basename(filepath),
-      content: await fs.readFile(filepath, UTF8),
-    }),
-    { concurrency: 8 },
-  )) {
-    results.push(license)
-  }
-  return results
-}
-
-function toChoice(value) {
-  return { name: value, value: value }
-}
-
-export function getBcdKeysMap(obj) {
-  let keysMap = bcaKeysMap.get(obj)
-  if (keysMap === undefined) {
-    keysMap = new Map()
-    const keys = Object.keys(obj)
-    for (let i = 0, { length } = keys; i < length; i += 1) {
-      const key = keys[i]
-      keysMap.set(key.toLowerCase(), key)
-    }
-    bcaKeysMap.set(obj, keysMap)
-  }
-  return keysMap
-}
 
 async function main(): Promise<void> {
   const origPkgName = await input({
