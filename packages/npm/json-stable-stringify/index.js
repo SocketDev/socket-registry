@@ -24,6 +24,7 @@ const SUPPORTS_TO_SORTED = typeof Array.prototype.toSorted === 'function'
  * Combines sorting and stringification to avoid double traversal.
  */
 function sortAndStringifyWithSpace(value, space, opts) {
+  opts = { __proto__: null, ...opts }
   const seen = new Set()
 
   function stringify(val, key, indent, childIndent) {
@@ -245,6 +246,7 @@ function sortKeysIterative(root) {
  * Full-featured path: Sort with custom options.
  */
 function sortKeysWithOptions(value, opts, seen) {
+  opts = { __proto__: null, ...opts }
   // Handle toJSON()
   if (
     value &&

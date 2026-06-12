@@ -123,6 +123,7 @@ function isBuffer(x) {
 }
 
 function mapEquiv(a, b, opts, channel) {
+  opts = { __proto__: null, ...opts }
   if ($mapSize(a) !== $mapSize(b)) {
     return false
   }
@@ -235,6 +236,7 @@ function mapMightHaveLoosePrim(a, b, prim, item, opts, channel) {
 
 function objEquiv(a, b, opts, channel) {
   /* eslint max-statements: [2, 100], max-lines-per-function: [2, 120], max-depth: [2, 5], max-lines: [2, 400] */
+  opts = { __proto__: null, ...opts }
   let i, key
 
   if (typeof a !== typeof b) {
@@ -411,6 +413,7 @@ function objEquiv(a, b, opts, channel) {
 }
 
 function setEquiv(a, b, opts, channel) {
+  opts = { __proto__: null, ...opts }
   if ($setSize(a) !== $setSize(b)) {
     return false
   }
