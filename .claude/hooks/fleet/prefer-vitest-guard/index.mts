@@ -33,12 +33,61 @@
 //
 // Fails open on parse / payload errors.
 
+import { existsSync, readFileSync } from 'node:fs'
 import process from 'node:process'
 
 import { bypassPhrasePresent, readStdin } from '../_shared/transcript.mts'
 import { commandsFor } from '../_shared/shell-command.mts'
 
 const BYPASS_PHRASE = 'Allow node-test-runner bypass' as const
+
+// Repo-tunable node:test homes from the `nodeTestExclude` key of
+// .config/{fleet,repo}/vitest.json — the SAME key the vitest config merges into
+// its `exclude`. A repo declaring e.g. `tools/**/test/**` there both keeps
+// vitest off those suites and lets this guard allow their `node --test` runner;
+// the two never drift because they read one key. Fleet + repo arrays concat.
+function readNodeTestExcludeTier(file: string): string[] {
+  if (!existsSync(file)) {
+    return []
+  }
+  try {
+    const parsed = JSON.parse(readFileSync(file, 'utf8')) as {
+      nodeTestExclude?: unknown
+    }
+    return Array.isArray(parsed?.nodeTestExclude)
+      ? parsed.nodeTestExclude.filter(g => typeof g === 'string')
+      : []
+  } catch {
+    return []
+  }
+}
+
+// Cached read of the resolved node:test-exclude globs (cwd-relative). Returns
+// [] when neither tier declares any (fail-open: no extra tiers granted).
+let nodeTestExcludeCache: string[] | undefined
+function repoExtraExcludeGlobs(): string[] {
+  if (nodeTestExcludeCache === undefined) {
+    nodeTestExcludeCache = [
+      ...readNodeTestExcludeTier('.config/fleet/vitest.json'),
+      ...readNodeTestExcludeTier('.config/repo/vitest.json'),
+    ]
+  }
+  return nodeTestExcludeCache
+}
+
+// Does a vitest-style exclude glob (e.g. `tools/**/test/**`) cover the test
+// path `p`? `**` matches any characters (incl. `/`), `*` matches within a
+// segment. `**` is expanded before `*` via a space placeholder so they don't
+// collide. Enough for the directory-tier globs this file carries.
+function globMatchesTestPath(glob: string, p: string): boolean {
+  const re = glob
+    .replace(/\\/g, '/')
+    .replace(/[.+^${}()|[\]]/g, '\\$&')
+    .replace(/\*\*/g, ' ')
+    .replace(/\*/g, '[^/]*')
+    .replace(/ /g, '.*')
+  return new RegExp(`^${re}$`).test(p)
+}
 
 interface Payload {
   tool_name?: unknown | undefined
@@ -63,6 +112,10 @@ function looksLikeTestFile(arg: string): boolean {
 //     invocation may spell the full `.claude/hooks/.../test/...` path).
 //   - `.config/oxlint-plugin/<tier>/<rule>/test/` — the socket/* lint-rule
 //     tests (e.g. `.config/oxlint-plugin/fleet/options-null-proto/test/`).
+//   - repo-tunable node:test homes from the `nodeTestExclude` key of
+//     .config/{fleet,repo}/vitest.json (e.g. socket-lib's `tools/prim/test/**`
+//     codemod corpus) — the SAME key vitest merges into its `exclude`, so the
+//     allowlist and the skip-list never drift.
 // A `node --test` whose targets are all in these tiers is allowed; blocking it
 // would break the sanctioned runners. Paths normalized to forward slashes so a
 // Windows-style target matches too.
@@ -73,6 +126,12 @@ function isNodeTestTierTarget(arg: string): boolean {
   }
   if (/(?:^|\/)\.config\/oxlint-plugin\/(?:[^/]+\/)+test\//.test(p)) {
     return true
+  }
+  // Repo-owned extra node:test homes (globs like `tools/**/test/**`).
+  for (const glob of repoExtraExcludeGlobs()) {
+    if (globMatchesTestPath(glob, p)) {
+      return true
+    }
   }
   // The cwd-relative canonical form run from inside a hook dir.
   return p === 'test/*.test.mts' || /^test\/[^/]*\.test\.[cm]?[jt]sx?$/.test(p)

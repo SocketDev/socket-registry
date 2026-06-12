@@ -19,10 +19,10 @@ import noBareCryptoNamedUsage from './fleet/no-bare-crypto-named-usage/index.mts
 import noBareSpawnChildprocAccess from './fleet/no-bare-spawn-childproc-access/index.mts'
 import noBooleanTrapParam from './fleet/no-boolean-trap-param/index.mts'
 import noCachedForOnIterable from './fleet/no-cached-for-on-iterable/index.mts'
+import noCommentGlobStarSlash from './fleet/no-comment-glob-star-slash/index.mts'
 import noConsolePreferLogger from './fleet/no-console-prefer-logger/index.mts'
 import noDefaultExport from './fleet/no-default-export/index.mts'
 import noDynamicImportOutsideBundle from './fleet/no-dynamic-import-outside-bundle/index.mts'
-import noEs2023ArrayMethodsBelowNode20 from './fleet/no-es2023-array-methods-below-node20/index.mts'
 import noEslintBiomeConfigRef from './fleet/no-eslint-biome-config-ref/index.mts'
 import noFetchPreferHttpRequest from './fleet/no-fetch-prefer-http-request/index.mts'
 import noFileScopeOxlintDisable from './fleet/no-file-scope-oxlint-disable/index.mts'
@@ -37,6 +37,7 @@ import noProcessChdir from './fleet/no-process-chdir/index.mts'
 import noProcessCwdInScriptsHooks from './fleet/no-process-cwd-in-scripts-hooks/index.mts'
 import noPromiseRace from './fleet/no-promise-race/index.mts'
 import noPromiseRaceInLoop from './fleet/no-promise-race-in-loop/index.mts'
+import noRuntimeFeaturesBelowEngineFloor from './fleet/no-runtime-features-below-engine-floor/index.mts'
 import noSrcImportInTestExpect from './fleet/no-src-import-in-test-expect/index.mts'
 import noStatusEmoji from './fleet/no-status-emoji/index.mts'
 import noStructuredClonePreferJson from './fleet/no-structured-clone-prefer-json/index.mts'
@@ -109,10 +110,10 @@ const plugin = {
     'no-bare-spawn-childproc-access': noBareSpawnChildprocAccess,
     'no-boolean-trap-param': noBooleanTrapParam,
     'no-cached-for-on-iterable': noCachedForOnIterable,
+    'no-comment-glob-star-slash': noCommentGlobStarSlash,
     'no-console-prefer-logger': noConsolePreferLogger,
     'no-default-export': noDefaultExport,
     'no-dynamic-import-outside-bundle': noDynamicImportOutsideBundle,
-    'no-es2023-array-methods-below-node20': noEs2023ArrayMethodsBelowNode20,
     'no-eslint-biome-config-ref': noEslintBiomeConfigRef,
     'no-fetch-prefer-http-request': noFetchPreferHttpRequest,
     'no-file-scope-oxlint-disable': noFileScopeOxlintDisable,
@@ -128,6 +129,7 @@ const plugin = {
     'no-process-cwd-in-scripts-hooks': noProcessCwdInScriptsHooks,
     'no-promise-race': noPromiseRace,
     'no-promise-race-in-loop': noPromiseRaceInLoop,
+    'no-runtime-features-below-engine-floor': noRuntimeFeaturesBelowEngineFloor,
     'no-src-import-in-test-expect': noSrcImportInTestExpect,
     'no-status-emoji': noStatusEmoji,
     'no-structured-clone-prefer-json': noStructuredClonePreferJson,

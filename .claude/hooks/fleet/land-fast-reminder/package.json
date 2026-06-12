@@ -1,5 +1,5 @@
 {
-  "name": "socket-oxlint-rule-no-es2023-array-methods-below-node20",
+  "name": "hook-land-fast-reminder",
   "private": true,
   "type": "module",
   "main": "./index.mts",
@@ -8,5 +8,9 @@
   },
   "scripts": {
     "test": "node --test test/*.test.mts"
+  },
+  "devDependencies": {
+    "@socketsecurity/lib-stable": "catalog:",
+    "@types/node": "catalog:"
   }
 }
