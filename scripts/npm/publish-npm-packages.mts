@@ -1,7 +1,6 @@
 /**
  * @file Publish npm packages with version bump detection and retry logic.
  */
-/* max-file-lines: orchestration — single end-to-end publish workflow (version detection + retry + GH release); splitting would fragment one phased pipeline across three files. */
 
 import path from 'node:path'
 
@@ -10,10 +9,8 @@ import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
 import { joinAnd } from '@socketsecurity/lib-stable/arrays/join'
 import { getChangedFiles } from '@socketsecurity/lib-stable/git/changed'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
-import { isPlainObject as isObjectObject } from '@socketsecurity/lib-stable/objects/predicates'
 import { readPackageJsonSync } from '@socketsecurity/lib-stable/packages/read'
 import { getReleaseTag } from '@socketsecurity/lib-stable/packages/specs'
-import { pEach } from '@socketsecurity/lib-stable/promises/iterate'
 import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 import { pluralize } from '@socketsecurity/lib-stable/words/pluralize'
 // oxlint-disable-next-line socket/prefer-stable-external-semver -- @socketsecurity/lib-stable has no ./external/semver export at the pinned version; semver is a devDependency (scripts/tests only, not bundled).
@@ -24,9 +21,16 @@ import { WIN32 } from '../constants/node.mts'
 import { LATEST } from '../constants/packages.mts'
 import { NPM_PACKAGES_PATH, REGISTRY_PKG_PATH } from '../constants/paths.mts'
 import { getNpmPackageNames } from '../constants/testing.mts'
-import { extractNpmError } from '../repo/util/errors.mts'
 import process from 'node:process'
 import { fetchPackageManifest } from '@socketsecurity/lib-stable/packages/manifest'
+import {
+  checkoutCommit,
+  ensureNpmVersion,
+  findVersionBumpCommits,
+  getCommitSha,
+  getCurrentBranch,
+} from './publish-npm-packages-git.mts'
+import { publishPackages } from './publish-npm-packages-publish.mts'
 
 const logger = getDefaultLogger()
 
@@ -73,144 +77,11 @@ logger.log(
 )
 
 /**
- * Checkout a specific commit and discard uncommitted changes.
- */
-export async function checkoutCommit(sha) {
-  // Discard any uncommitted changes from previous builds.
-  await spawn('git', ['reset', '--hard'])
-  await spawn('git', ['checkout', sha])
-}
-
-/**
- * Ensure npm version meets requirements for trusted publishing.
- */
-export async function ensureNpmVersion() {
-  // Check current npm version first.
-  const currentVersionResult = await spawn('npm', ['--version'], {
-    shell: WIN32,
-  })
-  const currentVersion = currentVersionResult.stdout.trim()
-
-  // Check if current version meets requirements (>= 11.5.1).
-  const meetsRequirement = semver.gte(currentVersion, '11.5.1')
-
-  if (meetsRequirement) {
-    logger.info(`npm version: ${currentVersion}`)
-  } else {
-    // Install npm@latest if current version is insufficient.
-    logger.log(
-      `npm version ${currentVersion} does not meet 11.5.1+ requirement, installing npm@latest…`,
-    )
-    await spawn('npm', ['install', '-g', 'npm@latest'], { shell: WIN32 })
-    const result = await spawn('npm', ['--version'], { shell: WIN32 })
-    const npmVersion = result.stdout.trim()
-    logger.info(`npm version: ${npmVersion}`)
-
-    // Verify the new version meets requirements.
-    if (!semver.gte(npmVersion, '11.5.1')) {
-      throw new Error(
-        `npm version ${npmVersion} does not meet the 11.5.1+ requirement for trusted publishing`,
-      )
-    }
-  }
-}
-
-/**
- * Find all commits with version bumps in the registry package.
- */
-export async function findVersionBumpCommits() {
-  // Get git log with commit messages for version bumps.
-  // Matches both old style "Bump..." and new conventional commit style "chore(registry): bump...".
-  const result = await spawn('git', [
-    'log',
-    '-E',
-    '--grep=^Bump|^chore\\(registry\\): bump',
-    '--format=%H %s',
-    'main',
-  ])
-
-  const commits = []
-  const lines = result.stdout.trim().split('\n')
-
-  for (let i = 0, { length } = lines; i < length; i += 1) {
-    const line = lines[i]
-    // Parse a `<hex-hash> <name>` line: (1) the leading hex digest, (2) the rest.
-    const match = /^([a-f0-9]+) (.+)$/.exec(line)
-    if (!match) {
-      continue
-    }
-
-    const sha = match[1]
-    const message = match[2]
-
-    // Skip non-package bump commits (like dependency bumps).
-    // Accept specific version bump patterns:
-    // Old style:
-    // - "Bump to v<version>" (general format)
-    // - "Bump <pkgname> to v<version>"
-    // - "Bump registry package to v<version>"
-    // New conventional commit style:
-    // - "chore(registry): bump version to <version>"
-    // Exclude generic "Update" or "Bump" messages without version info.
-    if (
-      !/^Bump (?:.+? )?to v/.test(message) &&
-      !/^chore\(registry\): bump version to \d+\.\d+\.\d+/.test(message)
-    ) {
-      continue
-    }
-
-    // Get the registry package.json version at this commit.
-    try {
-      const pkgJsonResult = await spawn('git', [
-        'show',
-        `${sha}:registry/package.json`,
-      ])
-      const pkgJson = JSON.parse(pkgJsonResult.stdout)
-      commits.push({
-        sha,
-        version: pkgJson.version,
-        message,
-      })
-    } catch {
-      // Skip commits where registry/package.json doesn't exist or can't be parsed.
-    }
-  }
-
-  // Reverse to get chronological order (oldest first).
-  return commits.slice().toReversed()
-}
-
-/**
- * Get the full commit SHA for a given ref.
- */
-export async function getCommitSha(ref) {
-  const result = await spawn('git', ['rev-parse', ref])
-  return result.stdout.trim()
-}
-
-/**
- * Get the name of the current git branch.
- */
-export async function getCurrentBranch() {
-  const result = await spawn('git', ['rev-parse', '--abbrev-ref', 'HEAD'])
-  return result.stdout.trim()
-}
-
-/**
  * Create package metadata with defaults.
  */
 export function packageData(data) {
   const { printName = data.name, tag = LATEST } = data
   return Object.assign(data, { printName, tag })
-}
-
-/**
- * Publish package using npm with OIDC trusted publishing.
- *
- * @throws {TypeError} When state parameter is not an object.
- */
-export async function publish(pkg, state, options) {
-  await publishTrusted(pkg, state, options)
 }
 
 /**
@@ -373,99 +244,6 @@ export async function publishAtCommit(sha) {
   }
 
   return { fails, skipped }
-}
-
-/**
- * Publish multiple packages with concurrency control.
- *
- * @throws {TypeError} When state parameter is not an object.
- */
-export async function publishPackages(packages, state, options) {
-  const okayPackages = packages.filter(
-    pkg => !state.fails.includes(pkg.printName),
-  )
-  // Chunk non-failed package names to process them in parallel 3 at a time.
-  await pEach(
-    okayPackages,
-    async pkg => {
-      await publish(pkg, state, options)
-    },
-    { concurrency: 3 },
-  )
-}
-
-/**
- * Publish package using npm with OIDC trusted publishing.
- *
- * @throws {TypeError} When state parameter is not an object.
- */
-export async function publishTrusted(pkg, state, options) {
-  const { maxRetries = 3, retryDelay = 1000 } = { __proto__: null, ...options }
-  if (!isObjectObject(state)) {
-    throw new TypeError('A state object is required')
-  }
-
-  // Retry flow:
-  // 1. Attempt publish with npm using OIDC trusted publishing.
-  // 2. On success, exit immediately.
-  // 3. On error, check if package already exists (cannot publish over) - if so, exit.
-  // 4. On other errors, retry with exponential backoff: 1s, 2s, 4s delays.
-  // 5. After maxRetries exhausted, add to fails list and log final error.
-  let lastError
-  for (let attempt = 0; attempt < maxRetries; attempt += 1) {
-    try {
-      if (attempt > 0) {
-        const delay = retryDelay * 2 ** (attempt - 1)
-        logger.log(
-          `${pkg.printName}: Retry attempt ${attempt + 1}/${maxRetries} after ${delay}ms`,
-        )
-
-        await new Promise(resolve => setTimeout(resolve, delay))
-      }
-
-      // Use npm for trusted publishing with OIDC tokens. `--provenance`
-      // requires the GitHub Actions OIDC id-token endpoint, so it's
-      // gated on GITHUB_ACTIONS=true — local emergency publishes (run
-      // with a classic npm token) still work without provenance.
-      const publishArgs = ['publish', '--access', 'public']
-      if (process.env['GITHUB_ACTIONS'] === 'true') {
-        publishArgs.splice(1, 0, '--provenance')
-      }
-      const result = await spawn('npm', publishArgs, {
-        cwd: pkg.path,
-        env: {
-          ...process.env,
-          // Don't set NODE_AUTH_TOKEN for trusted publishing - uses OIDC.
-        },
-        shell: WIN32,
-      })
-      if (result.stdout) {
-        logger.log(result.stdout)
-      }
-      // Success - exit retry loop.
-      return
-    } catch (e) {
-      lastError = e
-      const stderr = e?.stderr ?? ''
-      // Don't retry if package already exists.
-      if (stderr.includes('cannot publish over')) {
-        return
-      }
-      // Log the error but continue retrying.
-      if (stderr && attempt < maxRetries - 1) {
-        logger.warn(`${pkg.printName}: Publish attempt ${attempt + 1} failed`)
-      }
-    }
-  }
-
-  // All retries exhausted.
-  state.fails.push(pkg.printName)
-  const stderr = lastError?.stderr ?? ''
-  if (stderr) {
-    logger.log('')
-    logger.log(extractNpmError(stderr))
-    logger.log('')
-  }
 }
 
 /**
