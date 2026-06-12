@@ -144,8 +144,9 @@ export function scanBackendArgv(
   const hits: Array<{ index: number; detail: string }> = []
   // A backend block opens with its name as a property key: `claude: {`.
   const backendKeyRe = /(\w+)\s*:\s*\{/g
-  // Env-var / bin literal that also marks a block as claude or codex.
+  // Env-var or bin literal marking a block as claude: `CLAUDE_MODEL` or `bin: 'claude'`.
   const CLAUDE_BLOCK_RE = /CLAUDE_MODEL|bin:\s*['"]claude['"]/
+  // Env-var or bin literal marking a block as codex: `CODEX_MODEL` or `bin: 'codex'`.
   const CODEX_BLOCK_RE = /CODEX_MODEL|bin:\s*['"]codex['"]/
   const modelFlagRe = /['"]--model['"]/g
   let m: RegExpExecArray | null
