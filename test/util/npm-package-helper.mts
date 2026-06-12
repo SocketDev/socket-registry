@@ -32,13 +32,25 @@ const SKIPPED_MODULE_STUB: unknown = new Proxy(function skippedModule() {}, {
   apply: () => undefined,
 })
 
+export interface SetupNpmPackageTestOptions {
+  // Explicit Socket-registry package name. By default the name is derived from
+  // the test filename (`<pkg>.test.mts`), which only works when a package's
+  // whole suite lives in one file. When a suite is split across sibling files
+  // (e.g. `safer-buffer.test.mts` + `safer-buffer-alloc.test.mts`), pass the
+  // real package name here so every split file binds to the same override
+  // instead of resolving a non-existent `<pkg>-<group>` and silently skipping.
+  package?: string | undefined
+}
+
 /**
  * Sets up an NPM package test by loading the module from packages/npm/.
  */
 export function setupNpmPackageTest(
   filename: string,
+  options?: SetupNpmPackageTestOptions | undefined,
 ): SetupNpmPackageTestResult {
-  const sockRegPkgName = path.basename(filename, '.test.mts')
+  const opts = { __proto__: null, ...options } as SetupNpmPackageTestOptions
+  const sockRegPkgName = opts.package ?? path.basename(filename, '.test.mts')
   const eco = NPM
   const skip = isPackageTestingSkipped(eco, sockRegPkgName)
   const pkgPath = path.join(NPM_PACKAGES_PATH, sockRegPkgName)
