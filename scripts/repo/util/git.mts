@@ -125,6 +125,7 @@ function getStagedPackagesSync(eco: string, options?: GetPackagesOptions) {
  * Alias for getUnstagedFiles.
  */
 export async function getModifiedFiles(options?: { cwd?: string | undefined }) {
+  options = { __proto__: null, ...options } as typeof options
   return await getUnstagedFiles(options?.cwd)
 }
 
@@ -132,6 +133,7 @@ export async function getModifiedFiles(options?: { cwd?: string | undefined }) {
  * Alias for getUnstagedFilesSync.
  */
 export function getModifiedFilesSync(options?: { cwd?: string | undefined }) {
+  options = { __proto__: null, ...options } as typeof options
   return getUnstagedFilesSync(options?.cwd)
 }
 
@@ -142,6 +144,7 @@ export async function isModified(
   pathname: string,
   options?: { cwd?: string | undefined },
 ) {
+  options = { __proto__: null, ...options } as typeof options
   return await isUnstagedImport(pathname, options?.cwd)
 }
 
@@ -152,6 +155,7 @@ export function isModifiedSync(
   pathname: string,
   options?: { cwd?: string | undefined },
 ) {
+  options = { __proto__: null, ...options } as typeof options
   return isUnstagedSyncImport(pathname, options?.cwd)
 }
 

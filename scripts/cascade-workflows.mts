@@ -190,7 +190,10 @@ export interface RunIterationOptions {
 export async function runIteration(
   options: RunIterationOptions,
 ): Promise<{ commits: number; converged: boolean }> {
-  const { dryRun, noVerify = false } = options
+  const { dryRun, noVerify = false } = {
+    __proto__: null,
+    ...options,
+  } as typeof options
   const head = git('rev-parse', 'HEAD')
   const pins = await scanPins()
   const stale = pins.filter(p => isStale(p, head))
