@@ -8,6 +8,27 @@
 # daily AI-credit budget, firewall egress allowlist, safe-output PR (GitHub
 # web-flow-signed + atomic via git-bundle — no BOT_GPG plumbing needed).
 on:
+  # workflow_dispatch is what makes this trial-able (`gh aw trial` / `gh aw run`
+  # both require it) and manually dispatchable; the inputs mirror workflow_call's
+  # so a manual run can override the same knobs. Production callers use
+  # workflow_call below.
+  workflow_dispatch:
+    inputs:
+      test-setup-script:
+        description: 'Command to run before tests (e.g. "pnpm run build")'
+        required: false
+        type: string
+        default: 'pnpm run build'
+      test-script:
+        description: 'Test command'
+        required: false
+        type: string
+        default: 'pnpm test'
+      update-model:
+        description: 'Claude model for the update step'
+        required: false
+        type: string
+        default: 'haiku'
   workflow_call:
     inputs:
       branch-prefix:
