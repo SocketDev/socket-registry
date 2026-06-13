@@ -64,6 +64,21 @@ const toolSchema = Type.Object(
     platforms: Type.Optional(platformsSchema),
     free: Type.Optional(flavorSchema),
     enterprise: Type.Optional(flavorSchema),
+    // Dated, self-expiring soak bypass for ONE specific version. When the
+    // latest release equals `version` and today is on/before `removable`, the
+    // bumper accepts it despite being inside the minimumReleaseAge window —
+    // for releases from a known publisher (GitHub-asset distributions) where
+    // the soak (aimed at npm typosquats / malicious freshpubs) is lower-value.
+    // `removable` (published + soak window) auto-disarms the bypass, so a stale
+    // entry can't grant a permanent waiver. Mirrors pnpm-workspace.yaml's
+    // `# published: <d> | removable: <d>` minimumReleaseAgeExclude annotations.
+    soakBypass: Type.Optional(
+      Type.Object({
+        version: Type.String(),
+        published: Type.String(),
+        removable: Type.String(),
+      }),
+    ),
     notes: Type.Optional(
       Type.Union([Type.String(), Type.Array(Type.String())]),
     ),

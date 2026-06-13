@@ -87,6 +87,23 @@ export function isOlderThanCooldown(publishedAt: string): boolean {
   return Date.now() - published >= COOLDOWN_MS
 }
 
+// A dated soak bypass applies to `latestVersion` when it names that exact
+// version and today is on/before its `removable` date. The `removable` date
+// (published + the soak window) auto-disarms the bypass so a forgotten entry
+// can't grant a permanent waiver.
+export function soakBypassApplies(
+  bypass:
+    | { version?: string | undefined; removable?: string | undefined }
+    | undefined,
+  latestVersion: string,
+): boolean {
+  if (!bypass || bypass.version !== latestVersion || !bypass.removable) {
+    return false
+  }
+  const removable = new Date(`${bypass.removable}T23:59:59Z`).getTime()
+  return Number.isFinite(removable) && Date.now() <= removable
+}
+
 export function versionFromTag(tag: string): string {
   return tag.replace(/^v/, '')
 }
@@ -96,14 +113,47 @@ export function versionFromTag(tag: string): string {
  * GitHub release. Mutates the map in place and returns a fresh object with the
  * new entries. Shared by the single-flavor and per-flavor code paths.
  */
+// Rewrite a version-embedded npm-tarball asset name to the new version, e.g.
+// `pnpm-11.5.1.tgz` (npmPackage `pnpm`, old `11.5.1`, new `11.6.0`) →
+// `pnpm-11.6.0.tgz`. Only substitutes the exact `<pkg>-<oldVersion>.tgz`
+// shape; anything else is returned unchanged.
+export function npmTarballAssetForVersion(
+  assetName: string,
+  npmPackage: string,
+  oldVersion: string,
+  newVersion: string,
+): string {
+  const expected = `${npmPackage}-${oldVersion}.tgz`
+  return assetName === expected ? `${npmPackage}-${newVersion}.tgz` : assetName
+}
+
 export async function recomputePlatforms(
   label: string,
   repo: string,
   release: GhRelease,
   platforms: Record<string, PlatformEntry>,
+  versions?: { npmPackage: string; oldVersion: string; newVersion: string },
 ): Promise<Record<string, PlatformEntry>> {
   const newPlatforms: Record<string, PlatformEntry> = {}
   for (const [platform, entry] of Object.entries(platforms)) {
+    // npm-tarball pin (`<pkg>-<version>.tgz`): the registry artifact, not a GH
+    // release asset (e.g. pnpm darwin-x64, which ships the npm JS tarball run
+    // through system Node — its SEA binary was dropped in 11.0.5). Rewrite the
+    // embedded version and fetch integrity from the npm registry.
+    if (entry.asset.endsWith('.tgz') && versions) {
+      const asset = npmTarballAssetForVersion(
+        entry.asset,
+        versions.npmPackage,
+        versions.oldVersion,
+        versions.newVersion,
+      )
+      const url = `https://registry.npmjs.org/${versions.npmPackage}/-/${asset}`
+      logger.log(`  ${label}/${platform}: hashing ${asset} (npm registry)`)
+      // eslint-disable-next-line no-await-in-loop
+      const integrity = await computeIntegrityFromUrl(url)
+      newPlatforms[platform] = { asset, integrity }
+      continue
+    }
     // Re-resolve the asset name against the latest release's asset
     // list. Most tools reuse the same filename pattern across
     // releases, but a tool might rename assets between versions
@@ -220,14 +270,20 @@ export async function updateTool(
       86_400_000
     ).toFixed(1)
     const cooldownDays = (COOLDOWN_MS / 86_400_000).toFixed(0)
-    logger.log(
-      `v${latestVersion} is only ${daysOld} days old (need ${cooldownDays}). Skipping.`,
-    )
-    return {
-      tool: name,
-      skipped: true,
-      updated: false,
-      reason: `too new (${daysOld} days, need ${cooldownDays})`,
+    if (soakBypassApplies(toolConfig.soakBypass, latestVersion)) {
+      logger.log(
+        `v${latestVersion} is only ${daysOld} days old (need ${cooldownDays}) — accepting via soakBypass (removable ${toolConfig.soakBypass!.removable}).`,
+      )
+    } else {
+      logger.log(
+        `v${latestVersion} is only ${daysOld} days old (need ${cooldownDays}). Skipping.`,
+      )
+      return {
+        tool: name,
+        skipped: true,
+        updated: false,
+        reason: `too new (${daysOld} days, need ${cooldownDays})`,
+      }
     }
   }
 
@@ -262,6 +318,11 @@ export async function updateTool(
       repo,
       release,
       toolConfig.platforms ?? {},
+      {
+        npmPackage: name,
+        oldVersion: currentVersion,
+        newVersion: latestVersion,
+      },
     )
   }
 
