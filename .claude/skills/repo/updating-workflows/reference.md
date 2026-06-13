@@ -32,20 +32,31 @@ Layer 2b — setup-and-install (references Layer 1 + 2a):
 Layer 3 — Shared reusable workflows (reference Layer 2):
   ci.yml                   -> refs: setup-and-install, run-script
   provenance.yml           -> refs: setup-and-install
-  weekly-update.yml        -> refs: setup-and-install, setup-git-signing, cleanup-git-signing
+  weekly-update.lock.yml   -> gh-aw compiled from weekly-update.md; dispatches
+                              fix-test-failures.lock.yml on a test failure
+  fix-test-failures.lock.yml -> gh-aw compiled from fix-test-failures.md (sonnet
+                              escalation worker)
 
 Layer 4 — _local workflows (reference Layer 3, not reused externally):
   _local-not-for-reuse-ci.yml             -> refs: ci.yml, setup-and-install, cache-npm-packages
   _local-not-for-reuse-provenance.yml     -> refs: provenance.yml
-  _local-not-for-reuse-weekly-update.yml  -> refs: weekly-update.yml (via uses) OR setup-and-install directly
+  _local-not-for-reuse-weekly-update.yml  -> refs: weekly-update.lock.yml (via uses)
 ```
+
+**weekly-update is a gh-aw workflow.** Edit the source `weekly-update.md` /
+`fix-test-failures.md`, then `gh aw compile` and commit the `.md`, its
+`.lock.yml`, and `.github/aw/actions-lock.json` together (the
+`gh-aw-locks-are-current` check guards the `.md` ↔ `.lock.yml` sync). The fleet
+pin reconciler tolerates the `.lock.yml` form. See the wheelhouse's
+`docs/agents.md/fleet/shared-workflow-cascade.md` for the full substrate +
+testing story (`gh aw trial`, not Agent CI).
 
 ---
 
 ## Propagation SHA
 
 The **propagation SHA** is the Layer 3 merge SHA — the one where `ci.yml`,
-`provenance.yml`, or `weekly-update.yml` were updated.
+`provenance.yml`, or `weekly-update.lock.yml` were updated.
 
 - Layer 4 (`_local-not-for-reuse-*`) pins to the propagation SHA
 - External repos pin to the propagation SHA
