@@ -1,0 +1,71 @@
+/**
+ * @file Error extraction utilities for cleaner error logging.
+ */
+
+/**
+ * Extract concise error information from stderr.
+ */
+function extractErrorInfo(stderr: string): string {
+  const lines = stderr.split('\n')
+  const result: string[] = []
+
+  // Find the main error message.
+  let foundError = false
+  for (let i = 0, { length } = lines; i < length; i += 1) {
+    const line = lines[i]
+    // Skip Node.js internal stack trace lines.
+    if (/^\s+at\s+/.test(line) || /node:internal/.test(line)) {
+      continue
+    }
+
+    // Include error type and message.
+    if (line.includes('Error:') || line.includes('error:')) {
+      foundError = true
+      result.push(line.trim())
+      continue
+    }
+
+    // Include code property if present.
+    if (foundError && /^\s*code:/.test(line)) {
+      result.push(line.trim())
+    }
+
+    // Stop after collecting essential info.
+    if (result.length >= 3) {
+      break
+    }
+  }
+
+  return result.length
+    ? result.join('\n')
+    : stderr.split('\n').slice(0, 3).join('\n')
+}
+
+/**
+ * Extract concise npm error from stderr.
+ */
+function extractNpmError(stderr: string): string {
+  const lines = stderr.split('\n')
+  const errorLines: string[] = []
+
+  for (let i = 0, { length } = lines; i < length; i += 1) {
+    const line = lines[i]
+    // Skip npm warnings and notices.
+    if (line.startsWith('npm warn') || line.startsWith('npm notice')) {
+      continue
+    }
+    // Include npm errors.
+    if (line.startsWith('npm error')) {
+      errorLines.push(line)
+    }
+  }
+
+  return errorLines.length
+    ? errorLines.join('\n')
+    : lines
+        .filter(l => l.trim() && !l.startsWith('npm warn'))
+        .slice(0, 5)
+        .join('\n')
+}
+
+export { extractErrorInfo, extractNpmError }

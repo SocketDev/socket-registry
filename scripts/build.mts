@@ -1,0 +1,56 @@
+/**
+ * @file Build script for socket-registry monorepo. Delegates to the registry
+ *   package build with proper flag handling.
+ */
+
+import path from 'node:path'
+import process from 'node:process'
+import { fileURLToPath } from 'node:url'
+
+import colors from 'yoctocolors-cjs'
+
+import { isQuiet } from '@socketsecurity/lib-stable/argv/flag-predicates'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
+
+import { runCommand } from './fleet/util/run-command.mts'
+
+const logger = getDefaultLogger()
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const rootPath = path.resolve(__dirname, '..')
+const registryPath = path.join(rootPath, 'registry')
+
+// Parse all flags from command line to pass through.
+const args = process.argv.slice(2)
+const quiet = isQuiet(args)
+
+async function main(): Promise<void> {
+  // Build the @socketsecurity/registry-stable package.
+  // This is required before running tests that import from it.
+  // Pass all arguments through to the registry build script.
+  const buildArgs = ['run', 'build']
+  if (args.length > 0) {
+    buildArgs.push('--', ...args)
+  }
+
+  const exitCode = await runCommand('pnpm', buildArgs, {
+    cwd: registryPath,
+  })
+
+  if (exitCode !== 0) {
+    if (!quiet) {
+      logger.error(
+        colors.red('✗ Failed to build @socketsecurity/registry-stable'),
+      )
+    }
+    process.exitCode = exitCode
+    return
+  }
+
+  process.exitCode = 0
+}
+
+main().catch((e: unknown) => {
+  logger.error(colors.red('✗ Build failed:'), e)
+  process.exitCode = 1
+})

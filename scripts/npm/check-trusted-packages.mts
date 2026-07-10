@@ -1,0 +1,374 @@
+/**
+ * @file Check that Socket packages have trusted package setup correctly. Checks
+ *
+ * @socketregistry/_, @socketoverride/_, and @socketsecurity/registry-stable
+ *   packages by default. Use --all flag to check all Socket packages across all
+ *   scopes.
+ */
+
+import { readFile } from 'node:fs/promises'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+import process from 'node:process'
+import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
+import { COLUMN_LIMIT } from '@socketsecurity/lib-stable/constants/sentinels'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
+import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
+
+const logger = getDefaultLogger()
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
+const allowedMaintainers = new Set([
+  'feross <feross@feross.org>',
+  'socket-bot <eng@socket.dev>',
+])
+
+const coreSocketPackages = [
+  '@socketsecurity/cli',
+  '@socketsecurity/registry-stable',
+  '@socketsecurity/sdk-stable',
+  'sfw',
+  'socket',
+]
+
+const otherSocketPackages = [
+  '@socketsecurity/cli-with-sentry',
+  '@socketsecurity/config',
+  '@socketsecurity/eslint-config',
+  '@socketsecurity/mcp',
+  'socket-mcp',
+  'socket-mpc',
+]
+
+const { values: args } = parseArgs({
+  options: {
+    all: {
+      type: 'boolean',
+      default: false,
+    },
+    debug: {
+      type: 'boolean',
+      default: false,
+    },
+    help: {
+      type: 'boolean',
+      default: false,
+    },
+  },
+  strict: false,
+})
+
+if (args.help) {
+  logger.log('')
+  logger.log('Usage: node check-trusted-packages.mjs [options]')
+  logger.log('')
+  logger.log('Options:')
+  logger.log(
+    '  --all     Check all Socket packages (@socketsecurity/*, @socketregistry/*, @socketoverride/*)',
+  )
+  logger.log(
+    '  --debug   Show detailed information for all packages (not just failures)',
+  )
+  logger.log('  --help    Show this help message')
+  logger.log('')
+  logger.log('By default, checks:')
+  logger.log('  - All @socketregistry/* packages')
+  logger.log('  - All @socketoverride/* packages')
+  logger.log('  - Core Socket packages (sfw, socket, etc.)')
+  logger.log('')
+  logger.log('With --all flag, adds:')
+  logger.log(
+    '  - Additional Socket packages (@socketsecurity/config, @socketsecurity/mcp, etc.)',
+  )
+  logger.log('')
+  process.exitCode = 0
+}
+
+async function getPackageInfo(packageName) {
+  try {
+    // Get the latest version specifically to ensure we get detailed info
+    const output = await runCommand('npm', [
+      'view',
+      packageName,
+      '--json',
+      'name',
+      'version',
+      'maintainers',
+      'repository',
+      'dist',
+    ])
+    return JSON.parse(output)
+  } catch {
+    return undefined
+  }
+}
+
+async function getPackagesFromManifest() {
+  try {
+    const manifestPath = path.join(__dirname, '..', 'registry', 'manifest.json')
+    const content = await readFile(manifestPath, 'utf8')
+    const manifest = JSON.parse(content)
+    const packages = new Set()
+
+    if (manifest.npm && Array.isArray(manifest.npm)) {
+      for (const entry of manifest.npm) {
+        const [, data] = entry
+        if (data?.name) {
+          // Only include @socketregistry/* and @socketoverride/* packages
+          if (
+            data.name.startsWith('@socketregistry/') ||
+            data.name.startsWith('@socketoverride/')
+          ) {
+            packages.add(data.name)
+          }
+        }
+      }
+    }
+
+    return Array.from(packages).toSorted()
+  } catch (e) {
+    logger.error('Failed to read manifest.json:', (e as Error).message)
+    return []
+  }
+}
+
+async function getPackagesFromScope(scope) {
+  try {
+    const output = await runCommand('npm', [
+      'search',
+      '--json',
+      `scope:${scope}`,
+      '--searchlimit=1000',
+    ])
+    const results = JSON.parse(output)
+    return results.map(pkg => pkg.name)
+  } catch (e) {
+    logger.error(
+      `Failed to search for ${scope} packages:`,
+      (e as Error).message,
+    )
+    return []
+  }
+}
+
+async function runCommand(command, commandArgs = []) {
+  try {
+    const result = await spawn(command, commandArgs, {
+      shell: process.platform === 'win32',
+      stdio: 'pipe',
+    })
+    if (result.code !== 0) {
+      throw new Error(
+        `Command failed with exit code ${result.code}: ${result.stderr}`,
+      )
+    }
+    return result.stdout
+  } catch (e) {
+    throw new Error(`Command failed: ${e.message}`)
+  }
+}
+
+export async function checkTrustedPackage(packageName, state) {
+  const info = await getPackageInfo(packageName)
+
+  if (!info) {
+    logger.fail('Package not found on npm')
+    return false
+  }
+
+  const issues = []
+  const successes = []
+
+  // Check if maintainers include expected Socket accounts
+  const maintainers = info.maintainers || []
+  const maintainerStrings = maintainers.map(m => {
+    if (typeof m === 'string') {
+      return m
+    }
+    return m.name && m.email ? `${m.name} <${m.email}>` : String(m)
+  })
+
+  const hasAllowedMaintainers =
+    maintainerStrings.length > 0 &&
+    maintainerStrings.every(m => allowedMaintainers.has(m))
+
+  if (!hasAllowedMaintainers) {
+    issues.push(`Unexpected maintainers: ${maintainerStrings.join(', ')}`)
+  } else {
+    successes.push(`Maintainers: ${maintainerStrings.join(', ')}`)
+  }
+
+  // Check repository field
+  const repository = info.repository
+  if (!repository || !repository.url) {
+    issues.push('No repository URL configured')
+  } else if (!repository.url.includes('SocketDev')) {
+    issues.push(`Repository not under SocketDev org: ${repository.url}`)
+  } else {
+    successes.push(`Repository: ${repository.url}`)
+  }
+
+  // Check for npm provenance (trusted publishing)
+  const dist = info.dist
+  if (dist?.attestations) {
+    successes.push('Trusted-published with npm provenance')
+  } else {
+    issues.push('Not trusted-published (missing provenance)')
+  }
+
+  // Display results
+  if (issues.length > 0) {
+    // Add newline if we were writing dots
+    if (!args.debug && state.linePosition > 0) {
+      process.stdout.write('\n')
+      state.linePosition = 0
+    }
+    logger.warn(`${packageName}:`)
+    logger.indent()
+    for (let i = 0, { length } = successes; i < length; i += 1) {
+      const success = successes[i]
+      logger.success(success)
+    }
+    for (let i = 0, { length } = issues; i < length; i += 1) {
+      const issue = issues[i]
+      logger.fail(issue)
+    }
+    if (info.version) {
+      logger.info(`Latest version: ${info.version}`)
+    }
+    logger.dedent()
+    logger.log('')
+    logger.log('')
+    return false
+  }
+
+  // Success - show minimal output unless debug mode
+  if (args.debug) {
+    for (let i = 0, { length } = successes; i < length; i += 1) {
+      const success = successes[i]
+      logger.success(success)
+    }
+    logger.info(`Latest version: ${info.version}`)
+  } else {
+    // Write a dot for minimal output with line wrapping
+    process.stdout.write('.')
+    state.linePosition += 1
+    if (state.linePosition >= COLUMN_LIMIT) {
+      process.stdout.write('\n')
+      state.linePosition = 0
+    }
+  }
+
+  return true
+}
+
+async function main(): Promise<void> {
+  const packagesToCheck = new Set()
+
+  // Always include packages from manifest (@socketregistry/*, @socketoverride/*).
+  const manifestPackages = await getPackagesFromManifest()
+  for (let i = 0, { length } = manifestPackages; i < length; i += 1) {
+    const pkg = manifestPackages[i]
+    packagesToCheck.add(pkg)
+  }
+
+  // Supplement with @socketregistry/* and @socketoverride/* packages from npm.
+  const socketRegistryPackages = await getPackagesFromScope('socketregistry')
+  for (let i = 0, { length } = socketRegistryPackages; i < length; i += 1) {
+    const pkg = socketRegistryPackages[i]
+    packagesToCheck.add(pkg)
+  }
+
+  const socketOverridePackages = await getPackagesFromScope('socketoverride')
+  for (let i = 0, { length } = socketOverridePackages; i < length; i += 1) {
+    const pkg = socketOverridePackages[i]
+    packagesToCheck.add(pkg)
+  }
+
+  // Always check core Socket packages.
+  for (let i = 0, { length } = coreSocketPackages; i < length; i += 1) {
+    const pkg = coreSocketPackages[i]
+    packagesToCheck.add(pkg)
+  }
+
+  if (args.all) {
+    // Add hardcoded other Socket packages.
+    for (let i = 0, { length } = otherSocketPackages; i < length; i += 1) {
+      const pkg = otherSocketPackages[i]
+      packagesToCheck.add(pkg)
+    }
+
+    // Supplement with any additional @socketsecurity/* packages from npm.
+    const socketSecurityPackages = await getPackagesFromScope('socketsecurity')
+    for (let i = 0, { length } = socketSecurityPackages; i < length; i += 1) {
+      const pkg = socketSecurityPackages[i]
+      packagesToCheck.add(pkg)
+    }
+  }
+
+  logger.write(`🔍 Checking ${packagesToCheck.size} Socket packages`)
+
+  const results = {
+    success: [],
+    failed: [],
+  }
+
+  // Track position for line wrapping - pass as state object
+  const state = { linePosition: 0 }
+
+  // Sort packages for consistent output
+  const sortedPackages = Array.from(packagesToCheck).toSorted()
+
+  for (let i = 0, { length } = sortedPackages; i < length; i += 1) {
+    const packageName = sortedPackages[i]
+    try {
+      if (args.debug) {
+        logger.group(packageName)
+      }
+
+      const success = await checkTrustedPackage(packageName, state)
+      if (args.debug) {
+        logger.groupEnd()
+        // Empty line between packages in debug mode
+        logger.log('')
+      }
+      if (success) {
+        results.success.push(packageName)
+      } else {
+        results.failed.push(packageName)
+      }
+    } catch (e) {
+      if (args.debug) {
+        logger.groupEnd()
+      }
+      logger.error(`Error checking ${packageName}:`, (e as Error).message)
+      results.failed.push(packageName)
+    }
+  }
+
+  // Add newline if we were writing dots and didn't wrap to a new line.
+  if (!args.debug && state.linePosition > 0) {
+    process.stdout.write('\n')
+  }
+
+  // Summary
+  logger.log('')
+  logger.log('')
+  logger.log('📊 Summary:')
+  logger.success(`${results.success.length} packages verified`)
+
+  if (results.failed.length > 0) {
+    logger.fail(`${results.failed.length} packages need attention`)
+    process.exitCode = 1
+    return
+  }
+
+  logger.log('')
+  logger.log('✨ All packages have correct trusted setup!')
+}
+
+main().catch(error => {
+  logger.error('Fatal error:', error)
+  process.exitCode = 1
+})

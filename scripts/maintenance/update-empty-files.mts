@@ -1,0 +1,87 @@
+/**
+ * @file Script for updating empty files to use standard empty content.
+ */
+
+import { promises as fs } from 'node:fs'
+import path from 'node:path'
+
+import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
+import { EMPTY_FILE } from '@socketsecurity/lib-stable/constants/sentinels'
+import { UTF8 } from '@socketsecurity/lib-stable/constants/encoding'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
+
+import fastGlob from 'fast-glob'
+
+const logger = getDefaultLogger()
+
+import { NPM_TEMPLATES_PATH, ROOT_PATH } from '../constants/paths.mts'
+import { getIgnoreGlobs } from '../constants/utils.mts'
+import { getModifiedFiles } from '../repo/util/git.mts'
+
+const { values: cliArgs } = parseArgs({
+  options: {
+    force: {
+      type: 'boolean',
+      short: 'f',
+    },
+    quiet: {
+      type: 'boolean',
+    },
+  },
+  strict: false,
+})
+
+const AUTO_FILE_GLOB_RECURSIVE = '**/auto.{d.ts,js}'
+
+async function main(): Promise<void> {
+  const ignoreGlobs = getIgnoreGlobs()
+  const modifiedAutoFile = (
+    await getModifiedFiles({ absolute: true, cwd: NPM_TEMPLATES_PATH })
+  ).find(p => path.basename(p).startsWith('auto.'))
+  // Exit early if no relevant files have been modified.
+  if (!cliArgs.force && !modifiedAutoFile) {
+    return
+  }
+  const autoFiles = await fastGlob.glob([AUTO_FILE_GLOB_RECURSIVE], {
+    ignore: ignoreGlobs,
+    absolute: true,
+    cwd: NPM_TEMPLATES_PATH,
+  })
+  const autoFile = modifiedAutoFile || autoFiles.at(0)
+  if (autoFile === undefined) {
+    return
+  }
+  const OLD_EMPTY_CONTENT = await fs.readFile(autoFile, UTF8)
+  const OLD_EMPTY_CONTENT_BYTES = Buffer.byteLength(OLD_EMPTY_CONTENT, UTF8)
+
+  await Promise.allSettled(
+    autoFiles.map(async filepath => {
+      // oxlint-disable-next-line socket/prefer-exists-sync -- need .size metadata
+      if ((await fs.stat(filepath)).size === OLD_EMPTY_CONTENT_BYTES) {
+        await fs.writeFile(filepath, EMPTY_FILE, UTF8)
+      }
+    }),
+  )
+  await Promise.allSettled(
+    (
+      await fastGlob.glob(['**/*.{d.ts,js}'], {
+        ignore: [AUTO_FILE_GLOB_RECURSIVE, ...ignoreGlobs],
+        absolute: true,
+        cwd: ROOT_PATH,
+      })
+    ).map(async filepath => {
+      if (
+        // oxlint-disable-next-line socket/prefer-exists-sync -- need .size metadata
+        (await fs.stat(filepath)).size === OLD_EMPTY_CONTENT_BYTES &&
+        (await fs.readFile(filepath, UTF8)) === OLD_EMPTY_CONTENT
+      ) {
+        await fs.writeFile(filepath, EMPTY_FILE, UTF8)
+      }
+    }),
+  )
+}
+
+main().catch((e: unknown) => {
+  logger.error(e)
+  process.exitCode = 1
+})
