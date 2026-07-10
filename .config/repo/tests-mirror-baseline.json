@@ -1,0 +1,5 @@
+[
+  "test/npm/hyrious__bun.lockb.test.mts",
+  "test/npm/json-stable-stringify.test.mts",
+  "test/packages.test.mts"
+]
