@@ -1,46 +1,22 @@
 {
+  "extends": "./.config/fleet/tsconfig.base.json",
   "compilerOptions": {
     "allowImportingTsExtensions": true,
-    "allowJs": false,
-    "composite": false,
     "declaration": true,
-    "declarationMap": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "incremental": false,
-    "isolatedModules": true,
-    "lib": ["ES2024"],
+    "declarationMap": false,
     "module": "esnext",
     "moduleResolution": "bundler",
     "noEmit": true,
-    "noEmitOnError": true,
-    "resolveJsonModule": true,
-    "skipLibCheck": true,
-    "sourceMap": true,
-    "strict": true,
-    "strictNullChecks": true,
-    "target": "ES2024",
-    "types": ["node"],
-    "useUnknownInCatchVariables": true,
-
-    /* New checks being tried out */
-    "exactOptionalPropertyTypes": true,
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitOverride": true,
-    "noPropertyAccessFromIndexSignature": true,
-    "noUncheckedIndexedAccess": true,
-
-    /* Additional checks */
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noUncheckedSideEffectImports": true
+    "sourceMap": false
   },
   "include": ["**/*.ts", "**/*.mts", "**/*.cts"],
   "exclude": [
-    "**/node_modules/**/*",
-    "scripts/templates/**/*",
-    "test/**/packages/**/*",
-    "test/npm/node_modules/**",
-    "test/npm/**/*.d.ts"
+    "**/.cache/**",
+    "**/node_modules/**",
+    "packages/npm/**",
+    "scripts/**",
+    "test/**/packages/**",
+    "test/npm/**/*.d.ts",
+    "test/npm/node_modules/**"
   ]
 }
