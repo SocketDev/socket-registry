@@ -1,7 +1,12 @@
+# Layer 4 — `_local` wrapper. NOT reused externally; this is
+# socket-registry's own publish entry point. References Layer 3
+# (publish-npm.yml) which it pins to the PROPAGATION SHA on cascade.
+# See updating-workflows skill at .claude/skills/updating-workflows/.
+
 name: 📦 Publish
 
 # Dependencies:
-#   - SocketDev/socket-registry/.github/workflows/provenance.yml
+#   - SocketDev/socket-registry/.github/workflows/publish-npm.yml
 
 on:
   workflow_dispatch:
@@ -31,11 +36,13 @@ permissions:
 
 jobs:
   publish:
-    uses: SocketDev/socket-registry/.github/workflows/provenance.yml@dd7ea0c4fe523792f75c4002b20e2e5c2e14c066 # main
+    uses: SocketDev/socket-registry/.github/workflows/publish-npm.yml@d49d2db7848b19420ff5f28ad66a9e0757b66760 # main (2026-07-08)
     with:
       debug: ${{ inputs.debug }}
       force-registry: ${{ inputs.force-registry }}
-      skip-npm-packages: ${{ inputs.skip-npm-packages }}
-      publish-script: 'package-npm-publish' # runs scripts/publish-npm-packages.mjs
+      publish-script: 'package-npm-publish' # runs scripts/npm/publish-npm-packages.mts
       setup-script: 'pnpm run build'
+      skip-npm-packages: ${{ inputs.skip-npm-packages }}
       use-trusted-publishing: true
+    secrets:
+      SOCKET_API_TOKEN: ${{ secrets.SOCKET_API_TOKEN }}

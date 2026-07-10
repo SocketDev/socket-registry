@@ -1,0 +1,86 @@
+# Layer 1 — leaf action (no internal SocketDev refs). Consumed by
+# `_local-not-for-reuse-ci.yml` (Layer 4) inline. No internal cascade.
+
+name: 'Cache NPM Test Packages'
+description: 'Cache npm test packages to speed up subsequent CI runs'
+
+# WHAT GETS CACHED:
+#   - ~/.socket-npm-test-cache/ directory containing all installed test packages
+#   - Each package is in its own subdirectory with node_modules and test files
+#   - Package installations are validated with .socket-install-complete markers
+#   - Cache includes installed dependencies but NOT Socket override source node_modules
+#
+# CACHE INVALIDATION:
+#   - Cache key includes hash of all packages/npm/*/package.json files
+#   - Changing any Socket override package.json invalidates the entire cache
+#   - Cache version (v2) can be bumped to force global cache invalidation
+#   - OS-specific caching ensures platform compatibility
+#
+# CACHE CLEANUP:
+#   - install-npm-packages.mjs cleans node_modules from packages/npm/* before installation
+#   - This prevents pnpm workspace symlinks from interfering with CI installation
+#   - Cached test packages remain untouched in ~/.socket-npm-test-cache/
+#
+# Dependencies:
+#   - actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5 (2026-05-15)
+
+inputs:
+  path:
+    description: 'Path to cache directory'
+    required: false
+    default: '~/.socket-npm-test-cache'
+  key-prefix:
+    description: 'Cache key prefix'
+    required: false
+    default: 'npm-test-packages'
+  cache-version:
+    description: 'Cache version for busting'
+    required: false
+    default: 'v3'
+  restore-keys:
+    description: 'Restore keys for fallback'
+    required: false
+    default: ''
+
+outputs:
+  cache-hit:
+    description: 'Whether cache was hit'
+    value: ${{ steps.cache.outputs.cache-hit }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Determine cache path
+      id: cache-path
+      shell: bash
+      run: |
+        if [ "${{ runner.os }}" = "Windows" ]; then
+          # On Windows, expand ~ to home directory
+          CACHE_PATH="${USERPROFILE}/.socket-npm-test-cache"
+          CACHE_PATH=$(echo "$CACHE_PATH" | sed 's|\\|/|g')
+        else
+          # On Unix-like systems
+          CACHE_PATH="${HOME}/.socket-npm-test-cache"
+        fi
+        echo "cache-path=$CACHE_PATH" >> $GITHUB_OUTPUT
+        echo "Using cache path: $CACHE_PATH"
+
+    - name: Cache npm test packages
+      id: cache
+      uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5 (2026-05-15)
+      with:
+        path: ${{ steps.cache-path.outputs.cache-path }}
+        # Use cache version, package manifest hash and OS in cache key for specificity
+        key: ${{ inputs.key-prefix }}-${{ inputs.cache-version }}-${{ runner.os }}-${{ hashFiles('packages/npm/*/package.json') }}
+        restore-keys: |
+          ${{ inputs.key-prefix }}-${{ inputs.cache-version }}-${{ runner.os }}-
+          ${{ inputs.key-prefix }}-${{ inputs.cache-version }}-
+
+    - name: Create cache directory if missing
+      if: steps.cache.outputs.cache-hit != 'true'
+      shell: bash
+      env:
+        CACHE_DIR: ${{ steps.cache-path.outputs.cache-path }}
+      run: |
+        mkdir -p "$CACHE_DIR"
+        echo "Cache directory created at $CACHE_DIR"

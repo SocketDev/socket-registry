@@ -1,3 +1,10 @@
+# Layer 4 — `_local` wrapper. NOT reused externally; this is
+# socket-registry's own CI entry point. References Layer 3 (ci.yml)
+# AND inline Layer 1 (cache-npm-packages) + Layer 2b (setup-and-install)
+# for the additional jobs it runs alongside the reusable workflow.
+# Both ref kinds bump to the PROPAGATION SHA during cascade. See
+# updating-workflows skill — Phase 5 (Layer 4) sweeps both ref shapes.
+
 name: 🚀 CI
 
 # Dependencies:
@@ -17,36 +24,29 @@ permissions:
 jobs:
   ci:
     name: Run CI Pipeline
-    uses: SocketDev/socket-registry/.github/workflows/ci.yml@dd7ea0c4fe523792f75c4002b20e2e5c2e14c066 # main
+    uses: SocketDev/socket-registry/.github/workflows/ci.yml@d49d2db7848b19420ff5f28ad66a9e0757b66760 # main (2026-07-08)
     with:
-      fail-fast: false
-      lint-script: 'pnpm run lint --all'
-      lint-setup-script: 'pnpm run build'
-      node-versions: '[20, 22, 24]'
-      os-versions: '["ubuntu-latest", "windows-latest"]'
       test-script: 'pnpm run test --all --fast'
-      test-setup-script: 'pnpm run build'
-      type-check-script: 'pnpm run check'
-      type-check-setup-script: 'pnpm run build'
+      node-versions: '["24"]'
+      os-versions: '["ubuntu-latest", "windows-latest"]'
+    secrets:
+      SOCKET_API_TOKEN: ${{ secrets.SOCKET_API_TOKEN }}
 
   test-npm-packages:
     name: Test NPM Packages
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2 (2026-05-15)
         with:
-          autocrlf: false
+          fetch-depth: 1
           persist-credentials: false
-
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@dd7ea0c4fe523792f75c4002b20e2e5c2e14c066 # main
+      - uses: ./.github/actions/fleet/setup-and-install
         with:
-          node-version: 22
+          node-version: 24
 
-      - uses: SocketDev/socket-registry/.github/actions/cache-npm-packages@dd7ea0c4fe523792f75c4002b20e2e5c2e14c066 # main
-
-      - name: Build registry
-        run: pnpm run build
-
-      - name: Run npm package tests
-        run: node scripts/npm/test-npm-packages.mjs
+      - name: Build and test npm packages
+        shell: bash
+        run: |
+          pnpm run build
+          pnpm run test:npm
