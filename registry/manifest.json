@@ -6,7 +6,7 @@
         "categories": ["cleanup"],
         "deprecated": true,
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "BSD-3-Clause",
@@ -20,7 +20,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs", "esm"],
         "license": "MIT",
@@ -34,7 +34,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -48,7 +48,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -62,7 +62,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -76,7 +76,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -90,7 +90,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -104,7 +104,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -118,7 +118,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -132,7 +132,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -146,7 +146,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -160,7 +160,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -174,7 +174,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -188,7 +188,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -202,7 +202,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -216,7 +216,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -230,7 +230,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -244,7 +244,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -258,7 +258,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -272,7 +272,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -286,7 +286,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -300,7 +300,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -314,7 +314,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -328,7 +328,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -342,7 +342,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -356,7 +356,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["browserify", "cjs"],
         "license": "MIT",
@@ -370,7 +370,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -384,7 +384,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -398,7 +398,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -412,7 +412,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -426,7 +426,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -440,7 +440,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -454,7 +454,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -468,7 +468,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "ISC",
@@ -482,7 +482,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -496,7 +496,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -510,7 +510,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -524,7 +524,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -538,7 +538,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -552,7 +552,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -566,7 +566,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -580,7 +580,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "(Apache-2.0 OR MPL-1.1)",
@@ -594,7 +594,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -608,7 +608,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -622,7 +622,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -636,7 +636,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -650,7 +650,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -664,7 +664,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -678,7 +678,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs", "esm"],
         "license": "MIT",
@@ -692,7 +692,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs", "esm"],
         "license": "MIT",
@@ -706,7 +706,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -720,7 +720,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["browserify", "cjs"],
         "license": "MIT",
@@ -734,7 +734,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["browserify", "cjs"],
         "license": "MIT",
@@ -748,7 +748,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["browserify", "cjs"],
         "license": "MIT",
@@ -762,7 +762,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["browserify", "cjs"],
         "license": "MIT",
@@ -776,7 +776,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["browserify", "cjs"],
         "license": "MIT",
@@ -790,7 +790,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["browserify", "cjs"],
         "license": "MIT",
@@ -804,7 +804,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["browserify", "cjs"],
         "license": "MIT",
@@ -818,7 +818,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs", "esm"],
         "license": "MIT",
@@ -832,7 +832,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["browserify", "cjs"],
         "license": "MIT",
@@ -846,7 +846,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -860,7 +860,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -874,7 +874,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["browserify", "cjs"],
         "license": "MIT",
@@ -888,7 +888,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["browserify", "cjs"],
         "license": "MIT",
@@ -902,7 +902,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["browserify", "cjs"],
         "license": "MIT",
@@ -916,7 +916,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["browserify", "cjs"],
         "license": "MIT",
@@ -930,7 +930,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["browserify", "cjs"],
         "license": "MIT",
@@ -944,7 +944,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["browserify", "cjs"],
         "license": "MIT",
@@ -958,7 +958,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["browserify", "cjs"],
         "license": "MIT",
@@ -972,7 +972,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs", "esm"],
         "license": "MIT",
@@ -986,7 +986,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["browserify", "cjs"],
         "license": "MIT",
@@ -1000,7 +1000,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1014,7 +1014,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["browserify", "cjs"],
         "license": "MIT",
@@ -1028,7 +1028,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1042,7 +1042,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1056,7 +1056,7 @@
       {
         "categories": ["cleanup", "levelup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1070,7 +1070,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "Public Domain",
@@ -1084,7 +1084,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1098,7 +1098,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1112,7 +1112,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1126,7 +1126,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1140,7 +1140,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1154,7 +1154,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1168,7 +1168,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1182,7 +1182,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1196,7 +1196,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1210,7 +1210,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1224,7 +1224,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1238,7 +1238,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1248,17 +1248,17 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/packageurl-js@1.4.1",
+      "pkg:npm/%40socketregistry/packageurl-js@1.4.2",
       {
         "categories": ["levelup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
         "name": "@socketregistry/packageurl-js",
         "package": "packageurl-js",
-        "version": "1.4.1"
+        "version": "1.4.2"
       }
     ],
     [
@@ -1266,7 +1266,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1280,7 +1280,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1294,7 +1294,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1308,7 +1308,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1322,7 +1322,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1336,7 +1336,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1350,7 +1350,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1364,7 +1364,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1378,7 +1378,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1392,7 +1392,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1406,7 +1406,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1420,7 +1420,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1434,7 +1434,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1448,7 +1448,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1462,7 +1462,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1476,7 +1476,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1490,7 +1490,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1504,7 +1504,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1518,7 +1518,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1532,7 +1532,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1546,7 +1546,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1560,7 +1560,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1574,7 +1574,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1588,7 +1588,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1602,7 +1602,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1616,7 +1616,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1630,7 +1630,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1644,7 +1644,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1658,7 +1658,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1672,7 +1672,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1686,7 +1686,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1700,7 +1700,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1714,7 +1714,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1728,7 +1728,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1742,7 +1742,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1756,7 +1756,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1770,7 +1770,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1784,7 +1784,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1798,7 +1798,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1812,7 +1812,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1826,7 +1826,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",
@@ -1840,7 +1840,7 @@
       {
         "categories": ["cleanup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs", "esm"],
         "license": "MIT",
@@ -1854,7 +1854,7 @@
       {
         "categories": ["tuneup"],
         "engines": {
-          "node": ">=18"
+          "node": ">=24"
         },
         "interop": ["cjs"],
         "license": "MIT",

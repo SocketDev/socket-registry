@@ -2,6 +2,7 @@
   "compilerOptions": {
     "allowImportingTsExtensions": false,
     "allowJs": false,
+    "allowSyntheticDefaultImports": true,
     "declaration": false,
     "declarationMap": false,
     "esModuleInterop": true,
@@ -12,6 +13,9 @@
     "moduleResolution": "node",
     "noEmit": false,
     "noEmitOnError": false,
+    "noImplicitAny": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "outDir": "dist",
     "resolveJsonModule": true,
     "rootDir": "src",
@@ -22,26 +26,15 @@
     "target": "es2022",
     "types": ["node"],
     "useUnknownInCatchVariables": true,
-    "verbatimModuleSyntax": false,
-    "allowSyntheticDefaultImports": true,
-    "noImplicitAny": false,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "paths": {
-      "#constants/*": ["./src/constants/*"],
-      "#env/*": ["./src/env/*"],
-      "#lib/*": ["./src/lib/*"],
-      "#packages/*": ["./src/lib/packages/*"],
-      "#types": ["./src/types"],
-      "#utils/*": ["./src/utils/*"],
-      "@socketsecurity/lib": ["../../socket-lib/dist/index.d.ts"],
-      "@socketsecurity/lib/*": ["../../socket-lib/dist/*"],
-      "cacache": ["./src/external/cacache"],
-      "make-fetch-happen": ["./src/external/make-fetch-happen"],
-      "fast-sort": ["./src/external/fast-sort"],
-      "pacote": ["./src/external/pacote"]
-    }
+    "verbatimModuleSyntax": false
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts"],
-  "exclude": ["node_modules", "dist/**/*", "lib", "test", "src/**/*.js"]
+  "exclude": [
+    ".cache",
+    "dist/**/*",
+    "lib",
+    "node_modules",
+    "src/**/*.js",
+    "test"
+  ]
 }

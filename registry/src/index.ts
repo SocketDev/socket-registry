@@ -1,6 +1,6 @@
 /**
- * @fileoverview Main entry point for Socket Registry v2.0.
- * Provides access to manifest data.
+ * @file Main entry point for Socket Registry v2.0. Provides access to manifest
+ *   data.
  */
 
 import type { Manifest, ManifestEntry, ManifestEntryData } from './types'
