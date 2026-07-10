@@ -2,10 +2,70 @@ packages:
   - packages/npm/*
   - perf/*
   - registry
-  - scripts
+  - .claude/hooks/*
+  - '.config/fleet/oxlint-plugin'
+  - '.config/fleet/oxlint-plugin/fleet/*'
+
+# Packages allowed to run build scripts (pnpm v11 strictDepBuilds default).
+allowBuilds:
+  '@anthropic-ai/claude-code': false
+  cpu-features: false
+  protobufjs: false
+  rolldown: true
+  ssh2: false
+
+pmOnFail: warn
 
 catalog:
-  '@babel/core': 7.28.4
+  '@ultrathink/acorn.wasm': npm:@ultrathink/acorn-wasm@0.0.1
+  'brace-expansion': 5.0.6
+  'browserslist': 4.26.3
+  'c8': 10.1.3
+  'cacache': 20.0.1
+  'clipboardy': 4.0.0
+  'debug': ^4.4.3
+  'del': 8.0.1
+  'del-cli': 6.0.0
+  'dev-null-cli': 2.0.0
+  'didyoumean2': 7.0.4
+  'eslint': 9.35.0
+  'eslint-import-resolver-typescript': 4.4.4
+  'eslint-plugin-import-x': 4.16.1
+  'eslint-plugin-n': 17.23.1
+  'eslint-plugin-sort-destructure-keys': 2.0.0
+  'eslint-plugin-unicorn': 56.0.1
+  'eta': 3.5.0
+  'fast-glob': 3.3.3
+  'fast-sort': 3.4.1
+  'fs-extra': 11.3.1
+  'get-east-asian-width': 1.3.0
+  'globals': 16.4.0
+  'iconv-lite': 0.6.3
+  'js-yaml': npm:@zkochan/js-yaml@0.0.10
+  'libnpmpack': 9.0.9
+  'make-fetch-happen': 15.0.2
+  'minimatch': 9.0.7
+  'normalize-package-data': 8.0.0
+  'npm-package-arg': 13.0.0
+  'out-url': 1.2.2
+  'pacote': 21.0.1
+  'read-yaml-file': 2.1.0
+  'source-map-support': 0.5.21
+  'spdx-correct': 3.2.0
+  'spdx-expression-parse': 4.0.0
+  'streaming-iterables': 8.0.1
+  'svgo': 4.0.1
+  'tar': 7.5.11
+  'trash': 10.0.0
+  'type-coverage': 2.29.7
+  'typescript-eslint': 8.44.1
+  'update-browserslist-db': 1.1.3
+  'validate-npm-package-name': 6.0.2
+  'which': 5.0.0
+  'yargs-parser': 22.0.0
+  'yoctocolors-cjs': 2.1.3
+  # Restored repo-owned entries an older cascade splice dropped; versions
+  # match the last state origin CI installed with.
   '@babel/generator': 7.28.3
   '@babel/parser': 7.28.4
   '@babel/traverse': 7.28.4
@@ -21,82 +81,320 @@ catalog:
   '@mdn/browser-compat-data': 7.1.5
   '@npmcli/package-json': 7.0.0
   '@npmcli/promise-spawn': 8.0.3
-  '@socketregistry/packageurl-js': 1.4.1
-  '@socketsecurity/lib': 5.11.4
   '@types/fs-extra': 11.0.4
-  '@types/node': 24.9.2
   '@types/normalize-package-data': 2.4.4
   '@types/npm-package-arg': 6.1.4
   '@types/npmcli__package-json': 4.0.4
   '@types/npmcli__promise-spawn': 6.0.3
   '@types/picomatch': 4.0.2
-  '@types/semver': 7.7.1
   '@types/spdx-correct': 3.1.3
   '@types/spdx-expression-parse': 3.0.5
   '@types/validate-npm-package-name': 4.0.2
   '@types/which': 3.0.4
-  '@typescript/native-preview': 7.0.0-dev.20250920.1
-  '@vitest/coverage-v8': 4.0.3
-  '@vitest/ui': 4.0.3
+  '@typescript/native-preview': 7.0.0-dev.20260510.1
   '@yarnpkg/extensions': 2.0.6
   '@zkochan/js-yaml': 0.0.10
-  brace-expansion: 2.0.2
-  browserslist: 4.26.3
-  c8: 10.1.3
-  cacache: 20.0.1
-  clipboardy: 4.0.0
-  debug: ^4.4.3
-  del: 8.0.1
-  del-cli: 6.0.0
-  dev-null-cli: 2.0.0
-  didyoumean2: 7.0.4
-  esbuild: 0.25.11
-  eslint: 9.35.0
-  eslint-import-resolver-typescript: 4.4.4
-  eslint-plugin-import-x: 4.16.1
-  eslint-plugin-n: 17.23.1
-  eslint-plugin-sort-destructure-keys: 2.0.0
-  eslint-plugin-unicorn: 56.0.1
-  eta: 3.5.0
-  fast-glob: 3.3.3
-  fast-sort: 3.4.1
-  fs-extra: 11.3.1
-  get-east-asian-width: 1.3.0
-  globals: 16.4.0
-  husky: 9.1.7
-  iconv-lite: 0.6.3
-  js-yaml: npm:@zkochan/js-yaml@0.0.10
-  libnpmpack: 9.0.9
-  magic-string: 0.30.17
-  make-fetch-happen: 15.0.2
-  minimatch: 9.0.5
-  normalize-package-data: 8.0.0
-  npm-package-arg: 13.0.0
-  out-url: 1.2.2
-  pacote: 21.0.1
-  read-yaml-file: 2.1.0
-  semver: 7.7.2
-  source-map-support: 0.5.21
-  spdx-correct: 3.2.0
-  spdx-expression-parse: 4.0.0
-  streaming-iterables: 8.0.1
-  tar: 7.5.1
-  taze: 19.6.0
-  trash: 10.0.0
-  tsx: 4.20.5
-  type-coverage: 2.29.7
-  typescript: 5.9.2
-  typescript-eslint: 8.44.1
-  update-browserslist-db: 1.1.3
-  validate-npm-package-name: 6.0.2
-  vite: 7.1.12
-  vitest: 4.0.3
-  which: 5.0.0
-  yargs-parser: 22.0.0
-  yoctocolors-cjs: 2.1.3
-  zod: 4.1.12
+  # agent-ci runs a repo's GitHub Actions workflows locally in Docker so a
+  # change can be validated before it's pushed (see the `agent-ci` skill).
+  # The published package is a self-contained Node CLI (`dist/cli.js`) — no
+  # platform-binary optionalDependencies, despite the monorepo's internal
+  # workspace layout. dtu-github-actions is its GitHub-Actions parser, pinned
+  # explicitly (not left transitive) so its version is uniform fleet-wide.
+  '@anthropic-ai/claude-code': 2.1.199
+  '@babel/core': 7.28.4
+  '@redwoodjs/agent-ci': 0.16.2
+  'dtu-github-actions': 0.16.2
+  '@sinclair/typebox': 0.34.49
+  '@socketregistry/packageurl-js': 1.4.2
+  # -stable aliases: pnpm `overrides:` can't redirect a package's own
+  # name when used INSIDE that same package — Node ESM treats it as a
+  # self-reference and resolves through the local exports map, not
+  # the override. The 4 Socket-published packages therefore need a
+  # SECOND name (`<canonical>-stable`) aliased via `npm:` to the
+  # published version. Build / hook / script / config code uses the
+  # -stable name so it always resolves to the published catalog
+  # version regardless of where the importing file lives. src/ +
+  # test/ code uses the canonical name because vitest aliases that
+  # to local src/.
+  '@socketregistry/packageurl-js-stable': 'npm:@socketregistry/packageurl-js@1.4.2'
+  '@socketsecurity/lib': 6.0.9
+  '@socketsecurity/lib-stable': 'npm:@socketsecurity/lib@6.0.9'
+  '@socketsecurity/registry': 2.0.2
+  '@socketsecurity/registry-stable': 'npm:@socketsecurity/registry@2.0.2'
+  '@socketsecurity/sdk': 4.0.1
+  '@socketsecurity/sdk-stable': 'npm:@socketsecurity/sdk@4.0.1'
+  '@types/mdast': 4.0.4
+  '@types/node': 26.1.0
+  '@types/semver': 7.7.1
+  '@types/shell-quote': 1.7.5
+  'compromise': 14.15.1
+  # comptime 0.1.0 — Zig-inspired build-time evaluation for Rolldown/Vite.
+  # Wraps comptime(() => expr) calls; the Rolldown plugin evaluates them at
+  # build time and replaces the call site with the serialized literal result.
+  # Use in rolldown.config.mts for any repo with a Rolldown build.
+  # published: 2026-05-07 (26 days, past 7-day soak)
+  'comptime': 0.1.0
+  'html5parser': 3.0.0
+  'magic-string': 0.30.21
+  'markdownlint-cli2': 0.23.0
+  'mdast-util-from-markdown': 2.0.3
+  'micromark': 4.0.2
+  # nock 14.0.15 — HTTP mocking for tests (disableNetConnect() + stubs). The
+  # cascaded test/unit/fleet/ adapter suites import it. Stable line, published
+  # 2026-05-07 (well past the 7-day soak), so no minimumReleaseAgeExclude entry.
+  'neosanitize': 0.3.0
+  'nock': 14.0.16
+  'npm-run-all2': 9.0.2
+  'oxfmt': 0.57.0
+  'oxlint': 1.72.0
+  # playwright-core — headless Chromium driver for the seeing-rendered-output
+  # skill (render a page / unpacked MV3 extension popup to PNG). Fleet-canonical
+  # catalog dep; source of truth is template/pnpm-workspace.fleet.yaml.
+  'playwright-core': 1.61.1
+  # Direct bundler pin for repos that run rolldown as their build
+  # (socket-packageurl-js, socket-webext, the trusted-publisher
+  # extension, and the in-progress esbuild→rolldown migrations).
+  # Single-sourcing the version here stops the per-repo drift
+  # (was 1.0.0 / 1.0.1 / 1.0.2 across adopters). Matches the
+  # vite-bundled rolldown (8.0.14 → 1.0.2); the per-platform
+  # @rolldown/binding-* + @oxc-project/types stay as soak-excluded
+  # transitives (consumers depend on `rolldown` only).
+  'regjsparser': 0.13.2
+  'rolldown': 1.1.4
+  'semver': 7.8.5
+  'shell-quote': 1.9.0
+  'taze': 19.14.1
+  # vite 8.0.14 swaps esbuild → rolldown natively (bundles rolldown
+  # 1.0.2). Tracked here so the pnpm override below can pin every
+  # transitive `vite` (vitest, @vitest/*, plugin authors) to it.
+  'typescript': 7.0.2
+  'vite': 8.1.0
+  'vitest': 4.1.9
+  '@vitest/coverage-v8': 4.1.9
+  '@vitest/ui': 4.1.9
 
-patchedDependencies:
-  brace-expansion@2.0.2: patches/brace-expansion@2.0.2.patch
-  iconv-lite@0.6.3: patches/iconv-lite@0.6.3.patch
-  minimatch@9.0.5: patches/minimatch@9.0.5.patch
+# pnpm `overrides` block — two purposes:
+#
+# 1. Force every transitive `vite` resolution to the catalog'd 8.0.13.
+#    Vitest 4.1.6 advertises support for `vite: ^6.0.0 || ^7.0.0 || ^8.0.0`,
+#    so the bump is compatible. The override is what actually removes
+#    esbuild from the install tree — without it, vitest would still
+#    resolve vite ^6.x.
+#
+# 2. Force every consumer of Socket's own packages to resolve through
+#    the catalog-pinned published versions. The `catalog:` form rewrites
+#    `workspace:*`, `^x.y.z`, and bare-version specs alike to the version
+#    in the default `catalog:` block above. This is the safety property
+#    that prevents accidental local-checkout resolution when a sibling
+#    repo is on disk: even if a downstream package declares
+#    `"@socketsecurity/lib": "workspace:*"`, pnpm rewrites it to the
+#    pinned npm version instead of a sibling working tree.
+resolutionMode: highest
+
+# Wait 7 days (10080 minutes) before installing newly published packages.
+minimumReleaseAge: 10080
+minimumReleaseAgeExclude:
+  # typescript 7.0.2 — first stable of the native 7.x compiler line, pulled
+  # ahead of the soak by owner directive (out of RC). The main package + its
+  # 20-package per-platform binding family are pinned to the exact version
+  # (a scope glob would blanket-bypass any future @typescript publish).
+  # published: 2026-07-08 | removable: 2026-07-15
+  - 'typescript@7.0.2'
+  # published: 2026-07-08 | removable: 2026-07-15
+  - '@typescript/typescript-aix-ppc64@7.0.2'
+  # published: 2026-07-08 | removable: 2026-07-15
+  - '@typescript/typescript-darwin-arm64@7.0.2'
+  # published: 2026-07-08 | removable: 2026-07-15
+  - '@typescript/typescript-darwin-x64@7.0.2'
+  # published: 2026-07-08 | removable: 2026-07-15
+  - '@typescript/typescript-freebsd-arm64@7.0.2'
+  # published: 2026-07-08 | removable: 2026-07-15
+  - '@typescript/typescript-freebsd-x64@7.0.2'
+  # published: 2026-07-08 | removable: 2026-07-15
+  - '@typescript/typescript-linux-arm@7.0.2'
+  # published: 2026-07-08 | removable: 2026-07-15
+  - '@typescript/typescript-linux-arm64@7.0.2'
+  # published: 2026-07-08 | removable: 2026-07-15
+  - '@typescript/typescript-linux-loong64@7.0.2'
+  # published: 2026-07-08 | removable: 2026-07-15
+  - '@typescript/typescript-linux-mips64el@7.0.2'
+  # published: 2026-07-08 | removable: 2026-07-15
+  - '@typescript/typescript-linux-ppc64@7.0.2'
+  # published: 2026-07-08 | removable: 2026-07-15
+  - '@typescript/typescript-linux-riscv64@7.0.2'
+  # published: 2026-07-08 | removable: 2026-07-15
+  - '@typescript/typescript-linux-s390x@7.0.2'
+  # published: 2026-07-08 | removable: 2026-07-15
+  - '@typescript/typescript-linux-x64@7.0.2'
+  # published: 2026-07-08 | removable: 2026-07-15
+  - '@typescript/typescript-netbsd-arm64@7.0.2'
+  # published: 2026-07-08 | removable: 2026-07-15
+  - '@typescript/typescript-netbsd-x64@7.0.2'
+  # published: 2026-07-08 | removable: 2026-07-15
+  - '@typescript/typescript-openbsd-arm64@7.0.2'
+  # published: 2026-07-08 | removable: 2026-07-15
+  - '@typescript/typescript-openbsd-x64@7.0.2'
+  # published: 2026-07-08 | removable: 2026-07-15
+  - '@typescript/typescript-sunos-x64@7.0.2'
+  # published: 2026-07-08 | removable: 2026-07-15
+  - '@typescript/typescript-win32-arm64@7.0.2'
+  # published: 2026-07-08 | removable: 2026-07-15
+  - '@typescript/typescript-win32-x64@7.0.2'
+  # Socket-owned scopes — bypass the soak window because they ship
+  # through Socket's own provenance + publish pipeline. Canonical
+  # list: scripts/constants/socket-scopes.mts SOCKET_PACKAGE_PATTERNS.
+  # Mirrored in `.config/taze.config.mts` (same scopes, same reason)
+  # and consumed by scripts/update-external-tools.mts via
+  # isSocketSourcedPackage / isSocketSourcedRepository.
+  - '@socketaddon/*'
+  - '@socketbin/*'
+  - '@socketoverride/*'
+  - '@socketregistry/*'
+  - '@socketsecurity/*'
+  - 'sfw'
+  - 'socket'
+  # @redwoodjs/agent-ci@0.16.2 is the local-CI tool we're adopting now
+  # (see the `agent-ci` skill). Published 2026-05-22, ~6.5 days before this
+  # entry — it clears the 7-day soak later the same day, so the exclude is
+  # retirable on `removable`. Scoped to the exact tag so a future 0.16.3
+  # still soaks. The Socket gptMalware (high) alert on this version is a
+  # user-confirmed false positive (CI runner: docker exec, SSH-agent
+  # forward, mock local token; no eval/obfuscation/secret exfil).
+  # dtu-github-actions is agent-ci's GitHub-Actions parser, pulled in
+  # transitively at the same version + publish date as the CLI above.
+  # playwright-core@1.55.1 — headless Chromium driver for the
+  # rendering-chromium-to-png skill. Well-known Microsoft package, dev-only
+  # (renders PNGs an agent can read; no runtime/ship surface). Long past soak;
+  # listed for cascade parity. Exact-pinned so a future minor re-soaks.
+  # compromise@14.15.1 is the attested re-publish that clears the
+  # trust-downgrade flag on 14.15.0. The catalog bump to 14.15.1 + the
+  # removed `trustPolicyExclude: compromise@14.15.0` need a matching
+  # lockfile entry, and 14.15.1 published today so the resolution needs
+  # a soak bypass. Scoped to the exact tag so a future 14.15.2 still
+  # goes through the normal soak time.
+  # vite 8.0.14 ships rolldown 1.0.2 natively (no esbuild transitive).
+  # Excluded from the 7-day soak so we can pull the rolldown-based
+  # build now — the fleet rule "bundler = rolldown, not esbuild"
+  # trumps the soak heuristic for this one pinned version. Scoped to
+  - '@stuie/*'
+  - '@ultrathink/*'
+  # @yuku-parser 0.5.31 — third-party native parser; the per-platform binding
+  # family pinned to the exact version (a scope glob would blanket-bypass any
+  # future @yuku-parser publish). Published within the 7-day soak.
+  # oxfmt 0.54.0 — the formatter; bumped from 0.48.0 for its jsdoc fixes.
+  # The main package + per-platform binding family are pinned to the exact
+  # version (a scope glob would blanket-bypass any future @oxfmt publish). All
+  # published within the 7-day soak; exact-pinned so a future 0.55 re-soaks.
+  # oxlint 1.69.0 — the linter; catalog-pinned at 1.69.0. The main package + its
+  # per-platform binding family are pinned to the exact version (a scope glob
+  # would blanket-bypass a future @oxlint publish). Published within the 7-day
+  # soak; exact-pinned so a future 1.70 re-soaks. oxlint is a known-publisher
+  # (oxc) tool — the soak targets npm freshpub typosquats.
+  - '@sdxgen/*'
+  - 'sdxgen'
+  - 'stuie'
+
+blockExoticSubdeps: true
+
+# Proceed with a node_modules purge WITHOUT an interactive confirm. The fleet
+# runs pnpm non-interactively everywhere (skills, scripts, hooks, agents, CI) —
+# no TTY. pnpm's default ABORTS a purge for lack of a TTY
+# (ERR_PNPM_ABORTED_REMOVE_MODULES_DIR_NO_TTY), wedging any commit whose
+# pre-commit re-checks deps after a workspace/.npmrc change. Purging
+# node_modules is safe (gitignored + regenerable). Unlike CI=true this does NOT
+# force a frozen lockfile; CI keeps owning frozen-vs-update policy.
+confirmModulesPurge: false
+
+# Opt out of pnpm's packageManager-version self-check. CI installs pnpm from
+# its native bin via the shared setup workflow, not corepack, so the runner's
+# pnpm legitimately differs from the `packageManager` pin (which is
+# informational, not a version to enforce). Without this, pnpm hard-fails
+# ("This project is configured to use <pin> ... your current pnpm is <run>")
+# the moment the runner's pnpm differs from the pin.
+overrides:
+  # Fleet-canonical overrides (managed by socket-wheelhouse sync; do not edit).
+  '@socketregistry/packageurl-js': 'catalog:'
+  '@socketsecurity/lib': 'catalog:'
+  '@socketsecurity/registry': 'catalog:'
+  '@socketsecurity/sdk': 'catalog:'
+  'chalk@>=5': '5.6.2'
+  'es-define-property': 'npm:@socketregistry/es-define-property@1.0.7'
+  'es-set-tostringtag': 'npm:@socketregistry/es-set-tostringtag@1.0.10'
+  'function-bind': 'npm:@socketregistry/function-bind@1.0.7'
+  'glob': '13.0.6'
+  'gopd': 'npm:@socketregistry/gopd@1.0.7'
+  'has-symbols': 'npm:@socketregistry/has-symbols@1.0.7'
+  'has-tostringtag': 'npm:@socketregistry/has-tostringtag@1.0.7'
+  'hasown': 'npm:@socketregistry/hasown@1.0.7'
+  'iconv-lite': '0.7.2'
+  'isexe@>=3': '4.0.0'
+  'lru-cache@>=10': '11.3.6'
+  'magic-string': '0.30.21'
+  'mime-db': '1.54.0'
+  'mime-types@>=3': '3.0.2'
+  'minipass@>=4': '7.1.3'
+  'safe-buffer': 'npm:@socketregistry/safe-buffer@1.0.9'
+  'safer-buffer': 'npm:@socketregistry/safer-buffer@1.0.10'
+  'semver@>=5.0.0 <7.6.0': '7.8.1'
+  'side-channel': 'npm:@socketregistry/side-channel@1.0.10'
+  'ssri@>=12': '13.0.1'
+  'string-width@>=5': '8.1.0'
+  'update-notifier@>=4.0.0': '7.3.1'
+  'uuid': '11.1.1'
+  'which': '7.0.0'
+  'wrap-ansi@>=8': '9.0.2'
+  'yaml@2': '2.9.0'
+
+  # Repo-specific overrides below.
+  'is-interactive': 'npm:@socketregistry/is-interactive@1.0.6'
+  'is-unicode-supported': 'npm:@socketregistry/is-unicode-supported@1.0.5'
+  'rolldown': 'catalog:'
+  'vite': 'catalog:'
+  'which@>=4': '7.0.0'
+
+# Native post-install build scripts. These three arrive transitively via
+# @redwoodjs/agent-ci's `ssh2` (optional crypto acceleration). agent-ci's
+# published CLI (`dist/cli.js`) runs without them — verified `agent-ci --help`
+# works with the builds skipped — so we decline to run their post-install
+# scripts. Declining is the safe default; running native build scripts from a
+# transitive dep is unnecessary attack surface here.
+trustPolicy: no-downgrade
+trustPolicyExclude:
+  # Transitive dep of @vitest/coverage-v8@4.1.6. Same maintainer
+  # (ariperkkio) + same repo + provenance attestation as earlier
+  # versions; the downgrade flag reflects a trusted-publisher ->
+  # provenance evidence-class change, not a takeover.
+  # published: 2026-05-25 | removable: 2026-06-01
+  - 'ast-v8-to-istanbul@1.0.2'
+
+# Refuse transitive (sub-) deps declared via git/tarball/local-tarball
+# specs. Direct git deps in this repo are still allowed; this only
+# affects what nested dependencies are permitted. Defends against a
+# package listing a git URL in its own dependencies — a supply-chain
+# vector that bypasses npm registry validation. pnpm's current
+# default is `false`; declared explicitly so a future default flip
+# can't silently widen the trust boundary.
+autoInstallPeers: true
+
+# Pin pnpm's default of running root pre/post lifecycle scripts.
+enablePrePostScripts: true
+
+# Pin exact versions on `pnpm add`. Catalog and overrides should
+# also be exact pins (5.24.0, not ^5.24.0).
+saveExact: true
+
+managePackageManagerVersions: false
+
+# pnpm workspace config — wheelhouse dogfoods its own hooks.
+#
+# The template tree under template/.claude/hooks/* is published to
+# downstream fleet repos. To make the hooks runnable here (for tests,
+# AgentShield scanning, dogfooded `pnpm run setup`, etc.), register
+# them as workspace packages so their deps install at the root.
+# .claude/hooks/* mirrors the dogfood-installed copies so they
+# resolve `catalog:` deps the same way template/.claude/hooks/* do.
+#
+# Catalog mirrors the fleet-canonical EXPECTED_CATALOG_ENTRIES in
+# scripts/sync-scaffolding/manifest.mts. Keep these in lockstep —
+# the workspace-config check enforces every downstream repo to carry
+# the same entries; the wheelhouse should not be the outlier.
