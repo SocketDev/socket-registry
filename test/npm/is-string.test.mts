@@ -1,8 +1,10 @@
-/** @fileoverview Tests for @socketregistry/is-string npm package override. */
+/**
+ * @file Tests for @socketregistry/is-string npm package override.
+ */
 import {
   createInvalidValuesExcluding,
   createTypeCheckerTests,
-} from '../utils/type-checker-helper.mts'
+} from '../util/type-checker-helper.mts'
 
 const isString = require('../../packages/npm/is-string')
 

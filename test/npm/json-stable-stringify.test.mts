@@ -1,11 +1,13 @@
-/** @fileoverview Tests for @socketregistry/json-stable-stringify npm package override. */
+/**
+ * @file Tests for @socketregistry/json-stable-stringify npm package override.
+ */
 import { describe, expect, it } from 'vitest'
 
-import { getEnv } from '../../scripts/constants/env.mjs'
-import { setupNpmPackageTest } from '../utils/npm-package-helper.mts'
+import { getEnv } from '../../scripts/constants/env.mts'
+import { setupNpmPackageTest } from '../util/npm-package-helper.mts'
 
 const ENV = getEnv()
-const { eco, pkgPath, skip, sockRegPkgName } = await setupNpmPackageTest(
+const { eco, pkgPath, skip, sockRegPkgName } = setupNpmPackageTest(
   import.meta.url,
 )
 
@@ -16,11 +18,13 @@ describe(
   },
   () => {
     const pkgRequireIndexJsPath = `${pkgPath}/index.js`
-    const _jsonStableStringifyModule =
-      skip || ENV.CI ? null : require(pkgRequireIndexJsPath)
+    const jsonStableStringifyModule =
+      skip || ENV.CI ? undefined : require(pkgRequireIndexJsPath)
 
     const rawJSON: ((_str: string) => { rawJSON: string }) | undefined = (
-      JSON as any
+      JSON as unknown as {
+        rawJSON?: ((_str: string) => { rawJSON: string }) | undefined
+      }
     ).rawJSON
 
     const SUPPORTS_JSON_RAW_JSON = typeof rawJSON === 'function'
@@ -31,7 +35,7 @@ describe(
     ]) {
       it(`${methodName}: space parameter (nested objects)`, () => {
         const obj = { one: 1, two: { b: 4, a: [2, 3] } }
-        expect(_jsonStableStringifyModule(obj, { space: '  ' })).toBe(
+        expect(jsonStableStringifyModule(obj, { space: '  ' })).toBe(
           '' +
             '{\n' +
             '  "one": 1,\n' +
@@ -49,14 +53,14 @@ describe(
       it(`${methodName}: space parameter (same as native)`, () => {
         // For this test, properties need to be in alphabetical order.
         const obj = { one: 1, two: { a: [2, 3], b: 4 } }
-        expect(_jsonStableStringifyModule(obj, { space: '  ' })).toBe(
+        expect(jsonStableStringifyModule(obj, { space: '  ' })).toBe(
           JSON.stringify(obj, null, '  '),
         )
       })
 
       it(`${methodName}: space parameter base empty behavior: empty arrays and objects have added newline and space`, () => {
         const obj = { emptyArr: [], emptyObj: {} }
-        expect(_jsonStableStringifyModule(obj, { space: '  ' })).toBe(
+        expect(jsonStableStringifyModule(obj, { space: '  ' })).toBe(
           '{\n  "emptyArr": [\n  ],\n  "emptyObj": {\n  }\n}',
         )
       })
@@ -64,21 +68,21 @@ describe(
       it(`${methodName}: space parameter, with collapseEmpty: true`, () => {
         const obj = { emptyArr: [], emptyObj: {} }
         expect(() => {
-          _jsonStableStringifyModule(obj, { collapseEmpty: 'not a boolean' })
+          jsonStableStringifyModule(obj, { collapseEmpty: 'not a boolean' })
         }).toThrow(TypeError)
         expect(
-          _jsonStableStringifyModule(obj, { collapseEmpty: true, space: '  ' }),
+          jsonStableStringifyModule(obj, { collapseEmpty: true, space: '  ' }),
         ).toBe('{\n  "emptyArr": [],\n  "emptyObj": {}\n}')
       })
 
       it(
         `${methodName}: supports JSON.rawJSON`,
-        { skip: !SUPPORTS_JSON_RAW_JSON || !_jsonStableStringifyModule },
+        { skip: !SUPPORTS_JSON_RAW_JSON || !jsonStableStringifyModule },
         () => {
           // Test case from MDN example:
           // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/isRawJSON#examples
           expect(
-            _jsonStableStringifyModule({
+            jsonStableStringifyModule({
               name: 'Josh',
               userId: rawJSON?.('12345678901234567890'),
               friends: [
@@ -104,7 +108,7 @@ describe(
             ;(function r() {
               limit += 1
               const newObj = {}
-              ;(obj as any)[`prop${limit}`] = newObj
+              ;(obj as Record<string, unknown>)[`prop${limit}`] = newObj
               obj = newObj
               r()
             })()
@@ -112,7 +116,7 @@ describe(
           return result
         }
         expect(() =>
-          _jsonStableStringifyModule(createCallStackBusterObject()),
+          jsonStableStringifyModule(createCallStackBusterObject()),
         ).not.toThrow()
       })
     }

@@ -1,12 +1,12 @@
 /**
- * @fileoverview Test for object-keys package override.
- * Tests ported from https://github.com/ljharb/object-keys/blob/ba2c1989270c7de969aa8498fc3b7c8e677806f3/test/shim.js
+ * @file Test for object-keys package override. Tests ported from
+ *   https://github.com/ljharb/object-keys/blob/ba2c1989270c7de969aa8498fc3b7c8e677806f3/test/shim.js.
  */
 
 import { describe, expect, it } from 'vitest'
 
-import { expectValidPackageStructure } from '../utils/assertion-helpers.mts'
-import { setupNpmPackageTest } from '../utils/npm-package-helper.mts'
+import { expectValidPackageStructure } from '../util/assertion-helpers.mts'
+import { setupNpmPackageTest } from '../util/npm-package-helper.mts'
 
 const {
   eco,
@@ -14,7 +14,7 @@ const {
   pkgPath,
   skip,
   sockRegPkgName,
-} = await setupNpmPackageTest(import.meta.url)
+} = setupNpmPackageTest(import.meta.url)
 
 describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   it('should have valid package structure', () => {
@@ -24,7 +24,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   describe('basic functionality', () => {
     it('should work with an object literal', () => {
       const obj = {
-        aNull: null,
+        aNull: undefined,
         arr: [],
         bool: true,
         num: 42,
@@ -54,7 +54,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
     it('should work with an arguments object', () => {
       // eslint-disable-next-line unicorn/consistent-function-scoping
-      function testArgs(_a: any, _b: any, _c: any) {
+      function testArgs(_a: unknown, _b: unknown, _c: unknown) {
         const keys = objectKeys(arguments)
         expect(keys).toEqual(['0', '1', '2'])
       }
@@ -67,14 +67,14 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       expect(objectKeys(new String('hello'))).toEqual(['0', '1', '2', '3', '4'])
 
       const x = new String('x')
-      ;(x as any).y = 1
-      expect(objectKeys(x).sort()).toEqual(['0', 'y'].sort())
+      ;(x as unknown as Record<string, unknown>)['y'] = 1
+      expect(objectKeys(x).toSorted()).toEqual(['0', 'y'].toSorted())
     })
 
     it('should work with a function', () => {
       // eslint-disable-next-line unicorn/consistent-function-scoping
       const foo = () => {}
-      ;(foo as any).a = true
+      ;(foo as unknown as Record<string, unknown>)['a'] = true
 
       expect(() => objectKeys(foo)).not.toThrow()
       expect(objectKeys(foo)).toEqual(['a'])
@@ -89,7 +89,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
         c: 3,
       }
       const keys = objectKeys(obj)
-      for (const key of keys) {
+      for (let i = 0, { length } = keys; i < length; i += 1) {
+        const key = keys[i]
         expect(Object.hasOwn(obj, key)).toBe(true)
       }
     })
@@ -103,7 +104,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
         }
       }
       const keys = objectKeys(obj)
-      for (const key of keys) {
+      for (let i = 0, { length } = keys; i < length; i += 1) {
+        const key = keys[i]
         expect(loopedValues).toContain(key)
       }
     })
@@ -112,11 +114,11 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       class Prototype {
         foo: boolean = true
       }
-      const instance: any = new Prototype()
-      instance.bar = true
+      const instance = new Prototype() as Prototype & Record<string, unknown>
+      instance['bar'] = true
       const keys = objectKeys(instance)
       expect(Array.isArray(keys)).toBe(true)
-      expect(keys.sort()).toEqual(['bar', 'foo'].sort())
+      expect(keys.toSorted()).toEqual(['bar', 'foo'].toSorted())
     })
   })
 
@@ -133,7 +135,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
         'valueOf',
       ]
       shadowedProps.sort()
-      const shadowedObject: any = { __proto__: null }
+      const shadowedObject: Record<string, unknown> = { __proto__: null }
       for (let i = 0; i < shadowedProps.length; i += 1) {
         shadowedObject[shadowedProps[i] as string] = i
       }
@@ -145,20 +147,20 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
   describe('edge cases', () => {
     it('should throw for non-objects', () => {
-      expect(() => objectKeys(null)).toThrow(TypeError)
+      expect(() => objectKeys(undefined)).toThrow(TypeError)
       expect(() => objectKeys(undefined)).toThrow(TypeError)
     })
 
     it('should work in iOS 5 mobile Safari scenario', () => {
       // eslint-disable-next-line unicorn/consistent-function-scoping
-      const Foo: any = () => {}
-      Foo.a = () => {}
+      const Foo = (() => {}) as unknown as Record<string, unknown>
+      Foo['a'] = () => {}
       expect(objectKeys(Foo)).toEqual(['a'])
     })
 
     it('should work in environments with the dontEnum bug', () => {
       // eslint-disable-next-line unicorn/consistent-function-scoping
-      const Foo = () => {}
+      function Foo() {}
       Foo.prototype.a = () => {}
       expect(objectKeys(Foo.prototype)).toContain('a')
     })

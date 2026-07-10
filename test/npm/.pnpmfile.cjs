@@ -1,11 +1,10 @@
 /**
- * @fileoverview pnpm configuration for test workspace.
- * Handles workspace references from the scripts package when it's installed
- * via file: reference. Since we're in a subdirectory with its own workspace,
- * we need to remove workspace:* references that won't resolve here.
- *
- * Note: This file must be self-contained and can't import from other packages
- * since it runs during pnpm's dependency resolution phase.
+ * @file Pnpm configuration for test workspace. Handles workspace references
+ *   from the scripts package when it's installed via file: reference. Since
+ *   we're in a subdirectory with its own workspace, we need to remove
+ *   workspace:* references that won't resolve here. Note: This file must be
+ *   self-contained and can't import from other packages since it runs during
+ *   pnpm's dependency resolution phase.
  */
 
 // Must use hardcoded string as this runs before dependencies are available

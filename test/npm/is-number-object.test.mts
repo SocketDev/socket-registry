@@ -1,8 +1,10 @@
-/** @fileoverview Tests for @socketregistry/is-number-object npm package override. */
+/**
+ * @file Tests for @socketregistry/is-number-object npm package override.
+ */
 import {
   createInvalidValuesExcluding,
   createTypeCheckerTests,
-} from '../utils/type-checker-helper.mts'
+} from '../util/type-checker-helper.mts'
 
 const isNumber = require('../../packages/npm/is-number-object')
 

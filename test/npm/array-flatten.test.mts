@@ -1,14 +1,16 @@
-/** @fileoverview Tests for @socketregistry/array-flatten npm package override. */
+/**
+ * @file Tests for @socketregistry/array-flatten npm package override.
+ */
 import { describe, expect, it } from 'vitest'
 
-import { setupNpmPackageTest } from '../utils/npm-package-helper.mts'
+import { setupNpmPackageTest } from '../util/npm-package-helper.mts'
 
 const {
   eco,
   module: flattenLegacy,
   skip,
   sockRegPkgName,
-} = await setupNpmPackageTest(import.meta.url)
+} = setupNpmPackageTest(import.meta.url)
 const flatten = flattenLegacy?.flatten
 
 describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {

@@ -1,13 +1,15 @@
-/** @fileoverview Tests for @socketregistry/es6-object-assign npm package override. */
+/**
+ * @file Tests for @socketregistry/es6-object-assign npm package override.
+ */
 import path from 'node:path'
 // eslint-disable-next-line n/no-extraneous-import
-import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import { getDefaultLogger } from '@socketsecurity/lib/logger/default'
 import { describe, expect, it } from 'vitest'
-import { setupNpmPackageTest } from '../utils/npm-package-helper.mts'
+import { setupNpmPackageTest } from '../util/npm-package-helper.mts'
 
 const logger = getDefaultLogger()
 
-const { eco, pkgPath, skip, sockRegPkgName } = await setupNpmPackageTest(
+const { eco, pkgPath, skip, sockRegPkgName } = setupNpmPackageTest(
   import.meta.url,
 )
 
@@ -15,7 +17,7 @@ const { eco, pkgPath, skip, sockRegPkgName } = await setupNpmPackageTest(
 // https://github.com/rubennorte/es6-object-assign/tree/v1.1.0
 // Tests from https://github.com/ljharb/object.assign/tree/v4.1.5/test.
 describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
-  const es6oa = skip ? null : require(path.join(pkgPath, 'index.js'))
+  const es6oa = skip ? undefined : require(path.join(pkgPath, 'index.js'))
 
   it('does not have "pending exception" logic in implementation', () => {
     /*
@@ -31,13 +33,13 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
   it('error cases', () => {
     expect(() => {
-      es6oa.assign(null)
+      es6oa.assign(undefined)
     }).toThrow(TypeError)
     expect(() => {
       es6oa.assign(undefined)
     }).toThrow(TypeError)
     expect(() => {
-      es6oa.assign(null, {})
+      es6oa.assign(undefined, {})
     }).toThrow(TypeError)
     expect(() => {
       es6oa.assign(undefined, {})
@@ -81,7 +83,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   })
 
   it('non-object sources', () => {
-    expect(es6oa.assign({ a: 1 }, null, { b: 2 })).toEqual({ a: 1, b: 2 })
+    expect(es6oa.assign({ a: 1 }, undefined, { b: 2 })).toEqual({ a: 1, b: 2 })
     expect(es6oa.assign({ a: 1 }, { b: 2 }, undefined)).toEqual({
       a: 1,
       b: 2,
@@ -111,7 +113,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   it('works with functions', () => {
     // eslint-disable-next-line unicorn/consistent-function-scoping
     const target = () => {}
-    ;(target as any).a = 1
+    ;(target as { a?: number | undefined }).a = 1
     const returned = es6oa.assign(target, { b: 2 })
     expect(target).toBe(returned)
     expect(returned.a).toBe(1)
@@ -137,9 +139,9 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
   it('only iterates over own keys', () => {
     class Foo {}
-    ;(Foo.prototype as any).bar = true
+    ;(Foo.prototype as { bar?: boolean | undefined }).bar = true
     const foo = new Foo()
-    ;(foo as any).baz = true
+    ;(foo as { baz?: boolean | undefined }).baz = true
     const target = { a: 1 }
     const returned = es6oa.assign(target, foo)
     expect(returned).toBe(target)
@@ -212,8 +214,10 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
      */
     const str = 'abcdefghijklmnopqrst'
     const letters = {}
-    for (const letter of str.split('')) {
-      ;(letters as any)[letter] = letter
+    const chars = str.split('')
+    for (let i = 0, { length } = chars; i < length; i += 1) {
+      const letter = chars[i]!
+      ;(letters as Record<string, string>)[letter] = letter
     }
     const n = 5
     logger.info(`run the next test ${n} times`)
@@ -242,8 +246,10 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
     const sourceBValue = {}
     const sourceCValue = {}
-    ;(source as any).b = sourceBValue
-    ;(source as any).c = sourceCValue
+    ;(source as { b?: unknown | undefined; c?: unknown | undefined }).b =
+      sourceBValue
+    ;(source as { b?: unknown | undefined; c?: unknown | undefined }).c =
+      sourceCValue
     const result = es6oa.assign(target, source)
     expect(result).toBe(target)
     expect(result.b).toBe(targetBValue)

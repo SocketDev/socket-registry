@@ -1,23 +1,26 @@
-/** @fileoverview Tests for package validation and manifest generation. */
+/**
+ * @file Tests for package validation and manifest generation.
+ */
 import { existsSync, promises as fs } from 'node:fs'
 import { createRequire } from 'node:module'
 import path from 'node:path'
+import process from 'node:process'
 
-import { fix } from '@npmcli/package-json'
+import PackageJson from '@npmcli/package-json'
 import { parseArgs } from '@socketsecurity/lib/argv/parse'
 import { EXT_JSON } from '@socketsecurity/lib/paths/exts'
-import { readJson } from '@socketsecurity/lib/fs'
-import { isObjectObject, objectEntries } from '@socketsecurity/lib/objects'
-import {
-  getExportFilePaths,
-  isValidPackageName,
-  readPackageJson,
-  resolveOriginalPackageName,
-} from '@socketsecurity/lib/packages'
+import { readJson } from '@socketsecurity/lib/fs/read-json'
+import { isObject } from '@socketsecurity/lib/objects/predicates'
+import { objectEntries } from '@socketsecurity/lib/objects/sort'
+import { getExportFilePaths } from '@socketsecurity/lib/packages/exports'
+import { resolveOriginalPackageName } from '@socketsecurity/lib/packages/normalize'
+import { readPackageJson } from '@socketsecurity/lib/packages/read'
+import { isValidPackageName } from '@socketsecurity/lib/packages/validation'
 import { trimLeadingDotSlash } from '@socketsecurity/lib/paths/normalize'
-import { naturalCompare } from '@socketsecurity/lib/sorts'
-import { isNonEmptyString } from '@socketsecurity/lib/strings'
+import { naturalCompare } from '@socketsecurity/lib/sorts/natural'
+import { isNonEmptyString } from '@socketsecurity/lib/strings/predicates'
 import fastGlob from 'fast-glob'
+// oxlint-disable-next-line socket/prefer-stable-external-semver -- @socketsecurity/lib-stable has no ./external/semver export at the pinned version; semver is a devDependency (scripts/tests only, not bundled).
 import semver from 'semver'
 import { describe, expect, it } from 'vitest'
 
@@ -28,13 +31,12 @@ import {
   NPM_PACKAGES_PATH,
   PACKAGE_JSON,
   SOCKET_REGISTRY_SCOPE,
-} from '../scripts/constants/paths.mjs'
+} from '../scripts/constants/paths.mts'
 import {
   getEcosystems,
   getNpmPackageNames,
-} from '../scripts/constants/testing.mjs'
-import { getIgnoreGlobs } from '../scripts/constants/utils.mjs'
-import process from 'node:process'
+} from '../scripts/constants/testing.mts'
+import { getIgnoreGlobs } from '../scripts/constants/utils.mts'
 
 const LICENSE_GLOB =
   '**/+(LICENSE|LICENCE|LICENSE.original|LICENSE.*.original)*'
@@ -65,17 +67,9 @@ parseArgs({
 
 const shimApiKeys = ['getPolyfill', 'implementation', 'shim']
 
-function findLeakedApiKey(keys: string[]): string | undefined {
-  return shimApiKeys.find(k => keys.includes(k))
-}
-
 function isDotFile(filepath: string) {
   const basename = path.basename(filepath)
   return basename.length > 0 && basename.charCodeAt(0) === 46 /*'.'*/
-}
-
-function isSrcFile(filepath: string) {
-  return filepath.startsWith('src/')
 }
 
 function isDotPattern(pattern: string) {
@@ -86,11 +80,20 @@ function isDotPattern(pattern: string) {
   )
 }
 
+function isSrcFile(filepath: string) {
+  return filepath.startsWith('src/')
+}
+
 function prepareReqId(id: string) {
   return path.isAbsolute(id) ? id : `./${trimLeadingDotSlash(id)}`
 }
 
-for (const eco of ecosystems) {
+export function findLeakedApiKey(keys: string[]): string | undefined {
+  return shimApiKeys.find(k => keys.includes(k))
+}
+
+for (let i = 0, { length } = ecosystems; i < length; i += 1) {
+  const eco = ecosystems[i]
   if (eco !== NPM) {
     continue
   }
@@ -104,7 +107,12 @@ for (const eco of ecosystems) {
       return
     }
 
-    for (const sockRegPkgName of packageNames) {
+    for (
+      let j = 0, { length: pkgLength } = packageNames;
+      j < pkgLength;
+      j += 1
+    ) {
+      const sockRegPkgName = packageNames[j]!
       const pkgPath = path.join(npmPackagesPath, sockRegPkgName)
       const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)
       const pkgJsonExists = existsSync(pkgJsonPath)
@@ -151,7 +159,7 @@ for (const eco of ecosystems) {
             cwd: pkgPath,
             dot: true,
           })
-        ).sort(naturalCompare)
+        ).toSorted(naturalCompare)
 
         it('package name should be valid', () => {
           expect(isValidPackageName(pkgJson.name ?? '')).toBe(true)
@@ -163,7 +171,8 @@ for (const eco of ecosystems) {
 
         it('package name should be included in "repository.directory" field of package.json', () => {
           expect(
-            (pkgJson.repository as { directory?: string })?.directory,
+            (pkgJson.repository as { directory?: string | undefined })
+              ?.directory,
           ).toBe(`packages/npm/${sockRegPkgName}`)
         })
 
@@ -173,7 +182,7 @@ for (const eco of ecosystems) {
 
         if (entryExports) {
           it('file exists for every "export" entry of package.json', () => {
-            expect(isObjectObject(entryExports)).toBe(true)
+            expect(isObject(entryExports)).toBe(true)
             for (const filePath of getExportFilePaths(entryExports)) {
               expect(existsSync(path.join(pkgPath, filePath))).toBe(true)
             }
@@ -188,10 +197,15 @@ for (const eco of ecosystems) {
             )
 
             // For each JS file, check if there's a corresponding type file.
-            for (const jsFilePath of jsFilePaths) {
+            for (
+              let k = 0, { length: jsLength } = jsFilePaths;
+              k < jsLength;
+              k += 1
+            ) {
+              const jsFilePath = jsFilePaths[k]!
               // Check if there's any type file in the exports.
               // This is a simplified check - just ensure type files exist somewhere.
-              if (typeFilePaths.length === 0) {
+              if (!typeFilePaths.length) {
                 // If no type files at all, check for co-located type files.
                 const dtsFilePath = jsFilePath
                   .replace(/\.js$/, '.d.ts')
@@ -200,11 +214,6 @@ for (const eco of ecosystems) {
                 const relativeDtsPath = trimLeadingDotSlash(dtsFilePath)
                 expect(files.includes(relativeDtsPath)).toBe(true)
               }
-            }
-
-            // If there are type files exported, we trust the exports configuration.
-            if (typeFilePaths.length > 0) {
-              expect(typeFilePaths.length).toBeGreaterThan(0)
             }
           })
         }
@@ -231,7 +240,7 @@ for (const eco of ecosystems) {
 
         const jsonFiles = files
           .filter(p => path.extname(p) === EXT_JSON)
-          .sort(naturalCompare)
+          .toSorted(naturalCompare)
 
         if (jsonFiles.length) {
           it('should have valid .json files', async () => {
@@ -251,7 +260,7 @@ for (const eco of ecosystems) {
 
         it('should not need package.json fixing', () => {
           const changes: string[] = []
-          fix(pkgPath, { changes })
+          PackageJson.fix(pkgPath, { changes })
           expect(changes.length).toBe(0)
         })
 
@@ -301,7 +310,7 @@ for (const eco of ecosystems) {
                   ? (mainEntry.at(-1) as unknown as { default: string })
                       ?.default
                   : typeof mainEntry === 'object' && mainEntry !== null
-                    ? (mainEntry as { default?: string })?.default
+                    ? (mainEntry as { default?: string | undefined })?.default
                     : (mainEntry as string | undefined)
                 if (defaultMainEntry) {
                   expect(() => req.resolve(defaultMainEntry)).not.toThrow()
@@ -367,7 +376,7 @@ for (const eco of ecosystems) {
               dot: true,
             },
           )
-        ).sort(naturalCompare)
+        ).toSorted(naturalCompare)
 
         const dotFilePatterns = filesPatternsAsArray.filter(isDotPattern)
         const dotFileMatches = new Set(
@@ -389,8 +398,8 @@ for (const eco of ecosystems) {
         if (hasOverrides) {
           if (!hasOverridesAsDeps) {
             it('should have overrides and resolutions fields in package.json', () => {
-              expect(isObjectObject(pkgOverrides)).toBe(true)
-              expect(isObjectObject(pkgResolutions)).toBe(true)
+              expect(isObject(pkgOverrides)).toBe(true)
+              expect(isObject(pkgResolutions)).toBe(true)
             })
           }
         } else if (!hasDependencies) {

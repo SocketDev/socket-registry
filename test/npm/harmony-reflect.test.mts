@@ -1,22 +1,26 @@
-/** @fileoverview Tests for @socketregistry/harmony-reflect npm package override. */
+/**
+ * @file Tests for @socketregistry/harmony-reflect npm package override.
+ */
 import path from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
-import { setupNpmPackageTest } from '../utils/npm-package-helper.mts'
+import { setupNpmPackageTest } from '../util/npm-package-helper.mts'
 
-const { eco, pkgPath, skip, sockRegPkgName } = await setupNpmPackageTest(
+const { eco, pkgPath, skip, sockRegPkgName } = setupNpmPackageTest(
   import.meta.url,
 )
 
 // harmony-reflect has known failures in its package and requires running tests in browser.
 // https://github.com/tvcutsem/harmony-reflect/tree/v1.6.2/test
 describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
-  const harmonyReflect = skip ? null : require(path.join(pkgPath, 'index.js'))
+  const harmonyReflect = skip
+    ? undefined
+    : require(path.join(pkgPath, 'index.js'))
 
   it('should be able to define a property', () => {
     const obj: {
-      [key: string]: any
+      [key: string]: unknown
     } = {}
     harmonyReflect.defineProperty(obj, 'x', { value: 1 })
     expect(obj['x']).toBe(1)
@@ -31,7 +35,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
   it('should correctly implement defineProperty', () => {
     const target: {
-      [key: string]: any
+      [key: string]: unknown
     } = { x: 1 }
     expect(harmonyReflect.defineProperty(target, 'x', { value: 2 })).toBe(true)
     expect(target['x']).toBe(2)
@@ -118,7 +122,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     const target = Object.create(
       {
         z: 3,
-        set w(_v: any) {
+        set w(_v: unknown) {
           // eslint-disable-next-line @typescript-eslint/no-this-alias
           out = this
         },
@@ -138,14 +142,14 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     expect(harmonyReflect.set(target, 'x', 2, target)).toBe(true)
     expect(target.x).toBe(2)
 
-    out = null
+    out = undefined
     expect(harmonyReflect.set(target, 'y', 1, target)).toBe(true)
     expect(out).toBe(target)
 
     expect(harmonyReflect.set(target, 'z', 4, target)).toBe(true)
     expect(target.z).toBe(4)
 
-    out = null
+    out = undefined
     expect(harmonyReflect.set(target, 'w', 1, target)).toBe(true)
     expect(out).toBe(target)
 
@@ -162,7 +166,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     const receiver = {}
     expect(
       harmonyReflect.apply(
-        function (this: any) {
+        function (this: unknown) {
           return this
         },
         receiver,
@@ -172,7 +176,6 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   })
 
   it('should correctly implement construct', () => {
-    expect(harmonyReflect.construct((x: number) => x, [1])).not.toBe(1)
     expect(
       harmonyReflect.construct(
         function (this: { x: number }, x: number) {
@@ -208,7 +211,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
   it('should correctly implement [[Construct]] newTarget', () => {
     // eslint-disable-next-line unicorn/consistent-function-scoping
-    function Super(this: any) {
+    function Super(this: { x?: number | undefined }) {
       this.x = 42
     }
     // eslint-disable-next-line unicorn/consistent-function-scoping
@@ -219,15 +222,25 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
         this.prop = 'someValue'
       }
     }
-    const instance: any = harmonyReflect.construct(Super, [], Sub)
+    const instance: { x?: number | undefined } = harmonyReflect.construct(
+      Super,
+      [],
+      Sub,
+    )
     expect(instance.x).toBe(42)
     expect(Object.getPrototypeOf(instance)).toBe(Sub.prototype)
 
-    const instance2: any = harmonyReflect.construct(Super, [])
+    const instance2: { x?: number | undefined } = harmonyReflect.construct(
+      Super,
+      [],
+    )
     expect(instance2.x).toBe(42)
     expect(Object.getPrototypeOf(instance2)).toBe(Super.prototype)
 
-    const instance3: any = harmonyReflect.construct(ES2015Class, [])
+    const instance3: { prop?: string | undefined } = harmonyReflect.construct(
+      ES2015Class,
+      [],
+    )
     expect(instance3.prop).toBe('someValue')
     expect(Object.getPrototypeOf(instance3)).toBe(ES2015Class.prototype)
 

@@ -1,17 +1,17 @@
 /**
- * @fileoverview Tests for aggregate-error NPM package override.
+ * @file Tests for aggregate-error NPM package override.
  */
 
 import { describe, expect, it } from 'vitest'
 
-import { setupNpmPackageTest } from '../utils/npm-package-helper.mts'
+import { setupNpmPackageTest } from '../util/npm-package-helper.mts'
 
 const {
   eco,
   module: AggregateError,
   skip,
   sockRegPkgName,
-} = await setupNpmPackageTest(import.meta.url)
+} = setupNpmPackageTest(import.meta.url)
 
 describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   it('should create AggregateError with array of errors', () => {
@@ -19,7 +19,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     const aggregateError = new AggregateError(errors)
 
     expect(aggregateError).toBeInstanceOf(Error)
-    expect(aggregateError.message).toBe('')
+    expect(aggregateError.message).toContain('error 1')
+    expect(aggregateError.message).toContain('error 2')
     expect(Array.isArray(aggregateError.errors)).toBe(true)
     expect(aggregateError.errors.length).toBe(2)
   })

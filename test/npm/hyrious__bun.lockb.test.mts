@@ -1,15 +1,17 @@
-/** @fileoverview Tests for @socketregistry/hyrious//bun.lockb npm package override. */
+/**
+ * @file Tests for @socketregistry/hyrious//bun.lockb npm package override.
+ */
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
-import { TEST_NPM_FIXTURES_PATH } from '../../scripts/constants/paths.mjs'
-import { setupNpmPackageTest } from '../utils/npm-package-helper.mts'
+import { TEST_NPM_FIXTURES_PATH } from '../../scripts/constants/paths.mts'
+import { setupNpmPackageTest } from '../util/npm-package-helper.mts'
 
 const UTF8 = 'utf8'
 const testNpmFixturesPath = TEST_NPM_FIXTURES_PATH
-const { eco, pkgPath, skip, sockRegPkgName } = await setupNpmPackageTest(
+const { eco, pkgPath, skip, sockRegPkgName } = setupNpmPackageTest(
   import.meta.url,
 )
 
@@ -18,7 +20,7 @@ const { eco, pkgPath, skip, sockRegPkgName } = await setupNpmPackageTest(
 // Test case from https://github.com/daggerok/bun-examples/tree/master/hello-bun.
 describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   const hyriousBunLockbIndex = skip
-    ? null
+    ? undefined
     : require(path.join(pkgPath, 'index.cjs'))
 
   it('parses bun.lockb into yarn.lock contents', () => {

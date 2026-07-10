@@ -1,10 +1,10 @@
 /**
- * @fileoverview Tests for is-interactive NPM package override.
+ * @file Tests for is-interactive NPM package override.
  */
 
 import { describe, expect, it } from 'vitest'
 
-import { setupNpmPackageTest } from '../utils/npm-package-helper.mts'
+import { setupNpmPackageTest } from '../util/npm-package-helper.mts'
 import process from 'node:process'
 
 const {
@@ -12,7 +12,7 @@ const {
   module: isInteractive,
   skip,
   sockRegPkgName,
-} = await setupNpmPackageTest(import.meta.url)
+} = setupNpmPackageTest(import.meta.url)
 
 describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   it('should return a boolean', () => {
