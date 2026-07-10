@@ -1,19 +1,22 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import path from 'node:path'
 
 import jsonStableStringify from '@socketregistry/json-stable-stringify'
-// eslint-disable-next-line n/no-extraneous-import
-import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import { getDefaultLogger } from '@socketsecurity/lib/logger/default'
 import fastJsonStableStringify from 'fast-json-stable-stringify'
 import { Bench } from 'tinybench'
 
-import { PERF_NPM_FIXTURES_PATH } from '../../scripts/constants/paths.mjs'
+import { PERF_NPM_FIXTURES_PATH } from '../../scripts/constants/paths.mts'
 
 const logger = getDefaultLogger()
 
 void (async () => {
-  const sampleData2MbJson = require(
-    path.join(PERF_NPM_FIXTURES_PATH, 'sample_data_2mb.json'),
+  const sampleData2MbJson = JSON.parse(
+    readFileSync(
+      path.join(PERF_NPM_FIXTURES_PATH, 'sample_data_2mb.json'),
+      'utf8',
+    ),
   )
   const sampleData6MbJson = {
     a: sampleData2MbJson,
