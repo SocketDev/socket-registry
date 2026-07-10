@@ -10,15 +10,18 @@ function decode(encoded) {
 function parse(query) {
   const result = {}
   if (typeof query === 'string' && query.length > 0) {
-    new URLSearchParams(
-      query.charCodeAt(0) === 35 /*'#'*/ ? query.slice(1) : query,
-    ).forEach((value, key_) => {
-      const key = decode(key_)
+    const entries = [
+      ...new URLSearchParams(
+        query.charCodeAt(0) === 35 /*'#'*/ ? query.slice(1) : query,
+      ).entries(),
+    ]
+    for (let i = 0, { length } = entries; i < length; i += 1) {
+      const key = decode(entries[i][0])
       if (key === undefined || key in result) {
-        return
+        continue
       }
-      result[key] = decode(value)
-    })
+      result[key] = decode(entries[i][1])
+    }
   }
   return result
 }

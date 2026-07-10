@@ -1,18 +1,23 @@
 {
   "name": "@socketregistry/es6-object-assign",
   "version": "1.0.9",
-  "license": "MIT",
   "description": "Socket.dev optimized package override for es6-object-assign",
   "keywords": [
     "Socket.dev",
     "package-overrides"
   ],
   "homepage": "https://github.com/SocketDev/socket-registry/tree/main/packages/npm/es6-object-assign",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/SocketDev/socket-registry.git",
     "directory": "packages/npm/es6-object-assign"
   },
+  "files": [
+    "*.d.ts",
+    "*.js"
+  ],
+  "sideEffects": false,
   "exports": {
     ".": {
       "types": "./index.d.ts",
@@ -24,14 +29,13 @@
     },
     "./package.json": "./package.json"
   },
-  "sideEffects": false,
-  "engines": {
-    "node": ">=18"
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   },
-  "files": [
-    "*.d.ts",
-    "*.js"
-  ],
+  "engines": {
+    "node": ">=24"
+  },
   "socket": {
     "categories": [
       "cleanup"

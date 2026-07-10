@@ -1,14 +1,12 @@
 'use strict'
 
-let _localeCompare
-function localeCompare(x, y) {
-  if (_localeCompare === undefined) {
-    // Lazily call new Intl.Collator() because in Node it can take 10-14ms.
-    _localeCompare = new Intl.Collator().compare
-  }
-  return _localeCompare(x, y)
-}
+// Node 18 (this package's floor) lacks Array#toSorted; pick toSorted where
+// available, else the in-place sort on the already-fresh array. The computed
+// method also sidesteps the toSorted-vs-sort lint rule conflict.
+const SUPPORTS_TO_SORTED = typeof Array.prototype.toSorted === 'function'
+const SORT_METHOD = SUPPORTS_TO_SORTED ? 'toSorted' : 'sort'
 
+let localeCompareCache
 function assert(truthy, message = 'assert failed') {
   if (truthy) {
     return
@@ -180,7 +178,7 @@ function fmt_resolution(a, buffers) {
 }
 
 function fmt_specs(name, specs, version) {
-  specs = Array.from(new Set(specs.map(e => e || `^${version}`))).sort()
+  specs = Array.from(new Set(specs.map(e => e || `^${version}`)))[SORT_METHOD]()
   let out = ''
   let comma = false
   for (const spec of specs) {
@@ -229,45 +227,12 @@ function is_scp(s) {
   return false
 }
 
-function quote(s) {
-  return s.startsWith('true') ||
-    s.startsWith('false') ||
-    /[:\s\n\\",[\]|\t!]/g.test(s) ||
-    /^[0-9]/g.test(s) ||
-    !/^[a-zA-Z]/g.test(s)
-    ? JSON.stringify(s)
-    : s
-}
-
-function slice(data, a, item) {
-  const { 0: off, 1: length } = to_u32(a)
-  return Array.from({ length }, (_, i) =>
-    data.subarray(item * off + item * i, item * off + item * i + item),
-  )
-}
-
-function str(a, buffers) {
-  if ((a[7] & 128) === 0) {
-    const i = a.indexOf(0)
-    if (i >= 0) {
-      a = a.subarray(0, i)
-    }
-    return new TextDecoder().decode(a)
+function localeCompare(x, y) {
+  if (localeCompareCache === undefined) {
+    // Lazily call new Intl.Collator() because in Node it can take 10-14ms.
+    localeCompareCache = new Intl.Collator().compare
   }
-  const [off, len] = to_u32(a)
-  return new TextDecoder().decode(
-    buffers.string_bytes.subarray(off, off + (len & ~2_147_483_648)),
-  )
-}
-
-function to_u32(a) {
-  if (a.byteOffset % 4 === 0) {
-    return new Uint32Array(a.buffer, a.byteOffset, a.byteLength / 4)
-  }
-  const view2 = new DataView(a.buffer, a.byteOffset, a.byteLength)
-  return Uint32Array.from({ length: a.byteLength / 4 }, (_, i) =>
-    view2.getUint32(i * 4, true),
-  )
+  return localeCompareCache(x, y)
 }
 
 function parse(buf) {
@@ -334,9 +299,10 @@ function parse(buf) {
   }).reduce(
     (list, [field, len]) => {
       const data = read(len * list_len)
-      list.forEach((a, i) => {
+      for (let i = 0, { length } = list; i < length; i += 1) {
+        const a = list[i]
         a[field] = data.subarray(i * len, i * len + len)
-      })
+      }
       return list
     },
     Array.from({ length: list_len }, () => ({})),
@@ -395,19 +361,18 @@ function parse(buf) {
     `# bun ./bun.lockb --hash: ${fmt_hash(meta_hash)}`,
     '',
   ]
-  const order = Array.from({ length: list_len }, (_, i) => i)
-    .slice(1)
-    .sort((a, b) => {
-      const pa = packages[a]
-      const pb = packages[b]
-      return (
-        localeCompare(str(pa.name, buffers), str(pb.name, buffers)) ||
-        localeCompare(
-          fmt_resolution(pa.resolution, buffers),
-          fmt_resolution(pb.resolution, buffers),
-        )
+  const indices = Array.from({ length: list_len }, (_, i) => i).slice(1)
+  const order = indices[SORT_METHOD]((a, b) => {
+    const pa = packages[a]
+    const pb = packages[b]
+    return (
+      localeCompare(str(pa.name, buffers), str(pb.name, buffers)) ||
+      localeCompare(
+        fmt_resolution(pa.resolution, buffers),
+        fmt_resolution(pb.resolution, buffers),
       )
-    })
+    )
+  })
   for (const i of order) {
     const a = packages[i]
     const name = str(a.name, buffers)
@@ -461,6 +426,47 @@ function parse(buf) {
   }
   out.push('')
   return out.join('\n')
+}
+
+function quote(s) {
+  return s.startsWith('true') ||
+    s.startsWith('false') ||
+    /[:\s\n\\",[\]|\t!]/g.test(s) ||
+    /^[0-9]/g.test(s) ||
+    !/^[a-zA-Z]/g.test(s)
+    ? JSON.stringify(s)
+    : s
+}
+
+function slice(data, a, item) {
+  const { 0: off, 1: length } = to_u32(a)
+  return Array.from({ length }, (_, i) =>
+    data.subarray(item * off + item * i, item * off + item * i + item),
+  )
+}
+
+function str(a, buffers) {
+  if ((a[7] & 128) === 0) {
+    const i = a.indexOf(0)
+    if (i >= 0) {
+      a = a.subarray(0, i)
+    }
+    return new TextDecoder().decode(a)
+  }
+  const [off, len] = to_u32(a)
+  return new TextDecoder().decode(
+    buffers.string_bytes.subarray(off, off + (len & ~2_147_483_648)),
+  )
+}
+
+function to_u32(a) {
+  if (a.byteOffset % 4 === 0) {
+    return new Uint32Array(a.buffer, a.byteOffset, a.byteLength / 4)
+  }
+  const view2 = new DataView(a.buffer, a.byteOffset, a.byteLength)
+  return Uint32Array.from({ length: a.byteLength / 4 }, (_, i) =>
+    view2.getUint32(i * 4, true),
+  )
 }
 
 module.exports = {

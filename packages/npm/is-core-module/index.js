@@ -5,6 +5,37 @@ const UNDEFINED_TOKEN = {}
 const { isArray } = Array
 const { hasOwn } = Object
 
+let dataCache
+function getData() {
+  if (dataCache === undefined) {
+    dataCache = require('./core.json')
+  }
+  return dataCache
+}
+
+let defaultNodeVersionCache = UNDEFINED_TOKEN
+function getDefaultNodeVersion() {
+  if (defaultNodeVersionCache === UNDEFINED_TOKEN) {
+    defaultNodeVersionCache = (
+      typeof process === 'object' && process !== null ? process : undefined
+    )?.versions?.node
+  }
+  return defaultNodeVersionCache
+}
+
+function matchesRange(nodeVersion, range) {
+  const specifiers = range.split(/ ?&& ?/)
+  if (specifiers.length === 0) {
+    return false
+  }
+  for (let i = 0, { length } = specifiers; i < length; i += 1) {
+    if (!specifierIncluded(nodeVersion, specifiers[i])) {
+      return false
+    }
+  }
+  return true
+}
+
 function specifierIncluded(nodeVersion, specifier) {
   const nodeVerParts = nodeVersion.split('.')
   const specParts = specifier.split(' ')
@@ -30,19 +61,6 @@ function specifierIncluded(nodeVersion, specifier) {
   return op === '>='
 }
 
-function matchesRange(nodeVersion, range) {
-  const specifiers = range.split(/ ?&& ?/)
-  if (specifiers.length === 0) {
-    return false
-  }
-  for (let i = 0, { length } = specifiers; i < length; i += 1) {
-    if (!specifierIncluded(nodeVersion, specifiers[i])) {
-      return false
-    }
-  }
-  return true
-}
-
 function versionIncluded(nodeVersion, specifierValue) {
   if (typeof specifierValue === 'boolean') {
     return specifierValue
@@ -56,24 +74,6 @@ function versionIncluded(nodeVersion, specifierValue) {
     return false
   }
   return matchesRange(nodeVersion, specifierValue)
-}
-
-let _data
-function getData() {
-  if (_data === undefined) {
-    _data = require('./core.json')
-  }
-  return _data
-}
-
-let _defaultNodeVersion = UNDEFINED_TOKEN
-function getDefaultNodeVersion() {
-  if (_defaultNodeVersion === UNDEFINED_TOKEN) {
-    _defaultNodeVersion = (
-      typeof process === 'object' && process !== null ? process : undefined
-    )?.versions?.node
-  }
-  return _defaultNodeVersion
 }
 
 module.exports = function isCore(moduleName, maybeNodeVersion) {

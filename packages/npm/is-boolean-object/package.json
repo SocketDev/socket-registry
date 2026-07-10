@@ -1,18 +1,25 @@
 {
   "name": "@socketregistry/is-boolean-object",
   "version": "1.0.12",
-  "license": "MIT",
   "description": "Socket.dev optimized package override for is-boolean-object",
   "keywords": [
     "Socket.dev",
     "package-overrides"
   ],
   "homepage": "https://github.com/SocketDev/socket-registry/tree/main/packages/npm/is-boolean-object",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/SocketDev/socket-registry.git",
     "directory": "packages/npm/is-boolean-object"
   },
+  "files": [
+    "*.d.cts",
+    "*.d.ts",
+    "*.cjs",
+    "*.js"
+  ],
+  "sideEffects": false,
   "exports": {
     ".": {
       "node": {
@@ -30,16 +37,13 @@
     },
     "./package.json": "./package.json"
   },
-  "sideEffects": false,
-  "engines": {
-    "node": ">=18"
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   },
-  "files": [
-    "*.d.cts",
-    "*.d.ts",
-    "*.cjs",
-    "*.js"
-  ],
+  "engines": {
+    "node": ">=24"
+  },
   "socket": {
     "categories": [
       "cleanup"

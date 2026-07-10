@@ -10,6 +10,7 @@ const {
 } = require('../shared')
 
 // Based on https://tc39.es/proposal-joint-iteration/#sec-iterator.zip.
+// oxlint-disable-next-line socket/options-null-proto -- TC39 spec reimplementation: options is normalized by getOptionsObject() (Step 2) and Step 7.a reads `padding` off the original object by spec.
 module.exports = function zip(iterables, options) {
   // Built-in functions that are not identified as constructors do
   // not implement [[Construct]] unless otherwise specified.

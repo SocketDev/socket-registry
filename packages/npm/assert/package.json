@@ -1,40 +1,46 @@
 {
   "name": "@socketregistry/assert",
   "version": "1.0.23",
-  "license": "MIT",
   "description": "Socket.dev optimized package override for assert",
   "keywords": [
     "Socket.dev",
     "package-overrides"
   ],
   "homepage": "https://github.com/SocketDev/socket-registry/tree/main/packages/npm/assert",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/SocketDev/socket-registry.git",
     "directory": "packages/npm/assert"
   },
+  "files": [
+    "*.cjs",
+    "*.d.ts",
+    "**/*.js",
+    "**/LICENSE",
+    "**/LICENSE.original"
+  ],
+  "sideEffects": false,
   "exports": {
     ".": {
-      "types": "./assert.d.ts",
-      "default": "./package/build/assert.js"
+      "node": {
+        "types": "./assert.d.ts",
+        "default": "./index.cjs"
+      },
+      "default": {
+        "types": "./assert.d.ts",
+        "default": "./package/build/assert.js"
+      }
     },
     "./package.json": "./package.json"
   },
-  "sideEffects": false,
-  "dependencies": {
-    "is-nan": "npm:@socketregistry/is-nan@^1.0.8",
-    "object-is": "npm:@socketregistry/object-is@^1.0.8",
-    "object.assign": "npm:@socketregistry/object.assign@^1.0.8",
-    "util": "npm:util@0.12.5"
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=24"
   },
-  "files": [
-    "*.d.ts",
-    "**/*.js",
-    "**/LICENSE{.original,}"
-  ],
   "socket": {
     "categories": [
       "cleanup"

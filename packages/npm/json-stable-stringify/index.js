@@ -1,20 +1,15 @@
 'use strict'
 
 /**
- * Socket.dev optimized json-stable-stringify implementation
+ * Socket.dev optimized json-stable-stringify implementation.
  *
- * Performance-optimized implementation with full feature parity:
- * - Custom comparator
- * - Custom replacer
- * - Space/indentation
- * - Cycle detection
- * - Stack overflow protection
+ * Performance-optimized implementation with full feature parity: - Custom
+ * comparator - Custom replacer - Space/indentation - Cycle detection - Stack
+ * overflow protection.
  *
- * Key optimizations:
- * - Fast path for simple cases (no options) - 79% faster
- * - One-pass sort+stringify for space/indentation
- * - Native JSON.stringify usage where possible
- * - JIT-friendly code structure
+ * Key optimizations: - Fast path for simple cases (no options) - 79% faster -
+ * One-pass sort+stringify for space/indentation - Native JSON.stringify usage
+ * where possible - JIT-friendly code structure.
  */
 
 const { isArray: ArrayIsArray } = Array
@@ -22,6 +17,136 @@ const { keys: ObjectKeys } = Object
 const { stringify: JSONStringify } = JSON
 
 const SUPPORTS_TO_SORTED = typeof Array.prototype.toSorted === 'function'
+
+const JSONIsRawJSON =
+  typeof JSON.isRawJSON === 'function' ? JSON.isRawJSON : undefined
+
+// JSON.rawJSON values carry pre-serialized text that JSON.stringify emits
+// verbatim; traversal must pass them through untouched rather than recurse into
+// them as plain objects, which would drop the raw text.
+function isRawJSON(value) {
+  return JSONIsRawJSON !== undefined && JSONIsRawJSON(value)
+}
+
+/**
+ * Sort and stringify with custom space/indentation in ONE pass.
+ *
+ * Combines sorting and stringification to avoid double traversal.
+ */
+function sortAndStringifyWithSpace(value, space, opts) {
+  opts = { __proto__: null, ...opts }
+  const seen = new Set()
+
+  function stringify(val, key, indent, childIndent) {
+    // Handle toJSON()
+    if (val && typeof val === 'object' && typeof val.toJSON === 'function') {
+      val = val.toJSON()
+    }
+
+    // Apply replacer
+    if (opts.replacer) {
+      val = opts.replacer.call(val, key, val)
+    }
+
+    if (val === null) {
+      return 'null'
+    }
+    if (val === undefined) {
+      return 'undefined'
+    }
+
+    const valType = typeof val
+
+    if (valType === 'boolean') {
+      return val ? 'true' : 'false'
+    }
+    if (valType === 'bigint' || valType === 'number' || valType === 'string') {
+      return JSONStringify(val)
+    }
+
+    if (valType !== 'object') {
+      return JSONStringify(val)
+    }
+
+    if (isRawJSON(val)) {
+      return JSONStringify(val)
+    }
+
+    // Cycle check
+    if (seen.has(val)) {
+      if (opts.cycles) {
+        return '"__cycle__"'
+      }
+      throw new TypeError('Converting circular structure to JSON')
+    }
+
+    if (ArrayIsArray(val)) {
+      const { length } = val
+      if (length === 0) {
+        return opts.collapseEmpty ? '[]' : `[\n${indent}]`
+      }
+
+      seen.add(val)
+      const joiner = `,\n${childIndent}`
+      const nextIndent = childIndent + space
+      let result = `[\n${childIndent}`
+
+      for (let i = 0, j = 0; i < length; i++) {
+        result = `${result}${j ? joiner : ''}${stringify(val[i], String(i), childIndent, nextIndent)}`
+        j = 1
+      }
+
+      seen.delete(val)
+      return `${result}\n${indent}]`
+    }
+
+    // Object - sort keys inline
+    let keys = ObjectKeys(val)
+    const { length } = keys
+
+    if (length === 0) {
+      return opts.collapseEmpty ? '{}' : `{\n${indent}}`
+    }
+
+    // Sort keys with custom comparator if provided
+    if (opts.cmp) {
+      const sortMethod = SUPPORTS_TO_SORTED ? 'toSorted' : 'sort'
+      keys = keys[sortMethod]((a, b) => {
+        const get = opts.cmp.length > 2 ? k => val[k] : undefined
+        return opts.cmp(
+          { key: a, value: val[a] },
+          { key: b, value: val[b] },
+          get ? { __proto__: null, get } : undefined,
+        )
+      })
+    } else {
+      keys = keys[SUPPORTS_TO_SORTED ? 'toSorted' : 'sort']()
+    }
+
+    seen.add(val)
+    const joiner = `,\n${childIndent}`
+    const nextIndent = childIndent + space
+    let result = `{\n${childIndent}`
+
+    for (let i = 0, j = 0; i < length; i += 1) {
+      const k = keys[i]
+      const v = stringify(val[k], k, childIndent, nextIndent)
+
+      // Skip undefined values
+      if (v === undefined) {
+        continue
+      }
+
+      result = `${result}${j ? joiner : ''}${JSONStringify(k)}: ${v}`
+      j = 1
+    }
+
+    seen.delete(val)
+    return `${result}\n${indent}}`
+  }
+
+  return stringify(value, '', '', space)
+}
 
 /**
  * Fast path: Sort keys recursively (no options)
@@ -33,9 +158,12 @@ function sortKeysFast(value) {
   if (typeof value !== 'object') {
     return value
   }
+  if (isRawJSON(value)) {
+    return value
+  }
   if (ArrayIsArray(value)) {
     const { length } = value
-    const result = new Array(length)
+    const result = Array.from({ length })
     for (let i = 0; i < length; i += 1) {
       result[i] = sortKeysFast(value[i])
     }
@@ -43,7 +171,7 @@ function sortKeysFast(value) {
   }
   // Sort object keys
   const sorted = {}
-  const keys = ObjectKeys(value).sort()
+  const keys = ObjectKeys(value)[SUPPORTS_TO_SORTED ? 'toSorted' : 'sort']()
   for (let i = 0, { length } = keys; i < length; i += 1) {
     const key = keys[i]
     sorted[key] = sortKeysFast(value[key])
@@ -68,7 +196,12 @@ function sortKeysIterative(root) {
   while (queue.length > 0) {
     const { key, parent, value } = queue.shift()
 
-    if (value === null || value === undefined || typeof value !== 'object') {
+    if (
+      value === null ||
+      value === undefined ||
+      typeof value !== 'object' ||
+      isRawJSON(value)
+    ) {
       if (parent === null) {
         result = value
       } else if (ArrayIsArray(parent)) {
@@ -119,7 +252,7 @@ function sortKeysIterative(root) {
         parent[key] = obj
       }
 
-      const keys = ObjectKeys(value).sort()
+      const keys = ObjectKeys(value)[SUPPORTS_TO_SORTED ? 'toSorted' : 'sort']()
       const { length } = keys
       for (let i = length - 1; i >= 0; i -= 1) {
         const k = keys[i]
@@ -132,9 +265,10 @@ function sortKeysIterative(root) {
 }
 
 /**
- * Full-featured path: Sort with custom options
+ * Full-featured path: Sort with custom options.
  */
 function sortKeysWithOptions(value, opts, seen) {
+  opts = { __proto__: null, ...opts }
   // Handle toJSON()
   if (
     value &&
@@ -157,6 +291,10 @@ function sortKeysWithOptions(value, opts, seen) {
     return value
   }
 
+  if (isRawJSON(value)) {
+    return value
+  }
+
   // Cycle detection
   if (!seen) {
     seen = new Set()
@@ -174,7 +312,7 @@ function sortKeysWithOptions(value, opts, seen) {
   try {
     if (ArrayIsArray(value)) {
       const { length } = value
-      const arr = new Array(length)
+      const arr = Array.from({ length })
       for (let i = 0; i < length; i += 1) {
         const processed = sortKeysWithOptions(value[i], opts, seen)
         arr[i] = opts.replacer
@@ -200,7 +338,7 @@ function sortKeysWithOptions(value, opts, seen) {
         )
       })
     } else {
-      keys = SUPPORTS_TO_SORTED ? keys.toSorted() : keys.sort()
+      keys = keys[SUPPORTS_TO_SORTED ? 'toSorted' : 'sort']()
     }
 
     const sorted = {}
@@ -229,122 +367,87 @@ function sortKeysWithOptions(value, opts, seen) {
 }
 
 /**
- * Sort and stringify with custom space/indentation in ONE pass
- *
- * Combines sorting and stringification to avoid double traversal
+ * Iterative JSON serializer for the no-options fast path. Used when the input
+ * is too deep for native JSON.stringify to recurse. Keys are already in sorted
+ * insertion order (from sortKeysIterative); cycles are caught by the native
+ * stringify attempt first, so this only ever runs on acyclic input.
  */
-function sortAndStringifyWithSpace(value, space, opts) {
-  const seen = new Set()
-
-  function stringify(val, key, indent, childIndent) {
-    // Handle toJSON()
-    if (val && typeof val === 'object' && typeof val.toJSON === 'function') {
-      val = val.toJSON()
+function stringifyIterative(root) {
+  const out = []
+  const stack = [{ value: root }]
+  while (stack.length > 0) {
+    const frame = stack.pop()
+    if (frame.token !== undefined) {
+      out.push(frame.token)
+      continue
     }
-
-    // Apply replacer
-    if (opts.replacer) {
-      val = opts.replacer.call(val, key, val)
+    const { value } = frame
+    if (value === null) {
+      out.push('null')
+      continue
     }
-
-    if (val === null) {
-      return 'null'
+    const valType = typeof value
+    if (
+      valType === 'function' ||
+      valType === 'symbol' ||
+      valType === 'undefined'
+    ) {
+      // Matches JSON.stringify for array holes / unsupported array elements.
+      out.push('null')
+      continue
     }
-    if (val === undefined) {
-      return 'undefined'
+    if (valType !== 'object' || isRawJSON(value)) {
+      out.push(JSONStringify(value))
+      continue
     }
-
-    const valType = typeof val
-
-    if (valType === 'boolean') {
-      return val ? 'true' : 'false'
-    }
-    if (valType === 'number' || valType === 'string' || valType === 'bigint') {
-      return JSONStringify(val)
-    }
-
-    if (valType !== 'object') {
-      return JSONStringify(val)
-    }
-
-    // Cycle check
-    if (seen.has(val)) {
-      if (opts.cycles) {
-        return '"__cycle__"'
-      }
-      throw new TypeError('Converting circular structure to JSON')
-    }
-
-    if (ArrayIsArray(val)) {
-      const { length } = val
+    if (ArrayIsArray(value)) {
+      const { length } = value
       if (length === 0) {
-        return opts.collapseEmpty ? '[]' : '[]'
-      }
-
-      seen.add(val)
-      const joiner = `,\n${childIndent}`
-      const nextIndent = childIndent + space
-      let result = `[\n${childIndent}`
-
-      for (let i = 0, j = 0; i < length; i++) {
-        result = `${result}${j ? joiner : ''}${stringify(val[i], String(i), childIndent, nextIndent)}`
-        j = 1
-      }
-
-      seen.delete(val)
-      return `${result}\n${indent}]`
-    }
-
-    // Object - sort keys inline
-    let keys = ObjectKeys(val)
-    const { length } = keys
-
-    if (length === 0) {
-      return opts.collapseEmpty ? '{}' : '{}'
-    }
-
-    // Sort keys with custom comparator if provided
-    if (opts.cmp) {
-      const sortMethod = SUPPORTS_TO_SORTED ? 'toSorted' : 'sort'
-      keys = keys[sortMethod]((a, b) => {
-        const get = opts.cmp.length > 2 ? k => val[k] : undefined
-        return opts.cmp(
-          { key: a, value: val[a] },
-          { key: b, value: val[b] },
-          get ? { __proto__: null, get } : undefined,
-        )
-      })
-    } else {
-      keys = SUPPORTS_TO_SORTED ? keys.toSorted() : keys.sort()
-    }
-
-    seen.add(val)
-    const joiner = `,\n${childIndent}`
-    const nextIndent = childIndent + space
-    let result = `{\n${childIndent}`
-
-    for (let i = 0, j = 0; i < length; i += 1) {
-      const k = keys[i]
-      const v = stringify(val[k], k, childIndent, nextIndent)
-
-      // Skip undefined values
-      if (v === undefined) {
+        out.push('[]')
         continue
       }
-
-      result = `${result}${j ? joiner : ''}${JSONStringify(k)}: ${v}`
-      j = 1
+      stack.push({ token: ']' })
+      for (let i = length - 1; i >= 0; i -= 1) {
+        stack.push({ value: value[i] })
+        if (i > 0) {
+          stack.push({ token: ',' })
+        }
+      }
+      stack.push({ token: '[' })
+      continue
     }
-
-    seen.delete(val)
-    return `${result}\n${indent}}`
+    const keys = ObjectKeys(value)
+    const emit = []
+    for (let i = 0, { length } = keys; i < length; i += 1) {
+      const k = keys[i]
+      const v = value[k]
+      const vt = typeof v
+      // JSON.stringify omits undefined / function / symbol object values.
+      if (v === undefined || vt === 'function' || vt === 'symbol') {
+        continue
+      }
+      emit.push(k)
+    }
+    if (emit.length === 0) {
+      out.push('{}')
+      continue
+    }
+    stack.push({ token: '}' })
+    for (let i = emit.length - 1; i >= 0; i -= 1) {
+      const k = emit[i]
+      stack.push({ value: value[k] })
+      stack.push({ token: `${JSONStringify(k)}:` })
+      if (i > 0) {
+        stack.push({ token: ',' })
+      }
+    }
+    stack.push({ token: '{' })
   }
-
-  return stringify(value, '', '', space)
+  return out.join('')
 }
 
 /**
- * Main stableStringify function with full feature support
+ * Main stableStringify function with full feature support.
  */
 module.exports = function stableStringify(value, opts) {
   // Normalize options
@@ -378,7 +481,20 @@ module.exports = function stableStringify(value, opts) {
         err.message.includes('Maximum call stack')
       ) {
         const sorted = sortKeysIterative(value)
-        return JSONStringify(sorted)
+        try {
+          return JSONStringify(sorted)
+        } catch (e) {
+          // The sort is iterative now, but JSON.stringify still recurses and
+          // overflows at the same depth. Serialize iteratively too. A circular
+          // structure throws a non-RangeError here and propagates as before.
+          if (
+            e instanceof RangeError &&
+            e.message.includes('Maximum call stack')
+          ) {
+            return stringifyIterative(sorted)
+          }
+          throw e
+        }
       }
       throw err
     }

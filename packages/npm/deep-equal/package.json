@@ -1,18 +1,25 @@
 {
   "name": "@socketregistry/deep-equal",
   "version": "1.0.22",
-  "license": "MIT",
   "description": "Socket.dev optimized package override for deep-equal",
   "keywords": [
     "Socket.dev",
     "package-overrides"
   ],
   "homepage": "https://github.com/SocketDev/socket-registry/tree/main/packages/npm/deep-equal",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/SocketDev/socket-registry.git",
     "directory": "packages/npm/deep-equal"
   },
+  "files": [
+    "*.d.cts",
+    "*.d.ts",
+    "*.cjs",
+    "**/*.js"
+  ],
+  "sideEffects": false,
   "exports": {
     ".": {
       "node": {
@@ -30,37 +37,13 @@
     },
     "./package.json": "./package.json"
   },
-  "sideEffects": false,
-  "dependencies": {
-    "array-buffer-byte-length": "npm:@socketregistry/array-buffer-byte-length@^1.0.7",
-    "es-get-iterator": "npm:@socketregistry/es-get-iterator@^1.0.8",
-    "is-arguments": "npm:@socketregistry/is-arguments@^1.0.10",
-    "is-array-buffer": "npm:@socketregistry/is-array-buffer@^1.0.10",
-    "is-date-object": "npm:@socketregistry/is-date-object@^1.0.10",
-    "is-regex": "npm:@socketregistry/is-regex@^1.0.10",
-    "is-shared-array-buffer": "npm:@socketregistry/is-shared-array-buffer@^1.0.10",
-    "isarray": "npm:@socketregistry/isarray@^1.0.8",
-    "object-is": "npm:@socketregistry/object-is@^1.0.8",
-    "object-keys": "npm:@socketregistry/object-keys@^1.0.8",
-    "object.assign": "npm:@socketregistry/object.assign@^1.0.8",
-    "regexp.prototype.flags": "npm:@socketregistry/regexp.prototype.flags@^1.0.8",
-    "side-channel": "npm:@socketregistry/side-channel@^1.0.10",
-    "which-boxed-primitive": "npm:@socketregistry/which-boxed-primitive@^1.0.9",
-    "which-collection": "npm:@socketregistry/which-collection@^1.0.8",
-    "which-typed-array": "npm:@socketregistry/which-typed-array@^1.0.9"
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=24"
   },
-  "files": [
-    "*.d.cts",
-    "*.d.ts",
-    "*.cjs",
-    "*.js",
-    "**/*.js",
-    "**/LICENSE",
-    "**/LICENSE.original"
-  ],
   "socket": {
     "categories": [
       "cleanup"

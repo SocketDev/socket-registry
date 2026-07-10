@@ -1,8 +1,12 @@
 /**
  * Determines the type of the given collection, or returns false.
  *
- * @param {unknown} value The potential collection
- * @returns {TypedArrayName | false | null} 'Int8Array' | 'Uint8Array' | 'Uint8ClampedArray' | 'Int16Array' | 'Uint16Array' | 'Int32Array' | 'Uint32Array' | 'Float32Array' | 'Float64Array' | 'BigInt64Array' | 'BigUint64Array' | false | null
+ * @param {unknown} value The potential collection.
+ *
+ * @returns {TypedArrayName | false | null} 'Int8Array' | 'Uint8Array' |
+ *   'Uint8ClampedArray' | 'Int16Array' | 'Uint16Array' | 'Int32Array' |
+ *   'Uint32Array' | 'Float32Array' | 'Float64Array' | 'BigInt64Array' |
+ *   'BigUint64Array' | false | null.
  */
 declare function whichTypedArray(value: Int8Array): 'Int8Array'
 declare function whichTypedArray(value: Uint8Array): 'Uint8Array'

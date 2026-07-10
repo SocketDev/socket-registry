@@ -1,18 +1,26 @@
 {
   "name": "@socketregistry/is-core-module",
   "version": "1.0.11",
-  "license": "MIT",
   "description": "Socket.dev optimized package override for is-core-module",
   "keywords": [
     "Socket.dev",
     "package-overrides"
   ],
   "homepage": "https://github.com/SocketDev/socket-registry/tree/main/packages/npm/is-core-module",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/SocketDev/socket-registry.git",
     "directory": "packages/npm/is-core-module"
   },
+  "files": [
+    "*.d.cts",
+    "*.d.ts",
+    "*.cjs",
+    "*.js",
+    "*.json"
+  ],
+  "sideEffects": false,
   "exports": {
     ".": {
       "node": {
@@ -31,17 +39,13 @@
     "./core.json": "./core.json",
     "./package.json": "./package.json"
   },
-  "sideEffects": false,
-  "engines": {
-    "node": ">=18"
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   },
-  "files": [
-    "*.d.cts",
-    "*.d.ts",
-    "*.cjs",
-    "*.js",
-    "*.json"
-  ],
+  "engines": {
+    "node": ">=24"
+  },
   "socket": {
     "categories": [
       "cleanup"

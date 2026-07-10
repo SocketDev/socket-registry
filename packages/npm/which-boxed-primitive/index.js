@@ -11,6 +11,7 @@ module.exports = function whichBoxedPrimitive(value) {
     value === null ||
     (typeof value !== 'object' && typeof value !== 'function')
   ) {
+    // oxlint-disable-next-line socket/prefer-undefined-over-null -- which-boxed-primitive's public API returns null for unboxed primitives (undefined is reserved for non-boxed objects); the test asserts this contract.
     return null
   }
   if (typeof value !== 'function') {

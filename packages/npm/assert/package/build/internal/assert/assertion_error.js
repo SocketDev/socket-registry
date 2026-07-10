@@ -237,7 +237,7 @@ function _typeof(o) {
     _typeof(o)
   )
 }
-const _require = require('util/'),
+const _require = require('../../../external/node-util'),
   inspect = _require.inspect
 
 const _require2 = require('../errors'),

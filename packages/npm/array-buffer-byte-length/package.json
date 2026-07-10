@@ -1,18 +1,23 @@
 {
   "name": "@socketregistry/array-buffer-byte-length",
   "version": "1.0.7",
-  "license": "MIT",
   "description": "Socket.dev optimized package override for array-buffer-byte-length",
   "keywords": [
     "Socket.dev",
     "package-overrides"
   ],
   "homepage": "https://github.com/SocketDev/socket-registry/tree/main/packages/npm/array-buffer-byte-length",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/SocketDev/socket-registry.git",
     "directory": "packages/npm/array-buffer-byte-length"
   },
+  "files": [
+    "*.d.ts",
+    "*.js"
+  ],
+  "sideEffects": false,
   "exports": {
     ".": {
       "types": "./index.d.ts",
@@ -20,14 +25,13 @@
     },
     "./package.json": "./package.json"
   },
-  "sideEffects": false,
-  "engines": {
-    "node": ">=18"
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   },
-  "files": [
-    "*.d.ts",
-    "*.js"
-  ],
+  "engines": {
+    "node": ">=24"
+  },
   "socket": {
     "categories": [
       "cleanup"

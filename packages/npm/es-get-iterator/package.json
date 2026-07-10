@@ -1,18 +1,24 @@
 {
   "name": "@socketregistry/es-get-iterator",
   "version": "1.0.8",
-  "license": "MIT",
   "description": "Socket.dev optimized package override for es-get-iterator",
   "keywords": [
     "Socket.dev",
     "package-overrides"
   ],
   "homepage": "https://github.com/SocketDev/socket-registry/tree/main/packages/npm/es-get-iterator",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/SocketDev/socket-registry.git",
     "directory": "packages/npm/es-get-iterator"
   },
+  "files": [
+    "*.d.ts",
+    "*.mjs",
+    "*.js"
+  ],
+  "sideEffects": false,
   "exports": {
     ".": {
       "browser": {
@@ -31,15 +37,13 @@
     "./package": "./package.json",
     "./package.json": "./package.json"
   },
-  "sideEffects": false,
-  "engines": {
-    "node": ">=18"
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   },
-  "files": [
-    "*.d.ts",
-    "*.mjs",
-    "*.js"
-  ],
+  "engines": {
+    "node": ">=24"
+  },
   "socket": {
     "categories": [
       "cleanup"

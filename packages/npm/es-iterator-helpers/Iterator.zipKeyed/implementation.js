@@ -12,6 +12,7 @@ const {
 } = require('../shared')
 
 // Based on https://tc39.es/proposal-joint-iteration/#sec-iterator.zipkeyed.
+// oxlint-disable-next-line socket/options-null-proto -- TC39 spec reimplementation: options is normalized by getOptionsObject() and `keys`/`padding` are read off the original object by spec.
 module.exports = function zipKeyed(iterables, options) {
   // Built-in functions that are not identified as constructors do
   // not implement [[Construct]] unless otherwise specified.
@@ -107,7 +108,8 @@ module.exports = function zipKeyed(iterables, options) {
       }
     } else {
       // Step 14.b: For each element key of keys, do
-      for (const key of keys) {
+      for (let i = 0, { length } = keys; i < length; i += 1) {
+        const key = keys[i]
         // Step 14.b.i: Let value be Completion(Get(paddingOption, key)).
         // Step 14.b.ii: IfAbruptCloseIterators(value, iters).
         // Step 14.b.iii: Append value to padding.

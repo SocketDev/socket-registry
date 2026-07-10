@@ -8,10 +8,6 @@
 
 > An enhanced, secure, and tested zero dependency drop-in replacement of [`@hyrious/bun.lockb`](https://socket.dev/npm/package/@hyrious/bun.lockb) complete with TypeScript types.
 
-### Enhancements
-
-- TODO: List enhancements
-
 ## Installation
 
 ### Install as a package override

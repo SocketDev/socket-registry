@@ -3,12 +3,14 @@
 const getPolyfill = require('./polyfill')
 const polyfill = getPolyfill()
 
-const desc = value => ({
-  __proto__: null,
-  configurable: true,
-  value,
-  writable: true,
-})
+function desc(value) {
+  return {
+    __proto__: null,
+    configurable: true,
+    value,
+    writable: true,
+  }
+}
 
 module.exports = Object.defineProperties(
   function toSorted(thisArg, compareFn) {
@@ -22,6 +24,3 @@ module.exports = Object.defineProperties(
     shim: desc(require('./shim')),
   },
 )
-module.exports.getPolyfill = module.exports.getPolyfill
-module.exports.implementation = module.exports.implementation
-module.exports.shim = module.exports.shim

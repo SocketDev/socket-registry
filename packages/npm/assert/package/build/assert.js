@@ -89,9 +89,9 @@ function _classCallCheck(instance, Constructor) {
 const RegExpPrototypeTest = require('../external/call-bind')(
   'RegExp.prototype.test',
 )
-const objectIs = require('object-is/polyfill')()
-const objectAssign = require('object.assign/polyfill')()
-const _require$types = require('util/').types,
+const objectIs = Object.is
+const objectAssign = Object.assign
+const _require$types = require('../external/node-util').types,
   isPromise = _require$types.isPromise,
   isRegExp = _require$types.isRegExp
 
@@ -104,7 +104,7 @@ const _require = require('./internal/errors'),
   ERR_MISSING_ARGS = _require$codes.ERR_MISSING_ARGS
 const AssertionError = require('./internal/assert/assertion_error')
 
-const _require2 = require('util/'),
+const _require2 = require('../external/node-util'),
   inspect = _require2.inspect
 let isDeepEqual
 let isDeepStrictEqual
@@ -242,7 +242,7 @@ function innerOk(fn, argLen, value, message) {
 // by !!value.
 function ok() {
   for (
-    let _len = arguments.length, args = new Array(_len), _key = 0;
+    var _len = arguments.length, args = new Array(_len), _key = 0;
     _key < _len;
     _key++
   ) {
@@ -639,7 +639,7 @@ function expectsNoError(stackStartFn, actual, error, message) {
 }
 assert.throws = function throws(promiseFn) {
   for (
-    let _len2 = arguments.length,
+    var _len2 = arguments.length,
       args = new Array(_len2 > 1 ? _len2 - 1 : 0),
       _key2 = 1;
     _key2 < _len2;
@@ -651,7 +651,7 @@ assert.throws = function throws(promiseFn) {
 }
 assert.rejects = function rejects(promiseFn) {
   for (
-    let _len3 = arguments.length,
+    var _len3 = arguments.length,
       args = new Array(_len3 > 1 ? _len3 - 1 : 0),
       _key3 = 1;
     _key3 < _len3;
@@ -665,7 +665,7 @@ assert.rejects = function rejects(promiseFn) {
 }
 assert.doesNotThrow = function doesNotThrow(fn) {
   for (
-    let _len4 = arguments.length,
+    var _len4 = arguments.length,
       args = new Array(_len4 > 1 ? _len4 - 1 : 0),
       _key4 = 1;
     _key4 < _len4;
@@ -677,7 +677,7 @@ assert.doesNotThrow = function doesNotThrow(fn) {
 }
 assert.doesNotReject = function doesNotReject(fn) {
   for (
-    let _len5 = arguments.length,
+    var _len5 = arguments.length,
       args = new Array(_len5 > 1 ? _len5 - 1 : 0),
       _key5 = 1;
     _key5 < _len5;
@@ -783,7 +783,7 @@ assert.doesNotMatch = function doesNotMatch(string, regexp, message) {
 // Expose a strict only variant of assert
 function strict() {
   for (
-    let _len6 = arguments.length, args = new Array(_len6), _key6 = 0;
+    var _len6 = arguments.length, args = new Array(_len6), _key6 = 0;
     _key6 < _len6;
     _key6++
   ) {

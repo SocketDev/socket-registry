@@ -287,7 +287,7 @@ createErrorType(
         ? arguments[2]
         : 'is invalid'
     if (util === undefined) {
-      util = require('util/')
+      util = require('../../external/node-util')
     }
     let inspected = util.inspect(value)
     if (inspected.length > 128) {
@@ -322,7 +322,7 @@ createErrorType(
   'ERR_MISSING_ARGS',
   function () {
     for (
-      let _len = arguments.length, args = new Array(_len), _key = 0;
+      var _len = arguments.length, args = new Array(_len), _key = 0;
       _key < _len;
       _key++
     ) {

@@ -126,20 +126,20 @@ const arrayFromMap = function arrayFromMap(map) {
   })
   return array
 }
-const objectIs = Object.is ? Object.is : require('object-is')
+const objectIs = Object.is
 const objectGetOwnPropertySymbols = Object.getOwnPropertySymbols
   ? Object.getOwnPropertySymbols
   : function () {
       return []
     }
-const numberIsNaN = Number.isNaN ? Number.isNaN : require('is-nan')
+const numberIsNaN = Number.isNaN
 function uncurryThis(f) {
   return f.call.bind(f)
 }
 const hasOwnProperty = uncurryThis(Object.prototype.hasOwnProperty)
 const propertyIsEnumerable = uncurryThis(Object.prototype.propertyIsEnumerable)
 const objectToString = uncurryThis(Object.prototype.toString)
-const _require$types = require('util/').types,
+const _require$types = require('../../../external/node-util').types,
   isAnyArrayBuffer = _require$types.isAnyArrayBuffer,
   isArrayBufferView = _require$types.isArrayBufferView,
   isDate = _require$types.isDate,

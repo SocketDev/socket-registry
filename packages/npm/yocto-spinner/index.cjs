@@ -5,69 +5,175 @@ const { defineProperty: ObjectDefineProperty } = Object
 
 const defaultTtyColumns = 80
 
-let _defaultSpinner
+// SGR formatter, inlined verbatim from yoctocolors-cjs@2.1.3 (MIT) so the
+// override carries no runtime dependency. Same open/close codes, same
+// nested-close handling, and the same hasColors gate, so output is
+// byte-identical to the package it replaces.
+function formatColor(open, close) {
+  if (!hasColorSupport()) {
+    return input => input
+  }
+  const openCode = `[${open}m`
+  const closeCode = `[${close}m`
+  return input => {
+    const string = `${input}`
+    let index = string.indexOf(closeCode)
+    if (index === -1) {
+      return openCode + string + closeCode
+    }
+    let result = openCode
+    let lastIndex = 0
+    // SGR 22 resets both bold (1) and dim (2); reopen the outer style on a
+    // nested close for those.
+    const reopenOnNestedClose = close === 22
+    const replaceCode = (reopenOnNestedClose ? closeCode : '') + openCode
+    while (index !== -1) {
+      result += string.slice(lastIndex, index) + replaceCode
+      lastIndex = index + closeCode.length
+      index = string.indexOf(closeCode, lastIndex)
+    }
+    result += string.slice(lastIndex) + closeCode
+    return result
+  }
+}
+
+let defaultSpinnerCache
 function getDefaultSpinner() {
-  if (_defaultSpinner === undefined) {
-    _defaultSpinner = {
+  if (defaultSpinnerCache === undefined) {
+    defaultSpinnerCache = {
       frames: isUnicodeSupported()
         ? ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
         : ['-', '\\', '|', '/'],
       interval: 80,
     }
   }
-  return _defaultSpinner
+  return defaultSpinnerCache
 }
 
-let _logSymbols
+function getFrame(spinner, index) {
+  const { frames } = spinner
+  const len = frames?.length ?? 0
+  return index > -1 && index < len ? frames[index] : ''
+}
+
+function getFrameCount(spinner) {
+  const { frames } = spinner
+  const len = frames?.length ?? 0
+  return len < 1 ? 1 : len
+}
+
+let logSymbolsCache
 function getLogSymbols() {
-  if (_logSymbols === undefined) {
+  if (logSymbolsCache === undefined) {
     const supported = isUnicodeSupported()
     const colors = getYoctocolors()
-    _logSymbols = {
+    logSymbolsCache = {
       error: colors.red(supported ? '✖' : '×'),
       info: colors.blue(supported ? 'ℹ' : 'i'),
+      // oxlint-disable-next-line socket/no-status-emoji -- Vendored upstream log symbol; published module shape must match.
       success: colors.green(supported ? '✔' : '√'),
+      // oxlint-disable-next-line socket/no-status-emoji -- Vendored upstream log symbol; published module shape must match.
       warning: colors.yellow(supported ? '⚠' : '‼'),
     }
   }
-  return _logSymbols
+  return logSymbolsCache
 }
 
-let _process
+let processCache
 function getProcess() {
-  if (_process === undefined) {
+  if (processCache === undefined) {
     // Use non-'node:' prefixed require to avoid Webpack errors.
 
-    _process = require('node:process')
+    processCache = require('node:process')
   }
-  return _process
+  return processCache
 }
 
-let _yoctocolors
+// [name, openCode, closeCode] for the full yoctocolors palette, so
+// colors[name] resolves for any color a caller passes as the spinner color.
+const YOCTOCOLORS_SPEC = [
+  ['reset', 0, 0],
+  ['bold', 1, 22],
+  ['dim', 2, 22],
+  ['italic', 3, 23],
+  ['underline', 4, 24],
+  ['overline', 53, 55],
+  ['inverse', 7, 27],
+  ['hidden', 8, 28],
+  ['strikethrough', 9, 29],
+  ['black', 30, 39],
+  ['red', 31, 39],
+  ['green', 32, 39],
+  ['yellow', 33, 39],
+  ['blue', 34, 39],
+  ['magenta', 35, 39],
+  ['cyan', 36, 39],
+  ['white', 37, 39],
+  ['gray', 90, 39],
+  ['bgBlack', 40, 49],
+  ['bgRed', 41, 49],
+  ['bgGreen', 42, 49],
+  ['bgYellow', 43, 49],
+  ['bgBlue', 44, 49],
+  ['bgMagenta', 45, 49],
+  ['bgCyan', 46, 49],
+  ['bgWhite', 47, 49],
+  ['bgGray', 100, 49],
+  ['redBright', 91, 39],
+  ['greenBright', 92, 39],
+  ['yellowBright', 93, 39],
+  ['blueBright', 94, 39],
+  ['magentaBright', 95, 39],
+  ['cyanBright', 96, 39],
+  ['whiteBright', 97, 39],
+  ['bgRedBright', 101, 49],
+  ['bgGreenBright', 102, 49],
+  ['bgYellowBright', 103, 49],
+  ['bgBlueBright', 104, 49],
+  ['bgMagentaBright', 105, 49],
+  ['bgCyanBright', 106, 49],
+  ['bgWhiteBright', 107, 49],
+]
+
+let yoctocolorsCache
 function getYoctocolors() {
-  if (_yoctocolors === undefined) {
-    _yoctocolors = { .../*@__PURE__*/ require('yoctocolors-cjs') }
+  if (yoctocolorsCache === undefined) {
+    const colors = { __proto__: null }
+    for (let i = 0, { length } = YOCTOCOLORS_SPEC; i < length; i += 1) {
+      const entry = YOCTOCOLORS_SPEC[i]
+      colors[entry[0]] = formatColor(entry[1], entry[2])
+    }
+    yoctocolorsCache = colors
   }
-  return _yoctocolors
+  return yoctocolorsCache
 }
 
-let _processInteractive
+let hasColorsCache
+function hasColorSupport() {
+  if (hasColorsCache === undefined) {
+    const nodeTty = require('node:tty')
+    hasColorsCache = nodeTty?.WriteStream?.prototype?.hasColors?.() ?? false
+  }
+  return hasColorsCache
+}
+
+let processInteractiveCache
 function isProcessInteractive() {
-  if (_processInteractive === undefined) {
+  if (processInteractiveCache === undefined) {
     const { env } = getProcess()
-    _processInteractive = env.TERM !== 'dumb' && !('CI' in env)
+    processInteractiveCache = env.TERM !== 'dumb' && !('CI' in env)
   }
-  return _processInteractive
+  return processInteractiveCache
 }
 
-let _unicodeSupported
+let unicodeSupportedCache
 function isUnicodeSupported() {
-  if (_unicodeSupported === undefined) {
+  if (unicodeSupportedCache === undefined) {
     const process = getProcess()
     if (process.platform !== 'win32') {
       // Linux console (kernel).
-      _unicodeSupported = process.env.TERM !== 'linux'
-      return _unicodeSupported
+      unicodeSupportedCache = process.env.TERM !== 'linux'
+      return unicodeSupportedCache
     }
     const { env } = process
     if (
@@ -78,11 +184,11 @@ function isUnicodeSupported() {
       // ConEmu and cmder.
       env.ConEmuTask === '{cmd::Cmder}'
     ) {
-      _unicodeSupported = true
-      return _unicodeSupported
+      unicodeSupportedCache = true
+      return unicodeSupportedCache
     }
     const { TERM, TERM_PROGRAM } = env
-    _unicodeSupported =
+    unicodeSupportedCache =
       TERM_PROGRAM === 'Terminus-Sublime' ||
       TERM_PROGRAM === 'vscode' ||
       TERM === 'xterm-256color' ||
@@ -91,34 +197,22 @@ function isUnicodeSupported() {
       TERM === 'rxvt-unicode-256color' ||
       env.TERMINAL_EMULATOR === 'JetBrains-JediTerm'
   }
-  return _unicodeSupported
-}
-
-let _stripVTControlCharacters
-function stripVTControlCharacters(string) {
-  if (_stripVTControlCharacters === undefined) {
-    // Use non-'node:' prefixed require to avoid Webpack errors.
-
-    const nodeUtil = /*@__PURE__*/ require('node:util')
-    _stripVTControlCharacters = nodeUtil.stripVTControlCharacters
-  }
-  return _stripVTControlCharacters(string)
-}
-
-function getFrame(spinner, index) {
-  const { frames } = spinner
-  const length = frames?.length ?? 0
-  return index > -1 && index < length ? frames[index] : ''
-}
-
-function getFrameCount(spinner) {
-  const { frames } = spinner
-  const length = frames?.length ?? 0
-  return length < 1 ? 1 : length
+  return unicodeSupportedCache
 }
 
 function normalizeText(value) {
   return typeof value === 'string' ? value.trimStart() : ''
+}
+
+let stripVTControlCharactersCache
+function stripVTControlCharacters(string) {
+  if (stripVTControlCharactersCache === undefined) {
+    // Use non-'node:' prefixed require to avoid Webpack errors.
+
+    const nodeUtil = /*@__PURE__*/ require('node:util')
+    stripVTControlCharactersCache = nodeUtil.stripVTControlCharacters
+  }
+  return stripVTControlCharactersCache(string)
 }
 
 class YoctoSpinner {
@@ -210,7 +304,8 @@ class YoctoSpinner {
     const lines = stripVTControlCharacters(text).split('\n')
 
     let lineCount = 0
-    for (const line of lines) {
+    for (let i = 0, { length } = lines; i < length; i += 1) {
+      const line = lines[i]
       lineCount += Math.max(1, Math.ceil(line.length / width))
     }
 

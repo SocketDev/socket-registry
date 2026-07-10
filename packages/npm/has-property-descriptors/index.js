@@ -1,11 +1,11 @@
 'use strict'
 
-function hasPropertyDescriptors() {
-  return true
-}
-
 function hasArrayLengthDefineBug() {
   return false
+}
+
+function hasPropertyDescriptors() {
+  return true
 }
 
 module.exports = hasPropertyDescriptors
