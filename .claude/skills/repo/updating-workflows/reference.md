@@ -1,0 +1,195 @@
+# Updating Workflows Reference
+
+## Table of Contents
+
+1. [Architecture layers](#architecture-layers)
+2. [Propagation SHA](#propagation-sha)
+3. [Cascade procedure](#cascade-procedure)
+4. [External consuming repos](#external-consuming-repos)
+5. [Rules](#rules)
+
+---
+
+## Architecture layers
+
+Actions and workflows reference each other by full 40-char SHA. When any action
+changes, all consumers must be updated in dependency order, one commit per layer.
+Each commit must land on `main` before the next layer can pin to it — the new
+merge SHA is the next layer's input. The fleet default is direct push to `main`;
+fall back to a PR only when branch protection rejects the push.
+
+```
+Layer 1 — Leaf actions (no internal SocketDev refs):
+  checkout, install, debug, setup-git-signing, cleanup-git-signing,
+  run-script, artifacts, cache-npm-packages
+
+Layer 2a — setup (references Layer 1):
+  setup/action.yml         -> refs: debug
+
+Layer 2b — setup-and-install (references Layer 1 + 2a):
+  setup-and-install        -> refs: checkout, setup, install
+
+Layer 3 — Shared reusable workflows (reference Layer 2):
+  ci.yml                   -> refs: setup-and-install, run-script
+  provenance.yml           -> refs: setup-and-install
+  weekly-update.yml        -> thin delegator consumers pin; refs (uses:)
+                              weekly-update.lock.yml. Hand-authored, cascaded.
+  weekly-update.lock.yml   -> gh-aw compiled from weekly-update.md; runs the
+                              agentic update + opens the PR via safe-outputs;
+                              dispatches fix-test-failures.lock.yml on a test
+                              failure. gh-aw-OWNED: never hand-edited, EXCLUDED
+                              from the SHA cascade (cascade-workflows.mts skips
+                              gh-aw files); its action pins are managed by
+                              `gh aw compile`.
+  fix-test-failures.lock.yml -> gh-aw compiled from fix-test-failures.md (sonnet
+                              escalation worker); same gh-aw-owned rules.
+
+Layer 4 — _local workflows (reference Layer 3, not reused externally):
+  _local-not-for-reuse-ci.yml             -> refs: ci.yml, setup-and-install, cache-npm-packages
+  _local-not-for-reuse-provenance.yml     -> refs: provenance.yml
+  _local-not-for-reuse-weekly-update.yml  -> refs: weekly-update.yml (the delegator, via uses)
+```
+
+**weekly-update is a gh-aw workflow behind a thin delegator.** Consumers pin the
+hand-authored `weekly-update.yml`, a single job that `uses:` the gh-aw-compiled
+`weekly-update.lock.yml@<sha>` (SHA-pinned, cascade-maintained) and forwards
+inputs + `secrets: inherit`. This keeps a stable public entry point while the
+gh-aw impl does the work: the agentic update behind the gh-aw firewall +
+github-mcp-server, the PR via safe-outputs, and the fix-test-failures dispatch.
+`_local-not-for-reuse-weekly-update.yml` pins the delegator so it exercises the
+same path consumers run.
+
+Edit the gh-aw source `weekly-update.md` / `fix-test-failures.md`, then
+`gh aw compile` and commit the `.md`, its `.lock.yml`, and
+`.github/aw/actions-lock.json` together (the `gh-aw-locks-are-current` check
+guards the `.md` ↔ `.lock.yml` sync). The `.lock.yml` files are gh-aw-OWNED:
+`cascade-workflows.mts` skips them via `isGhAwGenerated` (it would otherwise
+fight `gh aw compile`), and their internal action pins are gh-aw's to manage. The
+SHA cascade only touches the hand-authored delegator's pin TO the `.lock.yml`.
+The fleet pin reconciler tolerates both the `.yml` and `.lock.yml` forms. See the
+wheelhouse's `docs/agents.md/fleet/shared-workflow-cascade.md` for the full
+substrate + testing story (`gh aw trial`, not Agent CI).
+
+---
+
+## Propagation SHA
+
+The **propagation SHA** is the Layer 3 merge SHA — the one where `ci.yml`,
+`provenance.yml`, `weekly-update.yml` (the delegator), or `weekly-update.lock.yml`
+were updated.
+
+- Layer 4 (`_local-not-for-reuse-*`) pins to the propagation SHA
+- External repos pin to the propagation SHA
+- The Layer 4 merge SHA is NOT used for external pinning because it only
+  changed `_local` wrappers, not the reusable workflows that consumers reference
+
+---
+
+## Cascade procedure
+
+Starting from the layer **above** the change, create a PR for each layer.
+
+**Full cascade (when a leaf action changes):**
+
+```
+1. PR: Update Layer 2a pins (setup)                  -> merge -> get SHA
+2. PR: Update Layer 2b pins (setup-and-install)       -> merge -> get SHA
+3. PR: Update Layer 3 pins (ci.yml, provenance.yml)   -> merge -> get SHA  <-- PROPAGATION SHA
+4. PR: Update Layer 4 pins (_local workflows)         -> merge
+5. Propagate the Layer 3 SHA to all consuming repos
+```
+
+**Shortcut (when the change is at a higher layer):**
+
+- Change at Layer 2a/2b: start cascade from Layer 3
+- Change at Layer 3: start cascade from Layer 4, propagation SHA is the Layer 3 merge commit
+- Change at Layer 4: no internal cascade, external repos may need updating if reusable workflows also changed
+
+**Layer 4 sweep — both ref kinds:** `_local-not-for-reuse-*.yml`
+files carry TWO kinds of SocketDev refs that both need propagation-SHA
+pinning during the cascade:
+
+1. The `uses: SocketDev/socket-registry/.github/workflows/<name>.yml@<L3-SHA>`
+   line that delegates to a Layer 3 reusable workflow.
+2. Inline `uses: SocketDev/socket-registry/.github/actions/<action>@<SHA>`
+   steps inside additional jobs the wrapper runs (e.g.
+   `_local-not-for-reuse-ci.yml`'s `test-npm-packages` job has its own
+   `setup-and-install` step on top of delegating to `ci.yml`).
+
+Both go to the propagation SHA. Verify with:
+
+```bash
+grep -rEn "SocketDev/socket-registry[^@]+@[a-f0-9]" \
+  .github/workflows/_local-not-for-reuse-*.yml \
+  | grep -v "<propagation-sha>"
+```
+
+Empty output = clean. Any remaining ref means the sweep missed an
+inline `uses:` and the cascade is incomplete.
+
+**External-repo sweep:** same `grep -v "<propagation-sha>"`
+verification across the consuming repo's `.github/workflows/`. Pins to
+`setup-git-signing` / `cleanup-git-signing` (or other actions not
+touched in this wave) stay at their existing SHAs — leave them
+unless the cascade explicitly bumps them.
+
+---
+
+## External consuming repos
+
+All pin to the propagation SHA (Layer 3 merge SHA).
+
+### Detecting push method
+
+Don't rely on this skill's hard-coded table alone — repo rulesets change. Query GitHub before pushing:
+
+1. **Check rulesets on main:**
+
+   ```bash
+   gh api repos/SocketDev/<repo>/rules/branches/main \
+     --jq '[.[] | {type, enforcement: .enforcement // {}}]'
+   ```
+
+   If any entry has `type: "pull_request"`, PR is required. No `pull_request` entry → direct push to main is permitted.
+
+2. **SocketDev override — `temporarily-doesnt-touch-customers`:**
+
+   ```bash
+   gh api repos/SocketDev/<repo>/properties/values \
+     --jq '.[] | select(.property_name == "temporarily-doesnt-touch-customers") | .value'
+   ```
+
+   If this prints `true`, direct push is sanctioned regardless of rulesets (the repo is flagged as not currently serving customer-facing releases). If unset/`false`, follow the ruleset answer.
+
+3. **When uncertain, ask the user.** The table below is a snapshot; a ruleset update or property flip supersedes it.
+
+### Current snapshot
+
+| Repo                 | Method                                                        |
+| -------------------- | ------------------------------------------------------------- |
+| socket-btm           | Push directly to main                                         |
+| sdxgen               | Push directly to main (local checkout at `../socket-sdxgen/`) |
+| stuie                | Push directly to main (local checkout at `../socket-tui/`)    |
+| ultrathink           | Push directly to main                                         |
+| socket-cli           | Create PR                                                     |
+| socket-lib           | Create PR                                                     |
+| socket-sdk-js        | Create PR                                                     |
+| socket-packageurl-js | Create PR                                                     |
+
+---
+
+## Rules
+
+- Each layer gets its own PR — never combine layers
+- **NEVER type or guess SHAs** — always copy the full 40-char SHA from command output:
+  ```bash
+  git fetch origin main && git rev-parse origin/main
+  ```
+- Always get SHAs from main AFTER merge (squash merges create new SHAs)
+- **Verify SHA exists on GitHub before using it in any file**:
+  ```bash
+  gh api repos/SocketDev/socket-registry/commits/<sha> --jq '.sha'
+  ```
+- Use `--no-verify` for pin-only commits (no code changes)
+- Verify no stale refs: `grep -rn "SocketDev/socket-registry" .github/ | grep "@" | grep -v "<current-sha>"`
+- Don't clobber third-party SHAs (`actions/checkout`, `actions/upload-artifact`, etc.)
