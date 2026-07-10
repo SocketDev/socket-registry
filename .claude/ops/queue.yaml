@@ -1,0 +1,12 @@
+schema_version: 1
+
+phase_order:
+  quality-scan: [env-check, dep-update, tools-install, cleanup, structural, scan-scope, scans, aggregate, report, complete]
+  security-scan: [env-check, agentshield, zizmor, grade-report]
+  updating: [env-check, npm-update, validate, report]
+  ci-cascade: [identify, layer-prs, layer-4-update, propagate, verify]
+  release: [quality-gate, security-gate, changelog, version-bump]
+
+# Completed runs are appended here by skills. Prune periodically —
+# keep the last 10 entries and delete older ones to avoid unbounded growth.
+runs: []
