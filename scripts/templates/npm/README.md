@@ -1,6 +1,6 @@
 # <%= it.name %>
 
-[![Socket Badge](https://socket.dev/api/badge/npm/package/<%= it.name %>)](https://socket.dev/npm/package/<%= it.name %>)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/<%= it.name %>)](<https://socket.dev/npm/package/><%= it.name %>)
 [![CI - <%= it.name %>](https://github.com/SocketDev/socket-registry/actions/workflows/ci.yml/badge.svg)](https://github.com/SocketDev/socket-registry/actions/workflows/ci.yml)
 
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
@@ -9,7 +9,7 @@
 > <%~ it.adjectivesText %>
 > <% if (Object.keys(it.dependencies).length) { %> low <% } else { %> zero <% } %>
 > dependency <% if (it.interop?.includes('esm')) { %> CJS/ESM compatible <% } %>
-> drop-in replacement of <% if (it.deprecated) { %> the deprecated <% } %>[`<%= it.originalName %>`](https://socket.dev/npm/package/<%= it.originalName %>)<% if (it.deprecated) { %> package <% } %> complete with TypeScript types.
+> drop-in replacement of <% if (it.deprecated) { %> the deprecated <% } %>[`<%= it.originalName %>`](<https://socket.dev/npm/package/><%= it.originalName %>)<% if (it.deprecated) { %> package <% } %> complete with TypeScript types.
 
 <% if (it.categories.includes('levelup')) { %>
 
