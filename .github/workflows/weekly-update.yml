@@ -133,7 +133,7 @@ jobs:
       contents: write
       issues: write
       pull-requests: write
-    uses: SocketDev/socket-registry/.github/workflows/weekly-update.lock.yml@14edfb226cd361d2d3e48590269ca050ba3d07fa # main (2026-07-08)
+    uses: SocketDev/socket-registry/.github/workflows/weekly-update.lock.yml@f686e4e3b7554d83a4597f1e60514ea70ce09ed8 # main (2026-07-10)
     with:
       branch-prefix: ${{ inputs.branch-prefix }}
       check-timeout-minutes: ${{ inputs.check-timeout-minutes }}
