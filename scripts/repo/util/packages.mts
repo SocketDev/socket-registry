@@ -8,6 +8,8 @@ import { fileURLToPath } from 'node:url'
 
 import { hasOwn } from '@socketsecurity/lib-stable/objects/predicates'
 
+import { PACKAGE_JSON, TEST_NPM_PATH } from '../../constants/paths.mts'
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 let cachedTestNpmPackageJson
@@ -17,10 +19,9 @@ let cachedTestNpmPackageJson
  */
 export function getTestNpmPackageJson() {
   if (cachedTestNpmPackageJson === undefined) {
-    const testNpmPackageJsonPath = path.resolve(
-      __dirname,
-      '../../test/npm/package.json',
-    )
+    // Resolved from the canonical path constants — the old __dirname-relative
+    // hop ('../../') broke when this util moved under scripts/repo/util/.
+    const testNpmPackageJsonPath = path.join(TEST_NPM_PATH, PACKAGE_JSON)
     cachedTestNpmPackageJson = JSON.parse(
       readFileSync(testNpmPackageJsonPath, 'utf8'),
     )
