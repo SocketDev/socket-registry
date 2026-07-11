@@ -20,7 +20,6 @@ import { biomeFormat } from '../repo/util/biome.mts'
 import { getModifiedFiles } from '../repo/util/git.mts'
 import { fetchPackageManifest } from '@socketsecurity/lib-stable/packages/manifest'
 import { resolveOriginalPackageName } from '@socketsecurity/lib-stable/packages/normalize'
-import { isBlessedPackageName } from '@socketsecurity/lib-stable/packages/validation'
 import { resolvePackageJsonEntryExports } from '@socketsecurity/lib-stable/packages/exports'
 import { readPackageJson } from '@socketsecurity/lib-stable/packages/read'
 import { extractPackage } from '@socketsecurity/lib-stable/packages/tarball'
@@ -85,7 +84,10 @@ export async function addNpmManifestData(manifest, options) {
       await extractPackage(nmPkgId, async nmPkgPath => {
         nmPkgJson = await readPackageJson(nmPkgPath, { normalize: true })
       })
-      const isBlessed = isBlessedPackageName(data.name)
+      // Socket-maintained overrides take engines from the published
+      // package.json; third-party extensions keep the manifest's engines.
+      // (Inlined from the retired isBlessedPackageName helper.)
+      const isSocketOverride = data.name.startsWith('@socketregistry/')
       manifestData.push([
         PackageURL.fromString(
           `pkg:${eco}/${data.name}@${nmPkgJson.version}`,
@@ -93,7 +95,9 @@ export async function addNpmManifestData(manifest, options) {
         {
           categories: nmPkgJson.socket?.categories ?? data.categories,
           engines: filterEngines(
-            isBlessed ? (nmPkgJson.engines ?? data.engines) : data.engines,
+            isSocketOverride
+              ? (nmPkgJson.engines ?? data.engines)
+              : data.engines,
           ),
           interop: data.interop,
           license: nmPkgJson.license ?? data.license,
