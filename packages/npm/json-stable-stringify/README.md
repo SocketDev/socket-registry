@@ -8,7 +8,7 @@
 
 > An enhanced and tested zero dependency drop-in replacement of [`json-stable-stringify`](https://socket.dev/npm/package/json-stable-stringify) complete with TypeScript types.
 
-### Enhancements
+## Enhancements
 
 - TODO: List enhancements
 
