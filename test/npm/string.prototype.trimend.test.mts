@@ -1,7 +1,7 @@
 /**
  * @file Tests for string.prototype.trimend NPM package override. Ported 1:1
- *   from upstream v1.0.9 (5f0347d6):
- *   https://github.com/es-shims/String.prototype.trimEnd/blob/5f0347d6/test/tests.js.
+ *   from upstream v1.0.10 (main):
+ *   https://github.com/es-shims/String.prototype.trimEnd/blob/main/test/tests.js.
  */
 import { describe, expect, it } from 'vitest'
 
@@ -30,6 +30,14 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       expect(trimEnd(allWhitespaceChars + 'a' + allWhitespaceChars)).toBe(
         allWhitespaceChars + 'a',
       )
+    })
+  })
+
+  describe('pathological cases', () => {
+    it('trims trailing whitespace while preserving internal whitespace', () => {
+      const middle = ' '.repeat(100_000)
+      const input = `A${middle}A${middle}`
+      expect(trimEnd(input)).toBe(`A${middle}A`)
     })
   })
 
