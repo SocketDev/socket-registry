@@ -44,6 +44,7 @@
     "release-npm": "node scripts/npm/release-npm-packages.mts",
     "test": "node scripts/fleet/test.mts",
     "test:npm": "node scripts/npm/run-vitest-npm.mts",
+    "test:npm:floor": "node scripts/npm/floor-node-smoke.mts",
     "type": "tsgo --noEmit -p tsconfig.check.json",
     "update": "node scripts/fleet/update.mts",
     "update:external-tools": "node scripts/update-external-tools.mts",
