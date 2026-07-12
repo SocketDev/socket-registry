@@ -36,7 +36,10 @@ const logger = getDefaultLogger()
 // The floor is the low edge of packages/npm/*'s `engines.node: >=24` range.
 // Bump BOTH the version and every sha256 together when the engines floor
 // moves — hashes come from https://nodejs.org/dist/v<version>/SHASUMS256.txt.
-const FLOOR_NODE_VERSION = '24.0.0'
+// floor-node-pin-matches-engines (check --all) enforces the version half of
+// that lock-step: it fails when any override's engines floor drifts from
+// this pin.
+export const FLOOR_NODE_VERSION = '24.0.0'
 const FLOOR_NODE_PLATFORMS: Record<string, { asset: string; sha256: string }> =
   {
     'darwin-arm64': {
@@ -208,7 +211,11 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch((e: unknown) => {
-  logger.error(e)
-  process.exitCode = 1
-})
+// Entrypoint-guarded: floor-node-pin-matches-engines (check --all) imports
+// FLOOR_NODE_VERSION from this module, which must not trigger a download.
+if (process.argv[1] && import.meta.url === `file://${process.argv[1]}`) {
+  main().catch((e: unknown) => {
+    logger.error(e)
+    process.exitCode = 1
+  })
+}
