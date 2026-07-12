@@ -812,8 +812,6 @@ importers:
 
   .config/fleet/oxlint-plugin/fleet/no-fileoverview-prefer-file: {}
 
-  .config/fleet/oxlint-plugin/fleet/no-glob-in-ordered-run-s: {}
-
   .config/fleet/oxlint-plugin/fleet/no-inline-defer-async: {}
 
   .config/fleet/oxlint-plugin/fleet/no-inline-logger: {}
