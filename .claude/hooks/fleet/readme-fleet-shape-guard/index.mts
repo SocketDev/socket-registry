@@ -85,12 +85,14 @@ const SIBLING_PATH_RES: readonly RegExp[] = [
 
 // The canonical social-follow badge block every fleet README carries under
 // the title (byte-identical fleet-canonical, not repo-contextual). Both must
-// be present. Matched by stable URL signature so reworded alt-text still counts.
+// be present. Matched by the stable LINK target, not the badge image, so an
+// image-host change (shields.io → the local assets/fleet/ SVGs) or reworded
+// alt-text still counts.
 const SOCIAL_BADGES: ReadonlyArray<{ name: string; signature: RegExp }> = [
   { name: 'Bluesky follow', signature: /bsky\.app\/profile\/socket\.dev/ },
   {
     name: 'X / Twitter follow',
-    signature: /img\.shields\.io\/twitter\/follow\/SocketSecurity/,
+    signature: /(?:twitter|x)\.com\/SocketSecurity/,
   },
 ]
 

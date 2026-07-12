@@ -321,14 +321,17 @@ export function runLogout(s: Service): {
   return { ok: false, reason: `exit code ${r.status}` }
 }
 
-export function rotateAll(skipIds: Set<string>): RotationResult {
+export function rotateAll(
+  skipIds: Set<string>,
+  serviceList: readonly Service[] = SERVICES,
+): RotationResult {
   const result: RotationResult = {
     loggedOut: [],
     failed: [],
     skippedMissing: [],
   }
-  for (let i = 0, { length } = SERVICES; i < length; i += 1) {
-    const service = SERVICES[i]!
+  for (let i = 0, { length } = serviceList; i < length; i += 1) {
+    const service = serviceList[i]!
     if (skipIds.has(service.id)) {
       continue
     }

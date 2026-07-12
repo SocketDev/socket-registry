@@ -27,6 +27,7 @@ import process from 'node:process'
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
+import { isMainModule } from './_shared/is-main-module.mts'
 
 const WIN32 = process.platform === 'win32'
 const logger = getDefaultLogger()
@@ -148,7 +149,11 @@ async function main(): Promise<void> {
   process.exitCode = verifyCode !== 0 ? verifyCode : doctorCode
 }
 
-main().catch((e: unknown) => {
-  logger.error(errorMessage(e))
-  process.exitCode = 1
-})
+// Entrypoint-guarded: importing this module (unit tests of its exported
+// helpers) must not execute the script.
+if (isMainModule(import.meta.url)) {
+  main().catch((e: unknown) => {
+    logger.error(errorMessage(e))
+    process.exitCode = 1
+  })
+}

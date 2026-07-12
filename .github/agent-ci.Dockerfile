@@ -15,7 +15,7 @@
 # KEEP PNPM_VERSION + PNPM_SHA256 IN SYNC with socket-registry external-tools.json
 # (`pnpm.version` and `pnpm.platforms["linux-x64"].integrity`). The cascade does
 # not rewrite this file's values; bump them when external-tools.json bumps pnpm.
-FROM ghcr.io/actions/actions-runner:latest
+FROM ghcr.io/actions/actions-runner:2.335.1@sha256:08c30b0a7105f64bddfc485d2487a22aa03932a791402393352fdf674bda2c29
 
 ARG PNPM_VERSION=11.5.1
 # Per-arch SHA-256 of the pnpm release tarball, hex form. Each is the decoded

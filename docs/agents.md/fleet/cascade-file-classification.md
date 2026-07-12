@@ -46,7 +46,7 @@ the file. They stay on the per-file cascade.
 Shipped in the bundle but **activated per-repo**: `CONDITIONAL_FILES` groups gate
 on a marker file's presence; `OPTIONAL_IDENTICAL_FILES` are byte-identical only
 when present; `settings.json` registers only the hooks the repo's
-the fleet config JSON flags enable. The bundle is the superset; the repo's
+`socket-wheelhouse.json` flags enable. The bundle is the superset; the repo's
 config decides what's active.
 
 ## Block-marker convention

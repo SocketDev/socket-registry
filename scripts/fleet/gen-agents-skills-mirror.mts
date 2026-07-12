@@ -136,7 +136,10 @@ export function renderMirrorEntry(
   return out
 }
 
-function writeMirror(repoRoot: string, entries: readonly MirrorEntry[]): void {
+export function writeMirror(
+  repoRoot: string,
+  entries: readonly MirrorEntry[],
+): void {
   const agentsSkills = path.join(repoRoot, '.agents', 'skills')
   // Regenerate from scratch so a removed/renamed source skill can't leave a
   // stale mirror entry behind.

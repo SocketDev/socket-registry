@@ -49,19 +49,17 @@ import path from 'node:path'
 import { readSessionTouchedPaths } from '../_shared/foreign-paths.mts'
 import { extractGitCwd } from '../_shared/git-cwd.mts'
 import { bashGuard, block, defineHook, runHook } from '../_shared/guard.mts'
-import {
-  commandsFor,
-  detectBroadGitAdd,
-  findInvocation,
-} from '../_shared/shell-command.mts'
+import { isGitCommit } from '../_shared/commit-command.mts'
+import { commandsFor, detectBroadGitAdd } from '../_shared/shell-command.mts'
 import { squashSentinelAllows } from '../_shared/squash-sentinel.mts'
 import { bypassPhrasePresent } from '../_shared/transcript.mts'
 
 // Pre-flight trigger for the dispatcher: every block path runs through a
 // `git`-binary detector (`detectBroadGitAdd` → `commandsFor(_, 'git')`, and
-// `isGitCommit` → `findInvocation(_, { binary: 'git', … })`), each of which
-// short-circuits unless the raw command contains the substring `git`. So a
-// command with no `git` can never block — skip importing this guard for it.
+// `isGitCommit` → the shared `_shared/commit-command.mts` segment parse),
+// each of which short-circuits unless the raw command contains the substring
+// `git`. So a command with no `git` can never block — skip importing this
+// guard for it.
 export const triggers: readonly string[] = ['git']
 
 const BYPASS_PHRASES = ['Allow add-all bypass'] as const
@@ -80,9 +78,7 @@ export function getRepoDir(command: string): string {
   return extractGitCwd(command, { subcommand: ['add', 'commit'] })
 }
 
-export function isGitCommit(command: string): boolean {
-  return findInvocation(command, { binary: 'git', subcommand: 'commit' })
-}
+export { isGitCommit }
 
 // True when a `git commit` carries an explicit pathspec — the parallel-safe
 // form, because `git commit <paths>` / `-o`/`--only <paths>` commits ONLY those

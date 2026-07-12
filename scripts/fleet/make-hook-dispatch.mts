@@ -30,7 +30,13 @@ import process from 'node:process'
 
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
-import { DISPATCH_TABLE_PATH, FLEET_HOOKS_DIR, REPO_ROOT } from './paths.mts'
+import {
+  DISPATCH_TABLE_EXCLUDED_PATH,
+  DISPATCH_TABLE_PATH,
+  DISPATCH_TABLE_SNAPSHOT_PATH,
+  FLEET_HOOKS_DIR,
+  REPO_ROOT,
+} from './paths.mts'
 
 const logger = getDefaultLogger()
 
@@ -48,12 +54,20 @@ export {
 const ENTRYPOINT_GUARD_RE =
   /\bvoid\s+runHook\s*\(\s*hook\s*,\s*import\.meta\.url/
 const EXPORT_HOOK_RE = /export\s+const\s+hook\s*=\s*defineHook\s*\(/
+// Snapshot-hostility opt-out: a hook whose module-eval graph holds native
+// state V8 refuses to serialize (an SDK client binding node:http's
+// HTTPParser, module-eval semver construction, …) declares
+// `@dispatch-snapshot-exclude` in its header. It stays in the FULL table
+// (index.cjs path) but is split out of the snapshot bundle into
+// `excluded-bundle.cjs`, which deserialize-main splices in at runtime.
+const SNAPSHOT_EXCLUDE_RE = /@dispatch-snapshot-exclude\b/
 const DISPATCH_EVENT_RE = /\bevent\s*:\s*['"]([^'"]+)['"]/
 const DISPATCH_TOOLS_RE = /\bmatcher\s*:\s*\[([^\]]*)\]/
 
 export interface EligibleHook {
   readonly event: string
   readonly name: string
+  readonly snapshotExcluded: boolean
   readonly tools: readonly string[]
 }
 
@@ -79,7 +93,13 @@ export function parseHookSource(
         .map(s => s.trim().replace(/^['"]|['"]$/g, ''))
         .filter(Boolean)
     : []
-  return { __proto__: null, event, name, tools } as EligibleHook
+  return {
+    __proto__: null,
+    event,
+    name,
+    snapshotExcluded: SNAPSHOT_EXCLUDE_RE.test(source),
+    tools,
+  } as EligibleHook
 }
 
 /**
@@ -116,7 +136,72 @@ export function collectEligibleHooks(hooksDir: string): EligibleHook[] {
  * Render the dispatch-table.mts source from the eligible-hook list. Each hook
  * gets a STATIC import (so rolldown bundles it) and a table row keyed by event.
  */
-export function renderDispatchTable(hooks: readonly EligibleHook[]): string {
+export type TableVariant = 'excluded' | 'full' | 'snapshot'
+
+const VARIANT_BANNER: Record<TableVariant, string> = {
+  __proto__: null,
+  excluded:
+    '// Snapshot-EXCLUDED hooks only (@dispatch-snapshot-exclude): bundled to\n' +
+    '// excluded-bundle.cjs and spliced in by deserialize-main at runtime.',
+  full: '// Static dispatch table: every bundle-safe fleet hook, grouped by event.',
+  snapshot:
+    '// Snapshot-SAFE hooks only (no @dispatch-snapshot-exclude): the set frozen\n' +
+    '// into the V8 startup snapshot. EXCLUDED_HOOK_HINTS names the event→tools\n' +
+    '// surface of the split-out hooks so deserialize-main loads\n' +
+    '// excluded-bundle.cjs only when a dispatch could need it.',
+} as Record<TableVariant, string>
+
+/**
+ * The event→tools surface of the snapshot-excluded hooks: `null` for an event
+ * with an any-tool excluded hook, else the deduped tool union. Frozen into
+ * the snapshot table so deserialize-main can skip loading the excluded
+ * bundle for irrelevant dispatches.
+ */
+export function renderExcludedHints(excluded: readonly EligibleHook[]): string {
+  const byEvent = new Map<string, Set<string> | null>()
+  for (const hook of excluded) {
+    const prior = byEvent.get(hook.event)
+    if (prior === null) {
+      continue
+    }
+    if (hook.tools.length === 0) {
+      byEvent.set(hook.event, null)
+      continue
+    }
+    const set = prior ?? new Set<string>()
+    for (const tool of hook.tools) {
+      set.add(tool)
+    }
+    byEvent.set(hook.event, set)
+  }
+  const events = [...byEvent.keys()].toSorted()
+  const rows = events.map(event => {
+    const tools = byEvent.get(event)
+    const literal =
+      tools === null || tools === undefined
+        ? 'null'
+        : `[${[...tools]
+            .toSorted()
+            .map(t => `'${t}'`)
+            .join(', ')}]`
+    return `  '${event}': ${literal},`
+  })
+  return (
+    `export const EXCLUDED_HOOK_HINTS: Record<\n` +
+    `  string,\n` +
+    `  readonly string[] | null\n` +
+    `> = {\n` +
+    `  __proto__: null,\n` +
+    (rows.length ? rows.join('\n') + '\n' : '') +
+    `} as Record<string, readonly string[] | null>\n`
+  )
+}
+
+export function renderDispatchTable(
+  hooks: readonly EligibleHook[],
+  variant: TableVariant = 'full',
+  allHooks: readonly EligibleHook[] = hooks,
+): string {
   const importLines = hooks.map(
     (h, i) => `import { hook as hook${i} } from '../${h.name}/index.mts'`,
   )
@@ -142,9 +227,16 @@ export function renderDispatchTable(hooks: readonly EligibleHook[]): string {
       return `  '${event}': [\n${rows}\n  ],`
     })
     .join('\n')
+  // Every variant exports the hints: dispatch-snapshot-entry imports them
+  // through './dispatch-table.mts', which resolves to the FULL table outside
+  // the snapshot build (dev runs, type-checking) and to the snapshot variant
+  // inside it — the export must exist in both.
+  const hints =
+    '\n' + renderExcludedHints(allHooks.filter(h => h.snapshotExcluded))
   return (
     `// GENERATED by scripts/fleet/make-hook-dispatch.mts — do not edit by hand.\n` +
-    `// Static dispatch table: every bundle-safe fleet hook, grouped by event.\n` +
+    VARIANT_BANNER[variant] +
+    `\n` +
     `// Re-run the maker after adding/removing an eligible hook, then rebuild\n` +
     `// the bundle with scripts/fleet/build-hook-bundle.mts.\n` +
     `\n` +
@@ -154,39 +246,63 @@ export function renderDispatchTable(hooks: readonly EligibleHook[]): string {
     `export const DISPATCH_TABLE: Record<string, readonly DispatchHookEntry[]> = {\n` +
     `  __proto__: null,\n` +
     (tableBody ? tableBody + '\n' : '') +
-    `} as Record<string, readonly DispatchHookEntry[]>\n`
+    `} as Record<string, readonly DispatchHookEntry[]>\n` +
+    hints
   )
 }
 
-export function generateDispatchTableSource(hooksDir: string): string {
-  return renderDispatchTable(collectEligibleHooks(hooksDir))
+export function generateDispatchTableSource(
+  hooksDir: string,
+  variant: TableVariant = 'full',
+): string {
+  const all = collectEligibleHooks(hooksDir)
+  const subset =
+    variant === 'full'
+      ? all
+      : all.filter(h => h.snapshotExcluded === (variant === 'excluded'))
+  return renderDispatchTable(subset, variant, all)
 }
+
+export const TABLE_OUTPUTS: ReadonlyArray<readonly [TableVariant, string]> = [
+  ['full', DISPATCH_TABLE_PATH],
+  ['snapshot', DISPATCH_TABLE_SNAPSHOT_PATH],
+  ['excluded', DISPATCH_TABLE_EXCLUDED_PATH],
+]
 
 function main(): void {
   const checkOnly = process.argv.includes('--check')
-  const generated = generateDispatchTableSource(FLEET_HOOKS_DIR)
   if (checkOnly) {
-    let onDisk = ''
-    try {
-      onDisk = readFileSync(DISPATCH_TABLE_PATH, 'utf8')
-    } catch {
-      onDisk = ''
+    for (const [variant, outPath] of TABLE_OUTPUTS) {
+      const generated = generateDispatchTableSource(FLEET_HOOKS_DIR, variant)
+      let onDisk = ''
+      try {
+        onDisk = readFileSync(outPath, 'utf8')
+      } catch {
+        onDisk = ''
+      }
+      if (onDisk !== generated) {
+        logger.error(
+          `${path.basename(outPath)} is stale. Regenerate:\n` +
+            `  node scripts/fleet/make-hook-dispatch.mts`,
+        )
+        process.exitCode = 2
+        return
+      }
     }
-    if (onDisk !== generated) {
-      logger.error(
-        `dispatch-table.mts is stale. Regenerate:\n` +
-          `  node scripts/fleet/make-hook-dispatch.mts`,
-      )
-      process.exitCode = 2
-      return
-    }
-    logger.log('dispatch-table.mts is current.')
+    logger.log('dispatch tables are current.')
     return
   }
-  writeFileSync(DISPATCH_TABLE_PATH, generated)
-  const count = collectEligibleHooks(FLEET_HOOKS_DIR).length
+  for (const [variant, outPath] of TABLE_OUTPUTS) {
+    writeFileSync(
+      outPath,
+      generateDispatchTableSource(FLEET_HOOKS_DIR, variant),
+    )
+  }
+  const all = collectEligibleHooks(FLEET_HOOKS_DIR)
+  const excluded = all.filter(h => h.snapshotExcluded).length
   logger.log(
-    `Wrote ${path.relative(REPO_ROOT, DISPATCH_TABLE_PATH)} (${count} bundle-safe hook${count === 1 ? '' : 's'}).`,
+    `Wrote ${path.relative(REPO_ROOT, DISPATCH_TABLE_PATH)} (+snapshot/excluded variants): ` +
+      `${all.length} bundle-safe hook${all.length === 1 ? '' : 's'}, ${excluded} snapshot-excluded.`,
   )
 }
 

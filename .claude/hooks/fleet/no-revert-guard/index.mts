@@ -185,8 +185,8 @@ const CHECKS: readonly RevertCheck[] = [
     // hook blocks them. Catches the "go around" pattern: agent tries
     // Edit, gets blocked by markdown-filename-guard / path-guard /
     // no-fleet-fork-guard / etc., then switches to `python3 -c`
-    // (or `sed -i` / heredoc / printf >) to write the same content
-    // via Bash where the Edit-layer hooks don't fire.
+    // (or heredoc / printf >) to write the same content via Bash
+    // where the Edit-layer hooks don't fire.
     //
     // The contract: when an Edit/Write hook blocks, the path forward
     // is (a) move the file to a canonical location, (b) refactor the
@@ -200,10 +200,14 @@ const CHECKS: readonly RevertCheck[] = [
     //
     // Patterns matched:
     //   - python -c '...' with open(...,'w') or .write_text(
-    //   - sed -i (in-place edit)
     //   - heredoc redirected to file (cat << EOF > file)
     //   - tee writing to a non-tmp file
     //   - dd of=<file>
+    //
+    // In-place STREAM editors (sed/gsed -i, --in-place, perl/ruby -pi,
+    // gawk -i inplace) are owned by `sed-in-place-guard` — one detector,
+    // richer flag coverage (incl. find -exec / xargs), and the
+    // silent-drift rationale in its block message. Not duplicated here.
     //
     // Carve-outs intentionally NOT matched: plain `>` / `>>` (too
     // broad — every build/log/test invocation uses these), `mv` / `cp`
@@ -214,7 +218,7 @@ const CHECKS: readonly RevertCheck[] = [
     fleetOnly: true,
     label: 'Bash file-write (likely dodging an Edit/Write hook)',
     pattern:
-      /(?:^|[\s;&|(`])(?:python3?\s+-c\b.*(?:open\([^)]*['"]w['"]?|\.write_text\(|\.write\([^)]*\)\s*$)|sed\s+-i\b|cat\s+<<-?\s*['"]?[A-Z_]+['"]?\b[^|;`]*>\s*[^/]|tee\s+(?!-)\S*\.(?:m?[jt]sx?|json|md|ya?ml|toml|sh|py|rs|go|css)\b|\bdd\s+[^|;`]*\bof=)/,
+      /(?:^|[\s;&|(`])(?:python3?\s+-c\b.*(?:open\([^)]*['"]w['"]?|\.write_text\(|\.write\([^)]*\)\s*$)|cat\s+<<-?\s*['"]?[A-Z_]+['"]?\b[^|;`]*>\s*[^/]|tee\s+(?!-)\S*\.(?:m?[jt]sx?|json|md|ya?ml|toml|sh|py|rs|go|css)\b|\bdd\s+[^|;`]*\bof=)/,
   },
 ]
 

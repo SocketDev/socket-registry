@@ -117,7 +117,7 @@ export function writeAdapter(repoRoot: string, adapter: Adapter): void {
   }
 }
 
-function toPosix(p: string): string {
+export function toPosix(p: string): string {
   return p.replaceAll('\\', '/')
 }
 

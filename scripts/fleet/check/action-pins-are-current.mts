@@ -513,7 +513,21 @@ const cliGit: GitRunner = {
     return Number.isNaN(n) ? 0 : n
   },
   isReachable(sha, base) {
-    return git(['merge-base', '--is-ancestor', sha, base]).status === 0
+    if (git(['merge-base', '--is-ancestor', sha, base]).status === 0) {
+      return true
+    }
+    // A shallow CI clone (setup-and-install checks out at fetch-depth 25)
+    // truncates history, so an older-but-genuine ancestor looks unreachable
+    // and the check reports phantom stale pins. Deepen once and retest
+    // before declaring the pin unreachable; after --unshallow the repo is
+    // no longer shallow, so later pins skip the fetch.
+    if (
+      git(['rev-parse', '--is-shallow-repository']).stdout.trim() === 'true'
+    ) {
+      git(['fetch', '--unshallow', 'origin'])
+      return git(['merge-base', '--is-ancestor', sha, base]).status === 0
+    }
+    return false
   },
   resolve(ref) {
     return git(['rev-parse', ref]).stdout.trim()

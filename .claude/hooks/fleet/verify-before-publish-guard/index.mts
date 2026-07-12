@@ -43,6 +43,19 @@ const BYPASS_PHRASE = 'Allow verify-before-publish bypass' as const
 
 const PUBLISH_BINARIES = ['npm', 'pnpm', 'yarn'] as const
 
+// Flags whose following value is prose (commit messages, PR/issue bodies,
+// release notes) — never an executable snippet, so the embedded-command scan
+// skips it.
+const PROSE_VALUE_FLAGS: ReadonlySet<string> = new Set([
+  '--body',
+  '--message',
+  '--notes',
+  '--title',
+  '-m',
+])
+// The inline `--flag=value` forms of the same prose flags.
+const PROSE_INLINE_FLAG_RE = /^--(?:body|message|notes|title)=/ // socket-lint: allow uncommented-regex
+
 // How many prior assistant turns to scan for a registry-read receipt.
 const RECEIPT_LOOKBACK_TURNS = 5
 
@@ -131,17 +144,29 @@ export function detectPublishes(command: string): PublishHit[] {
     }
     // Embedded snippet: a string argument that itself contains a publish
     // command line (e.g. each line handed to printf for a pbcopy snippet).
-    for (const arg of segment.args) {
+    // Message-flag VALUES are prose, not snippets — a commit message or PR
+    // body that merely mentions "npm publish" must not fire (live incident:
+    // a multiline `git commit -m` describing publish behavior was blocked).
+    const { args } = segment
+    for (let i = 0, { length } = args; i < length; i += 1) {
+      const arg = args[i]!
+      if (PROSE_VALUE_FLAGS.has(arg)) {
+        i += 1
+        continue
+      }
+      if (PROSE_INLINE_FLAG_RE.test(arg)) {
+        continue
+      }
       if (!arg.includes(' ') || !arg.includes('publish')) {
         continue
       }
       const tokens = arg.split(/\s+/).filter(Boolean)
-      for (let i = 0, { length } = tokens; i < length - 1; i += 1) {
+      for (let j = 0, tl = tokens.length; j < tl - 1; j += 1) {
         if (
-          (PUBLISH_BINARIES as readonly string[]).includes(tokens[i]!) &&
-          tokens[i + 1] === 'publish'
+          (PUBLISH_BINARIES as readonly string[]).includes(tokens[j]!) &&
+          tokens[j + 1] === 'publish'
         ) {
-          const hit = classify(tokens.slice(i + 2), arg)
+          const hit = classify(tokens.slice(j + 2), arg)
           if (hit) {
             hits.push(hit)
           }

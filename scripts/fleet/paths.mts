@@ -125,6 +125,21 @@ export const DISPATCH_DIR = path.join(FLEET_HOOKS_DIR, '_dispatch')
  * The generated static dispatch table (make-hook-dispatch writes this).
  */
 export const DISPATCH_TABLE_PATH = path.join(DISPATCH_DIR, 'dispatch-table.mts')
+// Snapshot split: the snapshot bundle freezes only marker-free hooks (the
+// safe table); hooks tagged `@dispatch-snapshot-exclude` land in the excluded
+// table, bundled separately and spliced in at runtime by deserialize-main.
+export const DISPATCH_TABLE_SNAPSHOT_PATH = path.join(
+  DISPATCH_DIR,
+  'dispatch-table-snapshot.mts',
+)
+export const DISPATCH_TABLE_EXCLUDED_PATH = path.join(
+  DISPATCH_DIR,
+  'dispatch-table-excluded.mts',
+)
+export const EXCLUDED_BUNDLE_PATH = path.join(
+  DISPATCH_DIR,
+  'excluded-bundle.cjs',
+)
 
 /**
  * The dispatcher entry that rolldown bundles.

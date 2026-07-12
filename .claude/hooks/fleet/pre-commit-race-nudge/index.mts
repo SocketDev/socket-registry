@@ -21,16 +21,11 @@
 // Fires on Bash `git commit ... --no-verify` (or `-n`). Stays silent for
 // FLEET_SYNC=1 cascade commits (the documented --no-verify exception).
 
+import { isGitCommit } from '../_shared/commit-command.mts'
 import { bashGuard, defineHook, notify, runHook } from '../_shared/guard.mts'
 import { invocationHasFlag } from '../_shared/shell-command.mts'
 
 const NO_VERIFY_FLAGS = ['--no-verify', '-n']
-
-function isGitCommit(command: string): boolean {
-  // `git` (optionally with -c flags) then `commit`; lookahead avoids
-  // `git config commit.gpgsign`.
-  return /\bgit\b(?:\s+-c\s+[^\s]+)*\s+commit(?:\s|$)/.test(command)
-}
 
 export const hook = defineHook({
   check: bashGuard((command, payload) => {

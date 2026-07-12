@@ -60,7 +60,7 @@ on:
         description: 'Test command'
         required: false
         type: string
-        default: 'pnpm test'
+        default: 'pnpm run test --all'
       test-setup-script:
         description: 'Command to run before tests (e.g., "pnpm run build")'
         required: false

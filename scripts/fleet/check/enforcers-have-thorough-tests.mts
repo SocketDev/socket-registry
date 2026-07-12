@@ -10,7 +10,7 @@
 //   - Hooks under .claude/hooks/{fleet,repo}/<name>/ that have an index.mts.
 //   - Lint rules under .config/fleet/oxlint-plugin/fleet/<name>/index.mts.
 //   - Check scripts under scripts/{fleet,repo}/check/<name>.mts, tested by
-//     test/unit/fleet/check-<name>.test.mts (or the bare <name>.test.mts).
+//     test/repo/unit/check-<name>.test.mts (or the bare <name>.test.mts).
 //
 // Hook + lint-rule tests are NOT co-located in the cascaded trees; they live
 // under test/repo/{unit,integration}/{hooks,lint-rules}/<name>.test.mts (vitest)
@@ -81,12 +81,10 @@ const CHECK_SCRIPT_TEST_ALLOWLIST: Record<string, string> = {
   'capability-hooks-are-registered':
     'wheelhouse-only repo check — test pending',
   'coverage-badge-is-current':
-    'thin wrapper — logic tested in test/unit/fleet/coverage-badge.test.mts',
+    'thin wrapper — logic tested in test/repo/unit/coverage-badge.test.mts',
   'fleet-members-are-onboarded': 'wheelhouse-only repo check — test pending',
   'llms-txt-is-current':
-    'thin wrapper — logic tested in test/unit/fleet/make-llms-txt.test.mts',
-  'sparkle-auto-update-is-disabled':
-    'thin wrapper — logic tested in test/unit/fleet/sparkle-auto-update.test.mts',
+    'thin wrapper — logic tested in test/repo/unit/make-llms-txt.test.mts',
   'template-fleet-oxlint-ignore-current':
     'wheelhouse-only repo check — test pending',
 }
@@ -268,20 +266,20 @@ export function scanRules(
 
 // The check-script test for <name>, accepting either the canonical
 // `check-<name>.test.mts` or the bare `<name>.test.mts` (a few predate the
-// `check-` prefix). Tier-matched: a fleet-tier check (scripts/fleet/check/) is
-// tested under test/unit/fleet/; a repo-tier check (scripts/repo/check/) under
-// test/unit/repo/ — a repo check must NOT be held to the fleet test dir. Both
-// dirs are wheelhouse-only (cascade-excluded from members, like hook/rule tests).
-function findCheckTest(
-  repoRoot: string,
-  seg: string,
-  name: string,
-): string | undefined {
-  const dir = path.join(repoRoot, 'test', 'unit', seg)
-  for (const base of [`check-${name}.test.mts`, `${name}.test.mts`]) {
-    const candidate = path.join(dir, base)
-    if (existsSync(candidate)) {
-      return candidate
+// `check-` prefix). Both tiers' check tests live flat under test/repo/unit/
+// (the test-tree migration retired the per-tier test/unit/{fleet,repo} split),
+// with test/repo/integration/ as the fallback home for spawn-heavy suites.
+// Wheelhouse-only dirs (cascade-excluded from members, like hook/rule tests).
+function findCheckTest(repoRoot: string, name: string): string | undefined {
+  for (const dir of [
+    path.join(repoRoot, 'test', 'repo', 'unit'),
+    path.join(repoRoot, 'test', 'repo', 'integration'),
+  ]) {
+    for (const base of [`check-${name}.test.mts`, `${name}.test.mts`]) {
+      const candidate = path.join(dir, base)
+      if (existsSync(candidate)) {
+        return candidate
+      }
     }
   }
   return undefined
@@ -292,7 +290,7 @@ export function scanCheckScripts(
   options?: ScanOptions | undefined,
 ): TestGap[] {
   const opts = { __proto__: null, ...options }
-  // Check-script tests are wheelhouse-only (under test/unit/fleet/, cascade-
+  // Check-script tests are wheelhouse-only (under test/repo/unit/, cascade-
   // excluded). A member ships the check sources but not their tests.
   if (!(opts.ownsRelocatedTests ?? OWNS_RELOCATED_TESTS)) {
     return []
@@ -311,12 +309,12 @@ export function scanCheckScripts(
       if (CHECK_SCRIPT_TEST_ALLOWLIST[name]) {
         continue
       }
-      const testPath = findCheckTest(repoRoot, seg, name)
+      const testPath = findCheckTest(repoRoot, name)
       if (!testPath) {
         gaps.push({
           kind: 'check',
           name,
-          reason: `no test under test/unit/${seg}/check-${name}.test.mts`,
+          reason: `no test under test/repo/{unit,integration}/check-${name}.test.mts`,
         })
         continue
       }

@@ -58,7 +58,12 @@
     "sync-package-manager-pins": "node scripts/fleet/sync-package-manager-pins.mts",
     "sync-fleet": "node bootstrap/fleet.mjs",
     "doctor": "node scripts/fleet/doctor.mts",
-    "gen:llms-txt": "node scripts/fleet/make-llms-txt.mts --no-ai"
+    "gen:llms-txt": "node scripts/fleet/make-llms-txt.mts --no-ai",
+    "setup:brew": "node scripts/fleet/setup/setup-brew.mts",
+    "setup:go": "node scripts/fleet/setup/setup-go.mts",
+    "setup:python": "node scripts/fleet/setup/setup-python.mts",
+    "setup:refero": "node scripts/fleet/setup/setup-refero.mts",
+    "setup:rust": "node scripts/fleet/setup/setup-rust.mts"
   },
   "devDependencies": {
     "@anthropic-ai/claude-code": "catalog:",
@@ -184,6 +189,7 @@
   },
   "allowScripts": {
     "cpu-features": false,
+    "es5-ext": true,
     "protobufjs": false,
     "rolldown": true,
     "ssh2": false

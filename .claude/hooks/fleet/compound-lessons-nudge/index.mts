@@ -41,6 +41,10 @@ import process from 'node:process'
 
 import { defineHook, notify, runHook } from '../_shared/guard.mts'
 import type { GuardResult } from '../_shared/guard.mts'
+import {
+  RECURRENCE_THRESHOLD,
+  recordOccurrence,
+} from '../_shared/learning-ledger.mts'
 import type { ToolCallPayload } from '../_shared/payload.mts'
 import {
   readLastAssistantText,
@@ -298,10 +302,47 @@ export const check = (payload: ToolCallPayload): GuardResult => {
     return undefined
   }
 
+  // Record each surfaced finding in the cross-session learning ledger so a
+  // finding that recurs BEYOND this transcript's lookback (a different session
+  // last week) escalates. The ledger dedupes per session, so re-firing on
+  // repeated stops in ONE session does not inflate the count. Fail-open: a
+  // broken ledger just yields occurrences 0 and the base nudge still fires.
+  const projectDir =
+    process.env['CLAUDE_PROJECT_DIR'] ?? payload.cwd ?? process.cwd()
+  const sessionId = payload.transcript_path ?? 'unknown-session'
+  let maxOccurrences = 0
+  for (let i = 0, { length } = proseHits; i < length; i += 1) {
+    const hit = proseHits[i]!
+    const n = recordOccurrence(projectDir, {
+      sessionId,
+      text: `${hit.label}: ${hit.snippet}`,
+    })
+    if (n > maxOccurrences) {
+      maxOccurrences = n
+    }
+  }
+  for (let i = 0, { length } = editHits; i < length; i += 1) {
+    const n = recordOccurrence(projectDir, {
+      sessionId,
+      text: `repeat-edit ${editHits[i]!.path}`,
+    })
+    if (n > maxOccurrences) {
+      maxOccurrences = n
+    }
+  }
+
   const lines = [
     '[compound-lessons-nudge] Repeat finding detected without rule promotion:',
     '',
   ]
+  if (maxOccurrences >= RECURRENCE_THRESHOLD) {
+    lines.push(
+      `  ⚠ This finding has now recurred across ${maxOccurrences} sessions ` +
+        '(learning ledger). This is exactly the "fix it twice → codify it"',
+    )
+    lines.push('  case — promote it to a rule THIS turn, do not fix it again.')
+    lines.push('')
+  }
   for (let i = 0, { length } = proseHits; i < length; i += 1) {
     const hit = proseHits[i]!
     lines.push(`  • prose: "${hit.label}" — …${hit.snippet}…`)

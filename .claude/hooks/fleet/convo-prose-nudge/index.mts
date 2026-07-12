@@ -88,6 +88,27 @@ export function extractBodyArg(cmd: Command): string | undefined {
   return undefined
 }
 
+// A body this size reads as a wall of text on GitHub; past either bound the
+// nudge suggests folding supporting material under <details> (see
+// references/conversational.md "Use GitHub's formatting when structure is
+// earned"). Bodies already using <details> are structured — no suggestion.
+const LONG_BODY_MIN_CHARS = 2000
+const LONG_BODY_MIN_LINES = 30
+
+/**
+ * True when `body` is long enough to want collapsed sections and does not
+ * already use any.
+ */
+export function needsCollapsedSections(body: string): boolean {
+  if (body.includes('<details')) {
+    return false
+  }
+  return (
+    body.length >= LONG_BODY_MIN_CHARS ||
+    body.split('\n').length >= LONG_BODY_MIN_LINES
+  )
+}
+
 /**
  * Return the label strings for every antipattern that matched in `body`.
  * An empty array means no hits.
@@ -115,21 +136,36 @@ export const check = bashGuard(command => {
       continue
     }
     const hits = findAiScaffoldingPhrases(body)
-    if (hits.length === 0) {
+    const suggestFold = needsCollapsedSections(body)
+    if (hits.length === 0 && !suggestFold) {
       continue
     }
-    return notify(
-      [
-        `[convo-prose-nudge] PR/issue body contains AI-scaffolding antipattern(s):`,
+    const lines = ['[convo-prose-nudge]']
+    if (hits.length > 0) {
+      lines.push(
+        'PR/issue body contains AI-scaffolding antipattern(s):',
         ...hits.map(h => `  • ${h}`),
         '',
-        'Rewrite the body through the prose skill (conversational mode) before',
-        'posting — lead with the point, cut the filler:',
-        '  .claude/skills/fleet/prose/SKILL.md',
-        '  .claude/skills/fleet/prose/references/conversational.md',
+      )
+    }
+    if (suggestFold) {
+      lines.push(
+        'Long body with no collapsed sections. Keep the verdict up top and',
+        'fold supporting material (benchmarks, logs, file lists) under',
+        '<details><summary>specific label</summary> — blank line after',
+        '</summary> so the markdown renders. Alerts (> [!NOTE] family), task',
+        'lists, and line-range permalinks are the other GitHub affordances.',
         '',
-      ].join('\n'),
+      )
+    }
+    lines.push(
+      'Rewrite the body through the prose skill (conversational mode) before',
+      'posting — lead with the point, cut the filler:',
+      '  .claude/skills/fleet/prose/SKILL.md',
+      '  .claude/skills/fleet/prose/references/conversational.md',
+      '',
     )
+    return notify(lines.join('\n'))
   }
   return undefined
 })

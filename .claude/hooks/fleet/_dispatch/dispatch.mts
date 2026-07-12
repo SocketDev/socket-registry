@@ -26,9 +26,83 @@
 import process from 'node:process'
 import v8 from 'node:v8'
 
+import { parseCommands } from '../_shared/shell-command.mts'
 import { readStdin } from '../_shared/transcript.mts'
 
 import { DISPATCH_TABLE } from './dispatch-table.mts'
+
+// State-mutating segment families whose SILENT cancellation strands work. A
+// block on one segment of a compound Bash command cancels the whole chain —
+// including a `git commit` / `git push` chained before the blocked step — and
+// the agent's narrative marks them landed while nothing ran. Incident: a
+// sibling-repo test commit + push died as collateral of a blocked
+// `gh pr create` at the end of the same chain; the PR shipped without its
+// tests until the Stop guard caught the dirty worktree.
+const MUTATING_GIT_VERBS: ReadonlySet<string> = new Set([
+  'cherry-pick',
+  'commit',
+  'merge',
+  'push',
+  'tag',
+])
+
+/**
+ * The state-changing segments in `command` (deduped, human-readable), so a
+ * block verdict can announce what else its cancellation took down.
+ */
+export function mutatingSegments(command: string): string[] {
+  const found: string[] = []
+  for (const c of parseCommands(command)) {
+    const verbs = c.args.filter(a => !a.startsWith('-'))
+    const verb = verbs[0] ?? ''
+    if (c.binary === 'git' && MUTATING_GIT_VERBS.has(verb)) {
+      found.push(`git ${verb}`)
+    } else if (c.binary === 'gh' && verb === 'release') {
+      found.push(`gh release ${verbs[1] ?? ''}`.trim())
+    } else if (
+      (c.binary === 'npm' || c.binary === 'pnpm' || c.binary === 'yarn') &&
+      verb === 'publish'
+    ) {
+      found.push(`${c.binary} publish`)
+    }
+  }
+  return [...new Set(found)]
+}
+
+/**
+ * When a block fires on a compound Bash command that also carries
+ * state-changing segments, the addendum makes the collateral cancellation
+ * LOUD: those segments did not run and must be re-run separately, FIRST.
+ * Returns undefined for single-segment commands or chains with no
+ * state-changing segments.
+ */
+export function cancelledChainAddendum(
+  payload: DispatchPayload,
+): string | undefined {
+  if (payload.tool_name !== 'Bash') {
+    return undefined
+  }
+  const command = payload.tool_input?.['command']
+  if (typeof command !== 'string' || !command) {
+    return undefined
+  }
+  if (parseCommands(command).length < 2) {
+    return undefined
+  }
+  const cancelled = mutatingSegments(command)
+  if (!cancelled.length) {
+    return undefined
+  }
+  return [
+    '',
+    '⚠ PRIORITY: this block cancelled the ENTIRE command chain. These',
+    '  state-changing steps did NOT run:',
+    ...cancelled.map(s => `    • ${s}`),
+    '  Re-run them separately FIRST (verify each landed), then retry the',
+    '  blocked step on its own. Never assume a chained commit/push survived',
+    '  a block.',
+  ].join('\n')
+}
 
 export interface DispatchPayload {
   readonly cwd?: string | undefined
@@ -139,11 +213,16 @@ export async function dispatch(
       if (entry.check) {
         const verdict = await entry.check(payload)
         if (verdict) {
-          reminders.push(verdict.message)
           if (verdict.kind === 'block') {
-            blockReason = verdict.message
+            const addendum = cancelledChainAddendum(payload)
+            blockReason =
+              addendum === undefined
+                ? verdict.message
+                : `${verdict.message}\n${addendum}`
+            reminders.push(blockReason)
             break
           }
+          reminders.push(verdict.message)
         }
       } else if (entry.run) {
         const text = entry.run(payload)

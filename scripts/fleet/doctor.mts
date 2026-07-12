@@ -27,6 +27,17 @@
  *      but not reflected in pnpm-lock.yaml's resolved catalogs (CI's
  *      --frozen-lockfile then fails). Always runs (cheap file reads);
  *      report-only, operator runs `pnpm install`.
+ *   9. Pin-shadowed catalog entries (GAP 11) — a package.json pins a version
+ *      directly while the catalog carries the same dep, so catalog bumps
+ *      silently no-op. Auto-fixed to "catalog:" under --fix; deliberate
+ *      off-catalog pins opt out via catalogShadowIgnore: in
+ *      pnpm-workspace.yaml.
+ *   10. Brewfile drift — an enrolled repo's (repo-root Brewfile present)
+ *      committed Brewfile out of sync with a fresh render of the current
+ *      `.github/` brew install sites, which is what makes
+ *      `check/brew-install-is-pinned.mts` red. Always runs (cheap file
+ *      reads); auto-fixed (rewrites the Brewfile) under --fix, otherwise
+ *      reported loud. A repo with no Brewfile is not enrolled — no finding.
  *
  *   CLI: node scripts/fleet/doctor.mts [--fix] [--probe-install] [--probe-git]
  *        [--probe-secrets]
@@ -48,6 +59,11 @@ import {
 } from '@socketsecurity/lib-stable/process/spawn/child'
 import { isSpawnError } from '@socketsecurity/lib-stable/process/spawn/errors'
 
+import { SOAK_DAYS } from './constants/soak.mts'
+import {
+  findBrewfileDrift,
+  formatBrewfileDriftFinding,
+} from './lib/doctor/brewfile-gap.mts'
 import {
   applyCatalogFixes,
   collectCatalogRefs,
@@ -60,6 +76,10 @@ import {
   detectUnsignedCommits,
 } from './lib/doctor/git-gap.mts'
 import { diagnoseLockfileCatalogDrift } from './lib/doctor/lockfile-catalog-gap.mts'
+import {
+  applyPinShadowFixes,
+  diagnosePinShadowGaps,
+} from './lib/doctor/pin-shadow-gap.mts'
 import {
   formatSecretFindings,
   formatToolMissingFinding,
@@ -74,6 +94,8 @@ import {
   formatStrandedCascadeFinding,
 } from './lib/doctor/stranded-cascade-gap.mts'
 import { parseListBlock } from './lib/workspace-yaml.mts'
+import { brewfilePath, findManifestBrewSites } from './update/brew-parse.mts'
+import { isMainModule } from './_shared/is-main-module.mts'
 
 const logger = getDefaultLogger()
 
@@ -324,6 +346,34 @@ async function main(): Promise<void> {
     )
   }
 
+  // GAP 11: direct pins shadowing catalog entries — the pin wins over the
+  // catalog, so catalog bumps silently no-op (a repo can run a stale tool
+  // version while its catalog reports current). Fix rewrites the pin to
+  // "catalog:"; the install probe below then refreshes the lockfile check.
+  const { findings: shadowFindings, fixes: shadowFixes } =
+    diagnosePinShadowGaps({ packageJsons, workspaceYaml })
+  if (shadowFixes.length > 0 && doFix) {
+    for (const shadowFix of shadowFixes) {
+      const absPath = path.join(cwd, shadowFix.path)
+      writeFileSync(
+        absPath,
+        applyPinShadowFixes({
+          content: readFileSync(absPath, 'utf8'),
+          deps: shadowFix.deps,
+        }),
+        'utf8',
+      )
+    }
+    const depCount = shadowFixes.reduce((n, f) => n + f.deps.length, 0)
+    logger.info(
+      `doctor --fix: rewrote ${depCount} pin(s) to catalog: across ${shadowFixes.length} package.json file(s) — run pnpm install to refresh the lockfile`,
+    )
+    catalogFixed = true
+    allFindings.push(...shadowFindings.filter(f => !f.fixable))
+  } else {
+    allFindings.push(...shadowFindings)
+  }
+
   // GAP: lockfile ↔ catalog drift — a bumped pnpm-workspace.yaml catalog entry
   // not yet reflected in pnpm-lock.yaml's resolved catalogs (CI's
   // --frozen-lockfile then fails). Cheap pure file reads, so it always runs;
@@ -336,6 +386,38 @@ async function main(): Promise<void> {
         workspaceYaml,
       }),
     )
+  }
+
+  // GAP: Brewfile drift — an enrolled repo's (repo-root Brewfile present)
+  // committed Brewfile out of sync with a fresh render of the current
+  // `.github/` brew install sites, which is what makes
+  // `check/brew-install-is-pinned.mts` red. Cheap pure file reads, so it
+  // always runs. A repo with no Brewfile is not enrolled — no finding
+  // (enrollment stays a deliberate, separate step per tasks #18/#19).
+  const rootBrewfilePath = brewfilePath(cwd)
+  const brewfileContent = existsSync(rootBrewfilePath)
+    ? readFileSync(rootBrewfilePath, 'utf8')
+    : undefined
+  const brewfileDrift = findBrewfileDrift({
+    brewfileContent,
+    discoveredTools: findManifestBrewSites(cwd),
+    soakDays: SOAK_DAYS,
+  })
+  if (brewfileDrift.enrolled && brewfileDrift.drifted) {
+    if (doFix) {
+      writeFileSync(rootBrewfilePath, brewfileDrift.expected, 'utf8')
+      logger.info(
+        'doctor --fix: regenerated Brewfile (was out of sync with .github brew install sites)',
+      )
+    } else {
+      allFindings.push(
+        formatBrewfileDriftFinding({
+          brewfilePath: path.relative(cwd, rootBrewfilePath),
+          expected: brewfileDrift.expected,
+          soakDays: SOAK_DAYS,
+        }),
+      )
+    }
   }
 
   // GAP 2: soak-window probe — only when --fix applied catalog fixes or
@@ -541,9 +623,11 @@ async function main(): Promise<void> {
   }
 }
 
-void (async () => {
-  await main()
-})().catch((e: unknown) => {
-  logger.error(errorMessage(e))
-  process.exitCode = 1
-})
+if (isMainModule(import.meta.url)) {
+  void (async () => {
+    await main()
+  })().catch((e: unknown) => {
+    logger.error(errorMessage(e))
+    process.exitCode = 1
+  })
+}

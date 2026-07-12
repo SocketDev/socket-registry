@@ -14,6 +14,7 @@
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
+import { fileURLToPath } from 'node:url'
 
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { spawnSync } from '@socketsecurity/lib-stable/process/spawn/child'
@@ -21,31 +22,48 @@ import { spawnSync } from '@socketsecurity/lib-stable/process/spawn/child'
 import { REPO_ROOT } from '../paths.mts'
 
 const logger = getDefaultLogger()
-const quiet = process.argv.includes('--quiet')
 
-const pkgJsonPath = path.join(REPO_ROOT, 'package.json')
-const llmsTxtPath = path.join(REPO_ROOT, 'llms.txt')
+export type SkipDecision = { reason: string; skip: true } | { skip: false }
 
-if (!existsSync(pkgJsonPath)) {
-  if (!quiet) {
-    logger.info('no package.json — skipping llms.txt check')
+// Fail-open pre-check: skip (with a reason) when the repo carries no
+// package.json or no llms.txt yet; otherwise the spawn-out check runs.
+export function decideSkip(repoRoot: string): SkipDecision {
+  if (!existsSync(path.join(repoRoot, 'package.json'))) {
+    return { reason: 'no package.json — skipping llms.txt check', skip: true }
   }
-  process.exit(0)
+  if (!existsSync(path.join(repoRoot, 'llms.txt'))) {
+    return {
+      reason: 'no llms.txt — skipping check (run make-llms-txt to generate)',
+      skip: true,
+    }
+  }
+  return { skip: false }
 }
 
-if (!existsSync(llmsTxtPath)) {
-  if (!quiet) {
-    logger.info('no llms.txt — skipping check (run make-llms-txt to generate)')
-  }
-  process.exit(0)
+// The argv passed to `node scripts/fleet/make-llms-txt.mts --check`.
+export function buildCheckArgs(quiet: boolean): string[] {
+  return [
+    'scripts/fleet/make-llms-txt.mts',
+    '--check',
+    ...(quiet ? ['--quiet'] : []),
+  ]
 }
 
-const result = spawnSync(
-  'node',
-  ['scripts/fleet/make-llms-txt.mts', '--check', ...(quiet ? ['--quiet'] : [])],
-  { stdio: 'inherit' },
-)
+export function main(): void {
+  const quiet = process.argv.includes('--quiet')
+  const decision = decideSkip(REPO_ROOT)
+  if (decision.skip) {
+    if (!quiet) {
+      logger.info(decision.reason)
+    }
+    return
+  }
+  const result = spawnSync('node', buildCheckArgs(quiet), { stdio: 'inherit' })
+  if (result.status !== 0) {
+    process.exitCode = 1
+  }
+}
 
-if (result.status !== 0) {
-  process.exitCode = 1
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  main()
 }

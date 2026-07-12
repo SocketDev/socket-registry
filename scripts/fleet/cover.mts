@@ -13,6 +13,16 @@
  *   --summary hide the detailed v8 table, show only the summary.
  */
 
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs'
+import path from 'node:path'
+import { performance } from 'node:perf_hooks'
 import process from 'node:process'
 
 import { stripAnsi } from '@socketsecurity/lib-stable/ansi/strip'
@@ -28,14 +38,19 @@ import {
 import { printHeader } from '@socketsecurity/lib-stable/stdio/header'
 
 import type { AggregateCoverage } from './util/coverage-merge.mts'
-import { mergeCoverageFinal } from './util/coverage-merge.mts'
+import {
+  MissingTierCoverageError,
+  mergeCoverageFinal,
+} from './util/coverage-merge.mts'
 import type { CoverThresholds, ResolvedSuite } from './cover/discovery.mts'
 import {
   readCoverConfig,
   resolveBuildEntry,
   resolveSuites,
 } from './cover/discovery.mts'
+import { ensurePinnedNode } from './lib/ensure-node.mts'
 import { REPO_ROOT } from './paths.mts'
+import { isMainModule } from './_shared/is-main-module.mts'
 
 const rootPath = REPO_ROOT
 
@@ -131,6 +146,63 @@ export async function runQuiet(
   }
 }
 
+// Fleet default wall-clock budget for the unit suites: under a minute
+// (operator directive 2026-07-10). Repos tune via `vitest.unitBudgetMs` in
+// .config/socket-wheelhouse.json.
+const DEFAULT_UNIT_BUDGET_MS = 60_000
+
+/**
+ * The unit-suite wall-clock budget from the per-repo settings file
+ * (`vitest.unitBudgetMs`), falling back to the fleet default. Fail-open: a
+ * missing or torn settings file yields the default.
+ */
+export function resolveUnitBudgetMs(): number {
+  for (const file of [
+    '.config/socket-wheelhouse.json',
+    '.socket-wheelhouse.json',
+  ]) {
+    if (!existsSync(file)) {
+      continue
+    }
+    try {
+      const parsed = JSON.parse(readFileSync(file, 'utf8')) as {
+        vitest?: { unitBudgetMs?: number | undefined } | undefined
+      }
+      const ms = parsed?.vitest?.unitBudgetMs
+      return typeof ms === 'number' && ms >= 1000 ? ms : DEFAULT_UNIT_BUDGET_MS
+    } catch {
+      return DEFAULT_UNIT_BUDGET_MS
+    }
+  }
+  return DEFAULT_UNIT_BUDGET_MS
+}
+
+/**
+ * Loud report-only budget warning (What / Where / Saw vs wanted / Fix). Stays
+ * a warning until the fleet conforms, then ratchets to a hard failure.
+ */
+export function warnIfOverBudget(suiteMs: number, budgetMs: number): boolean {
+  if (suiteMs <= budgetMs) {
+    return false
+  }
+  logger.warn(
+    `[cover] unit suites exceeded the wall-clock budget: ${(suiteMs / 1000).toFixed(1)}s > ${(budgetMs / 1000).toFixed(0)}s.`,
+  )
+  logger.warn(
+    '  Fleet rule: unit tests conclude in under a minute. Move heavy external-suite /',
+  )
+  logger.warn(
+    '  cross-impl / built-artifact tests to the conformance tier: list their globs under',
+  )
+  logger.warn(
+    '  `vitest.conformanceExclude` in .config/socket-wheelhouse.json and pair them with a',
+  )
+  logger.warn(
+    '  `test:conformance` runner script. Tune the budget via `vitest.unitBudgetMs`.',
+  )
+  return true
+}
+
 export function parseTypeCoveragePercent(output: string): number | undefined {
   // Extracts a floating-point percentage from type-coverage output.
   // \( ... \)  — literal parens wrapping the fraction, e.g. "(123 / 456)"
@@ -171,7 +243,126 @@ export function extractSuiteFailureLines(
   const detail = (errorLines.length > 0 ? errorLines : lines.slice(-maxLines))
     .slice(0, maxLines)
     .map(line => `  ${line}`)
-  return [`${name} suite failed (exit ${result.exitCode}):`, ...detail]
+  const dumpPath = persistSuiteFailureOutput(name, result)
+  return [
+    `${name} suite failed (exit ${result.exitCode}):`,
+    ...detail,
+    ...(dumpPath ? [`  full suite output: ${dumpPath}`] : []),
+  ]
+}
+
+// The 12-line summary above filters the suite output down to error-ish
+// lines, which hides the real diagnostic when a worker dies mid-run (a heap
+// OOM abort, a SIGKILL, a vanished v8 report). Persist the COMPLETE output
+// where the operator can read it; a masked failure is a silent strand.
+function persistSuiteFailureOutput(
+  name: string,
+  result: SuiteResult,
+): string | undefined {
+  try {
+    const dir = path.join(rootPath, 'node_modules', '.cache', 'fleet-cover')
+    mkdirSync(dir, { recursive: true })
+    const file = path.join(dir, `last-failure-${name}.log`)
+    writeFileSync(
+      file,
+      `exit ${result.exitCode}\n--- stdout ---\n${result.stdout}\n--- stderr ---\n${result.stderr}\n`,
+    )
+    return file
+  } catch {
+    return undefined
+  }
+}
+
+// Five coverage baselines were corrupted by concurrent activity before the
+// evidence trail existed: a parallel session's live edits mid-run (73
+// phantom failures), a mid-run pnpm install that transiently gutted module
+// resolution (235 phantom import errors), and load-starved child spawns.
+// The two helpers below make that churn VISIBLE: announce live foreign
+// actors at startup, snapshot the install state, and stamp any failure
+// with what changed during the run — a poisoned baseline names its
+// poisoner instead of reading as 20+ regressions.
+export interface EnvSnapshot {
+  readonly lockfileMtimeMs: number
+  readonly pnpmDirMtimeMs: number
+  readonly startedAt: number
+}
+
+export function snapshotEnvState(): EnvSnapshot {
+  const mtimeOf = (p: string): number => {
+    try {
+      return statSync(p).mtimeMs
+    } catch {
+      return 0
+    }
+  }
+  return {
+    lockfileMtimeMs: mtimeOf(path.join(rootPath, 'pnpm-lock.yaml')),
+    pnpmDirMtimeMs: mtimeOf(path.join(rootPath, 'node_modules', '.pnpm')),
+    startedAt: Date.now(),
+  }
+}
+
+// Live foreign actors from the active-edits ledger (recorded by the
+// active-edits-ledger hook): any actor whose last edit is within the
+// window. cover.mts is not a session actor, so every live entry is
+// "foreign" from the run's perspective.
+export function describeLiveActors(windowMs: number): string[] {
+  const out: string[] = []
+  try {
+    const dir = path.join(
+      rootPath,
+      'node_modules',
+      '.cache',
+      'socket-active-edits',
+    )
+    for (const entry of readdirSync(dir)) {
+      if (!entry.endsWith('.json')) {
+        continue
+      }
+      try {
+        const parsed = JSON.parse(
+          readFileSync(path.join(dir, entry), 'utf8'),
+        ) as {
+          actorId?: string
+          paths?: Record<string, number>
+          updatedAt?: number
+        }
+        const updatedAt = parsed.updatedAt ?? 0
+        const age = Date.now() - updatedAt
+        if (age > windowMs) {
+          continue
+        }
+        const repoPaths = Object.keys(parsed.paths ?? {}).filter(p =>
+          p.startsWith(rootPath),
+        )
+        out.push(
+          `actor ${String(parsed.actorId).slice(0, 8)} last edited ${Math.round(age / 60000)}min ago (${repoPaths.length} path(s) in this repo)`,
+        )
+      } catch {
+        // Unreadable ledger entry — skip it.
+      }
+    }
+  } catch {
+    // No ledger dir — nothing to report.
+  }
+  return out
+}
+
+export function describeChurnSince(snapshot: EnvSnapshot): string[] {
+  const now = snapshotEnvState()
+  const out: string[] = []
+  if (now.lockfileMtimeMs !== snapshot.lockfileMtimeMs) {
+    out.push('pnpm-lock.yaml CHANGED during the run (a concurrent install).')
+  }
+  if (now.pnpmDirMtimeMs !== snapshot.pnpmDirMtimeMs) {
+    out.push(
+      'node_modules/.pnpm CHANGED during the run — module resolution may have been transiently broken for spawned workers.',
+    )
+  }
+  for (const line of describeLiveActors(Date.now() - snapshot.startedAt)) {
+    out.push(`live during the run: ${line}`)
+  }
+  return out
 }
 
 // Run the main suite and, when isolatedArgs is provided, the isolated suite.
@@ -285,6 +476,10 @@ export function displayCodeCoverage(
 }
 
 export async function main(): Promise<void> {
+  // Re-exec under the pinned node when a stale PATH node (below the hook floor)
+  // is active, so the coverage vitest + the hooks it spawns run on the fleet
+  // runtime instead of failing "Hook requires Node >= 25".
+  ensurePinnedNode()
   const { values } = parseArgs({
     options: {
       'code-only': { type: 'boolean', default: false },
@@ -296,6 +491,19 @@ export async function main(): Promise<void> {
 
   printHeader('Test Coverage')
   logger.log('')
+
+  const envSnapshot = snapshotEnvState()
+  const liveActors = describeLiveActors(10 * 60 * 1000)
+  if (liveActors.length > 0) {
+    logger.warn(
+      'Live foreign actor(s) detected — baseline results may be churn-poisoned:',
+    )
+    logger.group()
+    for (const line of liveActors) {
+      logger.warn(line)
+    }
+    logger.groupEnd()
+  }
 
   const buildEntry = resolveBuildEntry(rootPath)
   let buildFailed = false
@@ -375,10 +583,12 @@ export async function main(): Promise<void> {
         logger.log('')
       }
     } else {
+      const suiteStart = performance.now()
       const { combined, isolatedResult, mainResult } = await runTestSuites(
         mainVitestArgs,
         isolatedVitestArgs,
       )
+      warnIfOverBudget(performance.now() - suiteStart, resolveUnitBudgetMs())
       exitCode = combined.exitCode
 
       const mainOutput = cleanOutput(mainResult.stdout + mainResult.stderr)
@@ -395,13 +605,33 @@ export async function main(): Promise<void> {
         typeCoveragePercent = parseTypeCoveragePercent(typeCoverageOutput)
       }
 
+      // Disabled seam (#213 step 1): strict-tier enforcement. A suite that ran
+      // must have produced its tier's coverage-final.json; a dropped tier
+      // silently narrows the merge and over-reports (a false-green). Gated OFF
+      // by default — the 'shared' tier always runs, 'isolated' only when its
+      // suite is resolved. Flip on with FLEET_COVER_STRICT_TIERS=1 once a
+      // supervised `cover` run confirms the wheelhouse emits every resolved
+      // tier; step 2 promotes this gate into `.config/repo/cover.json`.
+      const expectedTiers =
+        process.env['FLEET_COVER_STRICT_TIERS'] === '1'
+          ? ['shared', ...(isolatedSuite ? ['isolated'] : [])]
+          : undefined
       let aggregateCoverage: AggregateCoverage | undefined
       try {
-        aggregateCoverage = await mergeCoverageFinal({ rootPath, logger })
+        aggregateCoverage = await mergeCoverageFinal({
+          expectedTiers,
+          logger,
+          rootPath,
+        })
       } catch (e) {
-        logger.warn(
-          `Could not compute aggregate coverage: ${e instanceof Error ? e.message : 'Unknown error'}`,
-        )
+        if (e instanceof MissingTierCoverageError) {
+          logger.error(`Coverage tier dropped: ${errorMessage(e)}`)
+          exitCode = exitCode === 0 ? 1 : exitCode
+        } else {
+          logger.warn(
+            `Could not compute aggregate coverage: ${errorMessage(e)}`,
+          )
+        }
       }
 
       displayCodeCoverage(mainOutput, combinedOutput, aggregateCoverage, {
@@ -436,6 +666,17 @@ export async function main(): Promise<void> {
           const line = failureLines[i]!
           logger.error(line)
         }
+        const churn = describeChurnSince(envSnapshot)
+        if (churn.length > 0) {
+          logger.warn(
+            'Concurrent-churn evidence (weigh failures against this before treating them as regressions):',
+          )
+          logger.group()
+          for (const line of churn) {
+            logger.warn(line)
+          }
+          logger.groupEnd()
+        }
       }
     }
 
@@ -456,16 +697,24 @@ export async function main(): Promise<void> {
   }
 }
 
+// Entrypoint-guarded: importing this module (a unit test of
+// extractSuiteFailureLines) must NOT launch a coverage run. An unguarded
+// import inside a coverage-instrumented vitest worker starts a NESTED cover
+// run whose startup cleans the shared coverage/.tmp and ENOENTs the outer
+// run's v8 reports (four cover runs died this way on 2026-07-11).
+//
 // Coverage legitimately runs vitest workers hot for many minutes; the
 // active-run marker tells the stale-process-sweeper's stuck heuristic this
 // worker tree is healthy on-purpose work, not a wedge (see
 // scripts/fleet/_shared/active-run-marker.mts for the contract).
-registerActiveRun()
-main()
-  .catch((e: unknown) => {
-    logger.error(`Coverage script failed: ${errorMessage(e)}`)
-    process.exitCode = 1
-  })
-  .finally(() => {
-    unregisterActiveRun()
-  })
+if (isMainModule(import.meta.url)) {
+  registerActiveRun()
+  main()
+    .catch((e: unknown) => {
+      logger.error(`Coverage script failed: ${errorMessage(e)}`)
+      process.exitCode = 1
+    })
+    .finally(() => {
+      unregisterActiveRun()
+    })
+}

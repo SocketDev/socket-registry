@@ -37,8 +37,8 @@
 import { spawnSync } from '@socketsecurity/lib-stable/process/spawn/child'
 import process from 'node:process'
 
+import { isGitCommit } from '../_shared/commit-command.mts'
 import { bashGuard, block, defineHook, runHook } from '../_shared/guard.mts'
-import { findInvocation } from '../_shared/shell-command.mts'
 import { squashSentinelAllows } from '../_shared/squash-sentinel.mts'
 import { bypassPhrasePresent } from '../_shared/transcript.mts'
 
@@ -46,10 +46,10 @@ const BYPASS_PHRASES = ['Allow mass-delete bypass'] as const
 
 // Pre-flight triggers: the dispatcher skips importing this guard unless the raw
 // payload contains one of these substrings. The guard can only ever block when
-// `isGitCommit(command)` is true, and that detection
-// (`findInvocation(command, { binary: 'git', subcommand: 'commit' })`) requires
-// `commit` as a non-flag argument of a `git` segment. So `commit` is a
-// necessary substring of every blocking command — safe to gate on.
+// `isGitCommit(command)` is true, and that detection (the shared
+// `_shared/commit-command.mts` segment parse) requires `commit` as the
+// subcommand verb of a real `git` segment. So `commit` is a necessary
+// substring of every blocking command — safe to gate on.
 export const triggers: readonly string[] = ['commit']
 
 // A commit deleting at least this many files is catastrophic regardless of
@@ -64,9 +64,7 @@ export function getRepoDir(): string {
   return process.env['CLAUDE_PROJECT_DIR'] || process.cwd()
 }
 
-export function isGitCommit(command: string): boolean {
-  return findInvocation(command, { binary: 'git', subcommand: 'commit' })
-}
+export { isGitCommit }
 
 /**
  * Count files staged for DELETION in the index (vs HEAD).

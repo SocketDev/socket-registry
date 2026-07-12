@@ -138,6 +138,16 @@ A delegated subagent ends in one of four terminal states. Orchestrators route on
 
 Two rules fall out of the contract. Never force the same model to retry an unchanged prompt on a non-`done` state: `needs-context` means change the input, `blocked` means hand off. And never silently swallow a `done-with-concerns` — the concern is the point of having a distinct state from `done`.
 
+## Report-back transport: a delegate can never SendMessage its parent
+
+The status contract above rides on a fixed transport, and only three shapes exist (in preference order, so the list order is load-bearing):
+
+1. **Foreground `Agent` call**: the child's final text IS the tool result. Read it there; nothing else arrives.
+2. **Background delegate** (`run_in_background: true`): the spawner is re-invoked when the child completes. No polling loop, no message.
+3. **Neither available** (e.g. a wave child whose completion signal was lost): the parent polls the delegate's output artifact, or re-runs the verification itself, before ending its turn.
+
+`SendMessage` is not on the list. A spawned delegate cannot address its parent: the parent is not an addressable agent from inside the child, the message bounces ("No agent named '…' is currently addressable"), and the child's report strands in the top-level orchestrator's notification stream. This parked real waves three times in one session; each parent ended its turn "waiting for the delegate's report" that could never arrive. Never instruct a child to SendMessage you back, and never end a turn waiting on a delegate's message. The `excuse-detector` hook blocks that phrasing (`delegateWaitHits`), and the `token-spend-guard` delegation briefing carries the same contract.
+
 ## A hook block inside a subagent is a lead, not a diagnosis
 
 When a spawned subagent trips a PreToolUse hook, it reports the block **verbatim** — quotes the `[<guard-name>] …` line the hook emitted, sets `blocked` (or `needs-context` when the cause is a missing env knob), and stops. It does not diagnose the block, attribute it to a "bug" or "incomplete fix", or guess which guard fired and why. Every block message already names its own guard; the interpretation is the orchestrator's job, and the orchestrator owes it the same verify-before-trust it owes any subagent claim: reproduce the block itself before acting on it.

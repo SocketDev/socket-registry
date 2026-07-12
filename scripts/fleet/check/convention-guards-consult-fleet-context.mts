@@ -37,7 +37,6 @@ export const CONVENTION_GUARDS: readonly string[] = [
   'module-noun-name-guard',
   'no-corepack-guard',
   'no-direct-linter-guard',
-  'no-glob-run-s-guard',
   'no-new-config-guard',
   'no-other-linters-guard',
   'no-revert-guard',

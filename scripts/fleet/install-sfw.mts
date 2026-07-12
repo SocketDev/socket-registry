@@ -68,15 +68,20 @@ const WHEELHOUSE_RACK_DIR = path.join(WHEELHOUSE_DIR, 'rack')
 // at the new path). Idempotent: skips when either condition fails. Older
 // fleet machines won't break across the rename.
 const LEGACY_SFW_DIR = path.join(getUserHomeDir(), '.socket', 'sfw')
-if (existsSync(LEGACY_SFW_DIR) && !existsSync(WHEELHOUSE_DIR)) {
-  logger.log(`Migrating legacy ${LEGACY_SFW_DIR} → ${WHEELHOUSE_DIR}…`)
-  renameSync(LEGACY_SFW_DIR, WHEELHOUSE_DIR)
-}
-// Ensure the expected subdir layout exists. safeMkdirSync is recursive +
-// EEXIST-safe by default.
-safeMkdirSync(WHEELHOUSE_BIN_DIR)
 
 const SFW_BIN_DIR = WHEELHOUSE_BIN_DIR
+
+// Migrate a pre-rename legacy install in place, then ensure the expected
+// subdir layout exists. Called from main() (never at import time) so
+// importing this module for its pure helpers never touches the filesystem.
+// safeMkdirSync is recursive + EEXIST-safe by default.
+export function ensureWheelhouseLayout(): void {
+  if (existsSync(LEGACY_SFW_DIR) && !existsSync(WHEELHOUSE_DIR)) {
+    logger.log(`Migrating legacy ${LEGACY_SFW_DIR} → ${WHEELHOUSE_DIR}…`)
+    renameSync(LEGACY_SFW_DIR, WHEELHOUSE_DIR)
+  }
+  safeMkdirSync(WHEELHOUSE_BIN_DIR)
+}
 
 interface ToolEntry {
   version: string
@@ -91,7 +96,7 @@ interface ToolEntry {
  * expects. Single-source-of-truth schema:
  * socket-btm/packages/build-infra/lib/external-tools-schema.json.
  */
-function sriToHex(integrity: string): string {
+export function sriToHex(integrity: string): string {
   if (!integrity.startsWith('sha256-')) {
     throw new Error(
       `Unsupported integrity prefix in external-tools.json (expected 'sha256-'): ${integrity}`,
@@ -102,8 +107,73 @@ function sriToHex(integrity: string): string {
   )
 }
 
-interface ExternalToolsFile {
+export interface ExternalToolsFile {
   tools: Record<string, ToolEntry>
+}
+
+export interface ResolvedSfwTool {
+  binaryName: string
+  entry: ToolEntry
+  platform: string
+  sha256: string
+  toolKey: string
+  url: string
+  version: string
+}
+
+export type ResolveSfwToolResult =
+  | { ok: true; value: ResolvedSfwTool }
+  | { ok: false; error: string }
+
+// Resolve the tool entry + platform asset for the requested flavor
+// (sfw-free / sfw-enterprise) out of a parsed external-tools.json — pure
+// validation/derivation, no I/O. main() turns a `{ ok: false }` result into a
+// `logger.fail` + exit(1).
+export function resolveSfwTool(options: {
+  platform: string
+  tools: ExternalToolsFile
+  toolKey: string
+  win32: boolean
+}): ResolveSfwToolResult {
+  const { platform, tools, toolKey, win32 } = options
+  const entry = tools.tools?.[toolKey]
+  if (!entry) {
+    return {
+      error: `external-tools.json has no \`tools.${toolKey}\` entry at ${EXTERNAL_TOOLS_PATH}`,
+      ok: false,
+    }
+  }
+  if (!entry.repository) {
+    return {
+      error: `tools.${toolKey} is missing the required \`repository\` field`,
+      ok: false,
+    }
+  }
+
+  // The canonical version field can carry a leading `v` (template ships
+  // `v1.12.0`). Strip it for the URL; the wheelhouse-root mirror stores
+  // it bare. downloadBinary expects the hex form so decode the SRI.
+  const version = entry.version.replace(/^v/, '')
+  const platformMeta = entry.platforms?.[platform]
+  if (!platformMeta) {
+    const supported = Object.keys(entry.platforms ?? {}).join(', ')
+    return {
+      error:
+        `${toolKey} v${version} is not published for ${platform}.\n` +
+        `  Supported: ${supported || '(none)'}`,
+      ok: false,
+    }
+  }
+
+  const repoSlug = entry.repository.replace(/^github:/, '')
+  const url = `https://github.com/${repoSlug}/releases/download/v${version}/${platformMeta.asset}`
+  const binaryName = win32 ? 'sfw.exe' : 'sfw'
+  const sha256 = sriToHex(platformMeta.integrity)
+
+  return {
+    ok: true,
+    value: { binaryName, entry, platform, sha256, toolKey, url, version },
+  }
 }
 
 export function detectPlatform(): string {
@@ -126,6 +196,8 @@ export function detectPlatform(): string {
 }
 
 async function main(): Promise<void> {
+  ensureWheelhouseLayout()
+
   const { values } = parseArgs({
     args: process.argv.slice(2),
     options: {
@@ -170,40 +242,14 @@ async function main(): Promise<void> {
     readFileSync(EXTERNAL_TOOLS_PATH, 'utf8'),
   ) as ExternalToolsFile
   const toolKey = values['enterprise'] ? 'sfw-enterprise' : 'sfw-free'
-  const entry = tools.tools?.[toolKey]
-  if (!entry) {
-    logger.fail(
-      `external-tools.json has no \`tools.${toolKey}\` entry at ${EXTERNAL_TOOLS_PATH}`,
-    )
-    process.exit(1)
-    return
-  }
-  if (!entry.repository) {
-    logger.fail(`tools.${toolKey} is missing the required \`repository\` field`)
-    process.exit(1)
-    return
-  }
-
-  // The canonical version field can carry a leading `v` (template ships
-  // `v1.12.0`). Strip it for the URL; the wheelhouse-root mirror stores
-  // it bare. downloadBinary expects the hex form so decode the SRI.
-  const ver = entry.version.replace(/^v/, '')
   const platform = detectPlatform()
-  const platformMeta = entry.platforms?.[platform]
-  if (!platformMeta) {
-    const supported = Object.keys(entry.platforms ?? {}).join(', ')
-    logger.fail(
-      `${toolKey} v${ver} is not published for ${platform}.\n` +
-        `  Supported: ${supported || '(none)'}`,
-    )
+  const resolved = resolveSfwTool({ platform, tools, toolKey, win32: WIN32 })
+  if (!resolved.ok) {
+    logger.fail(resolved.error)
     process.exit(1)
     return
   }
-
-  const repoSlug = entry.repository.replace(/^github:/, '')
-  const url = `https://github.com/${repoSlug}/releases/download/v${ver}/${platformMeta.asset}`
-  const binaryName = WIN32 ? 'sfw.exe' : 'sfw'
-  const sha256 = sriToHex(platformMeta.integrity)
+  const { binaryName, sha256, url, version: ver } = resolved.value
 
   if (!values['quiet']) {
     logger.info(`Installing ${toolKey} v${ver} (${platform})`)
@@ -260,7 +306,9 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch((e: unknown) => {
-  logger.fail(errorMessage(e))
-  process.exitCode = 1
-})
+if (process.argv[1] && import.meta.url === `file://${process.argv[1]}`) {
+  main().catch((e: unknown) => {
+    logger.fail(errorMessage(e))
+    process.exitCode = 1
+  })
+}

@@ -110,7 +110,7 @@ catalog:
   # platform-binary optionalDependencies, despite the monorepo's internal
   # workspace layout. dtu-github-actions is its GitHub-Actions parser, pinned
   # explicitly (not left transitive) so its version is uniform fleet-wide.
-  '@anthropic-ai/claude-code': 2.1.199
+  '@anthropic-ai/claude-code': 2.1.201
   '@babel/core': 7.28.4
   '@redwoodjs/agent-ci': 0.16.2
   'dtu-github-actions': 0.16.2

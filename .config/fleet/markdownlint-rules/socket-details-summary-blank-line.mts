@@ -23,9 +23,17 @@ const rule: MarkdownlintRule = {
     'A </summary> tag must be followed by a blank line so GitHub renders the <details> body as Markdown',
   function(params, onError) {
     const { lines } = params
+    // Fence state: a </summary> INSIDE a fenced code block is example text
+    // (e.g. a doc demonstrating the <details> pattern in a ```markdown
+    // fence), not real markup — skip it. Both ``` and ~~~ fences count.
+    let inFence = false
     for (let i = 0; i < lines.length; i += 1) {
       const line = lines[i]
-      if (!line || !SUMMARY_CLOSE_RE.test(line)) {
+      if (line !== undefined && /^\s*(?:```|~~~)/.test(line)) {
+        inFence = !inFence
+        continue
+      }
+      if (inFence || !line || !SUMMARY_CLOSE_RE.test(line)) {
         continue
       }
       // Find the next non-empty line after </summary>.

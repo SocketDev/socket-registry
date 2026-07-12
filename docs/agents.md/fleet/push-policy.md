@@ -26,7 +26,7 @@ Two repo custom properties gate the cascade's review-skip path:
 - `doesnt-touch-customers`: permanent. Customer-facing surface is zero. Direct push doesn't risk surprising a customer.
 - `temporarily-doesnt-touch-customers`: short-lived. Same as above but signals an in-flight remediation window.
 
-When either is set to the literal string `"true"`, the cascade's `canSkipReviewGate()` check (in `scripts/_shared/repo-properties.mts` in the wheelhouse) allows direct push for routine cascade work. Anything else (`"false"`, `"Choose the value"` placeholder, missing entirely, API failure) falls back to "open a PR".
+When either is set to the literal string `"true"`, the cascade's `canSkipReviewGate()` check (in `scripts/_shared/repo-properties.mts`) allows direct push for routine cascade work. Anything else (`"false"`, `"Choose the value"` placeholder, missing entirely, API failure) falls back to "open a PR".
 
 The strict `=== "true"` match is deliberate. A misconfigured token, transient API blip, or unset placeholder defaults to the safer "open a PR" path rather than silently pushing to main.
 

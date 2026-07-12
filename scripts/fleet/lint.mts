@@ -9,7 +9,12 @@
  *   Config or infrastructure changes (.config/fleet/oxlintrc.json,
  *   .config/fleet/oxfmtrc.json, tsconfig*.json, pnpm-lock.yaml, .config/**,
  *   scripts/**, package.json) escalate to `--all` automatically, since they can
- *   affect everything. This is the minimal zero-dependency reference
+ *   affect everything — EXCEPT under `--staged` (the pre-commit path), which
+ *   always scopes strictly to the staged files so the commit hook stays fast
+ *   (a config/scripts edit staged for commit would otherwise re-lint the whole
+ *   tree, blowing the ≤10s pre-commit budget). The whole-tree correctness net
+ *   for such changes is the pre-push `--all` gate + CI, not the commit hook.
+ *   This is the minimal zero-dependency reference
  *   implementation. Larger repos (socket-lib, socket-registry, socket-sdk-js,
  *   etc.) use a richer version based on @socketsecurity/lib-stable helpers;
  *   this one keeps the same CLI contract so pre-commit hooks and CI work
@@ -27,12 +32,14 @@ import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
 import {
   buildOxfmtArgs,
+  filterFormatIgnored,
   getModifiedFiles,
   getStagedFiles,
 } from './_shared/format-scope.mts'
 import { pathToFileURL } from 'node:url'
 
 import { resolveScopeMode } from './_shared/scope-flags.mts'
+import type { ScopeMode } from './_shared/scope-flags.mts'
 
 const logger = getDefaultLogger()
 
@@ -111,7 +118,7 @@ function assertPluginLoaded(): number {
   return res.status === 0 ? 0 : 1
 }
 
-function shouldEscalate(files: string[]): boolean {
+export function shouldEscalate(files: string[]): boolean {
   for (let i = 0, { length } = files; i < length; i += 1) {
     const f = files[i]!
     for (let i = 0, { length } = ESCALATION_PATTERNS; i < length; i += 1) {
@@ -122,6 +129,17 @@ function shouldEscalate(files: string[]): boolean {
     }
   }
   return false
+}
+
+// Whether a run in `mode` over `files` escalates to a full-workspace lint.
+// `staged` NEVER escalates — the pre-commit hook must stay within its ≤10s
+// budget, so it scopes strictly to the staged files regardless of which
+// infrastructure paths they touch. `modified`/`all` keep the escalation net.
+export function escalatesForScope(mode: ScopeMode, files: string[]): boolean {
+  if (mode === 'staged') {
+    return false
+  }
+  return shouldEscalate(files)
 }
 
 function filterLintable(files: string[]): string[] {
@@ -163,6 +181,8 @@ const DOGFOOD_CONFIG = '.config/repo/oxlintrc.dogfood.json'
 // canonical config's globs/ignores decide the scope, not the script).
 // Per-file invocation would require pre-filtering for the same globs +
 // is slower for the small overall file count typical in fleet repos.
+const MARKDOWN_TIMEOUT_MS = 300_000
+
 function runMarkdown(): number {
   if (process.env['LINT_MARKDOWN'] !== '1') {
     return 0
@@ -181,7 +201,24 @@ function runMarkdown(): number {
   if (fix) {
     mdArgs.push('--fix')
   }
-  const mdRes = spawnSync('pnpm', mdArgs, { shell: useShell, stdio })
+  // Hard cap so a wedged run fails loud instead of hanging the aggregate lint
+  // forever (whole-tree runs in the largest fleet repos finish in seconds; a
+  // multi-minute run is a defect, not a big repo).
+  const mdRes = spawnSync('pnpm', mdArgs, {
+    shell: useShell,
+    stdio,
+    timeout: MARKDOWN_TIMEOUT_MS,
+  })
+  if (mdRes.signal) {
+    logger.error(
+      `markdownlint-cli2 timed out after ${MARKDOWN_TIMEOUT_MS / 1000}s ` +
+        `(killed with ${mdRes.signal}) in ${process.cwd()}. ` +
+        'Saw: no exit before the cap; wanted: a whole-tree pass in seconds. ' +
+        'Fix: bisect with a per-file harness (config globs, custom-rule loading), ' +
+        'then repair the canonical config or rule at the template source.',
+    )
+    return 1
+  }
   if (mdRes.status !== 0) {
     return 1
   }
@@ -192,6 +229,13 @@ function runMarkdown(): number {
 // non-idempotent on some content (comment / backtick / arrow reflow), so a
 // single --fix pass can leave a residual the later --check RED's on.
 const FORMAT_MAX_PASSES = 3
+
+// Max oxlint --fix→verify passes before giving up. oxlint applies only
+// non-overlapping fixes per pass, so adjacent/nested rewrites (e.g. the
+// prefer-cached-for-loop rule on nested loops) need another pass — a single
+// --fix leaves a residual a member's `fix --all` can't clear, stranding the
+// full-tree gate RED. Same shape as FORMAT_MAX_PASSES above.
+const OXLINT_MAX_PASSES = 4
 
 // Format `files` (the whole scoped tree when omitted). In --check mode: one
 // verify pass. In --fix mode: loop format→check to a stable fixpoint (cap
@@ -241,18 +285,37 @@ function runOxfmt(files?: readonly string[]): number {
   return 1
 }
 
+// Run oxlint on `baseArgs` (WITHOUT --fix). In --check mode: one pass, gate on
+// its status. In --fix mode: loop `--fix`→verify to a fixpoint (cap
+// OXLINT_MAX_PASSES) so a one-pass residual on overlapping/nested rewrites
+// never reaches the gate — then a final no-fix pass reports any genuinely
+// unfixable violation LOUD and gates on it. Returns 0 on clean, 1 otherwise.
+function runOxlint(baseArgs: readonly string[]): number {
+  if (fix) {
+    for (let pass = 1; pass <= OXLINT_MAX_PASSES; pass += 1) {
+      spawnSync('pnpm', [...baseArgs, '--fix'], { shell: useShell, stdio })
+      const verify = spawnSync('pnpm', [...baseArgs], {
+        shell: useShell,
+        stdio: 'ignore',
+      })
+      if (verify.status === 0) {
+        return 0
+      }
+    }
+  }
+  const res = spawnSync('pnpm', [...baseArgs], { shell: useShell, stdio })
+  return res.status === 0 ? 0 : 1
+}
+
 function runAll(): number {
-  log('Formatting all files…')
-  if (runOxfmt() !== 0) {
+  // oxlint before oxfmt — same rationale as runFiles(): the format pass is
+  // the last writer, so oxlint autofixes can never land unformatted.
+  log('Running oxlint on all files…')
+  if (runOxlint(['exec', 'oxlint', '-c', pickOxlintConfig()]) !== 0) {
     return 1
   }
-  log('Running oxlint on all files…')
-  const oxlintArgs = ['exec', 'oxlint', '-c', pickOxlintConfig()]
-  if (fix) {
-    oxlintArgs.push('--fix')
-  }
-  const lintRes = spawnSync('pnpm', oxlintArgs, { shell: useShell, stdio })
-  if (lintRes.status !== 0) {
+  log('Formatting all files…')
+  if (runOxfmt() !== 0) {
     return 1
   }
   // A green oxlint run is vacuous if the socket/ plugin failed to load (every
@@ -329,29 +392,30 @@ function runFiles(files: string[]): number {
     log('No lintable files; skipping.')
     return 0
   }
-  log(`Formatting ${files.length} file(s)...`)
-  if (runOxfmt(files) !== 0) {
-    return 1
-  }
   log(`Running oxlint on ${files.length} file(s)...`)
+  // oxlint (whose --fix rewrites code) runs BEFORE the format pass so
+  // formatting has the last word — the reverse order left oxlint autofixes
+  // unformatted, so a `pnpm run fix <file>` exited green while the file
+  // still failed `format:check` (hit live: a generator's fixed output
+  // red-lit the very next staged lint).
   // --no-error-on-unmatched-pattern keeps the command exit-0 when
   // every listed file falls inside the config's ignorePatterns (e.g.
   // touching just .claude/ files, which the canonical config excludes).
   // Without it oxlint exits 1 with "No files found" — the user sees a
   // lint failure for files they were never going to lint.
-  const oxlintArgs = [
+  const baseArgs = [
     'exec',
     'oxlint',
     '-c',
     pickOxlintConfig(),
     '--no-error-on-unmatched-pattern',
+    ...files,
   ]
-  if (fix) {
-    oxlintArgs.push('--fix')
+  if (runOxlint(baseArgs) !== 0) {
+    return 1
   }
-  oxlintArgs.push(...files)
-  const lintRes = spawnSync('pnpm', oxlintArgs, { shell: useShell, stdio })
-  if (lintRes.status !== 0) {
+  log(`Formatting ${files.length} file(s)...`)
+  if (runOxfmt(files) !== 0) {
     return 1
   }
   // A green oxlint run is vacuous if the socket/ plugin failed to load — see
@@ -410,7 +474,7 @@ function main(): void {
     return
   }
 
-  if (shouldEscalate(files)) {
+  if (escalatesForScope(mode, files)) {
     log(`Config files changed; escalating to full lint.`)
     process.exitCode = runAll()
     if (process.exitCode === 0) {
@@ -421,7 +485,19 @@ function main(): void {
     return
   }
 
-  const lintable = filterLintable(files)
+  // Pre-filter against the merged .prettierignore: oxfmt does not apply
+  // --ignore-path to explicitly-passed argv files, so without this a staged
+  // cascade-mirror path (.claude/**, scripts/fleet/**) red-lights the
+  // pre-commit gate on bytes the format run never owns. template/** is exempt
+  // inside filterFormatIgnored (the wheelhouse canon stays gated).
+  const extLintable = filterLintable(files)
+  const lintable = filterFormatIgnored(extLintable)
+  const ignoredCount = extLintable.length - lintable.length
+  if (ignoredCount > 0) {
+    log(
+      `${ignoredCount} format-ignored mirror file(s) skipped (cascade payload — gated at the template source).`,
+    )
+  }
   log(
     `Lint scope: ${mode} (${lintable.length} of ${files.length} files lintable)`,
   )

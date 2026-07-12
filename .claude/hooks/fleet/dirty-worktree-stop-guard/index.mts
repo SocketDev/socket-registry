@@ -62,6 +62,13 @@
 // additions/source-patched/) are filtered out — they're under
 // .gitignore rules and not the failure mode this hook targets.
 //
+// Auto-lander lock-step (_shared/landable.mts): a path the auto-lander
+// (land-work.mts) will not hand-commit — generated (lockfile, hook bundle,
+// build/coverage output), unmerged (conflict), or both-touched (staged +
+// worktree differ) — is filtered out too. Blocking on one strands the turn
+// demanding a `git commit -o` the lander itself refuses; both mechanisms
+// read the SAME classifiers so they can't drift.
+//
 // Fail-open: any error in the hook allows the stop (a guard bug must
 // not wedge every Stop) — runGuard swallows throws.
 
@@ -86,6 +93,7 @@ import {
   resolveStoreRoot,
 } from '../_shared/active-edits-ledger.mts'
 import { readSessionTouchedPaths } from '../_shared/foreign-paths.mts'
+import { isBothTouched, isGenerated, isUnmerged } from '../_shared/landable.mts'
 import {
   isParked,
   readParked,
@@ -171,6 +179,16 @@ export function parsePorcelain(out: string): DirtyEntry[] {
     const arrow = rest.indexOf(' -> ')
     const filePath = arrow === -1 ? rest : rest.slice(arrow + 4)
     if (isUntrackedByDefault(filePath)) {
+      continue
+    }
+    // Lock-step with the auto-lander (land-work.mts): a path IT would not
+    // hand-commit is one this guard must not demand a human commit. It skips
+    // generated (machine-written: lockfile, hook bundle, build/coverage),
+    // unmerged (conflict — a human resolves, never auto-lands), and both-touched
+    // (staged+worktree differ — concurrent authorship it won't blend). Blocking
+    // on any of these strands the turn on work `git commit -o` can't cleanly
+    // land. Shared classifiers keep the two mechanisms from drifting.
+    if (isGenerated(filePath) || isUnmerged(status) || isBothTouched(status)) {
       continue
     }
     entries.push({ status, path: filePath })

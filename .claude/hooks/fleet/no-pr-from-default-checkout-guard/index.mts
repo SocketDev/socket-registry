@@ -19,6 +19,9 @@
 
 import process from 'node:process'
 
+import { spawnSync } from '@socketsecurity/lib-stable/process/spawn/child'
+
+import { ownerRepoFromRemoteUrl } from '../_shared/fleet-repos.mts'
 import { currentBranch, resolveDefaultBranch } from '../_shared/git-branch.mts'
 import { bashGuard, block, defineHook, runHook } from '../_shared/guard.mts'
 import { commandsFor } from '../_shared/shell-command.mts'
@@ -41,6 +44,51 @@ export function isGhPrCreate(command: string): boolean {
   return commandsFor(command, 'gh').some(isGhPrCreateCmd)
 }
 
+// The explicit `--repo <value>` / `--repo=<value>` / `-R <value>` target of a
+// `gh pr create` in `command`, or undefined when gh would infer the repo from
+// the checkout.
+export function explicitRepoTarget(command: string): string | undefined {
+  for (const c of commandsFor(command, 'gh')) {
+    if (!isGhPrCreateCmd(c)) {
+      continue
+    }
+    for (let i = 0, { length } = c.args; i < length; i += 1) {
+      const arg = c.args[i]!
+      if (arg === '--repo' || arg === '-R') {
+        return c.args[i + 1]
+      }
+      if (arg.startsWith('--repo=')) {
+        return arg.slice('--repo='.length)
+      }
+    }
+  }
+  return undefined
+}
+
+// Case-insensitive `owner/repo` equality between an explicit `--repo` value
+// (OWNER/REPO, HOST/OWNER/REPO, or a full URL) and a checkout's origin slug.
+export function sameOwnerRepo(target: string, origin: string): boolean {
+  const tail = target
+    .replace(/\.git$/, '')
+    .split('/')
+    .filter(Boolean)
+    .slice(-2)
+    .join('/')
+  return tail.toLowerCase() === origin.toLowerCase()
+}
+
+// The `owner/repo` of `dir`'s origin remote, or undefined when unresolvable.
+function originOwnerRepo(dir: string): string | undefined {
+  const r = spawnSync('git', ['-C', dir, 'remote', 'get-url', 'origin'], {
+    encoding: 'utf8',
+  })
+  if (r.status !== 0) {
+    return undefined
+  }
+  /* c8 ignore next - spawnSync with encoding:'utf8' always returns a string stdout */
+  return ownerRepoFromRemoteUrl(String(r.stdout ?? '').trim())
+}
+
 // True when `branch` is a default-branch checkout — the repo's resolved
 // default, or a literal `main`/`master` regardless of what origin/HEAD points
 // at (a fresh clone with no origin/HEAD still counts).
@@ -57,6 +105,18 @@ export const hook = defineHook({
       return undefined
     }
     const cwd = payload.cwd ?? process.cwd()
+    // An explicit `--repo` naming a DIFFERENT repository than this checkout's
+    // origin means the cwd checkout is not the PR's source — its branch is
+    // irrelevant (the sibling no-pr-from-default-branch-guard still vets the
+    // PR head). Only same-repo (or repo-less) invocations are the
+    // wrong-checkout mistake this guard exists to stop.
+    const explicitRepo = explicitRepoTarget(command)
+    if (explicitRepo) {
+      const origin = originOwnerRepo(cwd)
+      if (origin && !sameOwnerRepo(explicitRepo, origin)) {
+        return undefined
+      }
+    }
     const branch = currentBranch(cwd)
     if (!branch) {
       return undefined

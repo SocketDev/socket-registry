@@ -182,3 +182,21 @@ primary-checkout reset for exactly this reason.
 Enforced by `no-revert-guard` (blocks the rewind), `no-force-push-guard` (gates
 the forward reconcile), and `whose-work` (classifies author). A dedicated
 origin-ahead Stop nudge is tracked to surface this proactively.
+
+## Codex companions are quick checks, not long sessions
+
+A Codex companion session (identified by a FOREIGN
+`CODEX_COMPANION_SESSION_ID` — one that does not appear in the session's own
+transcript path; the codex plugin exports every session's OWN id, which marks
+nothing) exists for a quick second opinion — a diagnosis pass, a small
+verification. It is NOT a peer long-running session: a runaway multi-hour
+companion once looped `land-work.mts`/`cover.mts` for 8+ hours, monopolizing the
+shared checkout's test gate and index while mis-attributing its dirty files to
+the primary session.
+
+`codex-session-budget-guard` (PreToolUse) enforces this: the companion's first
+tool call stamps a start marker under
+`node_modules/.cache/socket-codex-session/`, and once the 1-minute wall-clock
+budget is spent every further tool call blocks with a hand-off message. Sustained
+work belongs in a full Claude session. The user lifts it for one session by
+typing `Allow codex-long-session bypass`.

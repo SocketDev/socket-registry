@@ -86,7 +86,7 @@ export function disableWorkflow(): void {
   }
 }
 
-function reportStatus(): void {
+export function reportStatus(): void {
   const enabled = existsSync(ENABLED_PATH)
   const present = existsSync(DISABLED_PATH)
   logger.info(

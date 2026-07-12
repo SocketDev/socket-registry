@@ -148,7 +148,7 @@ export async function main(): Promise<void> {
  * when the structure has not changed. Returns a slot-keyed map matching the
  * same id scheme used in buildSlots.
  */
-function harvestProse(content: string): Record<string, string> {
+export function harvestProse(content: string): Record<string, string> {
   const notes: Record<string, string> = {}
   const lines = content.split('\n')
   let currentSection: string | undefined

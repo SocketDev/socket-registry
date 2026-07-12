@@ -425,9 +425,13 @@ runs:
         # cross-step) — always exported. The SOCKET_TOOL_SFW_* provenance has
         # no required consumer; disabled-seam-gated off unless extended-env
         # opts in. See disabled-seam-pattern (fleet docs).
+        # SFW_SILENT keeps the firewall's stdout banners out of every
+        # wrapped command — scripts that parse a tool's stdout (pack --json,
+        # the format pipe) would otherwise ingest banner lines as data.
         {
           echo "SFW_BIN=$SFW_BIN"
           echo "SFW_IS_ENTERPRISE=$SFW_IS_ENTERPRISE"
+          echo "SFW_SILENT=true"
         } >> "${GITHUB_ENV:-/dev/null}"
         if [ "$EXTENDED_ENV" = "true" ]; then
           {
@@ -630,6 +634,65 @@ runs:
         # GH_TELEMETRY is gh-specific and takes precedence.
         echo "DO_NOT_TRACK=1" >> "${GITHUB_ENV:-/dev/null}"
         echo "GH_TELEMETRY=0" >> "${GITHUB_ENV:-/dev/null}"
+
+    - name: Install pinned Homebrew bundle
+      # Only when the repo has enrolled (committed a root Brewfile). Homebrew has
+      # no minimum-release-age, so the fleet enforces one with per-tap SHA pins
+      # in scripts/fleet/constants/brew-tap-pins.mts (owned by
+      # scripts/fleet/update/brew.mts --apply, gated by
+      # scripts/fleet/check/brew-install-is-pinned.mts). Runs after Setup Node.js,
+      # but the pins are read with grep/sed so this stays dependency-free.
+      if: ${{ hashFiles('Brewfile') != '' }}
+      shell: bash
+      run: |
+        set -euo pipefail
+        # No brew on the runner (Linux GitHub-hosted images) → nothing to pin.
+        if ! command -v brew >/dev/null 2>&1; then
+          echo "brew not on this runner; skipping the pinned Homebrew bundle."
+          exit 0
+        fi
+        # Pin the taps at a soaked SHA and resolve every formula from the local
+        # git tap instead of the always-latest API.
+        export HOMEBREW_NO_INSTALL_FROM_API=1
+        PINS="${GITHUB_WORKSPACE}/scripts/fleet/constants/brew-tap-pins.mts"
+        if [ ! -f "$PINS" ]; then
+          echo "× brew-tap-pins.mts not found at ${PINS}." >&2
+          exit 1
+        fi
+        # sha_for <core|cask>: the entry lines carry a trailing comma
+        # (`homebrew-core',`), which the interface union type does not — so this
+        # matches only the pin entries.
+        sha_for() { grep -B1 "homebrew-$1'," "$PINS" | grep "sha:" | sed "s/.*'\([0-9a-f]*\)'.*/\1/"; }
+        pin_tap() {
+          SHORT="$1"
+          SLUG="$2"
+          SHA="$(sha_for "$SHORT")"
+          if [ -z "$SHA" ]; then
+            echo "× no tap pin for homebrew-${SHORT} in brew-tap-pins.mts." >&2
+            exit 1
+          fi
+          # Ensure the tap's git checkout exists, then pin it. GitHub permits a
+          # depth-1 fetch of an exact commit.
+          brew tap "$SLUG" >/dev/null 2>&1 || true
+          REPO="$(brew --repository "$SLUG")"
+          git -C "$REPO" fetch --depth 1 origin "$SHA"
+          git -C "$REPO" checkout -q "$SHA"
+        }
+        pin_tap core homebrew/core
+        if grep -q '^cask ' "${GITHUB_WORKSPACE}/Brewfile"; then
+          pin_tap cask homebrew/cask
+        fi
+        # Retry the bundle to ride out a transient tap/network hiccup.
+        ATTEMPT=0
+        until brew bundle install --file="${GITHUB_WORKSPACE}/Brewfile" --no-upgrade; do
+          ATTEMPT=$((ATTEMPT + 1))
+          if [ "$ATTEMPT" -ge 3 ]; then
+            echo "× brew bundle failed after 3 attempts." >&2
+            exit 1
+          fi
+          echo "brew bundle attempt ${ATTEMPT} failed; retrying in $((ATTEMPT * 3))s…" >&2
+          sleep $((ATTEMPT * 3))
+        done
 
     - name: Bootstrap zero-dep packages from npm registry
       shell: bash

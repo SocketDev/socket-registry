@@ -15,6 +15,7 @@
  */
 
 import process from 'node:process'
+import { fileURLToPath } from 'node:url'
 
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 
@@ -44,7 +45,7 @@ Commands:
     Restore sparse-checkout patterns from .gitmodules.
 `
 
-function parseArgs(argv: string[]): {
+export function parseArgs(argv: string[]): {
   command: 'add' | 'clone' | 'help' | 'restore-sparse' | 'save-sparse'
   rest: string[]
   opts: CommonOpts
@@ -79,7 +80,7 @@ function parseArgs(argv: string[]): {
   return { command, opts, rest: remaining }
 }
 
-function parseAddArgs(common: CommonOpts, rest: string[]): AddOpts {
+export function parseAddArgs(common: CommonOpts, rest: string[]): AddOpts {
   let branch: string | undefined
   let name: string | undefined
   let sparse = false
@@ -140,8 +141,10 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch((err: unknown) => {
-  const msg = errorMessage(err)
-  logger.error(`git-partial-submodule: ${msg}`)
-  process.exitCode = 1
-})
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  main().catch((err: unknown) => {
+    const msg = errorMessage(err)
+    logger.error(`git-partial-submodule: ${msg}`)
+    process.exitCode = 1
+  })
+}

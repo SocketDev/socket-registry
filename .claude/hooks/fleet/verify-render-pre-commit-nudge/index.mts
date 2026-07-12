@@ -22,6 +22,7 @@ import { spawnSync } from '@socketsecurity/lib-stable/process/spawn/child'
 import { readFileSync } from 'node:fs'
 import process from 'node:process'
 
+import { isGitCommit } from '../_shared/commit-command.mts'
 import { bashGuard, defineHook, notify, runHook } from '../_shared/guard.mts'
 
 // Files whose changes likely affect rendered output.
@@ -121,9 +122,7 @@ export function analyzeTranscript(entries: TranscriptEntry[]): Analysis {
   return { buildCommand, buildIndex, verifyIndex }
 }
 
-export function isGitCommit(command: string): boolean {
-  return /\bgit\s+commit\b/.test(command)
-}
+export { isGitCommit }
 
 interface TranscriptEntry {
   type?: string | undefined

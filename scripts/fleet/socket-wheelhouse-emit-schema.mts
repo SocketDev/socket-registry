@@ -11,6 +11,8 @@
 
 import { writeFileSync } from 'node:fs'
 import path from 'node:path'
+import process from 'node:process'
+import { fileURLToPath } from 'node:url'
 
 import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
@@ -30,26 +32,34 @@ const outPath = path.join(
   'socket-wheelhouse-schema.json',
 )
 
-const enriched = {
-  $schema: 'https://json-schema.org/draft/2020-12/schema',
-  $id: 'https://github.com/SocketDev/socket-wheelhouse-schema.json',
-  title: 'socket-wheelhouse per-repo config',
-  ...SocketWheelhouseConfigSchema,
+export function buildSocketWheelhouseSchemaDocument(): Record<string, unknown> {
+  return {
+    $schema: 'https://json-schema.org/draft/2020-12/schema',
+    $id: 'https://github.com/SocketDev/socket-wheelhouse-schema.json',
+    title: 'socket-wheelhouse per-repo config',
+    ...SocketWheelhouseConfigSchema,
+  }
 }
 
-writeFileSync(outPath, JSON.stringify(enriched, null, 2) + '\n', 'utf8')
+export async function main(): Promise<void> {
+  writeFileSync(
+    outPath,
+    JSON.stringify(buildSocketWheelhouseSchemaDocument(), null, 2) + '\n',
+    'utf8',
+  )
 
-// Run oxfmt on the output so the file matches what oxfmt would
-// produce. Without this, `pnpm run check --all` (which runs oxfmt
-// over the tree) would flag the emitted schema as drifted on every
-// repo that re-emits it.
-await spawn(
-  'pnpm',
-  ['exec', 'oxfmt', '-c', '.config/fleet/oxfmtrc.json', outPath],
-  {
+  // Format the output through the package.json wrapper (it owns the config +
+  // ignore set; never a bare oxfmt invocation). Without this, `pnpm run check
+  // --all` would flag the emitted schema as drifted on every repo that
+  // re-emits it.
+  await spawn('pnpm', ['run', 'format', outPath], {
     cwd: REPO_ROOT,
     stdio: 'inherit',
-  },
-)
+  })
 
-logger.success(`wrote ${path.relative(REPO_ROOT, outPath)}`)
+  logger.success(`wrote ${path.relative(REPO_ROOT, outPath)}`)
+}
+
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  void main()
+}

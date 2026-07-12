@@ -52,7 +52,7 @@ import {
  * through this so separator variations don't break the phrase match: only the
  * letters + their order are load-bearing.
  */
-function normalizeBypassText(text: string): string {
+export function normalizeBypassText(text: string): string {
   // NFKC: canonical-decompose + compose + compatibility-fold so
   // visually-similar variants collapse — smart quotes, full-width,
   // ligatures all map to ASCII-canonical.
@@ -83,7 +83,7 @@ function normalizeBypassText(text: string): string {
  * `nonfleet`. Regex metacharacters in the phrase (`:` targets, dots) are
  * escaped literally.
  */
-function phrasePattern(normalizedPhrase: string): RegExp {
+export function phrasePattern(normalizedPhrase: string): RegExp {
   const escaped = normalizedPhrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
   return new RegExp(escaped.replace(/ /g, ' ?'), 'g')
 }
@@ -659,11 +659,17 @@ export function readRoleText(
       continue
     }
     const pieces = extractTurnPieces(r.content)
-    if (pieces.length) {
-      // Buffer this turn's blocks together so the final reverse swaps
-      // *turn order*, not intra-turn block order.
-      out.push(pieces.join('\n'))
+    if (!pieces.length) {
+      // Tool-result carrier events share the user role but hold no author
+      // prose. They must not consume lookback slots — a lookback of "8 user
+      // turns" means 8 things the USER said, not 8 tool calls; otherwise a
+      // busy turn evicts a freshly typed bypass phrase before the very
+      // command it authorizes runs.
+      continue
     }
+    // Buffer this turn's blocks together so the final reverse swaps
+    // *turn order*, not intra-turn block order.
+    out.push(pieces.join('\n'))
     matched += 1
     if (lookback !== undefined && matched >= lookback) {
       break
@@ -739,6 +745,23 @@ export function resolveRoleAndContent(evt: unknown):
     return undefined
   }
   const e = evt as Record<string, unknown>
+  // A message the user types WHILE the assistant is working is recorded as a
+  // queued-input event, not a `role:'user'` turn:
+  // `{type:'queue-operation', operation:'enqueue', content:'<what they typed>'}`.
+  // It IS genuine user prose — the user typed it, the harness only deferred
+  // delivery — so a bypass phrase queued mid-work must count exactly like one
+  // typed at an idle prompt. Without this, a user can authorize repeatedly and
+  // be silently ignored (a lease-force-push phrase typed 4× mid-task never
+  // registered). Not injectable: only a human enqueues input, and
+  // extractTurnPieces still runs stripInjectedContext over the string, so a
+  // reminder/tool span can't ride in. Non-`enqueue` queue ops carry no author
+  // prose → skipped.
+  if (e['type'] === 'queue-operation') {
+    if (e['operation'] !== 'enqueue' || typeof e['content'] !== 'string') {
+      return undefined
+    }
+    return { content: e['content'], isSidechain: false, role: 'user' }
+  }
   const role =
     typeof e['role'] === 'string'
       ? e['role']

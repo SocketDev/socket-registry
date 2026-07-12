@@ -34,26 +34,36 @@ const VALIDATOR = path.join(
   'scripts/repo/validate-release-bundle.mts',
 )
 
+export interface BundleFinding {
+  detail: string
+  fix: string
+  kind: string
+  path: string
+}
+
+/**
+ * Render the fail-loud finding block: one `[kind] path` line per finding, each
+ * followed by its detail + fix.
+ */
+export function formatBundleFindings(findings: BundleFinding[]): string {
+  return findings
+    .map(f => `  [${f.kind}] ${f.path}\n    ${f.detail}\n    Fix: ${f.fix}`)
+    .join('\n')
+}
+
 export async function main(): Promise<void> {
   if (!existsSync(VALIDATOR)) {
     return
   }
   const { validateBundle } = await import(VALIDATOR)
-  const findings = (await validateBundle()) as Array<{
-    kind: string
-    path: string
-    detail: string
-    fix: string
-  }>
+  const findings = (await validateBundle()) as BundleFinding[]
   if (findings.length === 0) {
     logger.success('bundle-round-trips: all checks passed')
     return
   }
   logger.fail(
     `bundle-round-trips: ${findings.length} problem(s) found:\n` +
-      findings
-        .map(f => `  [${f.kind}] ${f.path}\n    ${f.detail}\n    Fix: ${f.fix}`)
-        .join('\n'),
+      formatBundleFindings(findings),
   )
   process.exitCode = 1
 }
