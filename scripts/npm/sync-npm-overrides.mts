@@ -127,7 +127,7 @@ Steps:
 1. Diff the new upstream behavior against the override: exports, signatures, edge cases, error behavior.
 2. Update the override so its public behavior matches upstream ${toVersion} exactly.
 3. Update ${testPath} in the same change to pin the new behavior, both arms.
-4. Self-verify until green: INCLUDE_NPM_TESTS=1 pnpm exec vitest run ${testPath}
+4. Self-verify until green: INCLUDE_NPM_TESTS=1 FORCE_TEST=1 pnpm exec vitest run ${testPath} (FORCE_TEST=1 is required — package suites skip by default)
 5. Do not bump any package versions — release tooling owns versions.
 
 Finish with a summary of the behavioral differences you found and every file you changed. If nothing in the override needs to change for ${toVersion}, say so explicitly after verifying the tests still pass.`
@@ -198,7 +198,7 @@ async function runPackageTest(socketPkgName: string): Promise<boolean> {
   try {
     await runCommandQuietStrict('pnpm', ['exec', 'vitest', 'run', testPath], {
       cwd: ROOT_PATH,
-      env: { ...process.env, INCLUDE_NPM_TESTS: '1' },
+      env: { ...process.env, FORCE_TEST: '1', INCLUDE_NPM_TESTS: '1' },
     })
     return true
   } catch {

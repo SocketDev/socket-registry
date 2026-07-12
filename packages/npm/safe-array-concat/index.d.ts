@@ -1,5 +1,5 @@
 declare function safeArrayConcat<T = unknown>(
-  item: T | T[],
-  ...items: Array<T | T[]>
+  item: T | readonly T[],
+  ...items: Array<T | readonly T[]>
 ): T[]
 export = safeArrayConcat

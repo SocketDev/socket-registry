@@ -1,7 +1,7 @@
 /**
  * @file Tests for side-channel NPM package override. Ported 1:1 from upstream
- *   v1.1.0 (26e368c3):
- *   https://github.com/ljharb/side-channel/blob/26e368c3/test/index.js.
+ *   v1.1.1 (fc173615):
+ *   https://github.com/ljharb/side-channel/blob/fc173615/test/index.js.
  */
 import { describe, expect, it } from 'vitest'
 
@@ -34,6 +34,21 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       const o = {}
       channel.set(o, 'data')
       expect(() => channel.assert(o)).not.toThrow()
+    })
+
+    it('does not observably access a missing object key when throwing', () => {
+      const channel = getSideChannel()
+      let accessed = false
+      const trap = {}
+      Object.defineProperty(trap, 'foo', {
+        enumerable: true,
+        get() {
+          accessed = true
+          return 1
+        },
+      })
+      expect(() => channel.assert(trap)).toThrow(TypeError)
+      expect(accessed).toBe(false)
     })
   })
 

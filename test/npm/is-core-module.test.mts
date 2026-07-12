@@ -1,19 +1,33 @@
 /**
  * @file Tests for is-core-module NPM package override. Ported 1:1 from upstream
- *   v2.16.1 (9d91e714):
- *   https://github.com/inspect-js/is-core-module/blob/9d91e714e294b2ee41c1b6beae1ad06aacdaf5ca/test/index.js.
+ *   v2.16.2 (is-core-module@2.16.2):
+ *   https://github.com/inspect-js/is-core-module/blob/v2.16.2/test/index.js.
  */
+
+import path from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
 import { setupNpmPackageTest } from '../util/npm-package-helper.mts'
 
+type IsCore = (moduleName: string, nodeVersion?: string) => boolean
+
 const {
   eco,
   module: isCore,
+  pkgPath,
   skip,
   sockRegPkgName,
 } = setupNpmPackageTest(import.meta.url)
+
+function loadPortableIsCore(): IsCore {
+  if (skip) {
+    return () => false
+  }
+  return require(path.join(pkgPath, 'index.js'))
+}
+
+const portableIsCore = loadPortableIsCore()
 
 describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   describe('isCore()', () => {
@@ -67,6 +81,34 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
     it('node:path is a core module', () => {
       expect(isCore('node:path')).toBe(true)
+    })
+  })
+
+  describe('nodeVersion parameter (node export)', () => {
+    it('throws because the node export delegates to node:module isBuiltin', () => {
+      expect(() => isCore('fs', '20.0.0')).toThrow(TypeError)
+    })
+  })
+
+  describe('portable export (index.js, explicit nodeVersion)', () => {
+    it('_stream_readable is core on Node versions before the v26 removal', () => {
+      expect(portableIsCore('_stream_readable', '20.0.0')).toBe(true)
+      expect(portableIsCore('_stream_readable', '25.9.9')).toBe(true)
+    })
+
+    it('_stream_readable is no longer core on Node 26 and later', () => {
+      expect(portableIsCore('_stream_readable', '26.0.0')).toBe(false)
+      expect(portableIsCore('_stream_readable', '27.0.0')).toBe(false)
+    })
+
+    it('node:_stream_writable is no longer core on Node 26 and later', () => {
+      expect(portableIsCore('node:_stream_writable', '16.0.0')).toBe(true)
+      expect(portableIsCore('node:_stream_writable', '26.0.0')).toBe(false)
+    })
+
+    it('unversioned core modules are unaffected by the v26 cutoff', () => {
+      expect(portableIsCore('fs', '26.0.0')).toBe(true)
+      expect(portableIsCore('stream', '26.0.0')).toBe(true)
     })
   })
 })

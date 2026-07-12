@@ -266,7 +266,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Renamed debug functions from *Complex to *Ns
+- Renamed debug functions from *Complex to*Ns
 
 ### Fixed
 

@@ -1,6 +1,6 @@
 /**
  * @file Tests for typed-array-length NPM package override. Ported 1:1 from
- *   upstream v1.0.7 (25731a8c):
+ *   upstream v1.0.8 (25731a8c):
  *   https://github.com/inspect-js/typed-array-length/blob/25731a8c/test/index.js.
  */
 import { describe, expect, it } from 'vitest'

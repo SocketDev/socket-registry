@@ -100,7 +100,9 @@ describe('scripts/npm/sync-npm-overrides', () => {
     })
 
     it('requires self-verification and forbids version bumps', () => {
-      expect(prompt).toContain('INCLUDE_NPM_TESTS=1 pnpm exec vitest run')
+      expect(prompt).toContain(
+        'INCLUDE_NPM_TESTS=1 FORCE_TEST=1 pnpm exec vitest run',
+      )
       expect(prompt).toContain('Do not bump any package versions')
     })
   })

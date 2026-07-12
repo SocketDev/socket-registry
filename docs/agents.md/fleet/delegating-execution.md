@@ -2,7 +2,7 @@
 
 For non-trivial work, planning and review are big-brain jobs; execution and follow-up are floor jobs bounded by the written plan. The four-phase cycle:
 
-```
+```text
 plan → execute → review → follow-up
 ```
 
