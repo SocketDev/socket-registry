@@ -11,6 +11,7 @@ import {
   buildSyncPrompt,
   classifyOverride,
   isExactSemver,
+  newestSoakClearedVersion,
 } from '../../../scripts/npm/sync-npm-overrides.mts'
 
 function pin(pinnedSpec: string | undefined) {
@@ -74,6 +75,104 @@ describe('scripts/npm/sync-npm-overrides', () => {
       expect(classifyOverride(pin('7.0.0'), undefined).status).toBe(
         'unresolved',
       )
+    })
+
+    it('judges staleness against the soak-cleared target, not raw latest', () => {
+      const drift = classifyOverride(pin('7.0.1'), '7.0.1', '7.1.0')
+      expect(drift.status).toBe('current')
+      expect(drift.targetVersion).toBe('7.0.1')
+      expect(drift.latestVersion).toBe('7.1.0')
+    })
+
+    it('defaults latestVersion to the target when not supplied', () => {
+      const drift = classifyOverride(pin('7.0.0'), '7.0.1')
+      expect(drift.latestVersion).toBe('7.0.1')
+    })
+  })
+
+  describe('newestSoakClearedVersion', () => {
+    const DAY_MS = 24 * 60 * 60 * 1000
+    const nowMs = Date.parse('2026-07-12T00:00:00.000Z')
+    const soak = {
+      exclude: [] as readonly string[],
+      nowMs,
+      soakMinutes: 7 * 24 * 60,
+      upstreamName: 'is-number',
+    }
+    const at = (daysAgo: number) =>
+      new Date(nowMs - daysAgo * DAY_MS).toISOString()
+
+    it('returns latest when it has cleared the soak window', () => {
+      expect(
+        newestSoakClearedVersion(
+          '7.1.0',
+          { '7.0.0': at(400), '7.1.0': at(30) },
+          soak,
+        ),
+      ).toBe('7.1.0')
+    })
+
+    it('falls back to the newest cleared version while latest soaks', () => {
+      expect(
+        newestSoakClearedVersion(
+          '7.2.0',
+          { '7.0.0': at(400), '7.1.0': at(30), '7.2.0': at(2) },
+          soak,
+        ),
+      ).toBe('7.1.0')
+    })
+
+    it('never targets a prerelease below latest', () => {
+      expect(
+        newestSoakClearedVersion(
+          '7.1.0',
+          { '7.0.0': at(400), '7.1.0-rc.1': at(30), '7.1.0': at(2) },
+          soak,
+        ),
+      ).toBe('7.0.0')
+    })
+
+    it('ignores versions above latest and non-version time keys', () => {
+      expect(
+        newestSoakClearedVersion(
+          '7.1.0',
+          {
+            created: at(500),
+            modified: at(1),
+            '7.1.0': at(30),
+            '8.0.0-next.0': at(20),
+          },
+          soak,
+        ),
+      ).toBe('7.1.0')
+    })
+
+    it('lets a minimumReleaseAgeExclude entry bypass the soak', () => {
+      const times = { '7.0.0': at(400), '7.1.0': at(1) }
+      expect(
+        newestSoakClearedVersion('7.1.0', times, {
+          ...soak,
+          exclude: ['is-number@7.1.0'],
+        }),
+      ).toBe('7.1.0')
+      expect(
+        newestSoakClearedVersion('7.1.0', times, {
+          ...soak,
+          exclude: ['is-number'],
+        }),
+      ).toBe('7.1.0')
+    })
+
+    it('returns latest verbatim when soak is off or metadata is degraded', () => {
+      const times = { '7.1.0': at(1) }
+      expect(
+        newestSoakClearedVersion('7.1.0', times, { ...soak, soakMinutes: 0 }),
+      ).toBe('7.1.0')
+      expect(newestSoakClearedVersion('7.1.0', undefined, soak)).toBe('7.1.0')
+      // Nothing cleared at all → surface latest for a human rather than
+      // hiding the drift.
+      expect(newestSoakClearedVersion('7.1.0', times, soak)).toBe('7.1.0')
+      expect(newestSoakClearedVersion(undefined, times, soak)).toBeUndefined()
     })
   })
 

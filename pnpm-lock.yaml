@@ -1276,9 +1276,6 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 7.0.2
-      vitest:
-        specifier: 'catalog:'
-        version: 4.1.9(@types/node@26.1.0)(@vitest/coverage-v8@4.1.9)(@vitest/ui@4.1.9)(vite@8.1.0(@types/node@26.1.0)(jiti@2.7.0)(yaml@2.9.0))
       yoctocolors-cjs:
         specifier: 'catalog:'
         version: 2.1.3
@@ -1376,8 +1373,8 @@ importers:
         specifier: 1.1.3
         version: 1.1.3
       es-iterator-helpers:
-        specifier: 1.2.1
-        version: 1.2.1
+        specifier: 1.3.3
+        version: 1.3.3
       es-set-tostringtag:
         specifier: npm:@socketregistry/es-set-tostringtag@1.0.10
         version: '@socketregistry/es-set-tostringtag@1.0.10'
@@ -3498,8 +3495,8 @@ packages:
   es-get-iterator@1.1.3:
     resolution: {integrity: sha512-sPZmqHBe6JIiTfN5q2pEi//TwxmAFHwj/XEuYjTuse78i8KxaqMTTzxPoFKuzRpDpTJ+0NAbpfenkmH2rePtuw==}
 
-  es-iterator-helpers@1.2.1:
-    resolution: {integrity: sha512-uDn+FE1yrDzyC0pCo961B2IHbdM8y/ACZsKD4dG6WqrjV53BADjwa7D+1aom2rsNVfLyDgU/eigvlJGJ08OQ4w==}
+  es-iterator-helpers@1.3.3:
+    resolution: {integrity: sha512-0PuBxFi+4uPanB97iDxCLWuHeYud2FALrw5HFZGtAF38UpJDbDC8frwp2cnDyae692CQ0dou60UwWfhgsa4U/g==}
     engines: {node: '>= 0.4'}
 
   es-module-lexer@2.3.0:
@@ -7568,7 +7565,7 @@ snapshots:
       isarray: 2.0.5
       stop-iteration-iterator: 1.1.0
 
-  es-iterator-helpers@1.2.1:
+  es-iterator-helpers@1.3.3:
     dependencies:
       call-bind: 1.0.9
       call-bound: 1.0.4
@@ -7585,7 +7582,7 @@ snapshots:
       has-symbols: '@socketregistry/has-symbols@1.0.7'
       internal-slot: 1.1.0
       iterator.prototype: 1.1.5
-      safe-array-concat: 1.1.4
+      math-intrinsics: 1.1.0
 
   es-module-lexer@2.3.0: {}
 

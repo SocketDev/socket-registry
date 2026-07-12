@@ -4,7 +4,7 @@
 // BLOCKS an Edit/Write that changes a SocketDev/socket-registry shared
 // workflow/action SHA pin by hand:
 //
-//   uses: SocketDev/socket-registry/.github/workflows/ci.yml@<40-hex>
+//   uses: SocketDev/socket-registry/.github/workflows/weekly-update.yml@<40-hex>
 //   uses: SocketDev/socket-registry/.github/actions/setup-and-install@<40-hex>
 //
 // Those pins are OWNED by the cascade: `cascade-workflows.mts` (in
