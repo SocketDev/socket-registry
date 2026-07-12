@@ -1,7 +1,7 @@
 /**
  * @file Tests for which-typed-array NPM package override. Ported 1:1 from
- *   upstream v1.1.20 (2710ad21):
- *   https://github.com/inspect-js/which-typed-array/blob/2710ad21/test/index.js.
+ *   upstream v1.1.22 (5a60076):
+ *   https://github.com/inspect-js/which-typed-array/blob/5a60076/test/index.js.
  */
 import { describe, expect, it } from 'vitest'
 
@@ -22,6 +22,7 @@ const typedArrayNames = [
   'Uint16Array',
   'Int32Array',
   'Uint32Array',
+  'Float16Array',
   'Float32Array',
   'Float64Array',
   'BigInt64Array',
