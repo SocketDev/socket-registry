@@ -2,8 +2,10 @@
 // Claude Code PostToolUse hook — shared-workflow-cascade (repo-specific).
 //
 // TRIGGER: After any Bash tool call that commits or pushes a change to
-// a shared workflow file in socket-registry (.github/workflows/ci.yml,
-// .github/workflows/provenance.yml, or any _local-not-for-reuse-*.yml).
+// a shared workflow file in socket-registry (.github/workflows/
+// weekly-update.yml / publish-npm.yml / get-green.yml, or any
+// _local-not-for-reuse-*.yml). ci.yml is NOT shared anymore — it is the
+// fleet-canonical INLINED workflow cascaded from socket-wheelhouse.
 //
 // WHAT IT DOES: When a shared workflow file changes on main, the
 // consuming fleet repos have stale SHA pins. This hook emits a REMINDER
@@ -19,8 +21,9 @@
 //
 // DETECTION: inspects the latest commit on the current branch for
 // changes to the canonical shared-workflow paths:
-//   - .github/workflows/ci.yml         (Layer 3 reusable workflow)
-//   - .github/workflows/provenance.yml (Layer 3 reusable workflow)
+//   - .github/workflows/weekly-update.yml (Layer 3 reusable workflow)
+//   - .github/workflows/publish-npm.yml    (Layer 3 reusable workflow)
+//   - .github/workflows/get-green.yml      (Layer 3 reusable workflow)
 //   - .github/workflows/_local-not-for-reuse-*.yml  (Layer 4 — signals cascade complete)
 //
 // EXIT 2 = block (with error message to stderr).
@@ -42,8 +45,9 @@ const BYPASS_PHRASE = 'Allow workflow-cascade bypass'
 
 // Shared workflow files whose change triggers the cascade obligation.
 const SHARED_WORKFLOW_PATTERNS: readonly RegExp[] = [
-  /\.github\/workflows\/ci\.yml$/,
-  /\.github\/workflows\/provenance\.yml$/,
+  /\.github\/workflows\/weekly-update\.yml$/,
+  /\.github\/workflows\/publish-npm\.yml$/,
+  /\.github\/workflows\/get-green\.yml$/,
   /\.github\/workflows\/_local-not-for-reuse-.*\.yml$/,
 ]
 

@@ -53,7 +53,7 @@ Quick orientation:
 
 ## CI testing
 
-- **Mandatory**: invoke `SocketDev/socket-registry/.github/workflows/ci.yml@<SHA>` with a full 40-char commit SHA.
+- `ci.yml` is the fleet-canonical INLINED workflow (cascaded from socket-wheelhouse); repo-owned jobs go below its end marker. The @<full-40-char-SHA> pin rule still applies to the surviving registry reusables (`weekly-update.yml`, `publish-npm.yml`, `get-green.yml`).
 - Matrix: Node 22 and 24, cross-platform (Linux + macOS + Windows where applicable).
 - CI-script naming: `lint-ci`, `test-ci`, `type-ci`. No watch or fix modes in CI.
 

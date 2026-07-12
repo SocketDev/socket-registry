@@ -12,7 +12,7 @@ context: fork
 Audit + clean redundant CI surface on a Socket fleet repo. Three
 target classes:
 
-1. **Orphan workflow YAML files**: `lint.yml`, `check.yml`, `type.yml`, `test.yml`. The fleet consolidated those into the shared `ci.yml` (via `SocketDev/socket-registry/.github/workflows/ci.yml`) long ago. Any per-repo file with those names is a leftover from pre-consolidation days. Delete them.
+1. **Orphan workflow YAML files**: `lint.yml`, `check.yml`, `type.yml`, `test.yml`. The fleet consolidated those into `ci.yml` long ago (today the fleet-canonical INLINED ci.yml cascaded from socket-wheelhouse; historically the `SocketDev/socket-registry` reusable). Any per-repo file with those names is a leftover from pre-consolidation days. Delete them.
 
 2. **GitHub-Dependabot automated security PRs**: the fleet pattern is to handle vulnerability fixes via `/updating-security` (pnpm `overrides:` for transitive deps), not via auto-PRs from Dependabot. The `dependabot.yml` no-op file (`open-pull-requests-limit: 0`) suppresses version-update PRs but does NOT suppress security PRs. Those flow from a separate repo-settings toggle (`automated-security-fixes`). Disable via `gh api -X DELETE /repos/{owner}/{repo}/automated-security-fixes`.
 

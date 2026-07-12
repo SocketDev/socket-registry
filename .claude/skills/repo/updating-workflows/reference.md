@@ -30,8 +30,9 @@ Layer 2b — setup-and-install (references Layer 1 + 2a):
   setup-and-install        -> refs: checkout, setup, install
 
 Layer 3 — Shared reusable workflows (reference Layer 2):
-  ci.yml                   -> refs: setup-and-install, run-script
-  provenance.yml           -> refs: setup-and-install
+  (ci.yml LEFT this layer: it is now the fleet-canonical INLINED workflow
+   cascaded from socket-wheelhouse — no consumers pin it anymore.)
+  publish-npm.yml          -> refs: setup-and-install
   weekly-update.yml        -> thin delegator consumers pin; refs (uses:)
                               weekly-update.lock.yml. Hand-authored, cascaded.
   weekly-update.lock.yml   -> gh-aw compiled from weekly-update.md; runs the
@@ -45,8 +46,7 @@ Layer 3 — Shared reusable workflows (reference Layer 2):
                               escalation worker); same gh-aw-owned rules.
 
 Layer 4 — _local workflows (reference Layer 3, not reused externally):
-  _local-not-for-reuse-ci.yml             -> refs: ci.yml, setup-and-install, cache-npm-packages
-  _local-not-for-reuse-provenance.yml     -> refs: provenance.yml
+  _local-not-for-reuse-provenance.yml     -> refs: publish-npm.yml
   _local-not-for-reuse-weekly-update.yml  -> refs: weekly-update.yml (the delegator, via uses)
 ```
 
@@ -74,9 +74,9 @@ substrate + testing story (`gh aw trial`, not Agent CI).
 
 ## Propagation SHA
 
-The **propagation SHA** is the Layer 3 merge SHA — the one where `ci.yml`,
-`provenance.yml`, `weekly-update.yml` (the delegator), or `weekly-update.lock.yml`
-were updated.
+The **propagation SHA** is the Layer 3 merge SHA — the one where
+`publish-npm.yml`, `weekly-update.yml` (the delegator), or
+`weekly-update.lock.yml` were updated.
 
 - Layer 4 (`_local-not-for-reuse-*`) pins to the propagation SHA
 - External repos pin to the propagation SHA
@@ -94,7 +94,7 @@ Starting from the layer **above** the change, create a PR for each layer.
 ```
 1. PR: Update Layer 2a pins (setup)                  -> merge -> get SHA
 2. PR: Update Layer 2b pins (setup-and-install)       -> merge -> get SHA
-3. PR: Update Layer 3 pins (ci.yml, provenance.yml)   -> merge -> get SHA  <-- PROPAGATION SHA
+3. PR: Update Layer 3 pins (publish-npm, weekly-update) -> merge -> get SHA  <-- PROPAGATION SHA
 4. PR: Update Layer 4 pins (_local workflows)         -> merge
 5. Propagate the Layer 3 SHA to all consuming repos
 ```
@@ -113,8 +113,9 @@ pinning during the cascade:
    line that delegates to a Layer 3 reusable workflow.
 2. Inline `uses: SocketDev/socket-registry/.github/actions/<action>@<SHA>`
    steps inside additional jobs the wrapper runs (e.g.
-   `_local-not-for-reuse-ci.yml`'s `test-npm-packages` job has its own
-   `setup-and-install` step on top of delegating to `ci.yml`).
+   a wrapper running extra jobs alongside its delegation — historically
+   `_local-not-for-reuse-ci.yml`'s `test-npm-packages`, whose jobs now live
+   below the inlined `ci.yml`'s fleet-canonical block).
 
 Both go to the propagation SHA. Verify with:
 
