@@ -1,11 +1,15 @@
 #!/usr/bin/env node
 /**
- * @file Every packages/npm/* override tracks its upstream's latest release.
- *   An override that lags upstream ships stale behavior under the upstream's
- *   name — the override's implementation and unit tests must move in
- *   lock-step with upstream releases (docs/agents.md/fleet/test-layout.md,
+ * @file Every packages/npm/* override tracks its upstream's newest
+ *   soak-cleared release. An override that lags upstream ships stale
+ *   behavior under the upstream's name — the override's implementation and
+ *   unit tests must move in lock-step with upstream releases
+ *   (docs/agents.md/fleet/test-layout.md,
  *   docs/agents.md/fleet/code-is-law.md). Fails when a pinned upstream in
- *   test/npm/package.json is behind that upstream's npm latest; the remedy
+ *   test/npm/package.json is behind the newest upstream release that has
+ *   cleared the pnpm-workspace.yaml minimumReleaseAge soak — a `latest`
+ *   still inside the window is never demanded, so this law can't contradict
+ *   the install policy it would need to violate to go green. The remedy
  *   is the sync driver, which updates implementation + tests together:
  *   node scripts/npm/sync-npm-overrides.mts --apply [--package <name>]
  *   Network-dependent by nature; an unreachable registry degrades to a
@@ -34,10 +38,13 @@ export function formatStaleReport(drift: OverrideDrift[]): string | undefined {
   const lines = stale.map(
     d =>
       `  ${d.socketPkgName}: ${d.upstreamName} ${d.pinnedSpec} -> ` +
-      `${d.latestVersion}`,
+      `${d.targetVersion}` +
+      (d.latestVersion !== d.targetVersion
+        ? ` (latest ${d.latestVersion} still soaking)`
+        : ''),
   )
   return [
-    `${stale.length} npm override(s) behind their upstream latest:`,
+    `${stale.length} npm override(s) behind their newest soak-cleared upstream:`,
     ...lines,
     'Sync implementation + tests in lock-step:',
     '  node scripts/npm/sync-npm-overrides.mts --apply [--package <name>]',
@@ -59,7 +66,7 @@ async function main(): Promise<number> {
   const report = formatStaleReport(drift)
   if (report === undefined) {
     if (!quiet) {
-      logger.success('npm overrides track their upstream latest')
+      logger.success('npm overrides track their newest soak-cleared upstream')
     }
     return 0
   }

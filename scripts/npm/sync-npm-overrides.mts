@@ -1,8 +1,11 @@
 #!/usr/bin/env node
 /**
  * @file Keep packages/npm/* overrides in lock-step with their upstreams.
- *   Detects overridden upstream packages that have published a newer version
- *   than the pin in test/npm/package.json and, with --apply, drives an AI
+ *   Detects overridden upstream packages whose newest SOAK-CLEARED release
+ *   (pnpm-workspace.yaml minimumReleaseAge — a `latest` still inside the
+ *   window is never demanded, so the currency law can't contradict the
+ *   install policy) is newer than the pin in test/npm/package.json and, with
+ *   --apply, drives an AI
  *   agent to update the override implementation and its unit tests TOGETHER,
  *   per docs/agents.md/fleet/test-layout.md (tests cascade in lock-step with
  *   the code they cover) and docs/agents.md/fleet/code-is-law.md (tests are
@@ -34,13 +37,14 @@ import { AI_PROFILE } from '@socketsecurity/lib-stable/ai/profiles'
 import { spawnAiAgent } from '@socketsecurity/lib-stable/ai/spawn'
 import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
-import { fetchPackageManifest } from '@socketsecurity/lib-stable/packages/manifest'
+import { fetchPackagePackument } from '@socketsecurity/lib-stable/packages/manifest'
 import { resolveOriginalPackageName } from '@socketsecurity/lib-stable/packages/normalize'
 import { pEach } from '@socketsecurity/lib-stable/promises/iterate'
 
 import { DEFAULT_CONCURRENCY } from '../constants/core.mts'
 import { ROOT_PATH, TEST_NPM_PATH } from '../constants/paths.mts'
 import { getNpmPackageNames } from '../constants/testing.mts'
+import { isSoakExcluded, readSoakRules } from '../fleet/soak-rules.mts'
 import { runCommandQuietStrict } from '../fleet/util/run-command.mts'
 import { getPackageVersionSpec } from '../repo/util/packages.mts'
 
@@ -62,6 +66,17 @@ export interface OverridePin {
 }
 
 export interface OverrideDrift extends OverridePin {
+  /**
+   * The newest upstream version the install policy actually allows: the
+   * highest release at or below the `latest` dist-tag that has soaked past
+   * `minimumReleaseAge` (or is bypassed by a `minimumReleaseAgeExclude`
+   * entry). This is what `stale` is judged against and what --apply pins.
+   */
+  targetVersion: string | undefined
+  /**
+   * The raw `latest` dist-tag; differs from `targetVersion` only while the
+   * newest release is still inside the soak window.
+   */
   latestVersion: string | undefined
   status: OverrideStatus
 }
@@ -74,13 +89,15 @@ export function isExactSemver(spec: unknown): spec is string {
 }
 
 /**
- * Classify one override's pin against the upstream's latest published
+ * Classify one override's pin against the upstream's newest soak-cleared
  * version. Pure: fetching happens in the caller so this stays unit-testable
- * offline (lock-step tests never touch the network).
+ * offline (lock-step tests never touch the network). `latestVersion`
+ * defaults to the target so pre-soak callers/tests stay valid.
  */
 export function classifyOverride(
   pin: OverridePin,
-  latestVersion: string | undefined,
+  targetVersion: string | undefined,
+  latestVersion: string | undefined = targetVersion,
 ): OverrideDrift {
   let status: OverrideStatus
   if (pin.pinnedSpec === undefined) {
@@ -89,14 +106,78 @@ export function classifyOverride(
     // GitHub tarball URLs and ranges have no single upstream version to
     // track; surfaced for a human, never auto-synced.
     status = 'unpinnable-spec'
-  } else if (!isExactSemver(latestVersion)) {
+  } else if (!isExactSemver(targetVersion)) {
     status = 'unresolved'
-  } else if (semver.gte(pin.pinnedSpec, latestVersion)) {
+  } else if (semver.gte(pin.pinnedSpec, targetVersion)) {
     status = 'current'
   } else {
     status = 'stale'
   }
-  return { ...pin, latestVersion, status }
+  return { ...pin, targetVersion, latestVersion, status }
+}
+
+export interface SoakTargetOptions {
+  exclude: readonly string[]
+  nowMs: number
+  soakMinutes: number
+  upstreamName: string
+}
+
+/**
+ * The newest upstream version an install is actually allowed to use: the
+ * highest release at or below the `latest` dist-tag that has either soaked
+ * past `minimumReleaseAge` or is bypassed by a `minimumReleaseAgeExclude`
+ * entry. Targeting raw `latest` would deadlock the currency law against the
+ * soak policy — the check demanding a version `pnpm install` refuses for up
+ * to the whole soak window. Prereleases below `latest` never win (an rc of
+ * an unsoaked stable is not a sync target). Falls back to `latest` when the
+ * packument carries no usable `time` data or nothing has cleared yet, so
+ * degraded metadata behaves like the pre-soak-aware check instead of hiding
+ * drift.
+ */
+export function newestSoakClearedVersion(
+  latestVersion: string | undefined,
+  times: Record<string, string> | undefined,
+  options: SoakTargetOptions,
+): string | undefined {
+  const { exclude, nowMs, soakMinutes, upstreamName } = {
+    __proto__: null,
+    ...options,
+  } as SoakTargetOptions
+  if (!isExactSemver(latestVersion)) {
+    return latestVersion
+  }
+  if (
+    soakMinutes <= 0 ||
+    !times ||
+    isSoakExcluded(upstreamName, latestVersion, exclude)
+  ) {
+    return latestVersion
+  }
+  const cutoffMs = nowMs - soakMinutes * 60_000
+  let best: string | undefined
+  const entries = Object.entries(times)
+  for (let i = 0, { length } = entries; i < length; i += 1) {
+    const { 0: version, 1: published } = entries[i]!
+    // `time` also carries non-version keys (`created`, `modified`).
+    if (!isExactSemver(version) || semver.gt(version, latestVersion)) {
+      continue
+    }
+    if (semver.prerelease(version) !== null && version !== latestVersion) {
+      continue
+    }
+    const publishedMs = Date.parse(published)
+    const cleared =
+      (Number.isFinite(publishedMs) && publishedMs <= cutoffMs) ||
+      isSoakExcluded(upstreamName, version, exclude)
+    if (!cleared) {
+      continue
+    }
+    if (best === undefined || semver.gt(version, best)) {
+      best = version
+    }
+  }
+  return best ?? latestVersion
 }
 
 /**
@@ -154,29 +235,63 @@ async function collectOverridePins(
   })
 }
 
-async function fetchLatestVersions(
+interface UpstreamVersions {
+  latestVersion: string | undefined
+  targetVersion: string | undefined
+}
+
+async function fetchUpstreamVersions(
   pins: OverridePin[],
-): Promise<Map<string, string | undefined>> {
-  const latest = new Map<string, string | undefined>()
+): Promise<Map<string, UpstreamVersions>> {
+  // The fixture installs in the root workspace, so the root workspace file's
+  // soak policy is the one `pnpm install` will actually enforce.
+  const rules = readSoakRules(path.join(ROOT_PATH, 'pnpm-workspace.yaml'))
+  const nowMs = Date.now()
+  const versions = new Map<string, UpstreamVersions>()
   await pEach(
     pins,
     async pin => {
-      const manifest = (await fetchPackageManifest(
-        `${pin.upstreamName}@latest`,
-      )) as { version?: string | undefined } | null
-      latest.set(pin.upstreamName, manifest?.version)
+      // fullMetadata: abbreviated packuments omit the `time` map the soak
+      // cutoff is computed from.
+      const packument = (await fetchPackagePackument(pin.upstreamName, {
+        fullMetadata: true,
+      })) as {
+        'dist-tags'?: Record<string, string | undefined> | undefined
+        time?: Record<string, string> | undefined
+      } | null
+      const latestVersion = packument?.['dist-tags']?.['latest']
+      versions.set(pin.upstreamName, {
+        latestVersion,
+        targetVersion: newestSoakClearedVersion(
+          latestVersion,
+          packument?.time,
+          {
+            exclude: rules.exclude,
+            nowMs,
+            soakMinutes: rules.minutes,
+            upstreamName: pin.upstreamName,
+          },
+        ),
+      })
     },
     { concurrency: DEFAULT_CONCURRENCY },
   )
-  return latest
+  return versions
 }
 
 export async function collectOverrideDrift(
   packageFilter: string[] = [],
 ): Promise<OverrideDrift[]> {
   const pins = await collectOverridePins(packageFilter)
-  const latest = await fetchLatestVersions(pins)
-  return pins.map(pin => classifyOverride(pin, latest.get(pin.upstreamName)))
+  const upstream = await fetchUpstreamVersions(pins)
+  return pins.map(pin => {
+    const versions = upstream.get(pin.upstreamName)
+    return classifyOverride(
+      pin,
+      versions?.targetVersion,
+      versions?.latestVersion,
+    )
+  })
 }
 
 async function writeUpstreamPin(
@@ -212,7 +327,7 @@ async function applyOne(
 ): Promise<'synced' | 'soak-blocked' | 'failed'> {
   const { effort, model } = { __proto__: null, ...options } as typeof options
   const fromVersion = drift.pinnedSpec as string
-  const toVersion = drift.latestVersion as string
+  const toVersion = drift.targetVersion as string
 
   logger.log(
     `${drift.socketPkgName}: syncing ${drift.upstreamName} ` +
@@ -295,9 +410,13 @@ async function main(): Promise<void> {
   if (!quiet) {
     for (let i = 0, { length } = stale; i < length; i += 1) {
       const d = stale[i]!
+      const soaking =
+        d.latestVersion !== d.targetVersion
+          ? `; latest ${d.latestVersion} still soaking`
+          : ''
       logger.log(
         `stale: ${d.socketPkgName} (${d.upstreamName} ` +
-          `${d.pinnedSpec} -> ${d.latestVersion})`,
+          `${d.pinnedSpec} -> ${d.targetVersion}${soaking})`,
       )
     }
     for (let i = 0, { length } = unpinnable; i < length; i += 1) {
@@ -316,7 +435,7 @@ async function main(): Promise<void> {
   if (!stale.length) {
     if (!quiet) {
       logger.success(
-        `All ${drift.length} overrides track their upstream latest.`,
+        `All ${drift.length} overrides track their newest soak-cleared upstream.`,
       )
     }
     return
