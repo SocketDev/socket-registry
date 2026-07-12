@@ -161,7 +161,9 @@ async function fetchLatestVersions(
   await pEach(
     pins,
     async pin => {
-      const manifest = await fetchPackageManifest(`${pin.upstreamName}@latest`)
+      const manifest = (await fetchPackageManifest(
+        `${pin.upstreamName}@latest`,
+      )) as { version?: string | undefined } | null
       latest.set(pin.upstreamName, manifest?.version)
     },
     { concurrency: DEFAULT_CONCURRENCY },

@@ -4,15 +4,16 @@
 
 import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 
 import { hasOwn } from '@socketsecurity/lib-stable/objects/predicates'
 
 import { PACKAGE_JSON, TEST_NPM_PATH } from '../../constants/paths.mts'
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
+type TestNpmPackageJson = {
+  devDependencies?: Record<string, string> | undefined
+}
 
-let cachedTestNpmPackageJson
+let cachedTestNpmPackageJson: TestNpmPackageJson | undefined
 
 /**
  * Get cached test npm package.json.
@@ -32,11 +33,12 @@ export function getTestNpmPackageJson() {
 /**
  * Get the version spec for a package from test package.json.
  */
-export function getPackageVersionSpec(packageName, options) {
-  const { testNpmPackageJson = getTestNpmPackageJson() } = {
-    __proto__: null,
-    ...options,
-  }
+export function getPackageVersionSpec(
+  packageName: string,
+  options: { testNpmPackageJson?: TestNpmPackageJson | undefined } = {},
+) {
+  const opts = { __proto__: null, ...options }
+  const { testNpmPackageJson = getTestNpmPackageJson() } = opts
 
   return testNpmPackageJson?.devDependencies?.[packageName] || undefined
 }
@@ -46,12 +48,15 @@ export function getPackageVersionSpec(packageName, options) {
  *
  * @throws {Error} When unable to determine test status.
  */
-export function shouldSkipTests(packageName, options) {
-  const {
-    _ecosystem = 'npm',
-    testNpmPackageJson = getTestNpmPackageJson(),
-    testPath,
-  } = { __proto__: null, ...options }
+export function shouldSkipTests(
+  packageName: string,
+  options: {
+    testNpmPackageJson?: TestNpmPackageJson | undefined
+    testPath: string
+  },
+) {
+  const opts = { __proto__: null, ...options }
+  const { testNpmPackageJson = getTestNpmPackageJson(), testPath } = opts
 
   // Check if package has test file.
   const testFilePath = path.join(testPath, `${packageName}.test.mts`)
