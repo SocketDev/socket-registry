@@ -44,7 +44,7 @@ socket optimize
 
 Package overrides are improved versions of existing npm packages:
 
-```
+```text
 Original Package          Socket Override
      ↓                         ↓
   Cleanup  ✨  →  Reduce dependencies, use built-ins
@@ -72,7 +72,7 @@ All overrides in this registry:
 
 Create a new override in three steps:
 
-```
+```text
 Step 1              Step 2                  Step 3
 Install       →     Generate          →     Complete
   ↓                   ↓                       ↓
