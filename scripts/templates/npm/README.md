@@ -13,7 +13,7 @@
 
 <% if (it.categories.includes('levelup')) { %>
 
-### Enhancements
+## Enhancements
 
 - TODO: List enhancements
   <% } %>
