@@ -16,6 +16,7 @@ interface EsIterator<T> {
   ): EsIterator<T> | undefined
   flatMap<U>(callbackFn: (value: T, index: number) => unknown): U
   forEach(callbackFn: (value: T, index: number) => void): void
+  includes(searchElement: T, fromIndex?: number): boolean
   map<U>(callbackFn: (value: T, index: number) => U): EsIterator<U>
   reduce(
     callbackfn: (previousValue: T, currentValue: T, currentIndex: number) => T,

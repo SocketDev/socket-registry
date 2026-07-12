@@ -1,7 +1,7 @@
 /**
  * @file Tests for es-iterator-helpers NPM package override. Ported 1:1 from
- *   upstream v1.3.2 (1a9241c3):
- *   https://github.com/es-shims/iterator-helpers/blob/1a9241c33779dce25110474feedb2c4a1b15c7ff/test/Iterator.js.
+ *   upstream v1.3.3:
+ *   https://github.com/es-shims/iterator-helpers/blob/v1.3.3/test/Iterator.js.
  */
 
 import path from 'node:path'
@@ -41,6 +41,7 @@ const iteratorEvery = loadSub('Iterator.prototype.every')
 const iteratorFind = loadSub('Iterator.prototype.find')
 const iteratorReduce = loadSub('Iterator.prototype.reduce')
 const iteratorFlatMap = loadSub('Iterator.prototype.flatMap')
+const iteratorIncludes = loadSub('Iterator.prototype.includes')
 
 describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   it('exports expected methods', () => {
@@ -213,5 +214,114 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
         : [...flatMapped]
       expect(result).toEqual([1, 10, 2, 20, 3, 30])
     })
+  })
+
+  describe('Iterator.prototype.includes', () => {
+    it(
+      'returns true when the value is present',
+      { skip: !iteratorIncludes },
+      () => {
+        const arr = [1, 2, 3]
+        const iter = arr[Symbol.iterator]()
+        expect(iteratorIncludes(iter, 2)).toBe(true)
+      },
+    )
+
+    it(
+      'returns false when the value is absent',
+      { skip: !iteratorIncludes },
+      () => {
+        const arr = [1, 2, 3]
+        const iter = arr[Symbol.iterator]()
+        expect(iteratorIncludes(iter, 4)).toBe(false)
+      },
+    )
+
+    it(
+      'treats NaN as equal to NaN (SameValueZero)',
+      { skip: !iteratorIncludes },
+      () => {
+        const arr = [1, Number.NaN, 3]
+        const iter = arr[Symbol.iterator]()
+        expect(iteratorIncludes(iter, Number.NaN)).toBe(true)
+      },
+    )
+
+    it(
+      'treats +0 and -0 as equal (SameValueZero)',
+      { skip: !iteratorIncludes },
+      () => {
+        const arr = [-0]
+        const iter = arr[Symbol.iterator]()
+        expect(iteratorIncludes(iter, 0)).toBe(true)
+      },
+    )
+
+    it(
+      'skips the given number of elements before searching',
+      { skip: !iteratorIncludes },
+      () => {
+        const arr = [1, 2, 3]
+        const iter = arr[Symbol.iterator]()
+        expect(iteratorIncludes(iter, 1, 1)).toBe(false)
+      },
+    )
+
+    it(
+      'returns false for an empty iterator',
+      { skip: !iteratorIncludes },
+      () => {
+        const iter = [][Symbol.iterator]()
+        expect(iteratorIncludes(iter, 1)).toBe(false)
+      },
+    )
+
+    it(
+      'throws a TypeError for a non-integral skip count',
+      { skip: !iteratorIncludes },
+      () => {
+        const arr = [1, 2, 3]
+        const iter = arr[Symbol.iterator]()
+        expect(() => iteratorIncludes(iter, 1, 1.5)).toThrow(TypeError)
+      },
+    )
+
+    it(
+      'throws a TypeError for a non-numeric skip count',
+      { skip: !iteratorIncludes },
+      () => {
+        const arr = [1, 2, 3]
+        const iter = arr[Symbol.iterator]()
+        expect(() => iteratorIncludes(iter, 1, 'nope')).toThrow(TypeError)
+      },
+    )
+
+    it(
+      'throws a RangeError for a negative skip count',
+      { skip: !iteratorIncludes },
+      () => {
+        const arr = [1, 2, 3]
+        const iter = arr[Symbol.iterator]()
+        expect(() => iteratorIncludes(iter, 1, -1)).toThrow(RangeError)
+      },
+    )
+
+    it(
+      'allows +Infinity as a skip count, exhausting the iterator',
+      { skip: !iteratorIncludes },
+      () => {
+        const arr = [1, 2, 3]
+        const iter = arr[Symbol.iterator]()
+        expect(iteratorIncludes(iter, 1, Number.POSITIVE_INFINITY)).toBe(false)
+      },
+    )
+
+    it(
+      'throws a TypeError when called on a non-object',
+      { skip: !iteratorIncludes },
+      () => {
+        expect(() => iteratorIncludes(null, 1)).toThrow(TypeError)
+      },
+    )
   })
 })

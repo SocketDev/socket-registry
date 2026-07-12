@@ -289,6 +289,26 @@
       "types": "./Iterator.prototype.forEach/shim.d.ts",
       "default": "./Iterator.prototype.forEach/shim.js"
     },
+    "./Iterator.prototype.includes": {
+      "types": "./Iterator.prototype.includes/index.d.ts",
+      "default": "./Iterator.prototype.includes/index.js"
+    },
+    "./Iterator.prototype.includes/auto": {
+      "types": "./Iterator.prototype.includes/auto.d.ts",
+      "default": "./Iterator.prototype.includes/auto.js"
+    },
+    "./Iterator.prototype.includes/polyfill": {
+      "types": "./Iterator.prototype.includes/polyfill.d.ts",
+      "default": "./Iterator.prototype.includes/polyfill.js"
+    },
+    "./Iterator.prototype.includes/implementation": {
+      "types": "./Iterator.prototype.includes/implementation.d.ts",
+      "default": "./Iterator.prototype.includes/implementation.js"
+    },
+    "./Iterator.prototype.includes/shim": {
+      "types": "./Iterator.prototype.includes/shim.d.ts",
+      "default": "./Iterator.prototype.includes/shim.js"
+    },
     "./Iterator.prototype.map": {
       "types": "./Iterator.prototype.map/index.d.ts",
       "default": "./Iterator.prototype.map/index.js"
