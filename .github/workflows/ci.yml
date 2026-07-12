@@ -1,185 +1,33 @@
-# Layer 3 — reusable workflow. Each job checks out the CALLER's repo
-# (actions/checkout) and runs its local fleet composites
-# (./.github/actions/fleet/{setup-and-install,run-script}) — every fleet
-# repo carries them via the cascade. When this file bumps, the merge SHA
-# becomes the PROPAGATION SHA: Layer 4 (`_local-not-for-reuse-ci.yml`)
-# pins to it, and external repos pin their `uses: ...ci.yml@<sha>` refs
-# to it. See updating-workflows skill at .claude/skills/updating-workflows/.
-
-name: 🔗 CI
-
-# CI orchestrator that runs checks and tests.
-#
-# By default runs `pnpm run check --all` (lint + type) as a single job.
-# Set `run-check: false` and enable `run-lint`/`run-type-check` to split them.
-#
-# Dependencies (resolved in the caller's checkout):
-#   - ./.github/actions/fleet/setup-and-install
-#   - ./.github/actions/fleet/run-script
+# <fleet-canonical>
+# Managed by socket-wheelhouse. Don't edit this block locally — edit
+# template/base/.github/workflows/ci.yml upstream and re-cascade via
+# `pnpm run sync`. Fleet CI runs check + test using the LOCAL composite actions
+# under .github/actions/ (inlined — no cross-repo reusable, no `uses:@sha` for
+# first-party). Repo-owned jobs go BELOW the END marker (still under the
+# top-level `jobs:` key). See scripts/repo/sync-scaffolding/checks/workflow-fleet-block.mts.
+name: ⚡ CI
 
 on:
-  workflow_call:
-    inputs:
-      check-node-version:
-        description: 'Node.js version for checks'
-        required: false
-        type: string
-        default: '26.3.0'
-      check-script:
-        description: 'Check command — runs lint + type checks (e.g., "pnpm run check --all")'
-        required: false
-        type: string
-        default: 'pnpm run check --all'
-      check-setup-script:
-        description: 'Setup script before checks'
-        required: false
-        type: string
-        default: ''
-      check-timeout-minutes:
-        description: 'Timeout for check job in minutes'
-        required: false
-        type: number
-        default: 10
-      debug:
-        description: 'Enable debug output (e.g., "1" for verbose logging)'
-        required: false
-        type: string
-        default: '0'
-      fail-fast:
-        description: 'Cancel all matrix jobs if one fails'
-        required: false
-        type: boolean
-        default: false
-      lint-node-version:
-        description: 'Node.js version for linting'
-        required: false
-        type: string
-        default: '26.3.0'
-      lint-script:
-        description: 'Lint command (e.g., "pnpm run lint --all")'
-        required: false
-        type: string
-        default: 'pnpm run lint --all'
-      lint-setup-script:
-        description: 'Setup script before linting'
-        required: false
-        type: string
-        default: ''
-      lint-timeout-minutes:
-        description: 'Timeout for lint job in minutes'
-        required: false
-        type: number
-        default: 10
-      max-parallel:
-        description: 'Maximum parallel test jobs'
-        required: false
-        type: number
-        default: 4
-      node-versions:
-        description: 'Node.js versions for testing (e.g., ''["22", "24"]'')'
-        required: false
-        type: string
-        default: '["26.3.0"]'
-      os-versions:
-        description: 'Operating systems for testing (e.g., ''["ubuntu-latest", "windows-latest"]'')'
-        required: false
-        type: string
-        default: '["ubuntu-latest", "macos-latest", "windows-latest"]'
-      run-check:
-        description: 'Include combined check job (lint + type)'
-        required: false
-        type: boolean
-        default: true
-      run-lint:
-        description: 'Include standalone lint job'
-        required: false
-        type: boolean
-        default: false
-      run-test:
-        description: 'Include test matrix job'
-        required: false
-        type: boolean
-        default: true
-      setup-go:
-        description: |
-          Run setup-go-toolchain after install. Required for repos whose
-          test/build steps invoke `go` on macOS/Windows (where the
-          toolcache go is not always on PATH after sfw setup).
-        required: false
-        type: boolean
-        default: false
-      setup-go-version:
-        description: 'Major.minor Go version to ensure when setup-go is true'
-        required: false
-        type: string
-        default: ''
-      run-type-check:
-        description: 'Include standalone type check job'
-        required: false
-        type: boolean
-        default: false
-      test-script:
-        description: 'Test command (e.g., "pnpm test")'
-        required: false
-        type: string
-        default: 'pnpm test'
-      test-setup-script:
-        description: 'Setup script before tests (e.g., "pnpm run build")'
-        required: false
-        type: string
-        default: 'pnpm run build'
-      test-timeout-minutes:
-        description: 'Timeout for test jobs in minutes'
-        required: false
-        type: number
-        default: 15
-      type-check-node-version:
-        description: 'Node.js version for type checking'
-        required: false
-        type: string
-        default: '26.3.0'
-      type-check-script:
-        description: 'Type check command (e.g., "pnpm run type")'
-        required: false
-        type: string
-        default: 'pnpm run type'
-      type-check-setup-script:
-        description: 'Setup script before type checking'
-        required: false
-        type: string
-        default: ''
-      type-check-timeout-minutes:
-        description: 'Timeout for type check job in minutes'
-        required: false
-        type: number
-        default: 10
-      working-directory:
-        description: 'Working directory (e.g., "packages/core" for monorepos)'
-        required: false
-        type: string
-        default: '.'
-    secrets:
-      SOCKET_API_TOKEN:
-        description: 'Socket API token — when provided, uses sfw-enterprise instead of sfw-free'
-        required: false
-      SOCKET_API_KEY:
-        description: 'DEPRECATED alias of SOCKET_API_TOKEN. Pass `SOCKET_API_TOKEN:` instead. Tracked for one cycle so existing callers keep working.'
-        required: false
+  push:
+    branches: [main]
+    tags: ['*']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-# Fleet no-phone-home posture, matched to dev machines (setup-security-tools
-# persists these knobs to the shell-rc). CI runners don't source that, so
-# npm/pnpm would run their update-notifier registry check — and the
-# telemetry-env-is-disabled + package-manager-auto-update-is-disabled gates
-# (run under `check --all`) fail. Set every FLEET_ENV knob workflow-level so
-# each job + step in this reusable CI inherits it. Lockstep source:
-# .claude/hooks/fleet/_shared/fleet-env.mts (FLEET_ENV).
+# Fleet no-phone-home posture: CI runners don't source the shell-rc that dev
+# machines get from setup-security-tools, so set every FLEET_ENV knob
+# workflow-level or the telemetry-env-is-disabled +
+# package-manager-auto-update-is-disabled gates (under `check --all`) fail.
+# Lockstep source: .claude/hooks/fleet/_shared/fleet-env.mts (FLEET_ENV) —
+# the telemetry-env-is-disabled check asserts each knob at CI runtime.
 env:
   CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: '1'
   COREPACK_ENABLE_PROJECT_SPEC: '0'
@@ -188,11 +36,16 @@ env:
   NO_UPDATE_NOTIFIER: '1'
 
 jobs:
+  # First step of every job is the third-party actions/checkout (GitHub fetches
+  # it independently) to populate the workspace so the LOCAL `./.github/actions/*`
+  # composites resolve. setup-and-install then re-checks-out at its deeper
+  # default (fetch-depth 25 — covers CI's git operations) and
+  # runs the zizmor Actions audit (its own `strategy.job-total < 2` skip runs it
+  # in the non-matrix check job, skips it in the test matrix).
   check:
-    if: inputs.run-check
     name: 🔎 Check
     runs-on: ubuntu-latest
-    timeout-minutes: ${{ inputs.check-timeout-minutes }}
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2 (2026-05-15)
         with:
@@ -200,74 +53,20 @@ jobs:
           persist-credentials: false
       - uses: ./.github/actions/fleet/setup-and-install
         with:
-          debug: ${{ inputs.debug }}
-          node-version: ${{ inputs.check-node-version }}
-          socket-api-token: ${{ secrets.SOCKET_API_TOKEN || secrets.SOCKET_API_KEY }}
-          working-directory: ${{ inputs.working-directory }}
-
+          socket-api-token: ${{ secrets.SOCKET_API_TOKEN_FOR_CLI_AND_SFW }}
       - uses: ./.github/actions/fleet/run-script
         with:
-          main-script: ${{ inputs.check-script }}
-          setup-script: ${{ inputs.check-setup-script }}
-          working-directory: ${{ inputs.working-directory }}
-
-  lint:
-    if: inputs.run-lint
-    name: 🧹 Lint
-    runs-on: ubuntu-latest
-    timeout-minutes: ${{ inputs.lint-timeout-minutes }}
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2 (2026-05-15)
-        with:
-          fetch-depth: 1
-          persist-credentials: false
-      - uses: ./.github/actions/fleet/setup-and-install
-        with:
-          debug: ${{ inputs.debug }}
-          node-version: ${{ inputs.lint-node-version }}
-          socket-api-token: ${{ secrets.SOCKET_API_TOKEN || secrets.SOCKET_API_KEY }}
-          working-directory: ${{ inputs.working-directory }}
-
-      - uses: ./.github/actions/fleet/run-script
-        with:
-          main-script: ${{ inputs.lint-script }}
-          setup-script: ${{ inputs.lint-setup-script }}
-          working-directory: ${{ inputs.working-directory }}
-
-  type-check:
-    if: inputs.run-type-check
-    name: 🏷️ Type Check
-    runs-on: ubuntu-latest
-    timeout-minutes: ${{ inputs.type-check-timeout-minutes }}
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2 (2026-05-15)
-        with:
-          fetch-depth: 1
-          persist-credentials: false
-      - uses: ./.github/actions/fleet/setup-and-install
-        with:
-          debug: ${{ inputs.debug }}
-          node-version: ${{ inputs.type-check-node-version }}
-          socket-api-token: ${{ secrets.SOCKET_API_TOKEN || secrets.SOCKET_API_KEY }}
-          working-directory: ${{ inputs.working-directory }}
-
-      - uses: ./.github/actions/fleet/run-script
-        with:
-          main-script: ${{ inputs.type-check-script }}
-          setup-script: ${{ inputs.type-check-setup-script }}
-          working-directory: ${{ inputs.working-directory }}
+          main-script: pnpm run check --all
 
   test:
-    if: inputs.run-test
-    name: 🧪 Test Matrix
+    name: 🧪 Test
     strategy:
-      fail-fast: ${{ inputs.fail-fast }}
-      max-parallel: ${{ inputs.max-parallel }}
+      fail-fast: false
+      max-parallel: 4
       matrix:
-        node-version: ${{ fromJson(inputs.node-versions) }}
-        os: ${{ fromJson(inputs.os-versions) }}
+        os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
-    timeout-minutes: ${{ inputs.test-timeout-minutes }}
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2 (2026-05-15)
         with:
@@ -275,15 +74,57 @@ jobs:
           persist-credentials: false
       - uses: ./.github/actions/fleet/setup-and-install
         with:
-          debug: ${{ inputs.debug }}
-          node-version: ${{ matrix.node-version }}
-          setup-go: ${{ inputs.setup-go && 'true' || 'false' }}
-          setup-go-version: ${{ inputs.setup-go-version }}
-          socket-api-token: ${{ secrets.SOCKET_API_TOKEN || secrets.SOCKET_API_KEY }}
-          working-directory: ${{ inputs.working-directory }}
+          socket-api-token: ${{ secrets.SOCKET_API_TOKEN_FOR_CLI_AND_SFW }}
+      - uses: ./.github/actions/fleet/run-script
+        env:
+          # Authenticate build-time GitHub API reads (release listings,
+          # prebuilt-artifact downloads). Unauthenticated calls share the
+          # hosted runner's IP-scoped rate limit and 403 under load.
+          GH_TOKEN: ${{ github.token }}
+        with:
+          setup-script: pnpm run build
+          main-script: pnpm run test --all
+  # </fleet-canonical>
 
+  # ── Repo-owned jobs (below the fleet-canonical block) ──────────────────
+  # socket-registry's npm-override packages get their own build + vitest
+  # pass; `pnpm test` above covers the repo's unit suite, this covers the
+  # 131 packages/npm overrides (scripts/npm/run-vitest-npm.mts).
+  test-npm-packages:
+    name: 🧪 Test NPM Packages
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2 (2026-05-15)
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: ./.github/actions/fleet/setup-and-install
+        with:
+          socket-api-token: ${{ secrets.SOCKET_API_TOKEN_FOR_CLI_AND_SFW }}
       - uses: ./.github/actions/fleet/run-script
         with:
-          main-script: ${{ inputs.test-script }}
-          setup-script: ${{ inputs.test-setup-script }}
-          working-directory: ${{ inputs.working-directory }}
+          setup-script: pnpm run build
+          main-script: pnpm run test:npm
+
+  # Every override declares `engines.node: >=24`, but the jobs above run a
+  # newer current-line Node — nothing executes the FLOOR, so a too-new
+  # syntax/API in an override stays green here and only breaks in a consumer
+  # pinned to the floor. This job side-installs the exact floor release
+  # (sha256-verified against nodejs.org's published SHASUMS256 before
+  # extraction) and dynamic-imports every override's node entry under it.
+  floor-node-smoke:
+    name: 🧪 NPM Overrides on Floor Node
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2 (2026-05-15)
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: ./.github/actions/fleet/setup-and-install
+        with:
+          socket-api-token: ${{ secrets.SOCKET_API_TOKEN_FOR_CLI_AND_SFW }}
+      - uses: ./.github/actions/fleet/run-script
+        with:
+          main-script: pnpm run test:npm:floor
