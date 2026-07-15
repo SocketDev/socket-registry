@@ -230,7 +230,15 @@ export function spawnOxlintOnce(
   oxlintBin: string,
   cliArgs: string[],
 ): ReturnType<typeof spawnSync> {
-  return spawnSync(oxlintBin, cliArgs, {
+  // The npm package's `bin/oxlint` is a node shim (`#!/usr/bin/env node`).
+  // Unix executes it via the shebang; windows has no shebangs, so spawning the
+  // shim directly fails ("oxlint child failed" on every windows CI run). Run
+  // anything that isn't a real executable through the current node binary —
+  // identical behavior on unix, the only working path on windows.
+  const isNativeExe = oxlintBin.endsWith('.exe')
+  const cmd = isNativeExe ? oxlintBin : process.execPath
+  const args = isNativeExe ? cliArgs : [oxlintBin, ...cliArgs]
+  return spawnSync(cmd, args, {
     timeout: 15_000,
     stdio: ['ignore', 'pipe', 'pipe'],
   })
