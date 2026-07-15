@@ -1,6 +1,6 @@
 ---
 name: updating
-description: Umbrella update skill for a Socket fleet repo. Runs `pnpm run update` (npm), validates `lockstep.json` via `pnpm run lockstep` (if present), optionally bumps submodules, checks workflow SHA pins, resolves open Dependabot security alerts, refreshes the README coverage badge when applicable, and audits GitHub repo + Actions settings drift via `scripts/lint-github-settings.mts`. Discovers what applies via a parallel read-only Workflow sweep, then applies per-category drift (per-row lockstep bumps, per-alert security) as pipeline fan-out. Use when asked to update dependencies, sync upstreams, fix security advisories, refresh coverage, or prepare for a release.
+description: Run repo maintenance: dependency updates, lockstep drift, submodules, security alerts, coverage, and settings audits.
 user-invocable: true
 allowed-tools: Workflow, Skill, Read, Edit, Grep, Glob, Bash(pnpm run:*), Bash(pnpm test:*), Bash(pnpm install:*), Bash(git:*), Bash(claude --version)
 model: claude-haiku-4-5

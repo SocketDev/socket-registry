@@ -1,6 +1,6 @@
 ---
 name: prose
-description: Removes AI writing patterns from prose. Use when drafting, editing, or reviewing essays, blog posts, docs, release notes, commit message bodies, PR descriptions, CHANGELOG entries, README content, or any human-facing text that reads AI-generated: hedged, metronomic, padded with throat-clearing, or full of em-dashes, adverbs, and "not X, it's Y" contrasts.
+description: Edit human-facing prose to remove AI patterns, padding, hedging, and awkward generated phrasing.
 user-invocable: true
 allowed-tools: Read, Edit, Write, Grep
 model: claude-sonnet-4-6

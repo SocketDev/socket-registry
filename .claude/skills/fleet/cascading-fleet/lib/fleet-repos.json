@@ -48,6 +48,11 @@
       "publishes": "js"
     },
     {
+      "name": "envrypt",
+      "description": "Encrypted .env library for Rust — ECIES + locked v1/v2, keychain-first",
+      "optIns": ["squash-history"]
+    },
+    {
       "name": "sdxgen",
       "description": "CycloneDX and SPDX manifest generator (Socket dx gen)",
       "optIns": ["squash-history"]
