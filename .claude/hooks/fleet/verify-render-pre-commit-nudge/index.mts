@@ -24,6 +24,7 @@ import process from 'node:process'
 
 import { isGitCommit } from '../_shared/commit-command.mts'
 import { bashGuard, defineHook, notify, runHook } from '../_shared/guard.mts'
+import { spawnTimeoutMs } from '../_shared/spawn-timeout.mts'
 
 // Files whose changes likely affect rendered output.
 const UI_FILE_RE =
@@ -158,7 +159,7 @@ export function readTranscript(transcriptPath: string): TranscriptEntry[] {
 export function stagedFiles(cwd: string): string[] {
   const r = spawnSync('git', ['diff', '--cached', '--name-only'], {
     cwd,
-    timeout: 5000,
+    timeout: spawnTimeoutMs(5000),
   })
   if (r.status !== 0) {
     return []

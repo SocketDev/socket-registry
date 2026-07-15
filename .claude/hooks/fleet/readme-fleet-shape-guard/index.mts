@@ -52,11 +52,13 @@ import {
   resolveRepoName,
 } from '../_shared/fleet-roster.mts'
 import { block, defineHook, editGuard, runHook } from '../_shared/guard.mts'
-import { bypassPhrasePresent } from '../_shared/transcript.mts'
+import {
+  BYPASS_LOOKBACK_USER_TURNS,
+  bypassPhrasePresent,
+} from '../_shared/transcript.mts'
 import { isWheelhouseRoot } from '../_shared/wheelhouse-root.mts'
 
 const BYPASS_PHRASE = 'Allow readme-fleet-shape bypass'
-const BYPASS_LOOKBACK_USER_TURNS = 8
 
 // A NON-fleet repo adopts the shape by OPT-IN (adoption, not a bypass — it
 // turns enforcement ON where the default is off): durably via the marker

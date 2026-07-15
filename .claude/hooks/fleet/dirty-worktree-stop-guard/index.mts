@@ -103,6 +103,7 @@ import type { ParkedEntry } from '../_shared/parked-paths.mts'
 import { block, defineHook, notify, runHook } from '../_shared/guard.mts'
 import type { GuardResult } from '../_shared/guard.mts'
 import type { ToolCallPayload } from '../_shared/payload.mts'
+import { spawnTimeoutMs } from '../_shared/spawn-timeout.mts'
 import { bypassPhrasePresent } from '../_shared/transcript.mts'
 
 const BYPASS_PHRASE = 'Allow dirty-worktree bypass'
@@ -120,7 +121,7 @@ export function getProjectDir(): string | undefined {
 export function isPrimaryCheckout(dir: string): boolean {
   const r = spawnSync('git', ['rev-parse', '--git-dir'], {
     cwd: dir,
-    timeout: 5000,
+    timeout: spawnTimeoutMs(5000),
   })
   if (r.status !== 0) {
     // Not a git repo (or git unavailable) — nothing to guard, treat as
@@ -199,7 +200,7 @@ export function parsePorcelain(out: string): DirtyEntry[] {
 export function listDirtyEntries(repoDir: string): DirtyEntry[] {
   const r = spawnSync('git', ['status', '--porcelain'], {
     cwd: repoDir,
-    timeout: 5000,
+    timeout: spawnTimeoutMs(5000),
   })
   if (r.status !== 0) {
     return []

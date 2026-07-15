@@ -136,7 +136,6 @@ export const triggers: readonly string[] = ['dispatches', 'workflow']
 // instead the test "is this phrase present AFTER my last dispatch
 // of this workflow" answers it. See `findUnclaimedBypassPhrase`.
 const BYPASS_PHRASE_PREFIX = 'Allow workflow-dispatch bypass:'
-const BYPASS_LOOKBACK_USER_TURNS = 8
 
 /**
  * Build the canonical phrase variants that authorize ONE dispatch of

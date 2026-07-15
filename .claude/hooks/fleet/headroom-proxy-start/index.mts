@@ -34,6 +34,7 @@ import process from 'node:process'
 
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { getSocketAppDir } from '@socketsecurity/lib-stable/paths/socket'
+import { isHookEntrypoint } from '../_shared/entrypoint.mts'
 
 const logger = getDefaultLogger()
 
@@ -306,7 +307,7 @@ async function main(): Promise<void> {
 // imports this module for its pure helpers (else the proxy-reap side effects
 // fire on import inside the node --test runner).
 /* c8 ignore next - entrypoint guard only fires when the script is run directly */
-if (process.argv[1] && import.meta.url === `file://${process.argv[1]}`) {
+if (isHookEntrypoint(import.meta.url)) {
   /* c8 ignore start - direct-invocation body: logger + process.exit only reachable when run as a CLI */
   main().catch(e => {
     logger.fail(`headroom-proxy-start hook error: ${String(e)}`)

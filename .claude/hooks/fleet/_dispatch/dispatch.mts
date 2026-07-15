@@ -24,12 +24,12 @@
  */
 
 import process from 'node:process'
-import v8 from 'node:v8'
 
 import { parseCommands } from '../_shared/shell-command.mts'
 import { readStdin } from '../_shared/transcript.mts'
 
 import { DISPATCH_TABLE } from './dispatch-table.mts'
+import { isHookEntrypoint } from '../_shared/entrypoint.mts'
 
 // State-mutating segment families whose SILENT cancellation strands work. A
 // block on one segment of a compound Bash command cancels the whole chain —
@@ -289,26 +289,14 @@ export async function runDispatcherCli(): Promise<void> {
 }
 
 // Direct `node dispatch.mts <Event>` execution (dev / test harness) runs the
-// CLI; importing the module for its pure helpers does not.
-//
-// The `isBuildingSnapshot()` clause is load-bearing for the snapshot build:
-// `dispatch-snapshot-entry.mts` imports `dispatch` from here, so this whole
-// module — including this guard — is in the snapshot bundle's top-level eval
-// graph. When `node --build-snapshot <bundle.cjs>` is invoked with an ABSOLUTE
-// entry path, `process.argv[1]` is that absolute path and rolldown's CJS form of
-// `import.meta.url` (`pathToFileURL(__filename).href`) resolves to the SAME
-// absolute file URL — so the guard's equality holds, `runDispatcherCli()` fires
-// during the BUILD pass, hits empty stdin/argv, and `process.exit(0)`s — which
-// silently aborts serialization (exit 0, NO blob, only the `node:module`
-// warning). (A RELATIVE entry path masks it: `argv[1]` is bare, the URL is
-// absolute, so they don't match.) Gating on `!isBuildingSnapshot()` keeps the
-// dev/test self-exec while making the guard inert inside the snapshot builder,
-// where the dispatcher must run ONLY from the registered deserialize-main.
-if (
-  !v8.startupSnapshot.isBuildingSnapshot() &&
-  process.argv[1] &&
-  import.meta.url === `file://${process.argv[1]}`
-) {
+// CLI; importing the module for its pure helpers does not. The snapshot-build
+// short circuit is load-bearing: `dispatch-snapshot-entry.mts` imports
+// `dispatch` from here, so this whole module — including this guard — is in
+// the snapshot bundle's top-level eval graph, and the dispatcher must run ONLY
+// from the registered deserialize-main. `isHookEntrypoint` owns that gating
+// (plus the realpath comparison); the hazard detail lives in
+// `../_shared/entrypoint.mts`.
+if (isHookEntrypoint(import.meta.url)) {
   runDispatcherCli().catch(() => {
     process.exit(0)
   })

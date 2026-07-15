@@ -19,47 +19,27 @@
 
 import process from 'node:process'
 
-import { spawnSync } from '@socketsecurity/lib-stable/process/spawn/child'
-
-import { ownerRepoFromRemoteUrl } from '../_shared/fleet-repos.mts'
+import { originOwnerRepo } from '../_shared/fleet-repos.mts'
+import { ghPrCreateCommands, isGhPrCreate } from '../_shared/gh-pr-command.mts'
 import { currentBranch, resolveDefaultBranch } from '../_shared/git-branch.mts'
 import { bashGuard, block, defineHook, runHook } from '../_shared/guard.mts'
-import { commandsFor } from '../_shared/shell-command.mts'
+import { flagValue } from '../_shared/shell-command.mts'
 import { bypassPhrasePresent } from '../_shared/transcript.mts'
-
-import type { Command } from '../_shared/shell-command.mts'
 
 const BYPASS_PHRASE = 'Allow pr-from-default-checkout bypass'
 
-// True when a parsed `gh` segment is a `pr create` / `pr new`. The verb is the
-// first two non-flag args after the binary, so `gh repo create` (a different
-// subcommand) does not match.
-function isGhPrCreateCmd(c: Command): boolean {
-  const verbs = c.args.filter(a => !a.startsWith('-'))
-  return verbs[0] === 'pr' && (verbs[1] === 'create' || verbs[1] === 'new')
-}
-
-// True when the command opens a PR (`gh pr create` / `gh pr new`).
-export function isGhPrCreate(command: string): boolean {
-  return commandsFor(command, 'gh').some(isGhPrCreateCmd)
-}
+// The `gh pr create` detection is the shared parser-backed one; re-exported
+// so this guard's tests exercise the exact predicate the check runs.
+export { isGhPrCreate }
 
 // The explicit `--repo <value>` / `--repo=<value>` / `-R <value>` target of a
 // `gh pr create` in `command`, or undefined when gh would infer the repo from
 // the checkout.
 export function explicitRepoTarget(command: string): string | undefined {
-  for (const c of commandsFor(command, 'gh')) {
-    if (!isGhPrCreateCmd(c)) {
-      continue
-    }
-    for (let i = 0, { length } = c.args; i < length; i += 1) {
-      const arg = c.args[i]!
-      if (arg === '--repo' || arg === '-R') {
-        return c.args[i + 1]
-      }
-      if (arg.startsWith('--repo=')) {
-        return arg.slice('--repo='.length)
-      }
+  for (const c of ghPrCreateCommands(command)) {
+    const value = flagValue(c.args, '--repo', '-R')
+    if (value !== undefined) {
+      return value
     }
   }
   return undefined
@@ -75,18 +55,6 @@ export function sameOwnerRepo(target: string, origin: string): boolean {
     .slice(-2)
     .join('/')
   return tail.toLowerCase() === origin.toLowerCase()
-}
-
-// The `owner/repo` of `dir`'s origin remote, or undefined when unresolvable.
-function originOwnerRepo(dir: string): string | undefined {
-  const r = spawnSync('git', ['-C', dir, 'remote', 'get-url', 'origin'], {
-    encoding: 'utf8',
-  })
-  if (r.status !== 0) {
-    return undefined
-  }
-  /* c8 ignore next - spawnSync with encoding:'utf8' always returns a string stdout */
-  return ownerRepoFromRemoteUrl(String(r.stdout ?? '').trim())
 }
 
 // True when `branch` is a default-branch checkout — the repo's resolved

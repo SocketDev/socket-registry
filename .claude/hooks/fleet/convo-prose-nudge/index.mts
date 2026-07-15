@@ -124,6 +124,68 @@ export function findAiScaffoldingPhrases(body: string): string[] {
   return hits
 }
 
+// GFM alert blockquotes accept exactly five keywords; typos ([!NOTES],
+// [!warning]) render as literal text on GitHub. Mirrors the
+// socket-gfm-alert-keywords markdownlint rule for the gh-body path.
+const GFM_ALERT_KEYWORDS = new Set([
+  'CAUTION',
+  'IMPORTANT',
+  'NOTE',
+  'TIP',
+  'WARNING',
+])
+
+/**
+ * GFM syntax problems in a gh --body string: bad alert keywords, a
+ * `</summary>` with no blank line before markdown body content, and
+ * malformed task-list entries. Same three classes the markdownlint rules
+ * enforce on file surfaces — this covers the gh pr/issue path where no
+ * file ever exists. Returns one label per hit; empty means clean.
+ */
+export function findGfmSyntaxHits(body: string): string[] {
+  const hits: string[] = []
+  const lines = body.split('\n')
+  let inFence = false
+  for (let i = 0; i < lines.length; i += 1) {
+    const line = lines[i]!
+    if (/^\s*(?:```|~~~)/.test(line)) {
+      inFence = !inFence
+      continue
+    }
+    if (inFence) {
+      continue
+    }
+    const alert = /^\s*>\s*\[!([A-Za-z]+)\]/.exec(line)
+    if (alert && !GFM_ALERT_KEYWORDS.has(alert[1]!.toUpperCase())) {
+      hits.push(
+        `line ${i + 1}: [!${alert[1]}] is not a GFM alert keyword — use [!NOTE]/[!TIP]/[!IMPORTANT]/[!WARNING]/[!CAUTION]`,
+      )
+    } else if (alert && alert[1] !== alert[1]!.toUpperCase()) {
+      hits.push(
+        `line ${i + 1}: [!${alert[1]}] must be uppercase ([!${alert[1]!.toUpperCase()}]) to render as an alert`,
+      )
+    }
+    if (/<\/summary>\s*$/i.test(line)) {
+      const next = lines[i + 1]
+      if (
+        next !== undefined &&
+        next.trim() !== '' &&
+        !/^\s*<\/details>/i.test(next)
+      ) {
+        hits.push(
+          `line ${i + 1}: blank line required after </summary> or GitHub renders the <details> body as literal text`,
+        )
+      }
+    }
+    if (/^\s*[-*+]\s+\[\]/.test(line)) {
+      hits.push(
+        `line ${i + 1}: task-list checkbox needs a space — \`- [ ]\`, not \`- []\``,
+      )
+    }
+  }
+  return hits
+}
+
 export const check = bashGuard(command => {
   const ghCmds = commandsFor(command, 'gh')
   for (let i = 0, { length } = ghCmds; i < length; i += 1) {
@@ -136,8 +198,9 @@ export const check = bashGuard(command => {
       continue
     }
     const hits = findAiScaffoldingPhrases(body)
+    const gfmHits = findGfmSyntaxHits(body)
     const suggestFold = needsCollapsedSections(body)
-    if (hits.length === 0 && !suggestFold) {
+    if (hits.length === 0 && gfmHits.length === 0 && !suggestFold) {
       continue
     }
     const lines = ['[convo-prose-nudge]']
@@ -145,6 +208,13 @@ export const check = bashGuard(command => {
       lines.push(
         'PR/issue body contains AI-scaffolding antipattern(s):',
         ...hits.map(h => `  • ${h}`),
+        '',
+      )
+    }
+    if (gfmHits.length > 0) {
+      lines.push(
+        'GFM syntax problem(s) — these render wrong on GitHub:',
+        ...gfmHits.map(h => `  • ${h}`),
         '',
       )
     }

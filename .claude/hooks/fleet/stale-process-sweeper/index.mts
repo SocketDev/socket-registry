@@ -36,6 +36,7 @@ import { appendFileSync, mkdirSync, readdirSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
+import { isHookEntrypoint } from '../_shared/entrypoint.mts'
 
 // Process-name patterns that indicate a stale test/build worker.
 // Must be specific enough that real user processes (a normal `node`
@@ -646,6 +647,6 @@ export function runSweep(options?: SweepOptions) {
 // imports this module for its pure helpers (else main() blocks on stdin at
 // import and the test file never terminates).
 /* c8 ignore next - condition is always false when imported; true only when run as a script */
-if (process.argv[1] && import.meta.url === `file://${process.argv[1]}`) {
+if (isHookEntrypoint(import.meta.url)) {
   main()
 }

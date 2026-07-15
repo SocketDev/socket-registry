@@ -39,6 +39,8 @@ import process from 'node:process'
 
 import { isGitCommit } from '../_shared/commit-command.mts'
 import { bashGuard, block, defineHook, runHook } from '../_shared/guard.mts'
+import { isFleetSyncCommand } from '../_shared/shell-command.mts'
+import { spawnTimeoutMs } from '../_shared/spawn-timeout.mts'
 import { squashSentinelAllows } from '../_shared/squash-sentinel.mts'
 import { bypassPhrasePresent } from '../_shared/transcript.mts'
 
@@ -73,7 +75,7 @@ export function countStagedDeletions(repoDir: string): number {
   const r = spawnSync(
     'git',
     ['diff', '--cached', '--diff-filter=D', '--name-only'],
-    { cwd: repoDir, timeout: 5000 },
+    { cwd: repoDir, timeout: spawnTimeoutMs(5000) },
   )
   if (r.status !== 0) {
     return 0
@@ -88,7 +90,10 @@ export function countStagedDeletions(repoDir: string): number {
  * Count files tracked in HEAD's tree (the denominator for the ratio test).
  */
 export function countTrackedFiles(repoDir: string): number {
-  const r = spawnSync('git', ['ls-files'], { cwd: repoDir, timeout: 5000 })
+  const r = spawnSync('git', ['ls-files'], {
+    cwd: repoDir,
+    timeout: spawnTimeoutMs(5000),
+  })
   if (r.status !== 0) {
     return 0
   }
@@ -125,7 +130,7 @@ export const check = bashGuard((command, payload) => {
   // Cascade commits legitimately replace whole fleet directories; the
   // FLEET_SYNC sentinel marks a trusted cascade run (same opt-in the
   // no-revert / overeager-staging guards honor).
-  if (/(?:^|\s)FLEET_SYNC\s*=\s*1\b/.test(command)) {
+  if (isFleetSyncCommand(command)) {
     return undefined
   }
   // The squashing-history collapse commit deletes files removed since the root

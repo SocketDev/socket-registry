@@ -34,6 +34,7 @@ import { spawnSync } from '@socketsecurity/lib-stable/process/spawn/child'
 
 import { currentBranch, resolveDefaultBranch } from '../_shared/git-branch.mts'
 import { bashGuard, defineHook, notify, runHook } from '../_shared/guard.mts'
+import { spawnTimeoutMs } from '../_shared/spawn-timeout.mts'
 import { bypassPhrasePresent } from '../_shared/transcript.mts'
 import { gitCommitSegments } from '../_shared/commit-command.mts'
 
@@ -55,7 +56,7 @@ export function hasExistingRemoteHistory(cwd: string, branch: string): boolean {
   const upstreamRef = spawnSync(
     'git',
     ['rev-parse', '--abbrev-ref', `${branch}@{upstream}`],
-    { cwd, timeout: 5000 },
+    { cwd, timeout: spawnTimeoutMs(5000) },
   )
   if (upstreamRef.status !== 0) {
     return false
@@ -64,7 +65,7 @@ export function hasExistingRemoteHistory(cwd: string, branch: string): boolean {
   const upstream = String(upstreamRef.stdout).trim()
   const revParse = spawnSync('git', ['rev-parse', '--verify', upstream], {
     cwd,
-    timeout: 5000,
+    timeout: spawnTimeoutMs(5000),
   })
   return revParse.status === 0
 }

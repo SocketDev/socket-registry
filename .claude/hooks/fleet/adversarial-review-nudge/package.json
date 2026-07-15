@@ -6,9 +6,6 @@
   "exports": {
     ".": "./index.mts"
   },
-  "scripts": {
-    "test": "node --test test/*.test.mts"
-  },
   "devDependencies": {
     "@types/node": "catalog:"
   }

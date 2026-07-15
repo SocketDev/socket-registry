@@ -41,7 +41,7 @@ import { normalizePath } from '@socketsecurity/lib-stable/paths/normalize'
 import { isFleetTarget } from '../_shared/fleet-context.mts'
 import { bashGuard, block, defineHook, runHook } from '../_shared/guard.mts'
 import type { GuardResult } from '../_shared/guard.mts'
-import { commandsFor } from '../_shared/shell-command.mts'
+import { commandsFor, isFleetSyncCommand } from '../_shared/shell-command.mts'
 import { squashSentinelAllows } from '../_shared/squash-sentinel.mts'
 import { bypassPhrasePresent } from '../_shared/transcript.mts'
 
@@ -515,7 +515,7 @@ export const check = bashGuard((command, payload): GuardResult => {
   // Anything else with `FLEET_SYNC=1` still falls through to the normal
   // checks below, so the sentinel can't be used as a blanket bypass for
   // unrelated destructive work.
-  if (/(?:^|\s)FLEET_SYNC\s*=\s*1\b/.test(command)) {
+  if (isFleetSyncCommand(command)) {
     const isCascadeCommit =
       /\bgit\s+commit\b/.test(command) &&
       /chore\(wheelhouse\):\s*cascade\s+template@/.test(command)

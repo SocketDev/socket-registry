@@ -15,10 +15,16 @@
  *   is untouched. Bypass: `Allow sed-in-place bypass` typed verbatim in a
  *   recent user turn (single-use — genuine cases like a generated file too
  *   large for the Edit tool). Fails open on parse/payload errors — a guard
- *   bug must not wedge every Bash call.
+ *   bug must not wedge every Bash call. Detection tokenizes at COMMAND
+ *   position via the shared `parseCommands` (shell-quote-backed) parser
+ *   instead of a naive whitespace split, so a quoted argument — a `git commit
+ *   -m 'mentions sed -i in prose'` — stays ONE token and never false-matches
+ *   the editor name; only an actual invocation (bare or through `find -exec` /
+ *   `xargs`) tokenizes the name as its own word.
  */
 
 import { bashGuard, block, defineHook, runHook } from '../_shared/guard.mts'
+import { parseCommands } from '../_shared/shell-command.mts'
 import { bypassPhrasePresent } from '../_shared/transcript.mts'
 
 export const SED_IN_PLACE_BYPASS_PHRASE = 'Allow sed-in-place bypass'
@@ -33,48 +39,48 @@ const AWK_NAMES = new Set(['awk', 'gawk'])
 const PERLISH_IN_PLACE_RE = /^-[pnlw0-7]*i/
 const SED_IN_PLACE_RE = /^(?:-[A-Za-z]*i|--in-place)/
 
-// Split a command line into rough tokens, treating shell control operators
-// as boundaries so each simple command's flags are scanned independently.
-export function roughTokens(command: string): string[] {
-  return command
-    .replace(/[;&|()`]|\$\(/g, ' ')
-    .split(/\s+/)
-    .filter(Boolean)
-}
-
 /**
  * Return a human-readable reason when `command` performs an in-place stream
- * edit, else undefined. Pure — exported for tests. Scans every occurrence of
- * an editor name (also catching `find … -exec sed -i` and `xargs sed -i`)
- * and inspects the dash-cluster tokens that follow it.
+ * edit, else undefined. Pure — exported for tests. Scans every command
+ * segment's binary + args (also catching `find … -exec sed -i` and `xargs
+ * sed -i`, since those pass the editor name as a literal argument word) for
+ * an editor name and inspects the dash-cluster tokens that follow it. Each
+ * segment's tokens come from the shared quote-aware `parseCommands` parser,
+ * so a quoted string (a commit message, a rg pattern) is one token and can
+ * never be mistaken for a sequence of command-position words.
  */
 export function detectInPlaceEdit(command: string): string | undefined {
-  const tokens = roughTokens(command)
-  for (let i = 0, { length } = tokens; i < length; i += 1) {
-    const name = tokens[i]!
-    const isSed = SED_NAMES.has(name)
-    const isPerlish = PERLISH_NAMES.has(name)
-    const isAwk = AWK_NAMES.has(name)
-    if (!isSed && !isPerlish && !isAwk) {
+  for (const cmd of parseCommands(command)) {
+    if (!cmd.binary) {
       continue
     }
-    for (let j = i + 1; j < length; j += 1) {
-      const arg = tokens[j]!
-      if (!arg.startsWith('-')) {
-        break
+    const tokens = [cmd.binary, ...cmd.args]
+    for (let i = 0, { length } = tokens; i < length; i += 1) {
+      const name = tokens[i]!
+      const isSed = SED_NAMES.has(name)
+      const isPerlish = PERLISH_NAMES.has(name)
+      const isAwk = AWK_NAMES.has(name)
+      if (!isSed && !isPerlish && !isAwk) {
+        continue
       }
-      if (isSed && SED_IN_PLACE_RE.test(arg)) {
-        return `\`${name} ${arg}\` edits files in place`
-      }
-      if (isPerlish && PERLISH_IN_PLACE_RE.test(arg)) {
-        return `\`${name} ${arg}\` edits files in place`
-      }
-      if (
-        isAwk &&
-        (arg === '-iinplace' ||
-          (arg === '-i' && tokens[j + 1]?.startsWith('inplace')))
-      ) {
-        return `\`${name} -i inplace\` edits files in place`
+      for (let j = i + 1; j < length; j += 1) {
+        const arg = tokens[j]!
+        if (!arg.startsWith('-')) {
+          break
+        }
+        if (isSed && SED_IN_PLACE_RE.test(arg)) {
+          return `\`${name} ${arg}\` edits files in place`
+        }
+        if (isPerlish && PERLISH_IN_PLACE_RE.test(arg)) {
+          return `\`${name} ${arg}\` edits files in place`
+        }
+        if (
+          isAwk &&
+          (arg === '-iinplace' ||
+            (arg === '-i' && tokens[j + 1]?.startsWith('inplace')))
+        ) {
+          return `\`${name} -i inplace\` edits files in place`
+        }
       }
     }
   }

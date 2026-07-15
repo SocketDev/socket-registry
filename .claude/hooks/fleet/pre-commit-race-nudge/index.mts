@@ -23,14 +23,17 @@
 
 import { isGitCommit } from '../_shared/commit-command.mts'
 import { bashGuard, defineHook, notify, runHook } from '../_shared/guard.mts'
-import { invocationHasFlag } from '../_shared/shell-command.mts'
+import {
+  invocationHasFlag,
+  isFleetSyncCommand,
+} from '../_shared/shell-command.mts'
 
 const NO_VERIFY_FLAGS = ['--no-verify', '-n']
 
 export const hook = defineHook({
   check: bashGuard((command, payload) => {
     // Cascade commits legitimately use --no-verify (FLEET_SYNC=1 exception).
-    if (/\bFLEET_SYNC=1\b/.test(command)) {
+    if (isFleetSyncCommand(command)) {
       return undefined
     }
     if (!isGitCommit(command)) {
