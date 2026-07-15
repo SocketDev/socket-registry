@@ -6,6 +6,13 @@
  * binaries and ships them to GH Releases). The output of `writeChecksumsFile()`
  * is what consumers download and verify against via `consumer.mts`.
  *
+ * `writeChecksumsFile` writes sha256-hex — `checksums.txt` stays the
+ * ecosystem `shasum -c` transport format. `updateReleaseAssets` re-encodes
+ * that same hex map to SRI (`@socketsecurity/lib/integrity`'s `parseHash`)
+ * before embedding it as the `release-assets.json` pin; a caller that already
+ * hands it an SRI string is untouched (`parseHash` is idempotent on SRI
+ * input).
+ *
  * Repos that only consume releases don't need this file — see `consumer.mts`.
  *
  * Fleet-canonical: byte-identical across every repo that ships
@@ -15,6 +22,7 @@
 import { promises as fs, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 
+import { parseHash } from '@socketsecurity/lib/integrity'
 import { getDefaultLogger } from '@socketsecurity/lib/logger/default'
 
 import { computeFileHash } from './core.mts'
@@ -44,7 +52,7 @@ export async function hashDirectory(
   return out
 }
 
-interface UpdateAssetsOptions {
+export interface UpdateAssetsOptions {
   /**
    * Path to `release-assets.json`.
    */
@@ -58,7 +66,9 @@ interface UpdateAssetsOptions {
    */
   tag: string
   /**
-   * Asset → SHA-256 map (typically the return value of `writeChecksumsFile`).
+   * Asset → hash map (typically the sha256-hex return value of
+   * `writeChecksumsFile`; an SRI string is accepted too). Re-encoded to SRI
+   * before being written to `release-assets.json`.
    */
   checksums: Record<string, string>
   /**
@@ -70,14 +80,17 @@ interface UpdateAssetsOptions {
 /**
  * Update a tool's block in `release-assets.json` in place.
  *
- * Reads the existing manifest, replaces the block for `tool` with the new `tag`
- * + `checksums`, and writes the result back. Other tool blocks are preserved
- * untouched.
+ * Reads the existing manifest, replaces the block for `tool` with the new
+ * `tag` + `checksums` (re-encoded to SRI via `parseHash().sri`), and writes
+ * the result back. Other tool blocks are preserved untouched.
  *
  * The manifest's $schema field (if present) is preserved.
  */
 export function updateReleaseAssets(options: UpdateAssetsOptions): void {
-  const { checksums, description, manifestPath, tag, tool } = options
+  const { checksums, description, manifestPath, tag, tool } = {
+    __proto__: null,
+    ...options,
+  } as typeof options
 
   let manifest: EmbeddedChecksums & {
     $schema?: string | undefined
@@ -89,16 +102,21 @@ export function updateReleaseAssets(options: UpdateAssetsOptions): void {
     // New file — start fresh.
   }
 
+  const sriChecksums: Record<string, string> = { __proto__: null as never }
+  for (const assetName of Object.keys(checksums)) {
+    sriChecksums[assetName] = parseHash(checksums[assetName]!).sri
+  }
+
   manifest[tool] = {
     ...(description !== undefined ? { description } : {}),
     tag,
-    checksums,
+    checksums: sriChecksums,
   }
 
   writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n', 'utf8')
 }
 
-interface WriteChecksumsOptions {
+export interface WriteChecksumsOptions {
   /**
    * Directory containing the artifacts to hash.
    */
@@ -132,7 +150,7 @@ export async function writeChecksumsFile(
     order = 'alphabetical',
     outputPath,
     quiet = false,
-  } = options
+  } = { __proto__: null, ...options } as typeof options
 
   const checksums = await hashDirectory(inputDir)
   const names =

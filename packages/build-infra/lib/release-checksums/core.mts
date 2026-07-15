@@ -1,10 +1,22 @@
-/**
+/*
  * Release-checksum core: format primitives + embedded-checksum loader + verify.
  *
  * This file is the **shared core** used by every fleet repo that publishes
- * artifacts whose integrity is gated by SHA-256 checksums. It contains no
- * network code and no producer code — see `consumer.mts` for the network fetch
- * path, and `producer.mts` for the writer side.
+ * artifacts whose integrity is gated by a checksum. It contains no network
+ * code and no producer code — see `consumer.mts` for the network fetch path,
+ * and `producer.mts` for the writer side.
+ *
+ * Two checksum formats meet here, deliberately kept apart:
+ *
+ * - `release-assets.json` pins (`ToolConfig.checksums`) are SRI integrity strings
+ *   (`sha256-<base64>`, forward-compatible with sha384/sha512) — the same shape
+ *   the fleet verifies with elsewhere (`@socketsecurity/lib`'s `integrity`
+ *   module, `external-tools.json`).
+ * - `checksums.txt`, the release asset every tool publishes, stays sha256-hex —
+ *   the ecosystem convention `shasum -c` expects.
+ *
+ * `parseChecksums` reads the hex transport format; `verifyReleaseChecksum`
+ * bridges it to the SRI pin via `@socketsecurity/lib/integrity`.
  *
  * Fleet-canonical: byte-identical across every repo that ships
  * `packages/build-infra/lib/release-checksums/`. Drift caught by
@@ -15,14 +27,12 @@ import crypto from 'node:crypto'
 import { createReadStream, readFileSync } from 'node:fs'
 import path from 'node:path'
 
-import { fileURLToPath } from 'node:url'
-
+import type { Hash, HashAlgorithm } from '@socketsecurity/lib/integrity'
+import { equalHashes, parseHash } from '@socketsecurity/lib/integrity'
 import { getDefaultLogger } from '@socketsecurity/lib/logger/default'
+import { findUpPackageJson } from '@socketsecurity/lib/packages/find'
 
 const logger = getDefaultLogger()
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
 
 // ---------------------------------------------------------------------------
 // Public types — match the JSON Schema at packages/build-infra/release-assets.schema.json.
@@ -31,6 +41,7 @@ const __dirname = path.dirname(__filename)
 export interface ToolConfig {
   description?: string | undefined
   tag: string
+  // SRI integrity strings (`sha256-<base64>`, sha384/sha512 accepted).
   checksums: Record<string, string>
 }
 
@@ -56,10 +67,18 @@ export interface VerifyResult {
 let embeddedChecksums: EmbeddedChecksums | undefined | null
 
 /**
- * Compute SHA256 hash of a file as lowercase hex.
+ * Compute a hash of a file as lowercase hex, streamed so the whole file never
+ * loads into memory. Defaults to sha256 — the `checksums.txt` / `shasum -a
+ * 256` digest. `@socketsecurity/lib/integrity` has no streaming primitive (its
+ * one-shot `computeHash` docs itself defer chunked input back to
+ * `crypto.createHash`), so this stays a thin hand-rolled wrapper; convert the
+ * result to SRI with `parseHash(hex).sri` rather than hand-rolling that step.
  */
-export async function computeFileHash(filePath: string): Promise<string> {
-  const hash = crypto.createHash('sha256')
+export async function computeFileHash(
+  filePath: string,
+  algorithm: HashAlgorithm = 'sha256',
+): Promise<string> {
+  const hash = crypto.createHash(algorithm)
   const stream = createReadStream(filePath)
   for await (const chunk of stream) {
     hash.update(chunk)
@@ -93,9 +112,7 @@ export function getEmbeddedChecksums(): EmbeddedChecksums | undefined {
   if (embeddedChecksums === undefined) {
     try {
       const checksumPath = path.join(
-        __dirname,
-        '..',
-        '..',
+        path.dirname(findUpPackageJson(import.meta)),
         'release-assets.json',
       )
       embeddedChecksums = JSON.parse(
@@ -124,6 +141,8 @@ export function parseChecksums(content: string): Record<string, string> {
     if (!trimmed) {
       continue
     }
+    // Match a SHA-256 checksum line: 64 lowercase hex digits, one or more
+    // whitespace characters, then the filename extending to end of line.
     const match = trimmed.match(/^([a-f0-9]{64})\s+(.+)$/)
     if (match) {
       checksums[match[2]!] = match[1]!
@@ -132,7 +151,7 @@ export function parseChecksums(content: string): Record<string, string> {
   return checksums
 }
 
-interface VerifyOptions {
+export interface VerifyOptions {
   filePath: string
   assetName: string
   tool: string
@@ -147,19 +166,21 @@ interface VerifyOptions {
 }
 
 /**
- * Verify a downloaded file against the embedded SHA-256 in
+ * Verify a downloaded file against the embedded SRI pin in
  * `release-assets.json`.
  *
- * Embedded checksums are the source of truth. Three outcomes:
+ * Embedded checksums are the source of truth. Five outcomes:
  *
- * 1. Embedded match found and SHA-256 agrees → `{ valid: true }`.
- * 2. Embedded match found but SHA-256 disagrees → `{ valid: false }` with `actual`
- *
- *    - `expected` populated. **Fail loudly.**
- * 3. Tool is in `release-assets.json` but `assetName` isn't listed → return `{
+ * 1. Embedded match found and the digest agrees → `{ valid: true }`.
+ * 2. Embedded match found but the digest disagrees → `{ valid: false }` with
+ *    `actual` + `expected` populated. **Fail loudly.**
+ * 3. Embedded match found but the pin isn't a recognized SRI/hex string → `{
+ *    valid: false }`. The pin itself is malformed; fix it in
+ *    `release-assets.json`.
+ * 4. Tool is in `release-assets.json` but `assetName` isn't listed → return `{
  *    valid: false }`. The likely cause is a stale embedded manifest; bump `tag`
  *    + `checksums` in `release-assets.json` and re-run.
- * 4. Tool isn't in `release-assets.json` at all → fail CLOSED: return `{ valid:
+ * 5. Tool isn't in `release-assets.json` at all → fail CLOSED: return `{ valid:
  *    false }` with a warning. An untracked tool is an unverified download, so
  *    it must not pass the integrity gate by default. Add the tool to
  *    `release-assets.json`, or pass `allowUnlisted: true` to opt a
@@ -168,24 +189,39 @@ interface VerifyOptions {
 export async function verifyReleaseChecksum(
   options: VerifyOptions,
 ): Promise<VerifyResult> {
-  const { assetName, filePath, quiet = false, tool } = options
+  const {
+    assetName,
+    filePath,
+    quiet = false,
+    tool,
+  } = { __proto__: null, ...options } as typeof options
 
   const embedded = getEmbeddedChecksum(tool, assetName)
   if (embedded) {
-    const actual = await computeFileHash(filePath)
-    if (actual !== embedded.checksum) {
+    let expectedHash: Hash
+    try {
+      expectedHash = parseHash(embedded.checksum)
+    } catch {
+      if (!quiet) {
+        logger.fail(
+          `Malformed checksum pin for ${assetName} in release-assets.json (tool: ${tool})`,
+        )
+        logger.fail(
+          `Saw "${embedded.checksum}" — wanted a sha256/384/512 SRI string or hex digest. Fix the pin in release-assets.json.`,
+        )
+      }
       return {
-        actual,
         expected: embedded.checksum,
         source: 'embedded',
         valid: false,
       }
     }
+    const actual = await computeFileHash(filePath, expectedHash.algorithm)
     return {
       actual,
       expected: embedded.checksum,
       source: 'embedded',
-      valid: true,
+      valid: equalHashes(actual, expectedHash),
     }
   }
 
