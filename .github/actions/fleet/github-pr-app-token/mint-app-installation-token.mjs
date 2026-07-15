@@ -30,6 +30,7 @@ import { appendFileSync } from 'node:fs'
 import { request } from 'node:https'
 import process from 'node:process'
 import { pathToFileURL } from 'node:url'
+import { errorMessage } from '@socketsecurity/lib/errors/message'
 
 function die(message) {
   process.stderr.write(`[mint-app-token] ${message}\n`)
@@ -211,7 +212,7 @@ if (
       await main()
     } catch (e) {
       // oxlint-disable-next-line socket/prefer-error-message -- dep-0 (.mjs, node: builtins only, runs in CI pre-install); errorMessage() lives in @socketsecurity/lib-stable, an external import that breaks the dep-0 contract.
-      die(e instanceof Error ? e.message : String(e))
+      die(errorMessage(e))
     }
   })()
 }

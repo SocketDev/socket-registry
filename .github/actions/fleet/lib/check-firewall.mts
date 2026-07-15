@@ -13,6 +13,7 @@
  */
 
 import { argv, exit, stderr, stdout } from 'node:process'
+import { errorMessage } from '@socketsecurity/lib/errors/message'
 
 const pkgName = argv[2]
 const version = argv[3]
@@ -85,7 +86,7 @@ const main = async (): Promise<number> => {
     // Firewall errors are non-fatal — allow bootstrap to proceed.
     // Network blips or registry-down shouldn't break a fresh clone.
     // oxlint-disable-next-line socket/prefer-error-message -- composite-action helper runs on the raw runner before setup-node; @socketsecurity/lib-stable/errors/message is not installed yet.
-    const message = e instanceof Error ? e.message : String(e)
+    const message = errorMessage(e)
     stderr.write(`firewall-api: ${message} — proceeding anyway (non-fatal)\n`)
     return 0
   }
