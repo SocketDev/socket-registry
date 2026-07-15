@@ -31,6 +31,7 @@ import {
   mkdirSync,
   mkdtempSync,
   readdirSync,
+  realpathSync,
   rmSync,
 } from 'node:fs'
 import os from 'node:os'
@@ -394,7 +395,22 @@ export async function installFleet(options: InstallOptions): Promise<number> {
   }
 }
 
-if (process.argv[1] && import.meta.url === `file://${process.argv[1]}`) {
+// Realpath both sides: Node resolves the REAL path for `import.meta.url`
+// while `process.argv[1]` keeps the path as invoked, so a bare URL equality
+// silently skips the CLI body under a symlinked invocation.
+export function isMainModule(): boolean {
+  const entry = process.argv[1]
+  if (!entry) {
+    return false
+  }
+  try {
+    return realpathSync(fileURLToPath(import.meta.url)) === realpathSync(entry)
+  } catch {
+    return false
+  }
+}
+
+if (isMainModule()) {
   const parsed = parseArgs(process.argv.slice(2))
   // `--status` is the read-only verb (NEVER mutates) — dispatch before the
   // fetch path so a status query can't accidentally apply anything.
