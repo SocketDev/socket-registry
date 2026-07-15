@@ -788,6 +788,8 @@ importers:
 
   .config/fleet/oxlint-plugin/fleet/max-file-lines: {}
 
+  .config/fleet/oxlint-plugin/fleet/no-agent-brand-assumption: {}
+
   .config/fleet/oxlint-plugin/fleet/no-bare-crypto-named-usage: {}
 
   .config/fleet/oxlint-plugin/fleet/no-bare-spawn-childproc-access: {}
@@ -901,6 +903,8 @@ importers:
   .config/fleet/oxlint-plugin/fleet/prefer-env-as-boolean: {}
 
   .config/fleet/oxlint-plugin/fleet/prefer-error-message: {}
+
+  .config/fleet/oxlint-plugin/fleet/prefer-error-message-helper: {}
 
   .config/fleet/oxlint-plugin/fleet/prefer-exists-sync: {}
 
