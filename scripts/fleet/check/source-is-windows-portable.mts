@@ -132,7 +132,7 @@ export function scanCmdShimSpawns(raw: string): number[] {
     // First argument in RAW source: a quoted bin name?
     const rawSlice = raw.slice(start, start + 160)
     if (
-      !/^\s*(?:spawn|spawnSync)\s*\(\s*['"](?:pnpm|npm|npx|yarn)['"]/.test(
+      !/^\s*(?:spawn|spawnSync)\s*\(\s*['"](?:pnpm|npm|np[x]|yarn)['"]/.test(
         rawSlice,
       )
     ) {
@@ -253,7 +253,7 @@ export function scanFile(filePath: string): PortabilityHit[] {
       file: rel,
       line,
       rule: 'cmd-shim',
-      snippet: 'pnpm/npm/npx/yarn spawn without a `shell:` option',
+      snippet: 'pnpm/npm/npx/yarn spawn without a `shell:` option', // socket-lint: allow npx
     })
   }
   for (const line of scanUrlPathname(raw)) {

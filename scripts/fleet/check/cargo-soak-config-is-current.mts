@@ -2,7 +2,7 @@
 /*
  * @file Fail-closed gate for the cargo min-publish-age soak posture. Rust ships
  *   NATIVE soak enforcement via nightly `-Zmin-publish-age`
- *   (rust-lang/cargo#15973, RFC 3923), so — unlike Go, which has no native
+ *   (RFC 3923), so — unlike Go, which has no native
  *   equivalent (see go-deps-are-soaked.mts) — this gate never resolves
  *   crates.io itself. It asserts two things:
  *

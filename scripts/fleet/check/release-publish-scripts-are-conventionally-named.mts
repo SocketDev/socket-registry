@@ -79,6 +79,31 @@ const TARGET_SIGNATURES: ReadonlyArray<{
   },
 ]
 
+// Remote-dispatch twins live in scripts/fleet/publish-infra/remote-*.mts and
+// carry the `remote:` namespace — they dispatch the repo's CI workflow, they do
+// not run the local orchestrator. Their filenames embed the local orchestrator
+// filename as a substring (remote-github-release.mts contains
+// github-release.mts), so match the more specific pattern FIRST or a remote
+// dispatcher is misread as the local target and forced to drop its namespace.
+const REMOTE_SIGNATURES: ReadonlyArray<{
+  readonly target: ReleasePublishTarget
+  readonly expectedName: string
+  readonly pattern: RegExp
+}> = [
+  {
+    target: 'github',
+    expectedName: 'remote:github:release',
+    // require-regex-comment: a body dispatching the remote github-release workflow.
+    pattern: /\bremote-github-release\.mts\b/,
+  },
+  {
+    target: 'npm',
+    expectedName: 'remote:npm:publish',
+    // require-regex-comment: a body dispatching the remote npm-publish workflow.
+    pattern: /\bremote-npm-publish\.mts\b/,
+  },
+]
+
 export interface ConventionVerdict {
   readonly target: ReleasePublishTarget
   readonly expectedName: string
@@ -100,6 +125,14 @@ export function classifyReleasePublishScript(
   const body = scriptBody.trim()
   if (!body) {
     return null
+  }
+  // Remote-dispatch twins first — their filename is the more specific match, so
+  // classify them before the local signatures (whose bare-orchestrator pattern
+  // would also match a remote-*.mts body as a substring).
+  const remote = REMOTE_SIGNATURES.filter(sig => sig.pattern.test(body))
+  if (remote.length === 1) {
+    const { expectedName, target } = remote[0]!
+    return { expectedName, ok: scriptName === expectedName, target }
   }
   const matched = TARGET_SIGNATURES.filter(sig =>
     sig.patterns.some(re => re.test(body)),

@@ -1,22 +1,18 @@
 /**
- * @file Soak-aware Rust/Cargo update runner for the fleet.
- *   Rust supply-chain soak is NATIVE now: cargo nightly ships
- *   `-Zmin-publish-age` (landed nightly-2026-06-21, rust-lang/cargo#15973,
- *   RFC 3923). This runner DRIVES cargo — it is not a hand-rolled crates.io
- *   resolver. The flag only ENABLES the feature; the actual soak threshold is
- *   a separate registry config key (a duration string), and the resolver must
- *   be told to DENY too-new versions or the age is advisory only.
- *   Modes:
- *   node scripts/fleet/update/cargo.mts --soak-days 7
- *   Dry plan (default): print the cargo command + soak config it WOULD
- *   run for each own Cargo.toml root. Runs no cargo.
- *   node scripts/fleet/update/cargo.mts --soak-days 7 --apply
- *   Apply: run `cargo update` per root through the fleet lib spawn,
- *   handing cargo a temp config file that enables the min-publish-age
- *   soak gate.
- *   The soak window (`--soak-days`) is a TRUST GATE and a REQUIRED param from
- *   the orchestrator — never hardcoded. The only pinned constant is the
- *   updater's nightly toolchain, which gates the tooling, not a crate build.
+ * @file Soak-aware Rust/Cargo update runner for the fleet. Rust supply-chain
+ *   soak is NATIVE now: cargo nightly ships `-Zmin-publish-age` under RFC 3923.
+ *   This runner DRIVES cargo — it is not a hand-rolled crates.io resolver. The
+ *   flag only ENABLES the feature; the actual soak threshold is a separate
+ *   registry config key (a duration string), and the resolver must be told to
+ *   DENY too-new versions or the age is advisory only. Modes: node
+ *   scripts/fleet/update/cargo.mts --soak-days 7 Dry plan (default): print the
+ *   cargo command + soak config it WOULD run for each own Cargo.toml root. Runs
+ *   no cargo. node scripts/fleet/update/cargo.mts --soak-days 7 --apply Apply:
+ *   run `cargo update` per root through the fleet lib spawn, handing cargo a
+ *   temp config file that enables the min-publish-age soak gate. The soak
+ *   window (`--soak-days`) is a TRUST GATE and a REQUIRED param from the
+ *   orchestrator — never hardcoded. The only pinned constant is the updater's
+ *   nightly toolchain, which gates the tooling, not a crate build.
  */
 import { mkdtempSync, writeFileSync } from 'node:fs'
 import os from 'node:os'
@@ -43,7 +39,7 @@ export const RUST_UPDATER_TOOLCHAIN = 'nightly-2026-07-10'
  * `-Zmin-publish-age` flag (equivalently `[unstable] min-publish-age = true`)
  * enables the feature, but the age itself is set HERE, as a duration string
  * ("<int> <unit>", unit in seconds|minutes|hours|days|weeks|months).
- * Source: rust-lang/cargo#15973 (tracking), RFC 3923 (cargo-min-publish-age).
+ * Source: RFC 3923 (cargo-min-publish-age).
  */
 export const MIN_PUBLISH_AGE_CONFIG_KEY = 'registry.global-min-publish-age'
 
@@ -119,7 +115,7 @@ export function buildCargoUpdateArgs(
  * feature and sets the soak threshold to `soakDays` days. Emits all three
  * pieces the gate needs: the unstable enable flag, the age threshold, and the
  * resolver deny that makes the age binding.
- * Source: rust-lang/cargo#15973, RFC 3923 (cargo-min-publish-age).
+ * Source: RFC 3923 (cargo-min-publish-age).
  */
 export function renderMinPublishAgeConfig(soakDays: number): string {
   assertPositiveSoakDays(soakDays)
@@ -132,7 +128,7 @@ export function renderMinPublishAgeConfig(soakDays: number): string {
     '# Soak threshold: reject any registry version whose publish time is newer',
     '# than this window. Duration is "<int> <unit>"',
     '# (seconds|minutes|hours|days|weeks|months).',
-    '# Source: rust-lang/cargo#15973, RFC 3923 (registry.global-min-publish-age).',
+    '# Source: RFC 3923 (registry.global-min-publish-age).',
     '[registry]',
     `global-min-publish-age = "${soakDays} days"`,
     '',
