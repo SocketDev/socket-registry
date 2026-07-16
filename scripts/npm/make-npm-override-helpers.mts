@@ -21,7 +21,7 @@ import {
 
 const require = createRequire(import.meta.url)
 
-const bcaKeysMap = new WeakMap()
+const bcaKeysMap = new WeakMap<Record<string, unknown>, Map<string, string>>()
 
 export const esShimChoices = [
   {
@@ -32,13 +32,18 @@ export const esShimChoices = [
   { name: 'es-shim constructor', value: TEMPLATE_ES_SHIM_CONSTRUCTOR },
 ]
 
-export function getBcdKeysMap(obj) {
+export function getBcdKeysMap(
+  obj: Record<string, unknown>,
+): Map<string, string> {
   let keysMap = bcaKeysMap.get(obj)
   if (keysMap === undefined) {
-    keysMap = new Map()
+    keysMap = new Map<string, string>()
     const keys = Object.keys(obj)
     for (let i = 0, { length } = keys; i < length; i += 1) {
       const key = keys[i]
+      if (key === undefined) {
+        continue
+      }
       keysMap.set(key.toLowerCase(), key)
     }
     bcaKeysMap.set(obj, keysMap)
@@ -46,18 +51,25 @@ export function getBcdKeysMap(obj) {
   return keysMap
 }
 
-export function getCompatData(props) {
+export function getCompatData(props: string[]): unknown {
   const data = getCompatDataRaw(props)
-  return data?.__compat
+  return isObject(data)
+    ? (data as { __compat?: unknown | undefined }).__compat
+    : undefined
 }
 
-export function getCompatDataRaw(props) {
+export function getCompatDataRaw(
+  props: string[],
+): Record<string, unknown> | undefined {
   // Defer loading @mdn/browser-compat-data until needed.
   // It's a single 15.3 MB json file.
   const browserCompatData = require('@mdn/browser-compat-data')
-  let obj = browserCompatData.default
+  let obj: Record<string, unknown> = browserCompatData.default
   for (let i = 0, { length } = props; i < length; i += 1) {
     const rawProp = props[i]
+    if (rawProp === undefined) {
+      continue
+    }
     let prop = rawProp.toLowerCase()
     if (prop === 'prototype') {
       prop = 'proto'
@@ -66,24 +78,27 @@ export function getCompatDataRaw(props) {
       prop = prop.replace(/^__(?!_)|(?<!_)__$/g, '')
     }
     const keysMap = getBcdKeysMap(obj)
-    const newObj = obj[keysMap.get(prop)]
+    const key = keysMap.get(prop)
+    const newObj = key === undefined ? undefined : obj[key]
     if (!isObject(newObj)) {
       if (prop === 'proto') {
         continue
       }
       return undefined
     }
-    obj = newObj
+    obj = newObj as Record<string, unknown>
   }
   return obj
 }
 
-export async function readLicenses(dirname) {
-  const stream = globStreamLicenses(dirname)
-  const results = []
+export async function readLicenses(
+  dirname: string,
+): Promise<Array<{ name: string; content: string }>> {
+  const stream = globStreamLicenses(dirname) as AsyncIterable<string>
+  const results: Array<{ name: string; content: string }> = []
   for await (const license of transform(
     stream,
-    async filepath => ({
+    async (filepath: string) => ({
       name: path.basename(filepath),
       content: await fs.readFile(filepath, UTF8),
     }),
@@ -94,6 +109,6 @@ export async function readLicenses(dirname) {
   return results
 }
 
-export function toChoice(value) {
+export function toChoice(value: string): { name: string; value: string } {
   return { name: value, value: value }
 }

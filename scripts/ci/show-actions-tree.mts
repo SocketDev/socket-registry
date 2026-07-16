@@ -15,28 +15,39 @@ import {
 
 const logger = getDefaultLogger()
 
+interface StructuredDependency {
+  action: string
+  transitives: string[]
+}
+
 /**
  * Extract structured dependency information from a workflow or action file.
  */
-export async function extractDependenciesWithStructure(filePath) {
+export async function extractDependenciesWithStructure(
+  filePath: string,
+): Promise<{ flat: Set<string>; structured: StructuredDependency[] }> {
   const content = await fs.readFile(filePath, 'utf8')
-  const flatDependencies = new Set()
-  const structuredDependencies = []
+  const flatDependencies = new Set<string>()
+  const structuredDependencies: StructuredDependency[] = []
 
   // Extract dependencies from # Dependencies: comment blocks.
   const dependencyMatch = content.match(/^# Dependencies:\n((?:#.+\n)+)/m)
-  if (dependencyMatch) {
-    const lines = dependencyMatch[1].split('\n')
-    let currentParent
+  const dependencyBlock = dependencyMatch?.[1]
+  if (dependencyBlock !== undefined) {
+    const lines = dependencyBlock.split('\n')
+    let currentParent: StructuredDependency | undefined
 
     for (let i = 0, { length } = lines; i < length; i += 1) {
       const line = lines[i]
+      if (line === undefined) {
+        continue
+      }
       // Match top-level dependencies (starting with #   -).
       const topLevelMatch = line.match(/^# {3}- (.+)$/)
-      if (topLevelMatch) {
-        let dep = topLevelMatch[1].trim()
+      const topLevelCapture = topLevelMatch?.[1]
+      if (topLevelCapture !== undefined) {
         // Remove inline comments like "# transitive" or "# v5.0.0".
-        dep = dep.replace(/\s+#.*$/, '')
+        const dep = topLevelCapture.trim().replace(/\s+#.*$/, '')
         flatDependencies.add(dep)
         currentParent = { action: dep, transitives: [] }
         structuredDependencies.push(currentParent)
@@ -45,10 +56,10 @@ export async function extractDependenciesWithStructure(filePath) {
 
       // Match transitive dependencies (starting with #     -).
       const transitiveMatch = line.match(/^# {5}- (.+)$/)
-      if (transitiveMatch && currentParent) {
-        let dep = transitiveMatch[1].trim()
+      const transitiveCapture = transitiveMatch?.[1]
+      if (transitiveCapture !== undefined && currentParent) {
         // Remove inline comments.
-        dep = dep.replace(/\s+#.*$/, '')
+        const dep = transitiveCapture.trim().replace(/\s+#.*$/, '')
         flatDependencies.add(dep)
         currentParent.transitives.push(dep)
       }
@@ -57,11 +68,13 @@ export async function extractDependenciesWithStructure(filePath) {
 
   // Also extract from uses: statements for completeness.
   const usesMatches = content.matchAll(/^\s*uses:\s*(.+)$/gm)
-  for (let i = 0, { length } = usesMatches; i < length; i += 1) {
-    const match = usesMatches[i]
-    let action = match[1].trim()
+  for (const match of usesMatches) {
+    const capture = match[1]
+    if (capture === undefined) {
+      continue
+    }
     // Remove inline comments from uses statements.
-    action = action.replace(/\s+#.*$/, '')
+    const action = capture.trim().replace(/\s+#.*$/, '')
     // Skip local actions that reference the current repo.
     if (!action.startsWith('.')) {
       flatDependencies.add(action)
@@ -74,12 +87,15 @@ export async function extractDependenciesWithStructure(filePath) {
 /**
  * Recursively find all YAML files in a directory.
  */
-export async function getAllYamlFiles(dir) {
-  const files = []
+export async function getAllYamlFiles(dir: string): Promise<string[]> {
+  const files: string[] = []
   try {
     const entries = await fs.readdir(dir, { withFileTypes: true })
     for (let i = 0, { length } = entries; i < length; i += 1) {
       const entry = entries[i]
+      if (entry === undefined) {
+        continue
+      }
       const fullPath = path.join(dir, entry.name)
       if (entry.isFile() && entry.name.endsWith('.yml')) {
         files.push(fullPath)
@@ -97,17 +113,19 @@ export async function getAllYamlFiles(dir) {
  * Generate and display dependency tree for all GitHub Actions.
  */
 async function main(): Promise<void> {
-  const allDependencies = new Set()
+  const allDependencies = new Set<string>()
   // Map of file -> structured dependencies.
-  const dependencyTree = new Map()
+  const dependencyTree = new Map<string, StructuredDependency[]>()
 
   // Process workflow files.
   const workflowFiles = await getAllYamlFiles(ROOT_DOT_GITHUB_WORKFLOWS_PATH)
   for (let i = 0, { length } = workflowFiles; i < length; i += 1) {
     const file = workflowFiles[i]
+    if (file === undefined) {
+      continue
+    }
     const { flat, structured } = await extractDependenciesWithStructure(file)
-    for (let j = 0, { length: len } = flat; j < len; j += 1) {
-      const dep = flat[j]
+    for (const dep of flat) {
       allDependencies.add(dep)
     }
     if (structured.length > 0) {
@@ -122,6 +140,9 @@ async function main(): Promise<void> {
   })
   for (let i = 0, { length } = actionDirs; i < length; i += 1) {
     const dir = actionDirs[i]
+    if (dir === undefined) {
+      continue
+    }
     if (dir.isDirectory()) {
       const actionFile = path.join(
         ROOT_DOT_GITHUB_ACTIONS_PATH,
@@ -131,8 +152,7 @@ async function main(): Promise<void> {
       try {
         const { flat, structured } =
           await extractDependenciesWithStructure(actionFile)
-        for (let j = 0, { length: len } = flat; j < len; j += 1) {
-          const dep = flat[j]
+        for (const dep of flat) {
           allDependencies.add(dep)
         }
         if (structured.length > 0) {
@@ -154,8 +174,11 @@ async function main(): Promise<void> {
 
   for (let fileIndex = 0; fileIndex < sortedFiles.length; fileIndex++) {
     const file = sortedFiles[fileIndex]
+    if (file === undefined) {
+      continue
+    }
     const dependencies = dependencyTree.get(file)
-    if (dependencies.length > 0) {
+    if (dependencies && dependencies.length > 0) {
       const isLastFile = fileIndex === sortedFiles.length - 1
       const filePrefix = isLastFile ? '└─' : '├─'
       const continuationPrefix = isLastFile ? '  ' : '│ '
@@ -166,6 +189,9 @@ async function main(): Promise<void> {
 
       for (let depIndex = 0; depIndex < dependencies.length; depIndex++) {
         const dep = dependencies[depIndex]
+        if (dep === undefined) {
+          continue
+        }
         const isLastDep = depIndex === dependencies.length - 1
         const depPrefix = isLastDep ? '└─' : '├─'
 
@@ -177,6 +203,9 @@ async function main(): Promise<void> {
           transIndex++
         ) {
           const transitive = dep.transitives[transIndex]
+          if (transitive === undefined) {
+            continue
+          }
           const isLastTrans = transIndex === dep.transitives.length - 1
           const transPrefix = isLastTrans ? '└─' : '├─'
           const transContinuation = isLastDep ? '  ' : '│ '

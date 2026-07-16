@@ -52,11 +52,7 @@ export async function ghApiLatestRelease(
   const result = await spawn('gh', ['api', endpoint, '--cache', '1h'], {
     stdio: 'pipe',
   })
-  const stdout =
-    typeof result.stdout === 'string'
-      ? result.stdout
-      : (result.stdout ?? Buffer.alloc(0)).toString()
-  const parsed = JSON.parse(stdout) as GhRelease | GhRelease[]
+  const parsed = JSON.parse(result.stdout) as GhRelease | GhRelease[]
   if (Array.isArray(parsed)) {
     // When on a prerelease track, only prerelease entries are
     // candidates. `prerelease` and `draft` are both advisory — GitHub
@@ -93,11 +89,7 @@ export async function ghApiReleaseByTag(
       ['api', `repos/${repo}/releases/tags/${tag}`, '--cache', '1h'],
       { stdio: 'pipe' },
     )
-    const stdout =
-      typeof result.stdout === 'string'
-        ? result.stdout
-        : (result.stdout ?? Buffer.alloc(0)).toString()
-    return JSON.parse(stdout) as GhRelease
+    return JSON.parse(result.stdout) as GhRelease
   } catch {
     return undefined
   }

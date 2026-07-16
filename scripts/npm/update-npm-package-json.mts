@@ -22,6 +22,7 @@ import {
   isSubpathExports,
   resolvePackageJsonEntryExports,
 } from '@socketsecurity/lib-stable/packages/exports'
+import type { EditablePackageJsonInstance } from '@socketsecurity/lib-stable/packages/edit'
 
 const logger = getDefaultLogger()
 
@@ -35,10 +36,13 @@ async function main(): Promise<void> {
     getNpmPackageNames().map(async sockRegPkgName => {
       const pkgPath = path.join(NPM_PACKAGES_PATH, sockRegPkgName)
       const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)
-      const editablePkgJson = await readPackageJson(pkgJsonPath, {
+      const editablePkgJson = (await readPackageJson(pkgJsonPath, {
         editable: true,
         normalize: true,
-      })
+      })) as EditablePackageJsonInstance | undefined
+      if (!editablePkgJson) {
+        throw new Error(`Unable to read package.json at ${pkgJsonPath}`)
+      }
       const directory = `packages/npm/${sockRegPkgName}`
       const entryExports = resolvePackageJsonEntryExports(
         editablePkgJson.content.exports,
@@ -54,7 +58,7 @@ async function main(): Promise<void> {
         )
         const subpaths = getSubpaths(entryExports).map(trimLeadingDotSlash)
         for (let i = 0, { length } = subpaths; i < length; i += 1) {
-          const subpath = subpaths[i]
+          const subpath = subpaths[i]!
           if (!availableFiles.includes(subpath)) {
             const warning = `${fullName}: ${subpath} subpath file does not exist`
             warnings.push(warning)
@@ -64,7 +68,7 @@ async function main(): Promise<void> {
           }
         }
         for (let i = 0, { length } = availableFiles; i < length; i += 1) {
-          const relPath = availableFiles[i]
+          const relPath = availableFiles[i]!
           if (!relPath.startsWith('package/') && !subpaths.includes(relPath)) {
             const warning = `${fullName}: ${relPath} missing from subpath exports`
             warnings.push(warning)
@@ -75,16 +79,20 @@ async function main(): Promise<void> {
         }
       }
       editablePkgJson.update(
-        createPackageJson(editablePkgJson.content.name, directory, {
-          ...editablePkgJson.content,
-          // Enforce the registry-wide Node floor. createPackageJson otherwise
-          // preserves whatever engines.node a package already declares, so the
-          // floor would never advance for existing overrides on a bump.
-          engines: {
-            ...editablePkgJson.content.engines,
-            node: PACKAGE_DEFAULT_NODE_RANGE,
+        createPackageJson(
+          editablePkgJson.content.name ?? sockRegPkgName,
+          directory,
+          {
+            ...editablePkgJson.content,
+            // Enforce the registry-wide Node floor. createPackageJson otherwise
+            // preserves whatever engines.node a package already declares, so the
+            // floor would never advance for existing overrides on a bump.
+            engines: {
+              ...editablePkgJson.content.engines,
+              node: PACKAGE_DEFAULT_NODE_RANGE,
+            },
           },
-        }),
+        ),
       )
       await editablePkgJson.save()
     }),

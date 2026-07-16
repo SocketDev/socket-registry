@@ -38,7 +38,7 @@ const { values: cliArgs } = parseArgs({
  */
 async function main(): Promise<void> {
   // Exit early if no relevant files have been modified.
-  if (!cliArgs.force && !(await isModified(NPM_TEMPLATES_README_PATH))) {
+  if (!cliArgs['force'] && !(await isModified(NPM_TEMPLATES_README_PATH))) {
     return
   }
   const npmPackageNames = getNpmPackageNames()
@@ -47,7 +47,9 @@ async function main(): Promise<void> {
       const pkgPath = path.join(NPM_PACKAGES_PATH, sockRegPkgName)
       const readmePath = path.join(pkgPath, README_MD)
       const { 1: data } = await getNpmReadmeAction(pkgPath)
-      return fs.writeFile(readmePath, data.readme, UTF8)
+      const readmeData = typeof data === 'function' ? await data() : data
+      const { readme } = readmeData as { readme: string }
+      return fs.writeFile(readmePath, readme, UTF8)
     }),
   )
 }

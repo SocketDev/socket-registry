@@ -7,6 +7,8 @@ import { promises as fs } from 'node:fs'
 import { createRequire } from 'node:module'
 import path from 'node:path'
 import { PackageURL } from '@socketregistry/packageurl-js-stable'
+import type { PackageJson } from '@socketsecurity/lib-stable/packages/types'
+import type { SpinnerInstance } from '@socketsecurity/lib-stable/spinner/types'
 import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
 import { UNLICENSED } from '@socketsecurity/lib-stable/constants/licenses'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
@@ -46,6 +48,29 @@ import {
   toSortedObjectFromEntries,
 } from '@socketsecurity/lib-stable/objects/sort'
 
+interface RegistryExtensionData {
+  categories?: string[] | undefined
+  engines?: Record<string, string> | undefined
+  interop?: string[] | undefined
+  license?: string | undefined
+  name: string
+  package: string
+  version: string
+}
+
+interface PackageManifestInfo {
+  deprecated?: boolean | undefined
+  engines?: Record<string, string> | undefined
+  license?: string | undefined
+  version?: string | undefined
+}
+
+interface AddNpmManifestDataOptions {
+  spinner?: SpinnerInstance | undefined
+}
+
+type ManifestEntry = [string, Record<string, unknown>]
+
 const logger = getDefaultLogger()
 
 const require = createRequire(import.meta.url)
@@ -63,27 +88,38 @@ const { values: cliArgs } = parseArgs({
   strict: false,
 })
 
-export async function addNpmManifestData(manifest, options) {
-  const { spinner } = { __proto__: null, ...options }
+export async function addNpmManifestData(
+  manifest: Record<string, ManifestEntry[]>,
+  options?: AddNpmManifestDataOptions,
+) {
+  const opts = { __proto__: null, ...options } as typeof options
+  const spinner = opts?.spinner
   const eco = NPM
-  const manifestData = []
+  const manifestData: ManifestEntry[] = []
   const registryExtJson = require(REGISTRY_EXTENSIONS_JSON_PATH)
-  const registryExt = registryExtJson[eco] ?? []
+  const registryExt: Array<[string, RegistryExtensionData]> =
+    registryExtJson[eco] ?? []
 
   // Chunk registry ext names to process them in parallel 3 at a time.
   await pEach(
     registryExt,
-    async ({ 1: data }) => {
+    async ([, data]) => {
       const nmPkgId = `${data.name}@latest`
-      const nmPkgManifest = await fetchPackageManifest(nmPkgId)
+      const nmPkgManifest = (await fetchPackageManifest(nmPkgId)) as
+        | PackageManifestInfo
+        | undefined
       if (!nmPkgManifest) {
         spinner?.warn(`${nmPkgId}: Not found in ${NPM} registry`)
         return
       }
-      let nmPkgJson
-      await extractPackage(nmPkgId, async nmPkgPath => {
+      let nmPkgJson: PackageJson | undefined
+      await extractPackage(nmPkgId, undefined, async nmPkgPath => {
         nmPkgJson = await readPackageJson(nmPkgPath, { normalize: true })
       })
+      if (!nmPkgJson) {
+        spinner?.warn(`${nmPkgId}: Unable to read package.json`)
+        return
+      }
       // Socket-maintained overrides take engines from the published
       // package.json; third-party extensions keep the manifest's engines.
       // (Inlined from the retired isBlessedPackageName helper.)
@@ -115,24 +151,39 @@ export async function addNpmManifestData(manifest, options) {
     getNpmPackageNames(),
     async sockRegPkgName => {
       const origPkgName = resolveOriginalPackageName(sockRegPkgName)
-      const nmPkgSpec = getPackageVersionSpec(origPkgName) || 'latest'
+      const nmPkgSpec =
+        getPackageVersionSpec(origPkgName, undefined) || 'latest'
       const nmPkgId = `${origPkgName}@${nmPkgSpec}`
-      const nmPkgManifest = await fetchPackageManifest(nmPkgId)
+      const nmPkgManifest = (await fetchPackageManifest(nmPkgId)) as
+        | PackageManifestInfo
+        | undefined
       if (!nmPkgManifest) {
         spinner?.warn(`${nmPkgId}: Not found in ${NPM} registry`)
         return
       }
-      let nmPkgJson
-      await extractPackage(nmPkgId, async nmPkgPath => {
+      let nmPkgJson: PackageJson | undefined
+      await extractPackage(nmPkgId, undefined, async nmPkgPath => {
         nmPkgJson = await readPackageJson(nmPkgPath, { normalize: true })
       })
+      if (!nmPkgJson) {
+        spinner?.warn(`${nmPkgId}: Unable to read package.json`)
+        return
+      }
       const pkgPath = path.join(NPM_PACKAGES_PATH, sockRegPkgName)
       const pkgJson = await readPackageJson(pkgPath, { normalize: true })
+      if (!pkgJson) {
+        spinner?.warn(`${sockRegPkgName}: Unable to read package.json`)
+        return
+      }
       const { engines, name, socket } = pkgJson
-      const entryExports = resolvePackageJsonEntryExports(pkgJson.exports)
+      const entryExports = resolvePackageJsonEntryExports(pkgJson.exports) as
+        | Record<string, unknown>
+        | undefined
 
       // Use latest published version from npm registry.
-      const sockPkgManifest = await fetchPackageManifest(`${name}@latest`)
+      const sockPkgManifest = (await fetchPackageManifest(`${name}@latest`)) as
+        | PackageManifestInfo
+        | undefined
       if (!sockPkgManifest) {
         spinner?.warn(`${name}: Not found in ${NPM} registry`)
         return
@@ -144,11 +195,14 @@ export async function addNpmManifestData(manifest, options) {
       if (isEsm) {
         interop.push('esm')
       }
+      const dotExport = entryExports?.['.'] as
+        | Record<string, unknown>
+        | undefined
       const isBrowserify =
         !isEsm &&
         !!(
-          (entryExports?.node && entryExports?.default) ||
-          (entryExports?.['.']?.node && entryExports?.['.']?.default)
+          (entryExports?.['node'] && entryExports?.['default']) ||
+          (dotExport?.['node'] && dotExport?.['default'])
         )
       if (isBrowserify) {
         interop.push('browserify')
@@ -157,19 +211,27 @@ export async function addNpmManifestData(manifest, options) {
         ecosystem: eco,
         testPath: TEST_NPM_PATH,
       })
-      const metaEntries = [
+      const metaEntries: Array<[PropertyKey, unknown]> = [
         ['name', name],
         ['interop', interop.toSorted(naturalCompare)],
         ['license', nmPkgJson.license ?? UNLICENSED],
         ['package', origPkgName],
         ['version', version],
-        ...(nmPkgManifest.deprecated ? [['deprecated', true]] : []),
-        ...(engines
-          ? [['engines', toSortedObject(filterEngines(engines))]]
-          : [['engines', { node: getPackageDefaultNodeRange() }]]),
-        ...(skipTests ? [['skipTests', true]] : []),
-        ...(socket ? objectEntries(socket) : []),
       ]
+      if (nmPkgManifest.deprecated) {
+        metaEntries.push(['deprecated', true])
+      }
+      if (engines) {
+        metaEntries.push(['engines', toSortedObject(filterEngines(engines))])
+      } else {
+        metaEntries.push(['engines', { node: getPackageDefaultNodeRange() }])
+      }
+      if (skipTests) {
+        metaEntries.push(['skipTests', true])
+      }
+      if (socket) {
+        metaEntries.push(...objectEntries(socket))
+      }
       const purlObj = PackageURL.fromString(`pkg:${eco}/${name}@${version}`)
       manifestData.push([
         purlObj.toString(),
@@ -179,7 +241,7 @@ export async function addNpmManifestData(manifest, options) {
     { concurrency: DEFAULT_CONCURRENCY },
   )
 
-  const latestIndexes = []
+  const latestIndexes: number[] = []
   for (let i = 0, { length } = manifestData; i < length; i += 1) {
     const entry = manifestData[i]
     if (Array.isArray(entry) && entry[0]?.endsWith?.(AT_LATEST)) {
@@ -191,8 +253,13 @@ export async function addNpmManifestData(manifest, options) {
     latestIndexes,
     async index => {
       const entry = manifestData[index]
-      const nmPkgId = `${entry[1].name}${AT_LATEST}`
-      const nmPkgManifest = await fetchPackageManifest(nmPkgId)
+      if (!entry) {
+        return
+      }
+      const nmPkgId = `${entry[1]['name']}${AT_LATEST}`
+      const nmPkgManifest = (await fetchPackageManifest(nmPkgId)) as
+        | PackageManifestInfo
+        | undefined
       if (!nmPkgManifest) {
         spinner?.warn(`${nmPkgId}: Not found in ${NPM} registry`)
         return
@@ -202,7 +269,7 @@ export async function addNpmManifestData(manifest, options) {
         ? entry[0].slice(0, -AT_LATEST.length)
         : entry[0]
       entry[0] = `${key}@${version}`
-      entry[1].version = version
+      entry[1]['version'] = version
     },
     { concurrency: DEFAULT_CONCURRENCY },
   )
@@ -214,7 +281,16 @@ export async function addNpmManifestData(manifest, options) {
 }
 
 // Helper function to filter out package manager engines from engines object.
-export function filterEngines(engines) {
+export function filterEngines(
+  engines: Record<string, string>,
+): Record<string, string>
+export function filterEngines(engines: undefined): undefined
+export function filterEngines(
+  engines: Record<string, string> | undefined,
+): Record<string, string> | undefined
+export function filterEngines(
+  engines: Record<string, string> | undefined,
+): Record<string, string> | undefined {
   if (!engines) {
     return engines
   }
@@ -225,7 +301,7 @@ export function filterEngines(engines) {
 
 async function main(): Promise<void> {
   // Exit early if no relevant files have been modified and not forced.
-  if (!cliArgs.force) {
+  if (!cliArgs['force']) {
     const modifiedFiles = await getModifiedFiles({
       cwd: ROOT_PACKAGES_PATH,
     })
@@ -238,7 +314,7 @@ async function main(): Promise<void> {
   await withSpinner({
     message: `Updating ${REL_REGISTRY_MANIFEST_JSON_PATH}...`,
     operation: async () => {
-      const manifest = {}
+      const manifest: Record<string, ManifestEntry[]> = {}
       await addNpmManifestData(manifest, { spinner })
       const output = await biomeFormat(JSON.stringify(manifest, null, 2), {
         filepath: REGISTRY_MANIFEST_JSON_PATH,

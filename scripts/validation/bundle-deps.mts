@@ -26,12 +26,27 @@ const BUILTIN_MODULES = new Set([
   ...builtinModules.map(m => `node:${m}`),
 ])
 
+interface Violation {
+  type: string
+  package: string
+  message: string
+  fix: string
+}
+
+interface PackageJsonShape {
+  dependencies?: Record<string, string> | undefined
+  devDependencies?: Record<string, string> | undefined
+  peerDependencies?: Record<string, string> | undefined
+}
+
 /**
  * Extract bundled package names from node_modules paths in comments and code.
  */
-export async function extractBundledPackages(filePath) {
+export async function extractBundledPackages(
+  filePath: string,
+): Promise<Set<string>> {
   const content = await fs.readFile(filePath, 'utf8')
-  const bundled = new Set()
+  const bundled = new Set<string>()
 
   // Match node_modules paths in comments and capture the package name. After
   // `node_modules/` (+ optional `.pnpm/`), the alternation captures one of:
@@ -43,6 +58,11 @@ export async function extractBundledPackages(filePath) {
   let match = nodeModulesPattern.exec(content)
   while (match !== null) {
     let packageName = match[1]
+
+    if (!packageName) {
+      match = nodeModulesPattern.exec(content)
+      continue
+    }
 
     // Handle pnpm path format: @scope+package -> @scope/package
     if (packageName.includes('+')) {
@@ -95,9 +115,11 @@ export async function extractBundledPackages(filePath) {
  * Extract external package names from require() and import statements in built
  * files.
  */
-export async function extractExternalPackages(filePath) {
+export async function extractExternalPackages(
+  filePath: string,
+): Promise<Set<string>> {
   const content = await fs.readFile(filePath, 'utf8')
-  const externals = new Set()
+  const externals = new Set<string>()
 
   // Match require('package') or require("package")
   const requirePattern = /require\s*\(\s*['"]([^'"]+)['"]\s*\)/g
@@ -111,7 +133,7 @@ export async function extractExternalPackages(filePath) {
   while (match !== null) {
     const specifier = match[1]
     // Skip internal src/external/ wrapper paths (used by socket-lib pattern)
-    if (specifier.includes('/external/')) {
+    if (!specifier || specifier.includes('/external/')) {
       match = requirePattern.exec(content)
       continue
     }
@@ -126,7 +148,7 @@ export async function extractExternalPackages(filePath) {
   while (match !== null) {
     const specifier = match[1]
     // Skip internal src/external/ wrapper paths (used by socket-lib pattern)
-    if (specifier.includes('/external/')) {
+    if (!specifier || specifier.includes('/external/')) {
       match = importPattern.exec(content)
       continue
     }
@@ -141,7 +163,7 @@ export async function extractExternalPackages(filePath) {
   while (match !== null) {
     const specifier = match[1]
     // Skip internal src/external/ wrapper paths (used by socket-lib pattern)
-    if (specifier.includes('/external/')) {
+    if (!specifier || specifier.includes('/external/')) {
       match = dynamicImportPattern.exec(content)
       continue
     }
@@ -157,14 +179,14 @@ export async function extractExternalPackages(filePath) {
 /**
  * Find all JavaScript files in dist directory.
  */
-export async function findDistFiles(distPath) {
-  const files = []
+export async function findDistFiles(distPath: string): Promise<string[]> {
+  const files: string[] = []
 
   try {
     const entries = await fs.readdir(distPath, { withFileTypes: true })
 
     for (let i = 0, { length } = entries; i < length; i += 1) {
-      const entry = entries[i]
+      const entry = entries[i]!
       const fullPath = path.join(distPath, entry.name)
 
       if (entry.isDirectory()) {
@@ -188,7 +210,7 @@ export async function findDistFiles(distPath) {
 /**
  * Get package name from a module specifier (strip subpaths).
  */
-export function getPackageName(specifier) {
+export function getPackageName(specifier: string): string | undefined {
   // Relative imports are not packages
   if (specifier.startsWith('.') || specifier.startsWith('/')) {
     return undefined
@@ -241,7 +263,7 @@ export function getPackageName(specifier) {
 /**
  * Check if a string is a valid package specifier.
  */
-export function isValidPackageSpecifier(specifier) {
+export function isValidPackageSpecifier(specifier: string): boolean {
   // Relative imports
   if (specifier.startsWith('.') || specifier.startsWith('/')) {
     return false
@@ -285,7 +307,7 @@ export function isValidPackageSpecifier(specifier) {
 /**
  * Read and parse package.json.
  */
-export async function readPackageJson() {
+export async function readPackageJson(): Promise<PackageJsonShape> {
   const packageJsonPath = path.join(ROOT_PATH, 'package.json')
   const content = await fs.readFile(packageJsonPath, 'utf8')
   return JSON.parse(content)
@@ -294,7 +316,10 @@ export async function readPackageJson() {
 /**
  * Validate bundle dependencies.
  */
-export async function validateBundleDeps() {
+export async function validateBundleDeps(): Promise<{
+  violations: Violation[]
+  warnings: Violation[]
+}> {
   const distPath = path.join(ROOT_PATH, 'dist')
   const pkg = await readPackageJson()
 
@@ -311,32 +336,29 @@ export async function validateBundleDeps() {
   }
 
   // Collect all external and bundled packages
-  const allExternals = new Set()
-  const allBundled = new Set()
+  const allExternals = new Set<string>()
+  const allBundled = new Set<string>()
 
   for (let i = 0, { length } = distFiles; i < length; i += 1) {
-    const file = distFiles[i]
+    const file = distFiles[i]!
     const externals = await extractExternalPackages(file)
     const bundled = await extractBundledPackages(file)
 
-    // `externals` and `bundled` are Sets — use for...of, not the
-    // cached-length for-loop.
-    for (let j = 0, { length: len } = externals; j < len; j += 1) {
-      const ext = externals[j]!
+    // `externals` and `bundled` are Sets — use for...of.
+    for (const ext of externals) {
       const packageName = getPackageName(ext)
       if (packageName && !BUILTIN_MODULES.has(packageName)) {
         allExternals.add(packageName)
       }
     }
 
-    for (let j = 0, { length: len } = bundled; j < len; j += 1) {
-      const bun = bundled[j]!
+    for (const bun of bundled) {
       allBundled.add(bun)
     }
   }
 
-  const violations = []
-  const warnings = []
+  const violations: Violation[] = []
+  const warnings: Violation[] = []
 
   // Validate external packages are in dependencies or peerDependencies.
   // `allExternals` / `allBundled` are Sets — use for...of.
@@ -386,7 +408,7 @@ async function main(): Promise<void> {
         logger.log('')
 
         for (let i = 0, { length } = violations; i < length; i += 1) {
-          const violation = violations[i]
+          const violation = violations[i]!
           logger.log(`  ${violation.message}`)
           logger.log(`  ${violation.fix}`)
           logger.log('')
@@ -398,7 +420,7 @@ async function main(): Promise<void> {
         logger.error('')
 
         for (let i = 0, { length } = warnings; i < length; i += 1) {
-          const warning = warnings[i]
+          const warning = warnings[i]!
           logger.log(`  ${warning.message}`)
           logger.log(`  ${warning.fix}`)
           logger.log('')

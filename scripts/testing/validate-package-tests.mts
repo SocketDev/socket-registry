@@ -7,20 +7,29 @@ import { existsSync, promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import parseArgsModule from '@socketsecurity/lib-stable/argv/parse'
+import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import promisesModule from '@socketsecurity/lib-stable/promises/iterate'
 import spawnModule from '@socketsecurity/lib-stable/process/spawn/child'
 import { deleteAsync as del } from 'del'
+import fastGlob from 'fast-glob'
 import process from 'node:process'
 
 import { NPM_PACKAGES_PATH } from '../constants/paths.mts'
+
+interface CliArgs {
+  package?: string[] | undefined
+  concurrency: string
+  verbose: boolean
+  fix: boolean
+}
 
 const { parseArgs } = parseArgsModule
 const logger = getDefaultLogger()
 const { spawn } = spawnModule
 const { pEach } = promisesModule
 
-const { values: cliArgs } = parseArgs({
+const { values: cliArgs } = parseArgs<CliArgs>({
   options: {
     package: {
       type: 'string',
@@ -52,15 +61,41 @@ const VALIDATION_CHECKS = {
   TEST_FILES: 'test-files',
 }
 
+export interface ValidationIssue {
+  type: string
+  severity: string
+  message: string
+}
+
+export interface ValidationResult {
+  packageName: string
+  issues: ValidationIssue[]
+  hasErrors: boolean
+  hasWarnings: boolean
+}
+
+function issueRecorder(
+  issues: ValidationIssue[],
+  type: string,
+): (severity: string, message: string) => void {
+  return (severity, message) => issues.push({ type, severity, message })
+}
+
 /**
  * Format validation results for display.
  */
-export function formatResults(results) {
-  const errors = []
-  const warnings = []
+export function formatResults(results: ValidationResult[]): {
+  errors: string[]
+  warnings: string[]
+} {
+  const errors: string[] = []
+  const warnings: string[] = []
 
   for (let i = 0, { length } = results; i < length; i += 1) {
     const result = results[i]
+    if (result === undefined) {
+      continue
+    }
     if (!result.issues.length) {
       logger.success(`✓ ${result.packageName}: All checks passed`)
       continue
@@ -84,7 +119,7 @@ export function formatResults(results) {
 /**
  * Get list of package directories to validate.
  */
-export async function getPackagesToValidate() {
+export async function getPackagesToValidate(): Promise<string[]> {
   if (cliArgs.package?.length) {
     return cliArgs.package
   }
@@ -99,8 +134,11 @@ export async function getPackagesToValidate() {
  * Check for required build artifacts. Verifies that all entry points declared
  * in package.json actually exist.
  */
-export async function validateBuildArtifacts(_packageName, packageDir) {
-  const issues = []
+export async function validateBuildArtifacts(
+  packageDir: string,
+): Promise<ValidationIssue[]> {
+  const issues: ValidationIssue[] = []
+  const record = issueRecorder(issues, VALIDATION_CHECKS.BUILD_ARTIFACTS)
   const packageJsonPath = path.join(packageDir, 'package.json')
 
   try {
@@ -117,14 +155,14 @@ export async function validateBuildArtifacts(_packageName, packageDir) {
         entryPoints.push(packageJson.exports)
       } else if (typeof packageJson.exports === 'object') {
         // Recursively extract string values from exports object structure.
-        const collectExports = obj => {
+        const collectExports = (obj: Record<string, unknown>): void => {
           const values = Object.values(obj)
           for (let i = 0, { length } = values; i < length; i += 1) {
             const value = values[i]
             if (typeof value === 'string') {
               entryPoints.push(value)
             } else if (typeof value === 'object' && value !== null) {
-              collectExports(value)
+              collectExports(value as Record<string, unknown>)
             }
           }
         }
@@ -136,11 +174,7 @@ export async function validateBuildArtifacts(_packageName, packageDir) {
       const entryPoint = entryPoints[i]
       const fullPath = path.join(packageDir, entryPoint)
       if (!existsSync(fullPath)) {
-        issues.push({
-          type: VALIDATION_CHECKS.BUILD_ARTIFACTS,
-          severity: 'error',
-          message: `Entry point "${entryPoint}" does not exist`,
-        })
+        record('error', `Entry point "${entryPoint}" does not exist`)
       }
     }
   } catch {
@@ -153,8 +187,12 @@ export async function validateBuildArtifacts(_packageName, packageDir) {
 /**
  * Validate dependencies are properly installed in isolated environment.
  */
-export async function validateDependencies(packageName, packageDir) {
-  const issues = []
+export async function validateDependencies(
+  packageName: string,
+  packageDir: string,
+): Promise<ValidationIssue[]> {
+  const issues: ValidationIssue[] = []
+  const record = issueRecorder(issues, VALIDATION_CHECKS.DEPENDENCIES)
   const tempDir = await fs.mkdtemp(
     path.join(os.tmpdir(), `validate-${packageName}-`),
   )
@@ -170,28 +208,16 @@ export async function validateDependencies(packageName, packageDir) {
     })
 
     if (installResult.code !== 0) {
-      issues.push({
-        type: VALIDATION_CHECKS.DEPENDENCIES,
-        severity: 'error',
-        message: `Dependency installation failed: ${installResult.stderr}`,
-      })
+      record('error', `Dependency installation failed: ${installResult.stderr}`)
     }
 
     // Check for common missing modules.
     const nodeModulesPath = path.join(tempDir, 'node_modules')
     if (!existsSync(nodeModulesPath)) {
-      issues.push({
-        type: VALIDATION_CHECKS.DEPENDENCIES,
-        severity: 'error',
-        message: 'node_modules directory not created after installation',
-      })
+      record('error', 'node_modules directory not created after installation')
     }
   } catch (e) {
-    issues.push({
-      type: VALIDATION_CHECKS.DEPENDENCIES,
-      severity: 'error',
-      message: `Dependency validation failed: ${e.message}`,
-    })
+    record('error', `Dependency validation failed: ${errorMessage(e)}`)
   } finally {
     // Force delete temp directory outside CWD.
     await del(tempDir, { force: true })
@@ -203,8 +229,11 @@ export async function validateDependencies(packageName, packageDir) {
 /**
  * Check for ESLint configuration issues.
  */
-export async function validateEslintConfig(_packageName, packageDir) {
-  const issues = []
+export async function validateEslintConfig(
+  packageDir: string,
+): Promise<ValidationIssue[]> {
+  const issues: ValidationIssue[] = []
+  const record = issueRecorder(issues, VALIDATION_CHECKS.ESLINT_CONFIG)
   // Filenames of ESLint configs the validated package may ship. These are the
   // target package's files, not the fleet's tooling.
   // oxlint-disable-next-line socket/no-eslint-biome-config-ref -- validates target packages' real ESLint config filenames.
@@ -224,18 +253,10 @@ export async function validateEslintConfig(_packageName, packageDir) {
       })
 
       if (result.code !== 0) {
-        issues.push({
-          type: VALIDATION_CHECKS.ESLINT_CONFIG,
-          severity: 'error',
-          message: `ESLint configuration is invalid: ${result.stderr}`,
-        })
+        record('error', `ESLint configuration is invalid: ${result.stderr}`)
       }
     } catch (e) {
-      issues.push({
-        type: VALIDATION_CHECKS.ESLINT_CONFIG,
-        severity: 'warning',
-        message: `Could not validate ESLint config: ${e.message}`,
-      })
+      record('warning', `Could not validate ESLint config: ${errorMessage(e)}`)
     }
   }
 
@@ -247,31 +268,24 @@ export async function validateEslintConfig(_packageName, packageDir) {
  * JavaScript/TypeScript files for problematic import patterns that commonly
  * cause CI failures.
  */
-export async function validateModuleResolution(_packageName, packageDir) {
-  const issues = []
-
-  // Collect all source files recursively.
-  const sourceFiles = []
-  const collectFiles = async dir => {
-    const entries = await fs.readdir(dir, { withFileTypes: true })
-    for (let i = 0, { length } = entries; i < length; i += 1) {
-      const entry = entries[i]
-      const fullPath = path.join(dir, entry.name)
-      if (entry.isDirectory() && entry.name !== 'node_modules') {
-        // Recursively scan subdirectories, excluding node_modules.
-
-        await collectFiles(fullPath)
-      } else if (entry.isFile() && /\.(?:cjs|js|mjs|ts)$/.test(entry.name)) {
-        sourceFiles.push(fullPath)
-      }
-    }
-  }
+export async function validateModuleResolution(
+  packageDir: string,
+): Promise<ValidationIssue[]> {
+  const issues: ValidationIssue[] = []
+  const record = issueRecorder(issues, VALIDATION_CHECKS.MODULE_RESOLUTION)
 
   try {
-    await collectFiles(packageDir)
+    const sourceFiles = await fastGlob(['**/*.{cjs,js,mjs,ts}'], {
+      absolute: true,
+      cwd: packageDir,
+      ignore: ['**/node_modules/**'],
+    })
 
     for (let i = 0, { length } = sourceFiles; i < length; i += 1) {
       const file = sourceFiles[i]
+      if (file === undefined) {
+        continue
+      }
       const content = await fs.readFile(file, 'utf8')
 
       // Check for problematic import patterns.
@@ -292,20 +306,12 @@ export async function validateModuleResolution(_packageName, packageDir) {
 
       for (const { message, pattern } of problematicPatterns) {
         if (pattern.test(content)) {
-          issues.push({
-            type: VALIDATION_CHECKS.MODULE_RESOLUTION,
-            severity: 'error',
-            message: `${message} in ${path.relative(packageDir, file)}`,
-          })
+          record('error', `${message} in ${path.relative(packageDir, file)}`)
         }
       }
     }
   } catch (e) {
-    issues.push({
-      type: VALIDATION_CHECKS.MODULE_RESOLUTION,
-      severity: 'warning',
-      message: `Could not analyze module resolution: ${e.message}`,
-    })
+    record('warning', `Could not analyze module resolution: ${errorMessage(e)}`)
   }
 
   return issues
@@ -314,9 +320,11 @@ export async function validateModuleResolution(_packageName, packageDir) {
 /**
  * Run all validations for a package.
  */
-export async function validatePackage(packageName) {
+export async function validatePackage(
+  packageName: string,
+): Promise<ValidationResult> {
   const packageDir = path.join(NPM_PACKAGES_PATH, packageName)
-  const allIssues = []
+  const allIssues: ValidationIssue[] = []
 
   if (cliArgs.verbose) {
     logger.info(`Validating ${packageName}...`)
@@ -324,18 +332,18 @@ export async function validatePackage(packageName) {
 
   // Run all validation checks.
   const validations = [
-    validatePackageJson(packageName, packageDir),
-    validateTestFiles(packageName, packageDir),
-    validateModuleResolution(packageName, packageDir),
-    validateBuildArtifacts(packageName, packageDir),
-    validateEslintConfig(packageName, packageDir),
+    validatePackageJson(packageDir),
+    validateTestFiles(packageDir),
+    validateModuleResolution(packageDir),
+    validateBuildArtifacts(packageDir),
+    validateEslintConfig(packageDir),
     validateDependencies(packageName, packageDir),
   ]
 
   const settled = await Promise.allSettled(validations)
   for (let i = 0, { length } = settled; i < length; i += 1) {
     const result = settled[i]
-    if (result.status === 'fulfilled') {
+    if (result !== undefined && result.status === 'fulfilled') {
       allIssues.push(...result.value)
     }
   }
@@ -351,16 +359,15 @@ export async function validatePackage(packageName) {
 /**
  * Check if package.json exists and is valid.
  */
-export async function validatePackageJson(_packageName, packageDir) {
-  const issues = []
+export async function validatePackageJson(
+  packageDir: string,
+): Promise<ValidationIssue[]> {
+  const issues: ValidationIssue[] = []
+  const record = issueRecorder(issues, VALIDATION_CHECKS.PACKAGE_JSON)
   const packageJsonPath = path.join(packageDir, 'package.json')
 
   if (!existsSync(packageJsonPath)) {
-    issues.push({
-      type: VALIDATION_CHECKS.PACKAGE_JSON,
-      severity: 'error',
-      message: 'package.json not found',
-    })
+    record('error', 'package.json not found')
     return issues
   }
 
@@ -370,35 +377,19 @@ export async function validatePackageJson(_packageName, packageDir) {
 
     // Check for test script.
     if (!packageJson.scripts?.test) {
-      issues.push({
-        type: VALIDATION_CHECKS.PACKAGE_JSON,
-        severity: 'warning',
-        message: 'No test script defined in package.json',
-      })
+      record('warning', 'No test script defined in package.json')
     }
 
     // Check for required fields.
     if (!packageJson.name) {
-      issues.push({
-        type: VALIDATION_CHECKS.PACKAGE_JSON,
-        severity: 'error',
-        message: 'Missing "name" field in package.json',
-      })
+      record('error', 'Missing "name" field in package.json')
     }
 
     if (!packageJson.version) {
-      issues.push({
-        type: VALIDATION_CHECKS.PACKAGE_JSON,
-        severity: 'error',
-        message: 'Missing "version" field in package.json',
-      })
+      record('error', 'Missing "version" field in package.json')
     }
   } catch (e) {
-    issues.push({
-      type: VALIDATION_CHECKS.PACKAGE_JSON,
-      severity: 'error',
-      message: `Failed to parse package.json: ${e.message}`,
-    })
+    record('error', `Failed to parse package.json: ${errorMessage(e)}`)
   }
 
   return issues
@@ -407,8 +398,11 @@ export async function validatePackageJson(_packageName, packageDir) {
 /**
  * Check if test files exist and are in expected locations.
  */
-export async function validateTestFiles(_packageName, packageDir) {
-  const issues = []
+export async function validateTestFiles(
+  packageDir: string,
+): Promise<ValidationIssue[]> {
+  const issues: ValidationIssue[] = []
+  const record = issueRecorder(issues, VALIDATION_CHECKS.TEST_FILES)
   const commonTestPaths = [
     'test',
     'tests',
@@ -423,6 +417,9 @@ export async function validateTestFiles(_packageName, packageDir) {
   let hasTests = false
   for (let i = 0, { length } = commonTestPaths; i < length; i += 1) {
     const testPath = commonTestPaths[i]
+    if (testPath === undefined) {
+      continue
+    }
     const fullPath = path.join(packageDir, testPath)
     if (existsSync(fullPath)) {
       hasTests = true
@@ -431,11 +428,7 @@ export async function validateTestFiles(_packageName, packageDir) {
   }
 
   if (!hasTests) {
-    issues.push({
-      type: VALIDATION_CHECKS.TEST_FILES,
-      severity: 'warning',
-      message: 'No test directory or test files found',
-    })
+    record('warning', 'No test directory or test files found')
   }
 
   return issues
@@ -453,10 +446,10 @@ async function main(): Promise<void> {
   logger.error('')
 
   const concurrency = Number.parseInt(cliArgs.concurrency, 10)
-  const results = []
+  const results: ValidationResult[] = []
   await pEach(
     packages,
-    async pkg => {
+    async (pkg: string) => {
       const result = await validatePackage(pkg)
       results.push(result)
     },
@@ -491,9 +484,9 @@ async function main(): Promise<void> {
 }
 
 main().catch((e: unknown) => {
-  logger.error(`Validation failed: ${e.message}`)
+  logger.error(`Validation failed: ${errorMessage(e)}`)
   if (cliArgs.verbose) {
-    logger.error(e.stack)
+    logger.error(e instanceof Error ? e.stack : errorMessage(e))
   }
   process.exitCode = 1
 })

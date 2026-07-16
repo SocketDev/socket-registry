@@ -15,6 +15,13 @@ import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { ROOT_PATH } from '../constants/paths.mts'
 import { runValidationScript } from '../repo/util/validation-runner.mts'
 
+interface FileSizeViolation {
+  file: string
+  formattedSize: string
+  maxSize: string
+  size: number
+}
+
 const logger = getDefaultLogger()
 
 // Maximum file size: 2MB (2,097,152 bytes)
@@ -49,7 +56,7 @@ const SKIP_DIRS = new Set([
 /**
  * Format bytes to human-readable size.
  */
-export function formatBytes(bytes) {
+export function formatBytes(bytes: number): string {
   if (bytes === 0) {
     return '0 B'
   }
@@ -62,12 +69,18 @@ export function formatBytes(bytes) {
 /**
  * Recursively scan directory for files exceeding size limit.
  */
-export async function scanDirectory(dir, violations = []) {
+export async function scanDirectory(
+  dir: string,
+  violations: FileSizeViolation[] = [],
+): Promise<FileSizeViolation[]> {
   try {
     const entries = await fs.readdir(dir, { withFileTypes: true })
 
     for (let i = 0, { length } = entries; i < length; i += 1) {
       const entry = entries[i]
+      if (!entry) {
+        continue
+      }
       const fullPath = path.join(dir, entry.name)
 
       if (entry.isDirectory()) {
@@ -112,7 +125,7 @@ export async function scanDirectory(dir, violations = []) {
 /**
  * Validate file sizes in repository.
  */
-export async function validateFileSizes() {
+export async function validateFileSizes(): Promise<FileSizeViolation[]> {
   const violations = await scanDirectory(ROOT_PATH)
 
   // Sort by size descending (largest first)
@@ -135,6 +148,9 @@ async function main(): Promise<void> {
 
         for (let i = 0, { length } = violations; i < length; i += 1) {
           const violation = violations[i]
+          if (!violation) {
+            continue
+          }
           logger.log(`  ${violation.file}`)
           logger.log(`    Size: ${violation.formattedSize}`)
           logger.log(

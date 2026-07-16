@@ -81,10 +81,22 @@ import {
   isSubpathExports,
   resolvePackageJsonEntryExports,
 } from '@socketsecurity/lib-stable/packages/exports'
+import type { EditablePackageJsonInstance } from '@socketsecurity/lib-stable/packages/edit'
+import type { LicenseNode } from '@socketsecurity/lib-stable/packages/types'
+
+interface CompatData {
+  spec_url?: string | undefined
+  support?:
+    | { nodejs?: { version_added?: string | boolean | undefined } | undefined }
+    | undefined
+}
+
+interface TsRef {
+  name: string
+  value: string
+}
 
 const logger = getDefaultLogger()
-
-const require = createRequire(import.meta.url)
 
 const npmPackagesPath = NPM_PACKAGES_PATH
 const tsLibsAvailable = TS_LIBS_AVAILABLE
@@ -107,17 +119,18 @@ const possibleTsRefs = [...tsLibsAvailable, ...tsTypesAvailable]
 const maxTsRefLength = possibleTsRefs.reduce((n, v) => Math.max(n, v.length), 0)
 
 async function main(): Promise<void> {
-  const origPkgName = await input({
+  const origPkgNameAnswer = await input({
     message: 'What is the name of the package to override?',
     default: cliPositionals.at(0),
     required: true,
-    validate: async pkgName =>
+    validate: async (pkgName: string) =>
       isValidPackageName(pkgName) && !!(await fetchPackageManifest(pkgName)),
   })
-  if (origPkgName === undefined) {
+  if (typeof origPkgNameAnswer !== 'string') {
     // Exit if user force closed the prompt.
     return
   }
+  const origPkgName = origPkgNameAnswer
   const sockRegPkgName = resolveRegistryPackageName(origPkgName)
   const pkgPath = path.join(npmPackagesPath, sockRegPkgName)
   if (existsSync(pkgPath) && !isDirEmptySync(pkgPath)) {
@@ -132,19 +145,22 @@ async function main(): Promise<void> {
       return
     }
   }
-  let badLicenses
-  let licenses
-  let licenseContents
-  let licenseWarnings
-  let nmPkgJson
-  let relJsFilepaths
-  await extractPackage(origPkgName, async nmPkgPath => {
+  let badLicenses: LicenseNode[] = []
+  let licenses: LicenseNode[] = []
+  let licenseContents: Array<{ name: string; content: string }> = []
+  let licenseWarnings: string[] = []
+  let nmPkgJson: Awaited<ReturnType<typeof readPackageJson>>
+  let relJsFilepaths: string[] = []
+  await extractPackage(origPkgName, undefined, async (nmPkgPath: string) => {
     nmPkgJson = await readPackageJson(nmPkgPath, { normalize: true })
+    if (!nmPkgJson) {
+      return
+    }
     relJsFilepaths = await fastGlob.glob(['*.js'], {
       ignore: ['**/package.json'],
       cwd: nmPkgPath,
     })
-    licenses = resolvePackageLicenses(nmPkgJson.license, nmPkgPath)
+    licenses = resolvePackageLicenses(nmPkgJson.license ?? '', nmPkgPath)
     licenseWarnings = collectLicenseWarnings(licenses)
     badLicenses = collectIncompatibleLicenses(licenses)
     if (!badLicenses.length) {
@@ -152,9 +168,13 @@ async function main(): Promise<void> {
       if (!licenseContents.length) {
         const tgzUrl = await resolveGitHubTgzUrl(origPkgName, nmPkgJson)
         if (tgzUrl) {
-          await extractPackage(tgzUrl, async tarDirPath => {
-            licenseContents = await readLicenses(tarDirPath)
-          })
+          await extractPackage(
+            tgzUrl,
+            undefined,
+            async (tarDirPath: string) => {
+              licenseContents = await readLicenses(tarDirPath)
+            },
+          )
         }
       }
     }
@@ -177,7 +197,7 @@ async function main(): Promise<void> {
       count: badLicenses.length,
     })
     const badLicenseNames = badLicenses.map(n => n.license)
-    const warning = `${LOG_SYMBOLS.warn} ${origPkgName} has incompatible ${singularOrPlural} ${badLicenseNames.join(', ')}.`
+    const warning = `${LOG_SYMBOLS['warn']} ${origPkgName} has incompatible ${singularOrPlural} ${badLicenseNames.join(', ')}.`
     const answer = await confirm({
       message: `${warning}.\nDo you want to continue?`,
       default: false,
@@ -197,19 +217,23 @@ async function main(): Promise<void> {
     relJsFilepaths.includes('polyfill.js') &&
     relJsFilepaths.includes('shim.js')
 
-  let nodeRange
-  let templateChoice
-  const tsRefs = []
+  let nodeRange: string | undefined
+  let templateChoice: string | undefined
+  const tsRefs: TsRef[] = []
   if (isEsShim) {
-    const { default: maintainedNodeVersions } =
-      await import('../constants/node.mts')
+    const { maintainedNodeVersions } = await import('../constants/node.mts')
     const { PACKAGE_DEFAULT_NODE_RANGE } = await import('../constants/node.mts')
     const parts = origPkgName
       .split(/[-.]/)
-      .filter(p => p !== 'es' && p !== 'helpers')
-    const compatData = getCompatData(['javascript', 'builtins', ...parts])
+      .filter((p: string) => p !== 'es' && p !== 'helpers')
+    const compatData = getCompatData(['javascript', 'builtins', ...parts]) as
+      | CompatData
+      | undefined
+    const rawVersionAdded = compatData?.support?.nodejs?.version_added
     const versionAdded =
-      compatData?.support?.nodejs?.version_added ?? maintainedNodeVersions.last
+      typeof rawVersionAdded === 'string'
+        ? rawVersionAdded
+        : maintainedNodeVersions.last
 
     nodeRange = `>=${maintainedNodeVersions.next}`
     if (!semver.satisfies(versionAdded, nodeRange)) {
@@ -239,21 +263,21 @@ async function main(): Promise<void> {
     ) {
       templateChoice = TEMPLATE_ES_SHIM_CONSTRUCTOR
     } else {
-      templateChoice = await select({
+      templateChoice = (await select({
         message: 'Pick the es-shim template to use',
         choices: esShimChoices,
-      })
+      })) as string | undefined
     }
   } else if (isEsm) {
     templateChoice = TEMPLATE_CJS_ESM
   } else {
-    templateChoice = await select({
+    templateChoice = (await select({
       message: 'Pick the package template to use',
       choices: [
         { name: 'cjs', value: TEMPLATE_CJS },
         { name: 'cjs and browser', value: TEMPLATE_CJS_BROWSER },
       ],
-    })
+    })) as string | undefined
   }
   if (templateChoice === undefined) {
     // Exit if user force closed the prompt.
@@ -271,7 +295,7 @@ async function main(): Promise<void> {
     if (answer) {
       const searchResult = await search({
         message: 'Which one?',
-        source: async term => {
+        source: async (term: string) => {
           if (!term) {
             return []
           }
@@ -280,7 +304,7 @@ async function main(): Promise<void> {
           if (!formatted) {
             return [term]
           }
-          let matches
+          let matches: string[] | undefined
           // Simple search.
           for (const p of ['es2', 'es', 'e', 'de', 'd', 'n', 'w']) {
             if (term.startsWith(p) && term.length <= 3) {
@@ -300,7 +324,7 @@ async function main(): Promise<void> {
           if (!matches.length) {
             return [toChoice(term)]
           }
-          const firstMatch = matches[0]
+          const firstMatch = matches[0]!
           const sortedTail =
             matches.length > 1 ? naturalSorter(matches.slice(1)).desc() : []
           // If a match starts with input then don't include input in the results.
@@ -316,7 +340,7 @@ async function main(): Promise<void> {
           return [first, second, ...sortedTail].map(toChoice)
         },
       })
-      if (searchResult === undefined) {
+      if (typeof searchResult !== 'string') {
         // Exit if user force closed the prompt.
         return
       }
@@ -326,6 +350,10 @@ async function main(): Promise<void> {
   }
 
   const templatePkgPath = getTemplate(templateChoice)
+  if (!templatePkgPath) {
+    logger.fail(`No template found for ${templateChoice}`)
+    return
+  }
 
   const interop = [
     'cjs',
@@ -354,7 +382,7 @@ async function main(): Promise<void> {
           // Exclude /// <reference types="node" /> from .d.ts files, allowing
           // them in .d.cts files.
           const isCts = filepath.endsWith('.d.cts')
-          data.references = tsRefs.filter(
+          data['references'] = tsRefs.filter(
             r => isCts || !(r.name === 'types' && r.value === 'node'),
           )
           return data
@@ -364,9 +392,13 @@ async function main(): Promise<void> {
   )
   // Create LICENSE.original files.
   const { length: licenseCount } = licenseContents
-  const filesFieldAdditions = []
+  const filesFieldAdditions: string[] = []
   for (let i = 0; i < licenseCount; i += 1) {
-    const { content, name } = licenseContents[i]
+    const licenseContent = licenseContents[i]
+    if (!licenseContent) {
+      continue
+    }
+    const { content, name } = licenseContent
     const extRaw = path.extname(name)
     // Omit the .txt extension since licenses are assumed plain text by default.
     const ext = extRaw === '.txt' ? '' : extRaw
@@ -385,10 +417,16 @@ async function main(): Promise<void> {
   }
   if (filesFieldAdditions.length) {
     // Load the freshly written package.json and edit its "exports" and "files" fields.
-    const editablePkgJson = await readPackageJson(pkgPath, {
+    const editablePkgJsonResult = await readPackageJson(pkgPath, {
       editable: true,
       normalize: true,
     })
+    if (!editablePkgJsonResult) {
+      logger.fail(`Failed to load package.json at ${pkgPath}`)
+      return
+    }
+    const editablePkgJson =
+      editablePkgJsonResult as unknown as EditablePackageJsonInstance
     const entryExports = resolvePackageJsonEntryExports(
       editablePkgJson.content.exports,
     )
@@ -397,9 +435,13 @@ async function main(): Promise<void> {
       entryExports === undefined && isSubpathExports(nmEntryExports)
     editablePkgJson.update({
       main: useNmEntryExports ? undefined : editablePkgJson.content.main,
-      exports: useNmEntryExports ? nmEntryExports : entryExports,
+      exports: (useNmEntryExports ? nmEntryExports : entryExports) as
+        | string
+        | string[]
+        | Record<string, unknown>
+        | undefined,
       files: [
-        ...editablePkgJson.content.files,
+        ...(editablePkgJson.content.files ?? []),
         ...filesFieldAdditions,
       ].toSorted(naturalCompare),
     })
@@ -411,10 +453,10 @@ async function main(): Promise<void> {
     const spawnOptions = {
       cwd: ROOT_PATH,
       stdio: 'inherit',
-    }
+    } as const
     await execScript('update:manifest', [], spawnOptions)
     await execScript('update:package-json', [], spawnOptions)
-    if (!cliArgs.quiet) {
+    if (!cliArgs['quiet']) {
       logger.log('Finished 🎉')
     }
   } catch (e) {

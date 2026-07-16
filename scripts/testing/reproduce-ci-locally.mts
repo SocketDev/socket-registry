@@ -6,6 +6,8 @@ import { mkdtempSync, promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import parseArgsModule from '@socketsecurity/lib-stable/argv/parse'
+import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
+import { errorStack } from '@socketsecurity/lib-stable/errors/stack'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import spawnModule from '@socketsecurity/lib-stable/process/spawn/child'
 import { deleteAsync as del } from 'del'
@@ -17,7 +19,15 @@ const { parseArgs } = parseArgsModule
 const logger = getDefaultLogger()
 const { spawn } = spawnModule
 
-const { values: cliArgs } = parseArgs({
+interface CliArgs {
+  keepTemp: boolean
+  package: string[] | undefined
+  skipBuild: boolean
+  skipInstall: boolean
+  verbose: boolean
+}
+
+const { values: cliArgs } = parseArgs<CliArgs>({
   options: {
     package: {
       type: 'string',
@@ -74,7 +84,7 @@ export async function createTestEnvironment() {
 /**
  * Run build in CI environment.
  */
-export async function runBuild(workDir) {
+export async function runBuild(workDir: string) {
   logger.error('')
   logger.info('--- Building Project (CI Mode) ---')
   const result = await runCiCommand('pnpm', ['run', 'build'], { cwd: workDir })
@@ -92,7 +102,11 @@ export async function runBuild(workDir) {
  * Run command with CI-like environment variables. Sets up environment to match
  * actual CI execution context.
  */
-export async function runCiCommand(command, args, options = {}) {
+export async function runCiCommand(
+  command: string,
+  args: string[],
+  options: { cwd?: string | undefined } = {},
+) {
   const ciEnv = {
     ...process.env,
     // Core CI indicators.
@@ -117,7 +131,7 @@ export async function runCiCommand(command, args, options = {}) {
 /**
  * Run dependency installation.
  */
-export async function runInstall(workDir) {
+export async function runInstall(workDir: string) {
   logger.error('')
   logger.info('--- Installing Dependencies (CI Mode) ---')
   const result = await runCiCommand('pnpm', ['install', '--frozen-lockfile'], {
@@ -136,7 +150,7 @@ export async function runInstall(workDir) {
 /**
  * Run linting checks.
  */
-export async function runLint(workDir) {
+export async function runLint(workDir: string) {
   logger.error('')
   logger.info('--- Running Linting (CI Mode) ---')
   const result = await runCiCommand('pnpm', ['run', 'lint-ci'], {
@@ -158,7 +172,7 @@ export async function runLint(workDir) {
 /**
  * Run npm package tests.
  */
-export async function runNpmPackageTests(workDir) {
+export async function runNpmPackageTests(workDir: string) {
   logger.error('')
   logger.info('--- Running NPM Package Tests (CI Mode) ---')
 
@@ -167,8 +181,10 @@ export async function runNpmPackageTests(workDir) {
   if (cliArgs.package?.length) {
     for (let i = 0, { length } = cliArgs.package; i < length; i += 1) {
       const pkg = cliArgs.package[i]
-      // vitest positional filter — matches the override's test file path.
-      args.push(pkg)
+      if (pkg) {
+        // vitest positional filter — matches the override's test file path.
+        args.push(pkg)
+      }
     }
   }
 
@@ -189,7 +205,7 @@ export async function runNpmPackageTests(workDir) {
 /**
  * Run type checking.
  */
-export async function runTypecheck(workDir) {
+export async function runTypecheck(workDir: string) {
   logger.error('')
   logger.info('--- Running Type Check (CI Mode) ---')
   const result = await runCiCommand('pnpm', ['run', 'type-ci'], {
@@ -211,7 +227,7 @@ export async function runTypecheck(workDir) {
 /**
  * Run unit tests.
  */
-export async function runUnitTests(workDir) {
+export async function runUnitTests(workDir: string) {
   logger.error('')
   logger.info('--- Running Unit Tests (CI Mode) ---')
   const result = await runCiCommand('pnpm', ['run', 'test-ci'], {
@@ -299,9 +315,9 @@ async function main(): Promise<void> {
       process.exitCode = 1
     }
   } catch (e) {
-    logger.error(`CI reproduction failed: ${e.message}`)
+    logger.error(`CI reproduction failed: ${errorMessage(e)}`)
     if (cliArgs.verbose) {
-      logger.error(e.stack)
+      logger.error(errorStack(e))
     }
     process.exitCode = 1
   } finally {
@@ -318,9 +334,9 @@ async function main(): Promise<void> {
 }
 
 main().catch((e: unknown) => {
-  logger.error(`Fatal error: ${e.message}`)
+  logger.error(`Fatal error: ${errorMessage(e)}`)
   if (cliArgs.verbose) {
-    logger.error(e.stack)
+    logger.error(errorStack(e))
   }
   process.exitCode = 1
 })

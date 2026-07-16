@@ -56,10 +56,10 @@ export function innerGetPackages(
     },
   )
   const sliceStart = relEcoPackagesPath.length + 1
-  const packageNames = new Set()
+  const packageNames = new Set<string>()
   for (let i = 0, { length } = files; i < length; i += 1) {
     const filepath = files[i]
-    if (matcher(filepath)) {
+    if (filepath !== undefined && matcher(filepath)) {
       let sockRegPkgName
       if (eco === NPM && filepath.startsWith(REL_REGISTRY_PKG_PATH)) {
         sockRegPkgName = '../../registry/dist/index.js'

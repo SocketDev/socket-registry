@@ -54,24 +54,33 @@ export const PNPM_INSTALL_ENV = { CI: undefined, NODE_ENV: undefined }
 /**
  * Builds test environment with proper PATH for test runners.
  */
-export function buildTestEnv(packageTempDir, installedPath) {
+export function buildTestEnv(
+  packageTempDir: string,
+  installedPath: string,
+): NodeJS.ProcessEnv {
   const packageBinPath = path.join(packageTempDir, 'node_modules', '.bin')
   const nestedBinPath = path.join(installedPath, 'node_modules', '.bin')
   const rootBinPath = path.join(ROOT_PATH, 'node_modules', '.bin')
   return {
     ...process.env,
-    PATH: `${nestedBinPath}${path.delimiter}${packageBinPath}${path.delimiter}${rootBinPath}${path.delimiter}${process.env.PATH}`,
+    PATH: `${nestedBinPath}${path.delimiter}${packageBinPath}${path.delimiter}${rootBinPath}${path.delimiter}${process.env['PATH']}`,
   }
+}
+
+export interface InstallPackageForTestingResult {
+  installed: boolean
+  packagePath?: string | undefined
+  reason?: string | undefined
 }
 
 /**
  * Install a package for testing in a temporary directory.
  */
 export async function installPackageForTesting(
-  sourcePath,
-  packageName,
-  options = {},
-) {
+  sourcePath: string,
+  packageName: string,
+  options: { versionSpec?: string | undefined } = {},
+): Promise<InstallPackageForTestingResult> {
   const { versionSpec } = { __proto__: null, ...options } as {
     versionSpec?: string | undefined
   }
@@ -92,9 +101,9 @@ export async function installPackageForTesting(
     const packageTempDir = path.join(tempDir, sanitizedName)
     await fs.mkdir(packageTempDir, { recursive: true })
 
-    let installedPath
-    let originalScripts
-    let originalDevDependencies
+    let installedPath: string
+    let originalScripts: Record<string, string> | undefined
+    let originalDevDependencies: Record<string, string> | undefined
 
     if (versionSpec) {
       // Installing from npm registry first, then copying source on top
@@ -160,12 +169,16 @@ export async function installPackageForTesting(
       const originalPkgJson = await readPackageJson(installedPath, {
         normalize: true,
       })
-      originalScripts = originalPkgJson.scripts
-      originalDevDependencies = originalPkgJson.devDependencies
+      originalScripts = originalPkgJson?.scripts
+      originalDevDependencies = originalPkgJson?.devDependencies
     } else {
       // Just copying local package, no npm install
       const scopedPath = packageName.startsWith('@')
-        ? path.join(packageTempDir, 'node_modules', packageName.split('/')[0])
+        ? path.join(
+            packageTempDir,
+            'node_modules',
+            packageName.split('/')[0] ?? packageName,
+          )
         : path.join(packageTempDir, 'node_modules')
 
       await fs.mkdir(scopedPath, { recursive: true })
@@ -201,42 +214,44 @@ export async function installPackageForTesting(
 
     // Preserve test scripts.
     if (originalScripts) {
+      const scripts = originalScripts
       pkgJson.scripts = pkgJson.scripts || {}
 
       // Look for actual test runner in scripts.
       const additionalTestRunners = [...testRunners, 'test:stock', 'test:all']
       let actualTestScript = additionalTestRunners.find(
-        runner => originalScripts[runner],
+        runner => scripts[runner],
       )
 
-      if (!actualTestScript && originalScripts.test) {
+      if (!actualTestScript && scripts['test']) {
         // Try to extract the test runner from the test script.
-        const testMatch = originalScripts.test.match(/npm run ([-:\w]+)/)
-        if (testMatch && originalScripts[testMatch[1]]) {
-          actualTestScript = testMatch[1]
+        const testMatch = scripts['test'].match(/npm run ([-:\w]+)/)
+        const runnerName = testMatch?.[1]
+        if (runnerName && scripts[runnerName]) {
+          actualTestScript = runnerName
         }
       }
 
       // Use the actual test script or cleaned version.
-      if (actualTestScript && originalScripts[actualTestScript]) {
-        pkgJson.scripts.test = cleanTestScript(
-          originalScripts[actualTestScript],
-        )
+      const actualTestScriptBody = actualTestScript
+        ? scripts[actualTestScript]
+        : undefined
+      if (actualTestScript && actualTestScriptBody) {
+        pkgJson.scripts.test = cleanTestScript(actualTestScriptBody)
         // Also preserve the actual script if it's referenced.
         if (actualTestScript !== 'test') {
-          pkgJson.scripts[actualTestScript] = cleanTestScript(
-            originalScripts[actualTestScript],
-          )
+          pkgJson.scripts[actualTestScript] =
+            cleanTestScript(actualTestScriptBody)
         }
-      } else if (originalScripts.test) {
+      } else if (scripts['test']) {
         // Fallback to simple test script if it exists.
-        pkgJson.scripts.test = cleanTestScript(originalScripts.test)
+        pkgJson.scripts.test = cleanTestScript(scripts['test'])
       }
 
       // Preserve test:* scripts and the exact key 'tests', but not unrelated
       // names like 'testsuite' that merely begin with 'tests'.
       // oxlint-disable-next-line socket/prefer-cached-for-loop -- iterates Object.entries() (non-array iterable); cached-length would be incorrect.
-      for (const { 0: key, 1: value } of Object.entries(originalScripts)) {
+      for (const { 0: key, 1: value } of Object.entries(scripts)) {
         if (
           (key.startsWith('test:') || key === 'tests') &&
           !pkgJson.scripts[key]

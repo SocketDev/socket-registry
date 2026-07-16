@@ -6,12 +6,20 @@ import { promises as fs } from 'node:fs'
 import process from 'node:process'
 
 import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
+import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
+import { errorStack } from '@socketsecurity/lib-stable/errors/stack'
 import { httpText } from '@socketsecurity/lib-stable/http-request'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
 const logger = getDefaultLogger()
 
-const { values: cliArgs } = parseArgs({
+interface CliArgsValues {
+  logFile?: string | undefined
+  logUrl?: string | undefined
+  verbose: boolean
+}
+
+const { values: cliArgs } = parseArgs<CliArgsValues>({
   options: {
     'log-file': {
       type: 'string',
@@ -27,6 +35,50 @@ const { values: cliArgs } = parseArgs({
   strict: false,
 })
 
+interface FailureDetails {
+  [key: string]: string
+}
+
+interface FailurePatternDef {
+  pattern: RegExp
+  category: string
+  severity: 'error' | 'warning'
+  extract?: ((match: RegExpMatchArray) => FailureDetails) | undefined
+  suggestions: string[]
+}
+
+interface Failure {
+  type: string
+  category: string
+  severity: string
+  line: string
+  package: string | undefined
+  suggestions: string[]
+  details?: FailureDetails | undefined
+}
+
+interface CategoryRecommendation {
+  level: 'category'
+  category: string
+  count: number
+  suggestions: string[]
+}
+
+interface PackageRecommendation {
+  level: 'package'
+  package: string
+  count: number
+  issues: Array<{ category: string; details: FailureDetails | undefined }>
+  actions: string[]
+}
+
+type Recommendation = CategoryRecommendation | PackageRecommendation
+
+interface GroupedFailures {
+  byCategory: Record<string, Failure[]>
+  byPackage: Record<string, Failure[]>
+}
+
 /**
  * Failure pattern definitions for automated CI log analysis. Each pattern
  * includes: - pattern: Regex to match error in logs - category: Human-readable
@@ -34,12 +86,12 @@ const { values: cliArgs } = parseArgs({
  * function to extract specific details from match - suggestions: Actionable
  * fixes for this failure type.
  */
-const FAILURE_PATTERNS = {
+const FAILURE_PATTERNS: Record<string, FailurePatternDef> = {
   BUILD_ARTIFACT_MISSING: {
     pattern: /build\/([^\s]+).*not found/i,
     category: 'Build Artifacts',
     severity: 'error',
-    extract: match => ({ artifact: match[1] }),
+    extract: match => ({ artifact: match[1] ?? '' }),
     suggestions: [
       'Run build step before testing',
       'Commit required build artifacts to git',
@@ -54,7 +106,7 @@ const FAILURE_PATTERNS = {
       /Failed to load plugin ['"]([^'"]+)['"] declared in ['"]([^'"]+)['"]/, // socket-lint: allow uncommented-regex
     category: 'ESLint Configuration',
     severity: 'error',
-    extract: match => ({ plugin: match[1], config: match[2] }),
+    extract: match => ({ plugin: match[1] ?? '', config: match[2] ?? '' }),
     suggestions: [
       'Add missing ESLint plugin to devDependencies',
       'Remove plugin from ESLint config if not needed',
@@ -64,7 +116,7 @@ const FAILURE_PATTERNS = {
   },
   MODULE_NOT_FOUND: {
     category: 'Module Resolution',
-    extract: match => ({ module: match[1] }),
+    extract: match => ({ module: match[1] ?? '' }),
     pattern: /Cannot find module ['"]([^'"]+)['"]/,
     severity: 'error',
     suggestions: [
@@ -101,7 +153,7 @@ const FAILURE_PATTERNS = {
     pattern: /ENOENT.*['"]([^'"]+)['"]/,
     category: 'Path Resolution',
     severity: 'error',
-    extract: match => ({ path: match[1] }),
+    extract: match => ({ path: match[1] ?? '' }),
     suggestions: [
       'Use path.join() instead of hard-coded path separators',
       'Use os.tmpdir() for temporary directories',
@@ -113,7 +165,7 @@ const FAILURE_PATTERNS = {
     pattern: /\.pnpm\/([^/]+)/,
     category: 'Module Resolution',
     severity: 'error',
-    extract: match => ({ pnpmPath: match[1] }),
+    extract: match => ({ pnpmPath: match[1] ?? '' }),
     suggestions: [
       'Replace direct .pnpm references with regular imports',
       'Use package name instead of .pnpm path',
@@ -139,13 +191,16 @@ const FAILURE_PATTERNS = {
 /**
  * Analyze log content for failure patterns.
  */
-export function analyzeLog(logContent) {
+export function analyzeLog(logContent: string): Failure[] {
   const lines = logContent.split('\n')
-  const failures = []
-  let currentPackage
+  const failures: Failure[] = []
+  let currentPackage: string | undefined
 
   for (let i = 0, { length } = lines; i < length; i += 1) {
     const line = lines[i]
+    if (line === undefined) {
+      continue
+    }
     // Track current package being tested.
     const packageName = extractPackageName(line)
     if (packageName) {
@@ -158,7 +213,7 @@ export function analyzeLog(logContent) {
     )) {
       const match = line.match(patternDef.pattern)
       if (match) {
-        const failure = {
+        const failure: Failure = {
           type: patternName,
           category: patternDef.category,
           severity: patternDef.severity,
@@ -182,7 +237,7 @@ export function analyzeLog(logContent) {
 /**
  * Parse package name from log line.
  */
-export function extractPackageName(line) {
+export function extractPackageName(line: string): string | undefined {
   // Try various patterns to extract package name.
   const patterns = [
     /Testing package: ([^\s]+)/,
@@ -193,6 +248,9 @@ export function extractPackageName(line) {
 
   for (let i = 0, { length } = patterns; i < length; i += 1) {
     const pattern = patterns[i]
+    if (pattern === undefined) {
+      continue
+    }
     const match = line.match(pattern)
     if (match) {
       return match[1]
@@ -205,7 +263,7 @@ export function extractPackageName(line) {
 /**
  * Fetch log content from URL or file.
  */
-export async function fetchLogContent() {
+export async function fetchLogContent(): Promise<string> {
   if (cliArgs.logFile) {
     return await fs.readFile(cliArgs.logFile, 'utf8')
   }
@@ -220,7 +278,10 @@ export async function fetchLogContent() {
 /**
  * Format analysis results for display.
  */
-export function formatResults(failures, recommendations) {
+export function formatResults(
+  failures: Failure[],
+  recommendations: Recommendation[],
+): void {
   logger.info('=== CI Failure Analysis ===')
   logger.error('')
 
@@ -234,17 +295,27 @@ export function formatResults(failures, recommendations) {
 
   // Display category summary.
   logger.info('--- Failures by Category ---')
-  const categoryRecs = recommendations.filter(r => r.level === 'category')
+  const categoryRecs = recommendations.filter(
+    (r): r is CategoryRecommendation => r.level === 'category',
+  )
   for (let i = 0, { length } = categoryRecs; i < length; i += 1) {
     const rec = categoryRecs[i]
+    if (rec === undefined) {
+      continue
+    }
     logger.warn(`${rec.category}: ${rec.count} occurrence(s)`)
   }
 
   logger.error('')
   logger.info('--- Affected Packages ---')
-  const packageRecs = recommendations.filter(r => r.level === 'package')
+  const packageRecs = recommendations.filter(
+    (r): r is PackageRecommendation => r.level === 'package',
+  )
   for (let i = 0, { length } = packageRecs; i < length; i += 1) {
     const rec = packageRecs[i]
+    if (rec === undefined) {
+      continue
+    }
     logger.error(`${rec.package}: ${rec.count} issue(s)`)
     for (const issue of rec.issues) {
       logger.info(
@@ -258,6 +329,9 @@ export function formatResults(failures, recommendations) {
   logger.info('--- Recommended Actions ---')
   for (let i = 0, { length } = packageRecs; i < length; i += 1) {
     const rec = packageRecs[i]
+    if (rec === undefined) {
+      continue
+    }
     logger.error('')
     logger.info(`Package: ${rec.package}`)
     for (const action of rec.actions) {
@@ -271,7 +345,13 @@ export function formatResults(failures, recommendations) {
   const uniqueCategories = [...new Set(categoryRecs.map(r => r.category))]
   for (let i = 0, { length } = uniqueCategories; i < length; i += 1) {
     const category = uniqueCategories[i]
+    if (category === undefined) {
+      continue
+    }
     const rec = categoryRecs.find(r => r.category === category)
+    if (rec === undefined) {
+      continue
+    }
     logger.error('')
     logger.info(`${category}:`)
     for (const suggestion of rec.suggestions) {
@@ -285,6 +365,9 @@ export function formatResults(failures, recommendations) {
     logger.info('--- Detailed Failures ---')
     for (let i = 0, { length } = failures; i < length; i += 1) {
       const failure = failures[i]
+      if (failure === undefined) {
+        continue
+      }
       logger.error('')
       logger.info(
         `[${failure.severity.toUpperCase()}] ${failure.category} (${failure.package || 'unknown'})`,
@@ -300,8 +383,10 @@ export function formatResults(failures, recommendations) {
 /**
  * Generate fix recommendations.
  */
-export function generateRecommendations(_failures, grouped) {
-  const recommendations = []
+export function generateRecommendations(
+  grouped: GroupedFailures,
+): Recommendation[] {
+  const recommendations: Recommendation[] = []
 
   // Category-level recommendations.
   for (const { 0: category, 1: categoryFailures } of Object.entries(
@@ -315,7 +400,7 @@ export function generateRecommendations(_failures, grouped) {
       level: 'category',
       category,
       count: categoryFailures.length,
-      suggestions: categoryFailures[0].suggestions,
+      suggestions: categoryFailures[0]?.suggestions ?? [],
     })
   }
 
@@ -348,24 +433,27 @@ export function generateRecommendations(_failures, grouped) {
 /**
  * Group failures by category and package.
  */
-export function groupFailures(failures) {
-  const byCategory = { __proto__: null }
-  const byPackage = { __proto__: null }
+export function groupFailures(failures: Failure[]): GroupedFailures {
+  const byCategory = { __proto__: null } as unknown as Record<string, Failure[]>
+  const byPackage = { __proto__: null } as unknown as Record<string, Failure[]>
 
   for (let i = 0, { length } = failures; i < length; i += 1) {
     const failure = failures[i]
+    if (failure === undefined) {
+      continue
+    }
     // Group by category.
     if (!byCategory[failure.category]) {
       byCategory[failure.category] = []
     }
-    byCategory[failure.category].push(failure)
+    byCategory[failure.category]?.push(failure)
 
     // Group by package.
     if (failure.package) {
       if (!byPackage[failure.package]) {
         byPackage[failure.package] = []
       }
-      byPackage[failure.package].push(failure)
+      byPackage[failure.package]?.push(failure)
     }
   }
 
@@ -383,7 +471,7 @@ async function main(): Promise<void> {
     logger.info('Analyzing failures…')
     const failures = analyzeLog(logContent)
     const grouped = groupFailures(failures)
-    const recommendations = generateRecommendations(failures, grouped)
+    const recommendations = generateRecommendations(grouped)
 
     formatResults(failures, recommendations)
 
@@ -391,9 +479,9 @@ async function main(): Promise<void> {
       process.exitCode = 1
     }
   } catch (e) {
-    logger.error(`Analysis failed: ${e.message}`)
+    logger.error(`Analysis failed: ${errorMessage(e)}`)
     if (cliArgs.verbose) {
-      logger.error(e.stack)
+      logger.error(errorStack(e))
     }
     process.exitCode = 1
   }

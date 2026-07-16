@@ -19,17 +19,21 @@ import {
 /**
  * Extract action dependencies from a workflow or action file.
  */
-export async function extractDependencies(filePath) {
+export async function extractDependencies(
+  filePath: string,
+): Promise<Map<string, string>> {
   const content = await fs.readFile(filePath, 'utf8')
-  const dependencies = new Map()
+  const dependencies = new Map<string, string>()
 
   // Extract from uses: statements only (these have SHAs).
   const usesMatches = content.matchAll(/^\s*uses:\s*(.+)$/gm)
-  for (let i = 0, { length } = usesMatches; i < length; i += 1) {
-    const match = usesMatches[i]
-    let action = match[1].trim()
+  for (const match of usesMatches) {
+    const capture = match[1]
+    if (capture === undefined) {
+      continue
+    }
     // Remove inline comments from uses statements.
-    action = action.replace(/\s+#.*$/, '')
+    const action = capture.trim().replace(/\s+#.*$/, '')
     // Skip local actions that reference the current repo.
     if (!action.startsWith('.')) {
       // Extract owner/repo as key for deduplication.
@@ -48,12 +52,15 @@ export async function extractDependencies(filePath) {
 /**
  * Recursively find all YAML files in a directory.
  */
-export async function getAllYamlFiles(dir) {
-  const files = []
+export async function getAllYamlFiles(dir: string): Promise<string[]> {
+  const files: string[] = []
   try {
     const entries = await fs.readdir(dir, { withFileTypes: true })
     for (let i = 0, { length } = entries; i < length; i += 1) {
       const entry = entries[i]
+      if (entry === undefined) {
+        continue
+      }
       const fullPath = path.join(dir, entry.name)
       if (entry.isFile() && entry.name.endsWith('.yml')) {
         files.push(fullPath)
@@ -71,12 +78,15 @@ export async function getAllYamlFiles(dir) {
  * Generate and display GitHub Actions allow list.
  */
 async function main(): Promise<void> {
-  const allDependencies = new Map()
+  const allDependencies = new Map<string, string>()
 
   // Process workflow files.
   const workflowFiles = await getAllYamlFiles(ROOT_DOT_GITHUB_WORKFLOWS_PATH)
   for (let i = 0, { length } = workflowFiles; i < length; i += 1) {
     const file = workflowFiles[i]
+    if (file === undefined) {
+      continue
+    }
     const deps = await extractDependencies(file)
     // oxlint-disable-next-line socket/prefer-cached-for-loop -- iterates Map.entries() (non-array iterable); cached-length would be incorrect.
     for (const { 0: key, 1: value } of deps.entries()) {
@@ -90,6 +100,9 @@ async function main(): Promise<void> {
   })
   for (let i = 0, { length } = actionDirs; i < length; i += 1) {
     const dir = actionDirs[i]
+    if (dir === undefined) {
+      continue
+    }
     if (dir.isDirectory()) {
       const actionFile = path.join(
         ROOT_DOT_GITHUB_ACTIONS_PATH,

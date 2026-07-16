@@ -4,11 +4,16 @@
 
 import { minimatch } from 'minimatch'
 
+import type { MinimatchOptions } from 'minimatch'
+
 /**
  * Creates a glob matcher function.
  */
-export function getGlobMatcher(patterns, options = {}) {
-  const opts = { __proto__: null, ...options }
+export function getGlobMatcher(
+  patterns: string | string[],
+  options?: (MinimatchOptions & Record<string, unknown>) | undefined,
+): (filepath: string) => boolean {
+  const opts: MinimatchOptions = { ...options }
   const patternArray = Array.isArray(patterns) ? patterns : [patterns]
 
   // If no patterns provided, match nothing.
@@ -17,11 +22,14 @@ export function getGlobMatcher(patterns, options = {}) {
   }
 
   // Separate include and exclude patterns.
-  const includes = []
-  const excludes = []
+  const includes: string[] = []
+  const excludes: string[] = []
 
   for (let i = 0, { length } = patternArray; i < length; i += 1) {
     const pattern = patternArray[i]
+    if (pattern === undefined) {
+      continue
+    }
     if (pattern.startsWith('!')) {
       excludes.push(pattern.slice(1))
     } else {

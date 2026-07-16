@@ -38,6 +38,11 @@ import {
 } from '../../constants/templates.mts'
 import { getLicenseContent } from '../../constants/utils.mts'
 import { biomeFormat } from './biome.mts'
+import type {
+  ManifestEntry,
+  ManifestEntryData,
+  RegistryManifest,
+} from './manifest-types.mts'
 
 // File extension constants.
 const EXT_JSON = '.json'
@@ -48,38 +53,54 @@ const PACKAGE_DEFAULT_NODE_RANGE = '>=24'
 const PACKAGE_DEFAULT_SOCKET_CATEGORIES = Object.freeze(['levelup', 'tuneup'])
 const PACKAGE_DEFAULT_VERSION = '1.0.0'
 
+type TemplateActionData = Record<string, unknown>
+type TemplateAction = [
+  string,
+  TemplateActionData | (() => TemplateActionData | Promise<TemplateActionData>),
+]
+
+const typedRegistryManifest = registryManifest as unknown as RegistryManifest
+
 /**
  * Get manifest data from the registry manifest.json.
  */
-export function getManifestData(ecosystem, packageName) {
+export function getManifestData(): RegistryManifest
+export function getManifestData(ecosystem: string): ManifestEntry[] | undefined
+export function getManifestData(
+  ecosystem: string,
+  packageName: string,
+): ManifestEntryData | undefined
+export function getManifestData(
+  ecosystem?: string,
+  packageName?: string,
+): RegistryManifest | ManifestEntry[] | ManifestEntryData | undefined {
   if (!ecosystem) {
-    return registryManifest
+    return typedRegistryManifest
   }
-  const ecoData = registryManifest[ecosystem]
+  const ecoData = typedRegistryManifest[ecosystem]
   if (!ecoData) {
     return undefined
   }
   if (!packageName) {
     return ecoData
   }
-  const entry = ecoData.find(([_purl, data]) => data.package === packageName)
+  const entry = ecoData.find(([, data]) => data.package === packageName)
   return entry ? entry[1] : undefined
 }
 
-let eta
-export async function getEta() {
+let eta: Eta | undefined
+export async function getEta(): Promise<Eta> {
   if (!eta) {
     eta = new Eta()
   }
   return eta
 }
 
-let templates
-export function getTemplates() {
+let templates: Record<string, string> | undefined
+export function getTemplates(): Record<string, string> {
   if (templates === undefined) {
-    templates = Object.freeze({
-      __proto__: null,
-      ...Object.fromEntries(
+    templates = Object.freeze(
+      Object.fromEntries(
         [
           TEMPLATE_CJS,
           TEMPLATE_CJS_BROWSER,
@@ -87,9 +108,9 @@ export function getTemplates() {
           TEMPLATE_ES_SHIM_CONSTRUCTOR,
           TEMPLATE_ES_SHIM_PROTOTYPE_METHOD,
           TEMPLATE_ES_SHIM_STATIC_METHOD,
-        ].map(k => [k, path.join(NPM_TEMPLATES_PATH, k)]),
+        ].map((k): [string, string] => [k, path.join(NPM_TEMPLATES_PATH, k)]),
       ),
-    })
+    )
   }
   return templates
 }
@@ -97,24 +118,24 @@ export function getTemplates() {
 /**
  * Retrieve template path by name.
  */
-function getTemplate(name) {
+function getTemplate(name: string): string | undefined {
   return getTemplates()[name]
 }
 
 /**
  * Generate actions for copying license files to package.
  */
-async function getLicenseActions(pkgPath) {
+async function getLicenseActions(pkgPath: string): Promise<TemplateAction[]> {
   const LICENSE_CONTENT = getLicenseContent()
   const licenseData = {
     __proto__: null,
     license: LICENSE_CONTENT,
   }
-  const actions = []
+  const actions: TemplateAction[] = []
   for await (const filepath of globStreamLicenses(pkgPath, {
     recursive: true,
   })) {
-    actions.push([filepath, licenseData])
+    actions.push([String(filepath), licenseData])
   }
   return actions
 }
@@ -122,15 +143,25 @@ async function getLicenseActions(pkgPath) {
 /**
  * Generate action for creating package README with rendered template.
  */
-async function getNpmReadmeAction(pkgPath, options) {
-  const { interop } = { __proto__: null, ...options }
+async function getNpmReadmeAction(
+  pkgPath: string,
+  options?: { interop?: string[] | undefined },
+): Promise<TemplateAction> {
+  const opts = { __proto__: null, ...options }
+  const { interop } = opts
   const eco = NPM
   const pkgJsonPath = path.join(pkgPath, PACKAGE_JSON)
   const pkgJson = await readPackageJson(pkgJsonPath, { normalize: true })
+  if (!pkgJson) {
+    throw new Error(`Package.json not found at ${pkgJsonPath}`)
+  }
   const pkgPurlObj = PackageURL.fromString(
     `pkg:${eco}/${pkgJson.name}@${pkgJson.version}`,
   )
   const { name: sockRegPkgName } = pkgPurlObj
+  if (!sockRegPkgName) {
+    throw new Error(`Unable to resolve package name for ${pkgPath}`)
+  }
   const manifestData = getManifestData(eco, sockRegPkgName)
   const categories = Array.isArray(manifestData?.categories)
     ? manifestData.categories
@@ -141,6 +172,7 @@ async function getNpmReadmeAction(pkgPath, options) {
     ...(categories.includes('tuneup') ? ['secure'] : []),
     'tested',
   ]
+  const firstAdjective = adjectives[0] ?? 'tested'
   return [
     path.join(pkgPath, README_MD),
     {
@@ -152,7 +184,7 @@ async function getNpmReadmeAction(pkgPath, options) {
           ...manifestData,
           ...pkgJson,
           ...(interop ? { interop } : {}),
-          adjectivesText: `${capitalize(determineArticle(adjectives[0]))} ${joinAnd(adjectives)}`,
+          adjectivesText: `${capitalize(determineArticle(firstAdjective))} ${joinAnd(adjectives)}`,
           categories,
           dependencies: isObject(pkgJson.dependencies)
             ? pkgJson.dependencies
@@ -169,8 +201,12 @@ async function getNpmReadmeAction(pkgPath, options) {
 /**
  * Generate action for creating or updating package.json.
  */
-async function getPackageJsonAction(pkgPath, options) {
-  const { engines } = { __proto__: null, ...options }
+async function getPackageJsonAction(
+  pkgPath: string,
+  options?: { engines?: Record<string, string> | undefined },
+): Promise<TemplateAction> {
+  const opts = { __proto__: null, ...options }
+  const { engines } = opts
   const eco = NPM
   const sockRegPkgName = path.basename(pkgPath)
   const manifestData = getManifestData(eco, sockRegPkgName)
@@ -194,14 +230,26 @@ async function getPackageJsonAction(pkgPath, options) {
 /**
  * Generate actions for processing TypeScript definition files.
  */
-async function getTypeScriptActions(pkgPath, options) {
-  const { references, transform } = { __proto__: null, ...options }
+async function getTypeScriptActions(
+  pkgPath: string,
+  options?: {
+    references?: unknown[] | undefined
+    transform?:
+      | ((
+          filepath: string,
+          data: TemplateActionData,
+        ) => TemplateActionData | Promise<TemplateActionData>)
+      | undefined
+  },
+): Promise<TemplateAction[]> {
+  const opts = { __proto__: null, ...options }
+  const { references, transform } = opts
   const doTransform = typeof transform === 'function'
   const filepaths = await fastGlob.glob(['**/*.{[cm],}ts'], {
     absolute: true,
     cwd: pkgPath,
   })
-  const actions = []
+  const actions: TemplateAction[] = []
   await Promise.allSettled(
     filepaths.map(async filepath => {
       const data = {
@@ -210,7 +258,7 @@ async function getTypeScriptActions(pkgPath, options) {
       }
       actions.push([
         filepath,
-        doTransform ? await transform(filepath, data) : data,
+        doTransform && transform ? await transform(filepath, data) : data,
       ])
     }),
   )
@@ -221,7 +269,7 @@ async function getTypeScriptActions(pkgPath, options) {
  * Preprocess template content by unwrapping encoded tags and stripping
  * comments.
  */
-export function prepareTemplate(content) {
+export function prepareTemplate(content: string): string {
   return (
     content
       // Replace strings that look like "//_ <%...%>" with <%...%>.
@@ -229,7 +277,10 @@ export function prepareTemplate(content) {
       // Regex: (1) an opening quote ' or ", then the literal `//_` + optional
       // space, (2) the EJS tag `<%…%>` (with optional -/_/=/~ modifiers), then
       // a backreference \1 to the SAME closing quote.
-      .replace(/(["'])\/\/_\s*(<%[-_]?[=~]?[\s\S]+%>)\1/g, (_m, _q, tag) => tag)
+      .replace(
+        /(["'])\/\/_\s*(<%[-_]?[=~]?[\s\S]+%>)\1/g,
+        (...groups: string[]) => groups[2] ?? '',
+      )
       // Strip single line comments start with //_
       .replace(/\/\/_\s*/g, '')
   )
@@ -238,7 +289,7 @@ export function prepareTemplate(content) {
 /**
  * Render a template action using Eta and format output.
  */
-async function renderAction(action) {
+async function renderAction(action: TemplateAction): Promise<string> {
   const { 0: filepath, 1: dataRaw } = action
   const data = typeof dataRaw === 'function' ? await dataRaw() : dataRaw
   const ext = path.extname(filepath)
@@ -254,9 +305,9 @@ async function renderAction(action) {
 /**
  * Render and write a template action to disk.
  */
-async function writeAction(action) {
+async function writeAction(action: TemplateAction): Promise<void> {
   const { 0: filepath } = action
-  return await fs.writeFile(filepath, await renderAction(action), UTF8)
+  await fs.writeFile(filepath, await renderAction(action), UTF8)
 }
 
 export {

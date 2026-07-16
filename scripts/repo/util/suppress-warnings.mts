@@ -6,11 +6,13 @@ import process from 'node:process'
 
 const { apply: ReflectApply } = Reflect
 
+type EmitWarning = typeof process.emitWarning
+
 // Store the original emitWarning function to avoid repeat wrapping.
-let originalEmitWarning
+let originalEmitWarning: EmitWarning | undefined
 
 // Track which warning types are currently suppressed.
-const suppressedWarnings = new Set()
+const suppressedWarnings = new Set<string>()
 
 /**
  * Internal function to set up warning suppression. Only wraps
@@ -19,8 +21,9 @@ const suppressedWarnings = new Set()
 export function setupSuppression() {
   // Only wrap once - store the original on first call.
   if (!originalEmitWarning) {
-    originalEmitWarning = process.emitWarning
-    process.emitWarning = (warning, ...args) => {
+    const original = process.emitWarning
+    originalEmitWarning = original
+    process.emitWarning = ((warning: string | Error, ...args: unknown[]) => {
       // Check both string warnings and warning objects.
       if (typeof warning === 'string') {
         // `suppressedWarnings` is a Set — iterate with for...of
@@ -37,8 +40,8 @@ export function setupSuppression() {
         }
       }
       // Not suppressed - call the original function.
-      return ReflectApply(originalEmitWarning, process, [warning, ...args])
-    }
+      return ReflectApply(original, process, [warning, ...args])
+    }) as EmitWarning
   }
 }
 
@@ -67,7 +70,7 @@ export function restoreWarnings() {
  * Instead of calling events.setMaxListeners(n, target) we set the symbol
  * property directly to avoid depending on 'node:events' module.
  */
-export function setMaxEventTargetListeners(target, maxListeners = 10) {
+export function setMaxEventTargetListeners(target: object, maxListeners = 10) {
   const symbols = Object.getOwnPropertySymbols(target)
   const kMaxEventTargetListeners = symbols.find(
     s => s.description === 'events.maxEventTargetListeners',
@@ -75,7 +78,7 @@ export function setMaxEventTargetListeners(target, maxListeners = 10) {
   if (kMaxEventTargetListeners) {
     // The default events.defaultMaxListeners value is 10.
     // https://nodejs.org/api/events.html#eventsdefaultmaxlisteners
-    target[kMaxEventTargetListeners] = maxListeners
+    ;(target as Record<symbol, number>)[kMaxEventTargetListeners] = maxListeners
   }
 }
 
@@ -91,7 +94,7 @@ export function suppressMaxListenersWarning() {
 /**
  * Suppress all process warnings of a specific type.
  */
-export function suppressWarningType(warningType) {
+export function suppressWarningType(warningType: string) {
   suppressedWarnings.add(warningType)
   setupSuppression()
 }
@@ -99,7 +102,10 @@ export function suppressWarningType(warningType) {
 /**
  * Suppress warnings temporarily within a callback.
  */
-export async function withSuppressedWarnings(warningType, callback) {
+export async function withSuppressedWarnings<T>(
+  warningType: string,
+  callback: () => T | Promise<T>,
+) {
   const original = process.emitWarning
   suppressWarningType(warningType)
   try {

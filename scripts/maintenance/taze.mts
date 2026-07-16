@@ -11,7 +11,7 @@ import { REPO_ROOT } from '../fleet/paths.mts'
 
 const logger = getDefaultLogger()
 
-export function includesProvenanceDowngradeWarning(output) {
+export function includesProvenanceDowngradeWarning(output: Buffer | string) {
   const lowered = output.toString().toLowerCase()
   return (
     lowered.includes('provenance') &&
@@ -35,14 +35,14 @@ async function main(): Promise<void> {
 
   let hasProvenanceDowngrade = false
 
-  tazePromise.process.stdout.on('data', chunk => {
+  tazePromise.process.stdout?.on('data', chunk => {
     process.stdout.write(chunk)
     if (includesProvenanceDowngradeWarning(chunk)) {
       hasProvenanceDowngrade = true
     }
   })
 
-  tazePromise.process.stderr.on('data', chunk => {
+  tazePromise.process.stderr?.on('data', chunk => {
     process.stderr.write(chunk)
     if (includesProvenanceDowngradeWarning(chunk)) {
       hasProvenanceDowngrade = true

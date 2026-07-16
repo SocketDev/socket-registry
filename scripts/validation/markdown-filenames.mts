@@ -23,6 +23,13 @@ import { runValidationScript } from '../repo/util/validation-runner.mts'
 
 const logger = getDefaultLogger()
 
+type MarkdownFilenameViolation = {
+  file: string
+  filename: string
+  issue: string
+  suggestion: string
+}
+
 // Allowed SCREAMING_CASE markdown files (without .md extension for comparison)
 const ALLOWED_SCREAMING_CASE = new Set([
   'AUTHORS',
@@ -60,12 +67,18 @@ const SKIP_DIRS = new Set([
 /**
  * Recursively find all markdown files.
  */
-export async function findMarkdownFiles(dir, files = []) {
+export async function findMarkdownFiles(
+  dir: string,
+  files: string[] = [],
+): Promise<string[]> {
   try {
     const entries = await fs.readdir(dir, { withFileTypes: true })
 
     for (let i = 0, { length } = entries; i < length; i += 1) {
       const entry = entries[i]
+      if (!entry) {
+        continue
+      }
       const fullPath = path.join(dir, entry.name)
 
       if (entry.isDirectory()) {
@@ -90,7 +103,7 @@ export async function findMarkdownFiles(dir, files = []) {
  * Check if file is in an allowed location for regular markdown files. Regular
  * .md files must be within docs/ or .claude/ directories.
  */
-export function isInAllowedLocationForRegularMd(filePath) {
+export function isInAllowedLocationForRegularMd(filePath: string): boolean {
   const relativePath = path.relative(ROOT_PATH, filePath)
   const dir = path.dirname(relativePath)
 
@@ -112,7 +125,7 @@ export function isInAllowedLocationForRegularMd(filePath) {
  * SCREAMING_CASE files can only be at: root, docs/, or .claude/ (top level
  * only).
  */
-export function isInAllowedLocationForScreamingCase(filePath) {
+export function isInAllowedLocationForScreamingCase(filePath: string): boolean {
   const relativePath = path.relative(ROOT_PATH, filePath)
   const dir = path.dirname(relativePath)
 
@@ -137,7 +150,7 @@ export function isInAllowedLocationForScreamingCase(filePath) {
 /**
  * Check if file is in a monorepo package directory.
  */
-export function isInPackageDirectory(filePath) {
+export function isInPackageDirectory(filePath: string): boolean {
   const relativePath = path.relative(ROOT_PATH, filePath)
   const dir = path.dirname(relativePath)
 
@@ -156,7 +169,7 @@ export function isInPackageDirectory(filePath) {
 /**
  * Check if a filename is lowercase-with-hyphens.
  */
-export function isLowercaseHyphenated(filename) {
+export function isLowercaseHyphenated(filename: string): boolean {
   // Remove extension for checking
   const nameWithoutExt = filename.replace(/\.md$/, '')
 
@@ -168,7 +181,7 @@ export function isLowercaseHyphenated(filename) {
  * Check if a filename is in SCREAMING_CASE (all uppercase with optional
  * underscores).
  */
-export function isScreamingCase(filename) {
+export function isScreamingCase(filename: string): boolean {
   // Remove extension for checking
   const nameWithoutExt = filename.replace(/\.(?:MD|md)$/, '')
 
@@ -179,7 +192,9 @@ export function isScreamingCase(filename) {
 /**
  * Validate a markdown filename.
  */
-export function validateFilename(filePath) {
+export function validateFilename(
+  filePath: string,
+): MarkdownFilenameViolation | undefined {
   const filename = path.basename(filePath)
   const nameWithoutExt = filename.replace(/\.(?:MD|md)$/, '')
   const relativePath = path.relative(ROOT_PATH, filePath)
@@ -267,12 +282,17 @@ export function validateFilename(filePath) {
 /**
  * Validate all markdown filenames.
  */
-export async function validateMarkdownFilenames() {
+export async function validateMarkdownFilenames(): Promise<
+  MarkdownFilenameViolation[]
+> {
   const files = await findMarkdownFiles(ROOT_PATH)
-  const violations = []
+  const violations: MarkdownFilenameViolation[] = []
 
   for (let i = 0, { length } = files; i < length; i += 1) {
     const file = files[i]
+    if (!file) {
+      continue
+    }
     const violation = validateFilename(file)
     if (violation) {
       violations.push(violation)
@@ -307,6 +327,9 @@ async function main(): Promise<void> {
 
         for (let i = 0, { length } = violations; i < length; i += 1) {
           const violation = violations[i]
+          if (!violation) {
+            continue
+          }
           logger.log(`  ${violation.file}`)
           logger.log(`    Issue: ${violation.issue}`)
           logger.log(`    Current: ${violation.filename}`)

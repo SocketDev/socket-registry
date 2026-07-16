@@ -12,6 +12,7 @@ import { fileURLToPath } from 'node:url'
 import process from 'node:process'
 import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
 import { COLUMN_LIMIT } from '@socketsecurity/lib-stable/constants/sentinels'
+import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 
@@ -59,7 +60,7 @@ const { values: args } = parseArgs({
   strict: false,
 })
 
-if (args.help) {
+if (args['help']) {
   logger.log('')
   logger.log('Usage: node check-trusted-packages.mjs [options]')
   logger.log('')
@@ -85,7 +86,26 @@ if (args.help) {
   process.exitCode = 0
 }
 
-async function getPackageInfo(packageName) {
+interface PackageMaintainer {
+  name?: string | undefined
+  email?: string | undefined
+}
+
+interface PackageInfo {
+  name: string
+  version: string
+  maintainers?: Array<PackageMaintainer | string> | undefined
+  repository?: { url?: string | undefined } | undefined
+  dist?: { attestations?: unknown | undefined } | undefined
+}
+
+interface CheckState {
+  linePosition: number
+}
+
+async function getPackageInfo(
+  packageName: string,
+): Promise<PackageInfo | undefined> {
   try {
     // Get the latest version specifically to ensure we get detailed info
     const output = await runCommand('npm', [
@@ -98,18 +118,18 @@ async function getPackageInfo(packageName) {
       'repository',
       'dist',
     ])
-    return JSON.parse(output)
+    return JSON.parse(output) as PackageInfo
   } catch {
     return undefined
   }
 }
 
-async function getPackagesFromManifest() {
+async function getPackagesFromManifest(): Promise<string[]> {
   try {
     const manifestPath = path.join(__dirname, '..', 'registry', 'manifest.json')
     const content = await readFile(manifestPath, 'utf8')
     const manifest = JSON.parse(content)
-    const packages = new Set()
+    const packages = new Set<string>()
 
     if (manifest.npm && Array.isArray(manifest.npm)) {
       for (const entry of manifest.npm) {
@@ -133,7 +153,7 @@ async function getPackagesFromManifest() {
   }
 }
 
-async function getPackagesFromScope(scope) {
+async function getPackagesFromScope(scope: string): Promise<string[]> {
   try {
     const output = await runCommand('npm', [
       'search',
@@ -141,7 +161,7 @@ async function getPackagesFromScope(scope) {
       `scope:${scope}`,
       '--searchlimit=1000',
     ])
-    const results = JSON.parse(output)
+    const results = JSON.parse(output) as Array<{ name: string }>
     return results.map(pkg => pkg.name)
   } catch (e) {
     logger.error(
@@ -152,7 +172,10 @@ async function getPackagesFromScope(scope) {
   }
 }
 
-async function runCommand(command, commandArgs = []) {
+async function runCommand(
+  command: string,
+  commandArgs: string[] = [],
+): Promise<string> {
   try {
     const result = await spawn(command, commandArgs, {
       shell: process.platform === 'win32',
@@ -165,11 +188,14 @@ async function runCommand(command, commandArgs = []) {
     }
     return result.stdout
   } catch (e) {
-    throw new Error(`Command failed: ${e.message}`)
+    throw new Error(`Command failed: ${errorMessage(e)}`)
   }
 }
 
-export async function checkTrustedPackage(packageName, state) {
+export async function checkTrustedPackage(
+  packageName: string,
+  state: CheckState,
+): Promise<boolean> {
   const info = await getPackageInfo(packageName)
 
   if (!info) {
@@ -177,12 +203,12 @@ export async function checkTrustedPackage(packageName, state) {
     return false
   }
 
-  const issues = []
-  const successes = []
+  const issues: string[] = []
+  const successes: string[] = []
 
   // Check if maintainers include expected Socket accounts
   const maintainers = info.maintainers || []
-  const maintainerStrings = maintainers.map(m => {
+  const maintainerStrings = maintainers.map((m: PackageMaintainer | string) => {
     if (typeof m === 'string') {
       return m
     }
@@ -220,7 +246,7 @@ export async function checkTrustedPackage(packageName, state) {
   // Display results
   if (issues.length > 0) {
     // Add newline if we were writing dots
-    if (!args.debug && state.linePosition > 0) {
+    if (!args['debug'] && state.linePosition > 0) {
       process.stdout.write('\n')
       state.linePosition = 0
     }
@@ -244,7 +270,7 @@ export async function checkTrustedPackage(packageName, state) {
   }
 
   // Success - show minimal output unless debug mode
-  if (args.debug) {
+  if (args['debug']) {
     for (let i = 0, { length } = successes; i < length; i += 1) {
       const success = successes[i]
       logger.success(success)
@@ -264,52 +290,64 @@ export async function checkTrustedPackage(packageName, state) {
 }
 
 async function main(): Promise<void> {
-  const packagesToCheck = new Set()
+  const packagesToCheck = new Set<string>()
 
   // Always include packages from manifest (@socketregistry/*, @socketoverride/*).
   const manifestPackages = await getPackagesFromManifest()
   for (let i = 0, { length } = manifestPackages; i < length; i += 1) {
     const pkg = manifestPackages[i]
-    packagesToCheck.add(pkg)
+    if (pkg) {
+      packagesToCheck.add(pkg)
+    }
   }
 
   // Supplement with @socketregistry/* and @socketoverride/* packages from npm.
   const socketRegistryPackages = await getPackagesFromScope('socketregistry')
   for (let i = 0, { length } = socketRegistryPackages; i < length; i += 1) {
     const pkg = socketRegistryPackages[i]
-    packagesToCheck.add(pkg)
+    if (pkg) {
+      packagesToCheck.add(pkg)
+    }
   }
 
   const socketOverridePackages = await getPackagesFromScope('socketoverride')
   for (let i = 0, { length } = socketOverridePackages; i < length; i += 1) {
     const pkg = socketOverridePackages[i]
-    packagesToCheck.add(pkg)
+    if (pkg) {
+      packagesToCheck.add(pkg)
+    }
   }
 
   // Always check core Socket packages.
   for (let i = 0, { length } = coreSocketPackages; i < length; i += 1) {
     const pkg = coreSocketPackages[i]
-    packagesToCheck.add(pkg)
+    if (pkg) {
+      packagesToCheck.add(pkg)
+    }
   }
 
-  if (args.all) {
+  if (args['all']) {
     // Add hardcoded other Socket packages.
     for (let i = 0, { length } = otherSocketPackages; i < length; i += 1) {
       const pkg = otherSocketPackages[i]
-      packagesToCheck.add(pkg)
+      if (pkg) {
+        packagesToCheck.add(pkg)
+      }
     }
 
     // Supplement with any additional @socketsecurity/* packages from npm.
     const socketSecurityPackages = await getPackagesFromScope('socketsecurity')
     for (let i = 0, { length } = socketSecurityPackages; i < length; i += 1) {
       const pkg = socketSecurityPackages[i]
-      packagesToCheck.add(pkg)
+      if (pkg) {
+        packagesToCheck.add(pkg)
+      }
     }
   }
 
   logger.write(`🔍 Checking ${packagesToCheck.size} Socket packages`)
 
-  const results = {
+  const results: { success: string[]; failed: string[] } = {
     success: [],
     failed: [],
   }
@@ -322,13 +360,16 @@ async function main(): Promise<void> {
 
   for (let i = 0, { length } = sortedPackages; i < length; i += 1) {
     const packageName = sortedPackages[i]
+    if (!packageName) {
+      continue
+    }
     try {
-      if (args.debug) {
+      if (args['debug']) {
         logger.group(packageName)
       }
 
       const success = await checkTrustedPackage(packageName, state)
-      if (args.debug) {
+      if (args['debug']) {
         logger.groupEnd()
         // Empty line between packages in debug mode
         logger.log('')
@@ -339,7 +380,7 @@ async function main(): Promise<void> {
         results.failed.push(packageName)
       }
     } catch (e) {
-      if (args.debug) {
+      if (args['debug']) {
         logger.groupEnd()
       }
       logger.error(`Error checking ${packageName}:`, (e as Error).message)
@@ -348,7 +389,7 @@ async function main(): Promise<void> {
   }
 
   // Add newline if we were writing dots and didn't wrap to a new line.
-  if (!args.debug && state.linePosition > 0) {
+  if (!args['debug'] && state.linePosition > 0) {
     process.stdout.write('\n')
   }
 

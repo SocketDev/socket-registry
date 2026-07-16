@@ -347,15 +347,17 @@ async function main(): Promise<void> {
     strict: false,
   })
 
-  const withUpstream = Boolean(cliArgs.upstream || cliArgs.transitive)
-  const transitive = Boolean(cliArgs.transitive)
-  const offline = Boolean(cliArgs.offline)
+  const withUpstream = Boolean(cliArgs['upstream'] || cliArgs['transitive'])
+  const transitive = Boolean(cliArgs['transitive'])
+  const offline = Boolean(cliArgs['offline'])
 
   let names = getNpmPackageNames()
-  if (cliArgs.target) {
-    names = names.filter(n => n === cliArgs.target)
+  if (cliArgs['target']) {
+    names = names.filter(n => n === cliArgs['target'])
     if (!names.length) {
-      logger.fail(`No override named "${cliArgs.target}" under packages/npm/.`)
+      logger.fail(
+        `No override named "${cliArgs['target']}" under packages/npm/.`,
+      )
       process.exitCode = 1
       return
     }

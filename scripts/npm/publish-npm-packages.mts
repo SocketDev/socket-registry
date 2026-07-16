@@ -34,6 +34,7 @@ import {
   approveStagedPackages,
   publishPackages,
 } from './publish-npm-packages-publish.mts'
+import type { NpmManifest } from '../repo/util/manifest-types.mts'
 
 const logger = getDefaultLogger()
 
@@ -41,7 +42,48 @@ const COLUMN_LIMIT = 80
 
 const ENV = getEnv()
 
-const { values: cliArgs } = parseArgs({
+interface PublishCliArgs {
+  debug?: boolean | undefined
+  dryRun?: boolean | undefined
+  'dry-run'?: boolean | undefined
+  force?: boolean | undefined
+  forcePublish?: boolean | undefined
+  'force-publish'?: boolean | undefined
+  forceRegistry?: boolean | undefined
+  'force-registry'?: boolean | undefined
+  otp?: string | undefined
+  skipNpmPackages?: boolean | undefined
+  'skip-npm-packages'?: boolean | undefined
+  quiet?: boolean | undefined
+  '--'?: string[] | undefined
+}
+
+interface PackageDataInput {
+  name: string
+  path: string
+  printName?: string | undefined
+  tag?: string | undefined
+}
+
+interface PackageData extends PackageDataInput {
+  printName: string
+  tag: string
+}
+
+/**
+ * Read + validate a package.json, throwing when name/version are missing.
+ */
+function requirePackageJson(pkgPath: string) {
+  const pkgJson = readPackageJsonSync(pkgPath)
+  if (!pkgJson?.name || !pkgJson.version) {
+    throw new Error(
+      `Invalid package.json: missing name/version. Where: "${pkgPath}". Fix: ensure the package.json declares both "name" and "version".`,
+    )
+  }
+  return { name: pkgJson.name, path: pkgPath, version: pkgJson.version }
+}
+
+const { values: cliArgs } = parseArgs<PublishCliArgs>({
   options: {
     debug: {
       type: 'boolean',
@@ -99,7 +141,7 @@ logger.log(
 /**
  * Create package metadata with defaults.
  */
-export function packageData(data) {
+export function packageData(data: PackageDataInput): PackageData {
   const { printName = data.name, tag = LATEST } = data
   return Object.assign(data, { printName, tag })
 }
@@ -107,7 +149,7 @@ export function packageData(data) {
 /**
  * Publish packages at a specific commit.
  */
-export async function publishAtCommit(sha) {
+export async function publishAtCommit(sha: string) {
   const headSha = await getCommitSha('HEAD')
   const isHead = sha === headSha
   logger.log('')
@@ -118,10 +160,10 @@ export async function publishAtCommit(sha) {
   logger.log('Building registry…')
   await spawn('pnpm', ['run', 'build'], { shell: WIN32 })
 
-  const fails = []
-  const skipped = []
+  const fails: string[] = []
+  const skipped: string[] = []
   // Registry package comes last - publish after all other packages.
-  const registryPkgJson = readPackageJsonSync(REGISTRY_PKG_PATH)
+  const registryPkgJson = requirePackageJson(REGISTRY_PKG_PATH)
   const registryPackage = packageData({
     name: registryPkgJson.name,
     path: REGISTRY_PKG_PATH,
@@ -138,7 +180,7 @@ export async function publishAtCommit(sha) {
     ? []
     : getNpmPackageNames().map(sockRegPkgName => {
         const pkgPath = path.join(NPM_PACKAGES_PATH, sockRegPkgName)
-        const pkgJson = readPackageJsonSync(pkgPath)
+        const pkgJson = requirePackageJson(pkgPath)
         return packageData({
           name: pkgJson.name,
           path: pkgPath,
@@ -153,8 +195,8 @@ export async function publishAtCommit(sha) {
   const packagesToPublish = []
 
   for (let i = 0, { length } = allPackages; i < length; i += 1) {
-    const pkg = allPackages[i]
-    const pkgJson = readPackageJsonSync(pkg.path)
+    const pkg = allPackages[i]!
+    const pkgJson = requirePackageJson(pkg.path)
     const localVersion = pkgJson.version
 
     // Force-include registry package if --force-registry flag is set.
@@ -172,7 +214,9 @@ export async function publishAtCommit(sha) {
 
     // Fetch the latest version from npm registry.
 
-    const manifest = await fetchPackageManifest(`${pkgJson.name}@${pkg.tag}`)
+    const manifest = (await fetchPackageManifest(
+      `${pkgJson.name}@${pkg.tag}`,
+    )) as NpmManifest | undefined
 
     if (!manifest) {
       // Package doesn't exist on npm yet, publish it.
@@ -350,10 +394,10 @@ async function main(): Promise<void> {
     bumpCommits.sort((a, b) => semver.compare(b.version, a.version))
 
     // Check the registry package for the latest published version.
-    const registryPkgJson = readPackageJsonSync(REGISTRY_PKG_PATH)
-    const registryManifest = await fetchPackageManifest(
+    const registryPkgJson = requirePackageJson(REGISTRY_PKG_PATH)
+    const registryManifest = (await fetchPackageManifest(
       `${registryPkgJson.name}@latest`,
-    )
+    )) as NpmManifest | undefined
 
     if (registryManifest) {
       const publishedVersion = registryManifest.version
@@ -364,7 +408,7 @@ async function main(): Promise<void> {
       // Filter to only commits with versions newer than published version.
       const newerCommits = []
       for (let i = 0, { length } = bumpCommits; i < length; i += 1) {
-        const commit = bumpCommits[i]
+        const commit = bumpCommits[i]!
         if (semver.gt(commit.version, publishedVersion)) {
           newerCommits.push(commit)
         }
@@ -402,7 +446,7 @@ async function main(): Promise<void> {
       : bumpCommits.slice(0, 10)
 
     for (let i = 0, { length } = displayCommits; i < length; i += 1) {
-      const commit = displayCommits[i]
+      const commit = displayCommits[i]!
       logger.info(
         `@socketsecurity/registry-stable@${commit.version} - ${commit.sha.slice(0, 7)}`,
       )
@@ -411,7 +455,7 @@ async function main(): Promise<void> {
     logger.log('')
 
     for (let i = 0, { length } = bumpCommits; i < length; i += 1) {
-      const commit = bumpCommits[i]
+      const commit = bumpCommits[i]!
       await publishAtCommit(commit.sha)
     }
 

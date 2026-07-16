@@ -18,7 +18,7 @@ const logger = getDefaultLogger()
 /**
  * Checkout a specific commit and discard uncommitted changes.
  */
-export async function checkoutCommit(sha) {
+export async function checkoutCommit(sha: string) {
   // Discard any uncommitted changes from previous builds.
   await spawn('git', ['reset', '--hard'])
   await spawn('git', ['checkout', sha])
@@ -77,6 +77,9 @@ export async function findVersionBumpCommits() {
 
   for (let i = 0, { length } = lines; i < length; i += 1) {
     const line = lines[i]
+    if (!line) {
+      continue
+    }
     // Parse a `<hex-hash> <name>` line: (1) the leading hex digest, (2) the rest.
     const match = /^([a-f0-9]+) (.+)$/.exec(line)
     if (!match) {
@@ -85,6 +88,9 @@ export async function findVersionBumpCommits() {
 
     const sha = match[1]
     const message = match[2]
+    if (!sha || !message) {
+      continue
+    }
 
     // Skip non-package bump commits (like dependency bumps).
     // Accept specific version bump patterns:
@@ -126,7 +132,7 @@ export async function findVersionBumpCommits() {
 /**
  * Get the full commit SHA for a given ref.
  */
-export async function getCommitSha(ref) {
+export async function getCommitSha(ref: string) {
   const result = await spawn('git', ['rev-parse', ref])
   return result.stdout.trim()
 }

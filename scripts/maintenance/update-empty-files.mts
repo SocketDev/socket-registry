@@ -18,7 +18,10 @@ import { NPM_TEMPLATES_PATH, ROOT_PATH } from '../constants/paths.mts'
 import { getIgnoreGlobs } from '../constants/utils.mts'
 import { getModifiedFiles } from '../repo/util/git.mts'
 
-const { values: cliArgs } = parseArgs({
+const { values: cliArgs } = parseArgs<{
+  force?: boolean | undefined
+  quiet?: boolean | undefined
+}>({
   options: {
     force: {
       type: 'boolean',
@@ -35,15 +38,19 @@ const AUTO_FILE_GLOB_RECURSIVE = '**/auto.{d.ts,js}'
 
 async function main(): Promise<void> {
   const ignoreGlobs = getIgnoreGlobs()
-  const modifiedAutoFile = (
-    await getModifiedFiles({ absolute: true, cwd: NPM_TEMPLATES_PATH })
-  ).find(p => path.basename(p).startsWith('auto.'))
+  const modifiedAutoFile = (await getModifiedFiles({ cwd: NPM_TEMPLATES_PATH }))
+    .map(relPath => path.join(ROOT_PATH, relPath))
+    .find(
+      p =>
+        p.startsWith(NPM_TEMPLATES_PATH) &&
+        path.basename(p).startsWith('auto.'),
+    )
   // Exit early if no relevant files have been modified.
-  if (!cliArgs.force && !modifiedAutoFile) {
+  if (!cliArgs['force'] && !modifiedAutoFile) {
     return
   }
   const autoFiles = await fastGlob.glob([AUTO_FILE_GLOB_RECURSIVE], {
-    ignore: ignoreGlobs,
+    ignore: [...ignoreGlobs],
     absolute: true,
     cwd: NPM_TEMPLATES_PATH,
   })

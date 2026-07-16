@@ -12,9 +12,16 @@ import path from 'node:path'
 import process from 'node:process'
 
 import { WIN32 } from '@socketsecurity/lib-stable/constants/platform'
+import { isErrnoException } from '@socketsecurity/lib-stable/errors/predicates'
 import { readPackageJson } from '@socketsecurity/lib-stable/packages/read'
 import { pEach } from '@socketsecurity/lib-stable/promises/iterate'
 import { withSpinner } from '@socketsecurity/lib-stable/spinner/with'
+
+import type {
+  EditablePackageJson,
+  PackageJson,
+} from '@socketsecurity/lib-stable/packages/types'
+import type { SpinnerInstance } from '@socketsecurity/lib-stable/spinner/types'
 
 import { DEFAULT_CONCURRENCY } from '../../constants/core.mts'
 
@@ -30,10 +37,8 @@ export {
 
 /**
  * Reads and caches editable package.json files to avoid redundant disk I/O.
- *
- * @type {Map<string, any>}
  */
-export const editablePackageJsonCache = new Map()
+export const editablePackageJsonCache = new Map<string, EditablePackageJson>()
 
 /**
  * Clears the editable package.json cache.
@@ -42,29 +47,36 @@ export function clearPackageJsonCache() {
   editablePackageJsonCache.clear()
 }
 
+export interface CollectPackageDataOptions {
+  concurrency?: number | undefined
+  fields?: string[] | undefined
+}
+
+export type PackageData = { path: string } & Record<string, unknown>
+
 /**
  * Collects package.json data from multiple packages.
  */
-export async function collectPackageData(paths, options = {}) {
+export async function collectPackageData(
+  paths: string[],
+  options?: CollectPackageDataOptions | undefined,
+): Promise<PackageData[]> {
   const {
     concurrency = DEFAULT_CONCURRENCY,
     fields = ['name', 'version', 'description'],
-  } = { __proto__: null, ...options } as {
-    concurrency?: number | undefined
-    fields?: string[] | undefined
-  }
+  } = { __proto__: null, ...options } as CollectPackageDataOptions
 
-  const results = []
+  const results: PackageData[] = []
 
   await pEach(
     paths,
     async pkgPath => {
       const pkgJson = await readPackageJson(pkgPath, { normalize: true })
-      const data = { path: pkgPath }
+      const data: PackageData = { path: pkgPath }
 
       for (let i = 0, { length } = fields; i < length; i += 1) {
         const field = fields[i]
-        if (field in pkgJson) {
+        if (field !== undefined && pkgJson && field in pkgJson) {
           data[field] = pkgJson[field]
         }
       }
@@ -80,14 +92,16 @@ export async function collectPackageData(paths, options = {}) {
 /**
  * Computes a hash of override package dependencies for cache validation.
  */
-export async function computeOverrideHash(overridePath) {
+export async function computeOverrideHash(
+  overridePath: string,
+): Promise<string> {
   try {
     const pkgJsonPath = path.join(overridePath, 'package.json')
     const pkgJson = await readPackageJson(pkgJsonPath)
     const depsString = JSON.stringify({
-      dependencies: pkgJson.dependencies || {},
-      devDependencies: pkgJson.devDependencies || {},
-      version: pkgJson.version,
+      dependencies: pkgJson?.dependencies || {},
+      devDependencies: pkgJson?.devDependencies || {},
+      version: pkgJson?.version,
     })
     return crypto.createHash('sha256').update(depsString, 'utf8').digest('hex')
   } catch {
@@ -98,8 +112,16 @@ export async function computeOverrideHash(overridePath) {
 /**
  * Copies Socket override files to a package directory.
  */
-export async function copySocketOverride(fromPath, toPath, options) {
-  const opts = { __proto__: null, ...options }
+export interface CopySocketOverrideOptions {
+  excludePackageJson?: boolean | undefined
+}
+
+export async function copySocketOverride(
+  fromPath: string,
+  toPath: string,
+  options?: CopySocketOverrideOptions | undefined,
+): Promise<void> {
+  const opts = { __proto__: null, ...options } as CopySocketOverrideOptions
   const { excludePackageJson = true } = opts
 
   const realFromPath = await resolveRealPath(fromPath)
@@ -123,37 +145,49 @@ export async function copySocketOverride(fromPath, toPath, options) {
     })
   } catch (e) {
     if (
-      e.code === 'ERR_FS_CP_EINVAL' ||
-      e.message?.includes('Source and destination must not be the same')
+      isErrnoException(e) &&
+      (e.code === 'ERR_FS_CP_EINVAL' ||
+        e.message?.includes('Source and destination must not be the same'))
     ) {
       return
     }
-    if (e.code !== 'ENOENT') {
+    if (!isErrnoException(e) || e.code !== 'ENOENT') {
       throw e
     }
   }
 }
 
+export interface ProcessWithSpinnerOptions {
+  concurrency?: number | undefined
+  errorMessage?: string | undefined
+  spinner?: SpinnerInstance | undefined
+  startMessage?: string | undefined
+  successMessage?: string | undefined
+}
+
+export interface ProcessWithSpinnerResult<T, R> {
+  results: R[]
+  errors: Array<{ item: T; error: unknown }>
+}
+
 /**
  * Common patterns for processing packages with spinner feedback.
  */
-export async function processWithSpinner(items, processor, options = {}) {
+export async function processWithSpinner<T, R>(
+  items: T[],
+  processor: (item: T) => Promise<R>,
+  options?: ProcessWithSpinnerOptions | undefined,
+): Promise<ProcessWithSpinnerResult<T, R>> {
   const {
     concurrency = DEFAULT_CONCURRENCY,
     errorMessage,
     spinner,
     startMessage,
     successMessage,
-  } = { __proto__: null, ...options } as {
-    concurrency?: number | undefined
-    errorMessage?: string | undefined
-    spinner?: unknown | undefined
-    startMessage?: string | undefined
-    successMessage?: string | undefined
-  }
+  } = { __proto__: null, ...options } as ProcessWithSpinnerOptions
 
-  const results = []
-  const errors = []
+  const results: R[] = []
+  const errors: Array<{ item: T; error: unknown }> = []
 
   const processItems = async () => {
     await pEach(
@@ -196,25 +230,29 @@ export async function processWithSpinner(items, processor, options = {}) {
 /**
  * Reads an editable package.json with caching support.
  */
-export async function readCachedEditablePackageJson(pkgPath, options = {}) {
+export async function readCachedEditablePackageJson(
+  pkgPath: string,
+  options?: { preserve?: string[] | readonly string[] | undefined } | undefined,
+): Promise<EditablePackageJson> {
   const cacheKey = pkgPath
 
   if (!editablePackageJsonCache.has(cacheKey)) {
-    const editablePackageJson = await readPackageJson(pkgPath, {
+    const editablePackageJson = (await readPackageJson(pkgPath, {
       ...options,
       editable: true,
       normalize: true,
-    })
+    })) as unknown as EditablePackageJson
     editablePackageJsonCache.set(cacheKey, editablePackageJson)
   }
 
-  return editablePackageJsonCache.get(cacheKey)
+  // Non-null: the branch above always populates cacheKey before this return.
+  return editablePackageJsonCache.get(cacheKey) as EditablePackageJson
 }
 
 /**
  * Resolves the real path of a file or directory, handling symlinks.
  */
-export async function resolveRealPath(pathStr) {
+export async function resolveRealPath(pathStr: string): Promise<string> {
   try {
     return await fs.realpath(pathStr)
   } catch {
@@ -222,14 +260,27 @@ export async function resolveRealPath(pathStr) {
   }
 }
 
+export interface PackageUpdate {
+  path: string
+  updates: Partial<PackageJson>
+}
+
+export interface UpdatePackagesJsonOptions {
+  concurrency?: number | undefined
+  spinner?: SpinnerInstance | undefined
+}
+
 /**
  * Updates multiple package.json files in parallel.
  */
-export async function updatePackagesJson(packages, options = {}) {
+export async function updatePackagesJson(
+  packages: PackageUpdate[],
+  options?: UpdatePackagesJsonOptions | undefined,
+): Promise<void> {
   const { concurrency = DEFAULT_CONCURRENCY, spinner } = {
     __proto__: null,
     ...options,
-  } as { concurrency?: number | undefined; spinner?: unknown | undefined }
+  } as UpdatePackagesJsonOptions
 
   await pEach(
     packages,

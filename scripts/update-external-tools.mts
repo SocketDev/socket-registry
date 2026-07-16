@@ -28,6 +28,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
+import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
 import {
@@ -44,7 +45,6 @@ import type {
 import {
   computeIntegrityFromUrl,
   ghApiLatestRelease,
-  resolvePinnedRelease,
 } from './update-external-tools-github.mts'
 import type { GhRelease } from './update-external-tools-github.mts'
 import { migrateTool } from './update-external-tools-migrate.mts'
@@ -252,6 +252,14 @@ export async function updateTool(
 
   const latestVersion = versionFromTag(release.tag_name)
   const currentVersion = toolConfig.version
+  if (currentVersion === undefined) {
+    return {
+      tool: name,
+      skipped: true,
+      updated: false,
+      reason: 'no pinned version to compare against',
+    }
+  }
   logger.log(`Current: v${currentVersion}, Latest: v${latestVersion}`)
 
   if (latestVersion === currentVersion) {
@@ -386,7 +394,7 @@ async function runUpdate(): Promise<void> {
   logger.log('')
   logger.log('Summary:')
   for (let i = 0, { length } = results; i < length; i += 1) {
-    const r = results[i]
+    const r = results[i]!
     const tag = r.updated ? 'updated' : r.skipped ? 'skipped' : 'unchanged'
     logger.log(`  ${r.tool}: ${tag} (${r.reason})`)
   }

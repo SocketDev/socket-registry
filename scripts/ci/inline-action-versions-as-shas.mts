@@ -6,6 +6,7 @@ import { existsSync, promises as fs } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 
+import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { resolveRefToSha } from '@socketsecurity/lib-stable/github/refs'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
@@ -14,11 +15,39 @@ import { normalizePath } from '@socketsecurity/lib-stable/paths/normalize'
 
 const logger = getDefaultLogger()
 
+export interface Dependency {
+  owner: string
+  ref: string
+  repoPath: string
+}
+
+export interface UsesStatement {
+  comment: string
+  fullMatch: string
+  indent: string
+  owner: string
+  ref: string
+  repoPath: string
+}
+
+export interface FileChange {
+  action: string
+  newLine: string
+  oldLine: string
+  ref: string
+  sha: string
+}
+
+export interface ProcessFileResult {
+  changes?: FileChange[] | undefined
+  hasChanges: boolean
+}
+
 /**
  * Extract dependencies from the Dependencies comment block.
  */
-export function extractDependencies(content) {
-  const dependencies = []
+export function extractDependencies(content: string): Dependency[] {
+  const dependencies: Dependency[] = []
 
   // Extract dependencies from # Dependencies: comment blocks.
   const dependencyMatch = content.match(/^# Dependencies:\n((?:#.+\n)+)/m)
@@ -26,20 +55,31 @@ export function extractDependencies(content) {
     return dependencies
   }
 
-  const lines = dependencyMatch[1].split('\n')
+  const block = dependencyMatch[1]
+  if (!block) {
+    return dependencies
+  }
+  const lines = block.split('\n')
   for (let i = 0, { length } = lines; i < length; i += 1) {
     const line = lines[i]
+    if (!line) {
+      continue
+    }
     // Match dependency format: #   - owner/repo@ref or #   - owner/repo/.github/path@ref
     // If @ref is omitted, defaults to @main
     const depMatch = line.match(/^#\s+-\s+([^/\s]+)\/([^@\s#]+)(?:@([^\s#]+))?/)
     if (depMatch) {
-      const [, owner, repoPath, ref = 'main'] = depMatch
-      // May include .github/workflows/name or .github/actions/name.
-      dependencies.push({
-        owner,
-        ref,
-        repoPath,
-      })
+      const owner = depMatch[1]
+      const repoPath = depMatch[2]
+      const ref = depMatch[3] ?? 'main'
+      if (owner && repoPath) {
+        // May include .github/workflows/name or .github/actions/name.
+        dependencies.push({
+          owner,
+          ref,
+          repoPath,
+        })
+      }
     }
   }
 
@@ -49,16 +89,19 @@ export function extractDependencies(content) {
 /**
  * Extract uses statements and their positions in the file.
  */
-export function extractUsesStatements(content) {
-  const statements = []
+export function extractUsesStatements(content: string): UsesStatement[] {
+  const statements: UsesStatement[] = []
   // Match a workflow `uses:` line: (1) leading indent, (2) owner, (3) repo+path,
   // (4) the @ref (tag/sha), (5) optional trailing ` # comment`. Multiline+global.
   const usesRegex = /^(\s*)uses:\s*([^/\s]+)\/([^@\s]+)@([^\s#]+)(\s*#.*)?$/gm
 
-  let match
+  let match: RegExpExecArray | null
   // biome-ignore lint/suspicious/noAssignInExpressions: Standard regex loop pattern.
   while ((match = usesRegex.exec(content)) !== null) {
     const [fullMatch, indent, owner, repoPath, ref, comment] = match
+    if (!(fullMatch && indent !== undefined && owner && repoPath && ref)) {
+      continue
+    }
     statements.push({
       comment: comment?.trim() || '',
       fullMatch,
@@ -75,12 +118,15 @@ export function extractUsesStatements(content) {
 /**
  * Recursively find all YAML files in a directory.
  */
-export async function getAllYamlFiles(dir) {
-  const files = []
+export async function getAllYamlFiles(dir: string): Promise<string[]> {
+  const files: string[] = []
   try {
     const entries = await fs.readdir(dir, { withFileTypes: true })
     for (let i = 0, { length } = entries; i < length; i += 1) {
       const entry = entries[i]
+      if (!entry) {
+        continue
+      }
       const fullPath = path.join(dir, entry.name)
       if (entry.isFile() && entry.name.endsWith('.yml')) {
         files.push(fullPath)
@@ -95,7 +141,13 @@ export async function getAllYamlFiles(dir) {
 /**
  * Process a single file and update action references.
  */
-export async function processFile(filePath, token, dryRun) {
+export async function processFile(
+  filePath: string,
+  token: string,
+  options: { dryRun?: boolean | undefined },
+): Promise<ProcessFileResult> {
+  const opts = { __proto__: null, ...options } as typeof options
+  const { dryRun } = opts
   const content = await fs.readFile(filePath, 'utf8')
   const dependencies = extractDependencies(content)
 
@@ -104,21 +156,24 @@ export async function processFile(filePath, token, dryRun) {
   }
 
   // Build a map of dependencies with their resolved SHAs.
-  const depMap = new Map()
+  const depMap = new Map<string, Dependency & { sha: string }>()
 
   for (let i = 0, { length } = dependencies; i < length; i += 1) {
     const dep = dependencies[i]
+    if (!dep) {
+      continue
+    }
     const { owner, ref, repoPath } = dep
 
     // Extract just the repo name (first part before any slashes in repoPath).
-    const repo = normalizePath(repoPath).split('/')[0]
+    const repo = normalizePath(repoPath).split('/')[0] ?? repoPath
 
     try {
       const sha = await resolveRefToSha(owner, repo, ref, { token })
       depMap.set(`${owner}/${repoPath}@${ref}`, { owner, ref, repoPath, sha })
     } catch (e) {
       logger.error(
-        `Failed to resolve ${owner}/${repoPath}@${ref}: ${e.message}`,
+        `Failed to resolve ${owner}/${repoPath}@${ref}: ${errorMessage(e)}`,
       )
     }
   }
@@ -130,7 +185,7 @@ export async function processFile(filePath, token, dryRun) {
   // Now update uses statements based on resolved dependencies.
   const usesStatements = extractUsesStatements(content)
   let updatedContent = content
-  const changes = []
+  const changes: FileChange[] = []
 
   // Process in reverse order to maintain correct string positions.
   // oxlint-disable-next-line socket/prefer-cached-for-loop -- iterates a reversed slice; cached-length form would lose the reverse pass.
@@ -179,14 +234,12 @@ export async function processFile(filePath, token, dryRun) {
 async function main(): Promise<void> {
   const args = process.argv.slice(2)
   const dryRun = args.includes('--dry-run')
-  const token = process.env.GITHUB_TOKEN || ''
+  const token = process.env['GITHUB_TOKEN'] || ''
 
   // Parse --cwd argument.
   const cwdIndex = args.indexOf('--cwd')
-  const cwd =
-    cwdIndex >= 0 && args[cwdIndex + 1]
-      ? path.resolve(args[cwdIndex + 1])
-      : ROOT_PATH
+  const cwdArg = cwdIndex >= 0 ? args[cwdIndex + 1] : undefined
+  const cwd = cwdArg ? path.resolve(cwdArg) : ROOT_PATH
 
   if (!token) {
     logger.warn(
@@ -227,7 +280,7 @@ async function main(): Promise<void> {
     )
   }
 
-  const allFiles = []
+  const allFiles: string[] = []
 
   // Collect workflow files.
   const workflowFiles = await getAllYamlFiles(workflowsPath)
@@ -238,7 +291,7 @@ async function main(): Promise<void> {
     const actionDirs = await fs.readdir(actionsPath, { withFileTypes: true })
     for (let i = 0, { length } = actionDirs; i < length; i += 1) {
       const dir = actionDirs[i]
-      if (dir.isDirectory()) {
+      if (dir?.isDirectory()) {
         const actionFile = path.join(actionsPath, dir.name, 'action.yml')
         if (existsSync(actionFile)) {
           allFiles.push(actionFile)
@@ -255,12 +308,15 @@ async function main(): Promise<void> {
   logger.info(`Processing ${allFiles.length} files…`)
 
   let totalChanges = 0
-  const processedFiles = []
+  const processedFiles: Array<{ changes: FileChange[]; file: string }> = []
 
   for (let i = 0, { length } = allFiles; i < length; i += 1) {
     const file = allFiles[i]
-    const result = await processFile(file, token, dryRun)
-    if (result.hasChanges) {
+    if (!file) {
+      continue
+    }
+    const result = await processFile(file, token, { dryRun })
+    if (result.hasChanges && result.changes) {
       processedFiles.push({ changes: result.changes, file })
       totalChanges += result.changes.length
     }
@@ -278,6 +334,9 @@ async function main(): Promise<void> {
     logger.info(`${path.relative(cwd, file)}:`)
     for (let i = 0, { length } = changes; i < length; i += 1) {
       const change = changes[i]
+      if (!change) {
+        continue
+      }
       logger.log(`  ${change.action}@${change.ref} → ${change.sha.slice(0, 7)}`)
       if (!dryRun) {
         logger.log(`    - ${change.oldLine}`)

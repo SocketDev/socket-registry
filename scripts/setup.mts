@@ -33,8 +33,8 @@ const log = {
 
 // Tools cached under node_modules/.cache/external-tools/ (auto-gitignored).
 export function getCacheDir(): string {
-  if (process.env.EXTERNAL_TOOLS_CACHE) {
-    return process.env.EXTERNAL_TOOLS_CACHE
+  if (process.env['EXTERNAL_TOOLS_CACHE']) {
+    return process.env['EXTERNAL_TOOLS_CACHE']
   }
   return path.join(REPO_ROOT, 'node_modules', '.cache', 'external-tools')
 }

@@ -4,11 +4,25 @@
 
 import { existsSync, promises as fs } from 'node:fs'
 
+import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
+
+export interface ValidationIssue {
+  details?: unknown | undefined
+  message: string
+  severity: string
+  type: string
+}
+
 /**
  * Create a validation issue object.
  */
-function createIssue(type, severity, message, details) {
-  const issue = {
+function createIssue(
+  type: string,
+  severity: string,
+  message: string,
+  details?: unknown,
+): ValidationIssue {
+  const issue: ValidationIssue = {
     type,
     severity,
     message,
@@ -22,7 +36,7 @@ function createIssue(type, severity, message, details) {
 /**
  * Check if a path exists (synchronously).
  */
-function pathExists(filepath) {
+function pathExists(filepath: string): boolean {
   try {
     return existsSync(filepath)
   } catch {
@@ -33,12 +47,12 @@ function pathExists(filepath) {
 /**
  * Read and parse JSON file safely.
  */
-async function readJsonFile(filepath) {
+async function readJsonFile(filepath: string): Promise<unknown> {
   try {
     const content = await fs.readFile(filepath, 'utf8')
     return JSON.parse(content)
   } catch (e) {
-    throw new Error(`Failed to read or parse ${filepath}: ${e.message}`, {
+    throw new Error(`Failed to read or parse ${filepath}: ${errorMessage(e)}`, {
       cause: e,
     })
   }

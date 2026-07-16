@@ -37,6 +37,9 @@ export async function cleanDirectories(
 
   for (let i = 0, { length } = tasks; i < length; i += 1) {
     const task = tasks[i]
+    if (task === undefined) {
+      continue
+    }
     const { name, pattern, patterns } = task
     const patternsToDelete = patterns ?? (pattern ? [pattern] : [])
 
@@ -79,7 +82,17 @@ export async function cleanDirectories(
 async function main(): Promise<void> {
   try {
     // Parse arguments
-    const { values } = parseArgs({
+    const { values } = parseArgs<{
+      all: boolean
+      cache: boolean
+      coverage: boolean
+      dist: boolean
+      help: boolean
+      modules: boolean
+      quiet: boolean
+      silent: boolean
+      types: boolean
+    }>({
       options: {
         help: {
           type: 'boolean',

@@ -19,6 +19,7 @@ import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { joinAnd } from '@socketsecurity/lib-stable/arrays/join'
 import { isPlainObject as isObjectObject } from '@socketsecurity/lib-stable/objects/predicates'
 import { pEach } from '@socketsecurity/lib-stable/promises/iterate'
+import { isSpawnError } from '@socketsecurity/lib-stable/process/spawn/errors'
 import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 import { pluralize } from '@socketsecurity/lib-stable/words/pluralize'
 import { password } from '@socketsecurity/lib/stdio/prompts'
@@ -50,12 +51,48 @@ interface StageListEntry {
 }
 
 /**
+ * A package entry as produced by the publish orchestrator: printable name,
+ * dist-tag, and the on-disk path `pnpm stage publish` is run from.
+ */
+interface PublishPackageEntry {
+  name?: string | undefined
+  path: string
+  printName: string
+  tag?: string | undefined
+}
+
+/**
+ * Shared mutable accumulator threaded through the publish/approve flow so
+ * concurrent packages can report failures without a return value.
+ */
+interface PublishState {
+  fails: string[]
+  skipped?: string[] | undefined
+}
+
+interface StagePublishOptions {
+  dryRun?: boolean | undefined
+  maxRetries?: number | undefined
+  retryDelay?: number | undefined
+}
+
+interface ApproveOptions {
+  cwd?: string | undefined
+  dryRun?: boolean | undefined
+  otp?: string | undefined
+}
+
+/**
  * Publish package using pnpm's staged-publish flow (upload only; a separate
  * `approveStagedPackages` promote step makes it public).
  *
  * @throws {TypeError} When state parameter is not an object.
  */
-export async function publish(pkg, state, options) {
+export async function publish(
+  pkg: PublishPackageEntry,
+  state: PublishState,
+  options: StagePublishOptions,
+) {
   await stagePublish(pkg, state, options)
 }
 
@@ -64,7 +101,11 @@ export async function publish(pkg, state, options) {
  *
  * @throws {TypeError} When state parameter is not an object.
  */
-export async function publishPackages(packages, state, options) {
+export async function publishPackages(
+  packages: PublishPackageEntry[],
+  state: PublishState,
+  options: StagePublishOptions,
+) {
   const okayPackages = packages.filter(
     pkg => !state.fails.includes(pkg.printName),
   )
@@ -84,12 +125,16 @@ export async function publishPackages(packages, state, options) {
  *
  * @throws {TypeError} When state parameter is not an object.
  */
-export async function stagePublish(pkg, state, options) {
-  const {
-    dryRun = false,
-    maxRetries = 3,
-    retryDelay = 1000,
-  } = { __proto__: null, ...options }
+export async function stagePublish(
+  pkg: PublishPackageEntry,
+  state: PublishState,
+  options: StagePublishOptions,
+) {
+  const merged: StagePublishOptions = Object.assign(
+    Object.create(null),
+    options,
+  )
+  const { dryRun = false, maxRetries = 3, retryDelay = 1000 } = merged
   if (!isObjectObject(state)) {
     throw new TypeError('A state object is required')
   }
@@ -107,7 +152,7 @@ export async function stagePublish(pkg, state, options) {
   // 3. On error, check if package already exists (cannot publish over) - if so, exit.
   // 4. On other errors, retry with exponential backoff: 1s, 2s, 4s delays.
   // 5. After maxRetries exhausted, add to fails list and log final error.
-  let lastError
+  let lastError: unknown
   for (let attempt = 0; attempt < maxRetries; attempt += 1) {
     try {
       if (attempt > 0) {
@@ -129,7 +174,7 @@ export async function stagePublish(pkg, state, options) {
         '--access',
         'public',
         '--tag',
-        pkg.tag,
+        pkg.tag ?? 'latest',
         '--no-git-checks',
         '--ignore-scripts',
       ]
@@ -151,7 +196,7 @@ export async function stagePublish(pkg, state, options) {
       return
     } catch (e) {
       lastError = e
-      const stderr = e?.stderr ?? ''
+      const stderr = isSpawnError(e) ? String(e.stderr) : ''
       // Don't retry if package already exists.
       if (stderr.includes('cannot publish over')) {
         return
@@ -165,7 +210,7 @@ export async function stagePublish(pkg, state, options) {
 
   // All retries exhausted.
   state.fails.push(pkg.printName)
-  const stderr = lastError?.stderr ?? ''
+  const stderr = isSpawnError(lastError) ? String(lastError.stderr) : ''
   if (stderr) {
     logger.log('')
     logger.log(extractNpmError(stderr))
@@ -235,12 +280,12 @@ async function promptOtp(
  *
  * @throws {TypeError} When state parameter is not an object.
  */
-export async function approveStagedPackages(state, options) {
-  const {
-    cwd = ROOT_PATH,
-    dryRun = false,
-    otp: otpFromFlag,
-  } = { __proto__: null, ...options }
+export async function approveStagedPackages(
+  state: PublishState,
+  options: ApproveOptions,
+) {
+  const merged: ApproveOptions = Object.assign(Object.create(null), options)
+  const { cwd = ROOT_PATH, dryRun = false, otp: otpFromFlag } = merged
   if (!isObjectObject(state)) {
     throw new TypeError('A state object is required')
   }

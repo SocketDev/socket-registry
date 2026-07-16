@@ -7,6 +7,7 @@ import { execNpm } from '@socketsecurity/lib-stable/eco/npm/npm/exec'
 import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
 import { joinAnd } from '@socketsecurity/lib-stable/arrays/join'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
+import { isSpawnError } from '@socketsecurity/lib-stable/process/spawn/errors'
 import { pEach } from '@socketsecurity/lib-stable/promises/iterate'
 import { pluralize } from '@socketsecurity/lib-stable/words/pluralize'
 import { COLUMN_LIMIT } from '../constants/core.mts'
@@ -21,7 +22,12 @@ import {
 
 const logger = getDefaultLogger()
 
-const { values: cliArgs } = parseArgs({
+interface CliArgs {
+  force: boolean | undefined
+  quiet: boolean | undefined
+}
+
+const { values: cliArgs } = parseArgs<CliArgs>({
   options: {
     force: {
       type: 'boolean',
@@ -34,10 +40,21 @@ const { values: cliArgs } = parseArgs({
   strict: false,
 })
 
+interface PackageDataInput {
+  name: string
+  path: string
+  isTrustedPublisher: boolean
+  printName?: string | undefined
+}
+
+interface PackageData extends PackageDataInput {
+  printName: string
+}
+
 /**
  * Create package metadata with defaults.
  */
-export function packageData(data) {
+export function packageData(data: PackageDataInput): PackageData {
   const { printName = data.name } = data
   return Object.assign(data, { printName })
 }
@@ -52,7 +69,7 @@ async function main(): Promise<void> {
     return
   }
 
-  const fails = []
+  const fails: string[] = []
   const trustedPublishingPackages = [
     packageData({
       name: '../registry/dist/index.js',
@@ -75,6 +92,9 @@ async function main(): Promise<void> {
   logger.log('Skipping MFA automation for trusted publishing packages:')
   for (let i = 0, { length } = trustedPublishingPackages; i < length; i += 1) {
     const pkg = trustedPublishingPackages[i]
+    if (!pkg) {
+      continue
+    }
     logger.log(
       `  ${pkg.printName}: Trusted publishing uses OIDC tokens which don't support npm access commands. ` +
         'MFA settings should be configured through npm web interface.',
@@ -95,7 +115,7 @@ async function main(): Promise<void> {
           ).stdout
           logger.log(stdout)
         } catch (e) {
-          const stderr = e?.stderr ?? ''
+          const stderr = isSpawnError(e) ? String(e.stderr) : ''
           fails.push(pkg.printName)
           if (stderr) {
             const errorInfo = extractNpmError(stderr)
