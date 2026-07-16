@@ -255,6 +255,7 @@
     "**/.config/lockstep.schema.json",
     "**/.config/repo/vitest.config.mts",
     "**/.mcp.json",
+    "**/opencode.json",
     "**/packages/build-infra/lib/release-checksums/consumer.mts",
     "**/packages/build-infra/lib/release-checksums/core.mts",
     "**/packages/build-infra/lib/release-checksums/producer.mts",
