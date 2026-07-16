@@ -85,6 +85,18 @@ export const CONFIG_DIR = path.join(REPO_ROOT, '.config')
 export const NODE_MODULES_DIR = path.join(REPO_ROOT, 'node_modules')
 
 /**
+ * Coverage scratch: `coverage-children/` holds each spawned test child's raw V8
+ * profile (under `raw/`), which the coverage runner purges per run and merges.
+ */
+export const COVERAGE_CHILDREN_DIR = path.join(REPO_ROOT, 'coverage-children')
+
+/**
+ * Absolute path to the raw child-profile subdir the runner sets as
+ * `FLEET_CHILD_V8_COVERAGE_DIR`.
+ */
+export const COVERAGE_CHILDREN_RAW_DIR = path.join(COVERAGE_CHILDREN_DIR, 'raw')
+
+/**
  * Absolute path to the repo's tool-cache directory. Fleet convention: every
  * per-repo tool cache lives here (vitest, taze, our own audit caches, etc.).
  * Auto-gitignored via the fleet's `**∕.cache/` rule. Build tools also write
@@ -167,6 +179,17 @@ export function resolveHookBundleOut(): string {
 export const PNPM_WORKSPACE_YAML = path.join(REPO_ROOT, 'pnpm-workspace.yaml')
 
 /**
+ * Absolute path to the cascaded fleet catalog — the fleet-canonical `catalog:`
+ * slice every member carries. The `.fleet` infix keeps it from colliding with
+ * the real `pnpm-workspace.yaml` (see the file's own header).
+ */
+export const FLEET_CATALOG_YAML = path.join(
+  CONFIG_DIR,
+  'fleet',
+  'pnpm-workspace.fleet.yaml',
+)
+
+/**
  * Absolute path to the repo's `package.json`.
  */
 export const PACKAGE_JSON = path.join(REPO_ROOT, 'package.json')
@@ -175,6 +198,17 @@ export const PACKAGE_JSON = path.join(REPO_ROOT, 'package.json')
  * Absolute path to the repo's `pnpm-lock.yaml`.
  */
 export const PNPM_LOCK = path.join(REPO_ROOT, 'pnpm-lock.yaml')
+
+/**
+ * Absolute path to the script-only check tsconfig (`tsc -p`'d directly by the
+ * check step, never editor/language-server discovered — that's the root
+ * `tsconfig.json`'s job). Lives at `.config/fleet/`, not the repo root.
+ */
+export const TSCONFIG_CHECK_PATH = path.join(
+  CONFIG_DIR,
+  'fleet',
+  'tsconfig.check.json',
+)
 
 /**
  * The repo-tier test tree. Wheelhouse-only hook / lint-rule / git-hook tests

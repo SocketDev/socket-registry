@@ -1,12 +1,13 @@
 # Layer 2a — references Layer 1 (debug). Consumed by `setup-and-install`
 # (Layer 2b). When this file bumps, cascade is: 2b → 3 → 4 → external
 # repos. See updating-workflows skill at .claude/skills/updating-workflows/.
-# cascade-data-deps: ., .github, .github/actions/fleet/lib, external-tools.json
+# cascade-data-deps: ., .github, .github/actions/fleet/lib,
+# scripts/fleet/setup, external-tools.json
 # (read at runtime via ${GITHUB_ACTION_PATH}/../… — implicit edges with no
 # `uses:` line; action-pins-are-current.mts tracks them for staleness.)
 
 name: 'Setup'
-description: 'Setup debug, Node.js, pnpm, Socket firewall shims, and bootstrap zero-dep Socket packages (@socketsecurity/lib, @socketregistry/packageurl-js, @sinclair/typebox)'
+description: 'Setup debug, Node.js, pnpm, Socket firewall shims, and bootstrap zero-dep foundation packages (@socketsecurity/lib, @socketsecurity/sdk, @socketregistry/packageurl-js, @sinclair/typebox)'
 
 # Dependencies:
 #   - actions/setup-node@v6.4.0
@@ -700,95 +701,6 @@ runs:
       env:
         ACTION_DIR: ${{ github.action_path }}
       run: |
-        # Bootstrap a small set of zero-dep packages into node_modules/
-        # BEFORE pnpm install runs. Several Socket repos have root
-        # scripts (setup.mts, postinstall hooks, .claude/hooks/*) that
-        # import these packages at module-load time. On a fresh
-        # checkout, pnpm install itself runs scripts that import them —
-        # but pnpm install hasn't completed yet, so the imports fail
-        # with ERR_MODULE_NOT_FOUND. Pre-seeding each package's tarball
-        # directly into node_modules/<scope>/<name>/ solves the
-        # chicken-and-egg.
-        #
-        # Restricted to ZERO-DEP packages so a tarball extract is the
-        # whole install — no transitive resolution needed. Any package
-        # we add here must `npm view <pkg> dependencies` empty; if it
-        # picks up a dep later, drop it from this list.
-        #
-        # Lives in `setup` (alongside zizmor + sfw provisioning) rather
-        # than `install` so consumers calling only `setup` also benefit,
-        # not just consumers of `setup-and-install` or `install`
-        # directly.
-        #
-        # Per-package skip rules:
-        #   - the repo has its own scripts/bootstrap-from-registry.mts
-        #     (the preinstall hook handles all packages; no duplicate)
-        #   - <pkg> is already resolvable from the working directory
-        #   - <pkg> isn't pinned in this repo's package.json /
-        #     pnpm-workspace.yaml catalog (skip silently)
-        #
-        # Before each download, the version is checked against the
-        # Socket Firewall API (firewall-api.socket.dev/purl). Critical/
-        # high severity alerts block the bootstrap; firewall errors
-        # are non-fatal so a network blip doesn't break a fresh clone.
         set -euo pipefail
-        if [ -f scripts/bootstrap-from-registry.mts ]; then
-          echo "Repo has its own bootstrap-from-registry.mts; skipping action-level bootstrap."
-          exit 0
-        fi
-        # Zero-dep packages worth pre-seeding so .claude/hooks/* and
-        # root scripts can import them at module-load time. Order
-        # matters only for log readability.
-        PACKAGES=(
-          '@socketregistry/packageurl-js'
-          '@sinclair/typebox'
-          '@socketsecurity/lib'
-          '@socketsecurity/lib-stable'
-        )
-        for PKG in "${PACKAGES[@]}"; do
-          # Already resolvable? Skip.
-          if node -e "require.resolve('${PKG}/package.json')" 2>/dev/null; then
-            echo "${PKG} already resolvable; skipping."
-            continue
-          fi
-          # Pinned somewhere in the consumer repo?
-          # Script emits `<real-pkg>\t<version>` when the pin uses
-          # pnpm's `npm:` alias form (e.g.
-          # `@socketsecurity/lib-stable: npm:@socketsecurity/lib@5.28.0`),
-          # so the tarball URL points at the alias TARGET (which has a
-          # published tarball) rather than the alias name (which doesnt).
-          # Plain pins emit just `<version>`.
-          PINNED="$(node "${ACTION_DIR}/../lib/read-pinned-version.mts" "${PKG}")"
-          if [ -z "$PINNED" ]; then
-            echo "${PKG} not pinned in this repo; skipping."
-            continue
-          fi
-          if [[ "$PINNED" == *$'\t'* ]]; then
-            FETCH_PKG="${PINNED%$'\t'*}"
-            VERSION="${PINNED#*$'\t'}"
-          else
-            FETCH_PKG="$PKG"
-            VERSION="$PINNED"
-          fi
-          # Firewall check — bail loudly on critical/high alerts.
-          if ! node "${ACTION_DIR}/../lib/check-firewall.mts" "${FETCH_PKG}" "$VERSION"; then
-            exit 1
-          fi
-          # Strip leading scope from package name for tarball path.
-          # `@scope/name` → `name`; `name` → `name`.
-          BASE="${FETCH_PKG##*/}"
-          echo "Bootstrapping ${PKG}@${VERSION} from npm registry..."
-          TARBALL_URL="https://registry.npmjs.org/${FETCH_PKG}/-/${BASE}-${VERSION}.tgz"
-          TARBALL="$(mktemp -t bootstrap-XXXXXX.tgz)"
-          if ! curl -fsSL "$TARBALL_URL" -o "$TARBALL"; then
-            echo "Warning: failed to fetch ${TARBALL_URL}; pnpm install will resolve it." >&2
-            rm -f "$TARBALL"
-            continue
-          fi
-          DEST="node_modules/${PKG}"
-          rm -rf "$DEST"
-          mkdir -p "$DEST"
-          tar -xzf "$TARBALL" --strip-components=1 -C "$DEST"
-          rm -f "$TARBALL"
-          echo "✓ ${PKG}@${VERSION} → ${DEST}"
-        done
+        BOOTSTRAP="${ACTION_DIR}/../../../../scripts/fleet/setup/bootstrap-zero-dep-packages.mjs"
+        node "$BOOTSTRAP" --repo-root "$PWD"

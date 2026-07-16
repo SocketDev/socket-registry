@@ -26,6 +26,7 @@ import { spawnSync } from '@socketsecurity/lib-stable/process/spawn/child'
 import { hasAiAttribution, stripAiAttribution } from './lib/attribution.mts'
 import { REPO_ROOT } from './paths.mts'
 import { isMainModule } from './_shared/is-main-module.mts'
+import { runMain } from './_shared/run-main.mts'
 
 const logger = getDefaultLogger()
 
@@ -194,7 +195,5 @@ export async function main(): Promise<void> {
 }
 
 if (isMainModule(import.meta.url)) {
-  void (async () => {
-    await main()
-  })()
+  runMain(main)
 }

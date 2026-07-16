@@ -45,12 +45,20 @@
  *   step, and the approve flow).
  */
 
+import { readFileSync } from 'node:fs'
+import path from 'node:path'
 import process from 'node:process'
-import { fileURLToPath } from 'node:url'
 
 import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
+import { getCI } from '@socketsecurity/lib-stable/env/ci'
 
 import { runApprove } from './publish-infra/npm/approve.mts'
+import {
+  fetchPublishedVersion,
+  findPublishedBaseSha,
+  rebaseOntoPublishedBase,
+  syncFromOriginMain,
+} from './publish-infra/reconcile.mts'
 import { resolveBumpScript, runBump } from './publish-infra/npm/bump.mts'
 import {
   isStagingExpected,
@@ -66,7 +74,8 @@ import {
   ensureTagAndRelease,
   extractChangelogSection,
 } from './publish-infra/release.mts'
-import { logger } from './publish-infra/shared.mts'
+import { logger, rootPath } from './publish-infra/shared.mts'
+import { isMainModule } from './_shared/is-main-module.mts'
 
 export {
   ensureTagAndRelease,
@@ -86,6 +95,7 @@ async function main(): Promise<void> {
       direct: { default: false, type: 'boolean' },
       'dry-run': { default: false, type: 'boolean' },
       help: { default: false, type: 'boolean' },
+      'no-reconcile': { default: false, type: 'boolean' },
       'no-scan': { default: false, type: 'boolean' },
       otp: { type: 'string' },
       'release-as': { type: 'string' },
@@ -97,13 +107,11 @@ async function main(): Promise<void> {
     strict: false,
   })
 
-  if (
-    values['help'] ||
-    (!values['staged'] && !values['approve'] && !values['direct'])
-  ) {
+  if (values['help']) {
     logger.log(
-      'Usage: pnpm publish --staged | --approve | --direct [--dry-run] [--otp <code>] [--yes]',
+      'Usage: pnpm publish [--staged | --approve | --direct] [--dry-run] [--otp <code>] [--yes]',
     )
+    logger.log('  (no mode → --staged, the default publish path)')
     logger.log('')
     logger.log(
       '  --staged             CI: upload to npm staging via OIDC (recommended)',
@@ -132,6 +140,18 @@ async function main(): Promise<void> {
     logger.log(
       '  --no-scan            skip the pre-approve Socket full-scan gate',
     )
+    logger.log(
+      '  --no-reconcile       local: skip the once-published reconcile (rebase',
+    )
+    logger.log(
+      '                       our commits onto the newly-published base + ff-pull',
+    )
+    logger.log(
+      '                       origin main). Runs by DEFAULT after --approve',
+    )
+    logger.log(
+      '                       (fails loud on conflict); CI --staged never does.',
+    )
     logger.log('  --tag <tag>          dist-tag for --staged (default: latest)')
     logger.log(
       '  --bump               CI: bump version + CHANGELOG, commit via the',
@@ -142,7 +162,7 @@ async function main(): Promise<void> {
     logger.log(
       '  --release-as <lvl>   force bump level major|minor|patch (with --bump)',
     )
-    process.exitCode = values['help'] ? 0 : 1
+    process.exitCode = 0
     return
   }
 
@@ -150,24 +170,36 @@ async function main(): Promise<void> {
     Boolean,
   ).length
   if (modes > 1) {
-    logger.fail('Pass exactly one of --staged / --approve / --direct.')
+    logger.fail('Pass at most one of --staged / --approve / --direct.')
     process.exitCode = 1
     return
   }
+  // Default to staged — the safest publish path (server-side rejectable before
+  // anything goes public). A bare `pnpm publish` uploads to staging.
+  const mode = values['direct']
+    ? 'direct'
+    : values['approve']
+      ? 'approve'
+      : 'staged'
 
   const dryRun = !!values['dry-run']
   const otpFromFlag =
     typeof values['otp'] === 'string' ? values['otp'] : undefined
   const releaseAs =
     typeof values['release-as'] === 'string' ? values['release-as'] : undefined
+  // Reconcile is the DEFAULT once published (local, not a flag — a flag is
+  // forgotten and local main drifts from the release). Gated OFF in CI:
+  // `--staged` runs on a clean OIDC checkout and must never touch git.
+  // `--no-reconcile` is the deliberate local opt-out.
+  const reconcile = !getCI() && !values['no-reconcile']
   // CI release path: `--staged --bump` bumps + commits (via the release App)
   // before staging, so the publish targets the bumped tree.
   if (values['bump']) {
     await runBump({ dryRun, releaseAs })
   }
-  if (values['staged']) {
+  if (mode === 'staged') {
     await runStaged(String(values['tag']), { dryRun })
-  } else if (values['direct']) {
+  } else if (mode === 'direct') {
     await runDirect(String(values['tag']), { dryRun })
   } else {
     await runApprove({
@@ -176,10 +208,24 @@ async function main(): Promise<void> {
       otpFromFlag,
       yes: !!values['yes'],
     })
+    // Reconcile ONCE PUBLISHED: approve just made the version public and the
+    // release App pushed its bump to origin. Rebase our remaining local commits
+    // onto that freshly-published base, then ff-pull so local main matches the
+    // now-updated origin. Fail-loud on a conflict — never guess a lineage.
+    if (reconcile && !dryRun) {
+      const pkgName = String(
+        JSON.parse(readFileSync(path.join(rootPath, 'package.json'), 'utf8'))
+          .name,
+      )
+      const published = await fetchPublishedVersion(pkgName)
+      const baseSha = await findPublishedBaseSha(rootPath, published)
+      await rebaseOntoPublishedBase(rootPath, baseSha)
+      await syncFromOriginMain(rootPath)
+    }
   }
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (isMainModule(import.meta.url)) {
   main().catch((e: unknown) => {
     logger.error(e)
     process.exitCode = 1

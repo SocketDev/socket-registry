@@ -7,11 +7,12 @@
 
 import { existsSync } from 'node:fs'
 import path from 'node:path'
+import process from 'node:process'
 
 import { REPO_ROOT } from '../paths.mts'
-import { run } from './check-steps.mts'
+import { releaseStep, run, type CheckStep } from './check-steps.mts'
 
-export function buildReleaseAndDocsSteps(): Array<() => boolean> {
+export function buildReleaseAndDocsSteps(): CheckStep[] {
   return [
     // gh-aw agentic workflows: each `<name>.md` source has a compiled
     // `<name>.lock.yml` (what Actions runs) whose embedded body_hash matches
@@ -77,8 +78,7 @@ export function buildReleaseAndDocsSteps(): Array<() => boolean> {
     // README + LICENSE essentials. Skips workspaces marked
     // `"private": true`. Uses `npm pack --dry-run --json` as the source of
     // truth — same logic npm itself uses for publish.
-    () =>
-      run('node', ['scripts/fleet/check/package-files-are-allowlisted.mts']),
+    releaseStep(['scripts/fleet/check/package-files-are-allowlisted.mts']),
     // Pre-publish source gate: every publishable package.json declares
     // publishConfig.access:"public" + provenance:true (and registry-if-set =
     // npmjs) — the source-config preconditions for a public, provenance-attested
@@ -90,21 +90,35 @@ export function buildReleaseAndDocsSteps(): Array<() => boolean> {
     // scaffolding, hidden files, or anything outside the `files` contract —
     // a wrong `files` field publishes silently otherwise. Skips `"private":
     // true` workspaces (never publish).
-    () => run('node', ['scripts/fleet/check/pack-contents-are-clean.mts']),
+    releaseStep(['scripts/fleet/check/pack-contents-are-clean.mts']),
     // Release-gate: the fleet bundle must build → install → verify round-trip
     // cleanly before it ships. Calls validate-release-bundle.mts (wheelhouse-only
     // `scripts/repo/`); vacuous pass in every cascaded fleet repo (validator
     // absent). Catches a broken producer or installer before the tarball reaches
     // a GitHub Release.
-    () => run('node', ['scripts/fleet/check/bundle-is-installable.mts']),
+    releaseStep(['scripts/fleet/check/bundle-is-installable.mts']),
+    // The hook V8 startup snapshot must be REAL — builds a blob (no
+    // snapshot-hostility bail), boots, dispatches with baseline parity, and (when
+    // this machine is wired to the launcher) the launcher binary is present. The
+    // launcher fails open to baseline, so a rotted snapshot is otherwise
+    // invisible; this makes it loud. Release-tier (builds + boots).
+    releaseStep(['scripts/fleet/check/hook-snapshot-is-wired.mts']),
     // The dep-0 fetcher (bootstrap/fleet.mjs) is a rolldown-inlined build artifact;
     // fail loud if it drifts from its bootstrap/src/* source (rebuild: node
     // scripts/repo/build-bootstrap-fetcher.mts). Wheelhouse-only — the build script
     // lives in uncascaded scripts/repo/, so a member with no such script vacuous-passes.
     () =>
-      !existsSync(
+      process.env['FLEET_CHECK_RELEASE'] &&
+      existsSync(
         path.join(REPO_ROOT, 'scripts', 'repo', 'build-bootstrap-fetcher.mts'),
-      ) || run('node', ['scripts/repo/build-bootstrap-fetcher.mts', '--check']),
+      )
+        ? run('node', ['scripts/repo/build-bootstrap-fetcher.mts', '--check'])
+        : Promise.resolve({
+            label: 'build-bootstrap-fetcher.mts',
+            ok: true,
+            output: '',
+            skipped: !process.env['FLEET_CHECK_RELEASE'],
+          }),
     // Every slashed pattern in .config/fleet/.prettierignore must be `**/`-anchored
     // or it silently matches nothing (oxfmt roots the matcher at the ignore file's
     // dir via Gitignore::new). Catches the footgun where a bare `vendor/**` looks
@@ -113,6 +127,13 @@ export function buildReleaseAndDocsSteps(): Array<() => boolean> {
       run('node', [
         'scripts/fleet/check/prettierignore-globs-are-anchored.mts',
       ]),
+    // The two STATIC ignore surfaces (.config/fleet/.prettierignore + the
+    // fleet-canonical .gitignore block) can't import GENERATED_GLOBS
+    // (scripts/fleet/constants/generated-globs.mts) the way oxlint/vitest do,
+    // so this gate asserts each entry has a **/-anchored twin on both — the
+    // format/git half of the generated-tree single source of truth.
+    () =>
+      run('node', ['scripts/fleet/check/generated-globs-are-consistent.mts']),
     // A PENDING release's CHANGELOG entry must be DERIVED from the commits it
     // releases (run `node scripts/fleet/bump.mts`), never hand-written ahead of the
     // tag. Fires only when package.json is ahead of the last v<semver> tag;
@@ -169,11 +190,10 @@ export function buildReleaseAndDocsSteps(): Array<() => boolean> {
     // bundle.ref exists. Read-side twin of the dep-0 fetch-path verify (which
     // hard-fails at install). Network-gated: SKIPS when gh is unavailable, so it
     // no-ops in offline CI lanes + repos with no pin (the wheelhouse producer).
-    () =>
-      run('node', [
-        'scripts/fleet/check/release-and-cascade-are-paired.mts',
-        '--quiet',
-      ]),
+    releaseStep([
+      'scripts/fleet/check/release-and-cascade-are-paired.mts',
+      '--quiet',
+    ]),
     // llms.txt structural freshness: compares H1 + section titles + ordered link
     // pairs of the committed file against deterministic extraction. Prose is never
     // diffed — the check is credential-free and member-safe fail-open (no file or
@@ -200,9 +220,17 @@ export function buildReleaseAndDocsSteps(): Array<() => boolean> {
     // so stale copies break CI setup (five repos on 2026-07-08). Compares only
     // SHARED tool names; repo-specific tools pass. Skips cleanly in CI (needs a
     // sibling wheelhouse checkout for the reference copy).
+    releaseStep([
+      'scripts/fleet/check/external-tools-match-wheelhouse.mts',
+      '--quiet',
+    ]),
+    // Release/publish package.json scripts follow the `<target>:<verb>`
+    // convention (github:release, npm:publish, cargo:publish, python:publish).
+    // Body-driven + enforcing (exit 1) — no fleet backlog, so no repo may hide a
+    // release/publish under a bare `release`/`publish` name.
     () =>
       run('node', [
-        'scripts/fleet/check/external-tools-match-wheelhouse.mts',
+        'scripts/fleet/check/release-publish-scripts-are-conventionally-named.mts',
         '--quiet',
       ]),
   ]

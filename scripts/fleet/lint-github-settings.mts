@@ -30,7 +30,6 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
-import { fileURLToPath } from 'node:url'
 
 import { REPO_ROOT } from './paths.mts'
 import {
@@ -49,6 +48,7 @@ import type {
   Finding,
   RepoApiPayload,
 } from './lint-github-settings-types.mts'
+import { isMainModule } from './_shared/is-main-module.mts'
 
 // Inline path equivalent of the wheelhouse template's paths.mts helper.
 // `lint-github-settings.mts` cascades into fleet repos whose per-package
@@ -343,6 +343,6 @@ export function main(
   return pass ? 0 : 1
 }
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+if (isMainModule(import.meta.url)) {
   process.exit(main())
 }

@@ -28,7 +28,8 @@ import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 
 import { SOAK_DAYS } from './constants/soak.mts'
 import { SOCKET_SCOPES } from './constants/socket-scopes.mts'
-import { REPO_ROOT } from './paths.mts'
+import { FLEET_CATALOG_YAML, PNPM_WORKSPACE_YAML, REPO_ROOT } from './paths.mts'
+import { applyStableAliasReconcile } from './lib/stable-alias.mts'
 import { collectPackumentFailures } from './lib/taze-output.mts'
 import { scanRepoForTelemetry } from './lib/telemetry-scan.mts'
 
@@ -110,8 +111,10 @@ const steps: Step[] = [
     cmd: path.join(REPO_ROOT, 'node_modules', '.bin', 'taze'),
     tazePass: true,
   },
-  /* Pass 3 — resync lockfile against the updated package.json. */
-  { args: ['install'], cmd: 'pnpm', tazePass: false },
+  // The lockfile resync (`pnpm install`) runs AFTER the `-stable` alias
+  // reconcile below — a Socket bump in pass 2 moves the base version, and the
+  // matching `<name>-stable` alias must track it before the lockfile is
+  // regenerated, else the lockfile pins the alias to the stale build.
 ]
 
 const uncheckedPackages = new Set<string>()
@@ -157,6 +160,44 @@ if (process.exitCode !== 1 && uncheckedPackages.size > 0) {
     logger.error(`  ✗ ${list[i]!}`)
   }
   process.exitCode = 1
+}
+
+// Pass 3a — reconcile `-stable` aliases, THEN resync the lockfile. A pass-2
+// Socket bump moves the floating base (`@socketsecurity/lib: 6.0.10`); the
+// pinned alias (`@socketsecurity/lib-stable: 'npm:@socketsecurity/lib@…'`) must
+// track it or `-stable` imports resolve the stale build. Reconcile the live
+// workspace + fleet catalog source (+ their template/base sources in the
+// wheelhouse) before `pnpm install` regenerates the lockfile. Enforced by
+// scripts/fleet/check/stable-aliases-match-base.mts.
+if (process.exitCode !== 1) {
+  const catalogFiles = [
+    PNPM_WORKSPACE_YAML,
+    FLEET_CATALOG_YAML,
+    path.join(REPO_ROOT, 'template', 'base', 'pnpm-workspace.yaml'),
+    path.join(
+      REPO_ROOT,
+      'template',
+      'base',
+      '.config',
+      'fleet',
+      'pnpm-workspace.fleet.yaml',
+    ),
+  ]
+  const reconciled = applyStableAliasReconcile(catalogFiles)
+  for (let i = 0, { length } = reconciled; i < length; i += 1) {
+    const r = reconciled[i]!
+    const rel = path.relative(REPO_ROOT, r.file)
+    for (let j = 0, jl = r.changed.length; j < jl; j += 1) {
+      const c = r.changed[j]!
+      logger.info(
+        `update: synced ${rel} '${c.alias}' ${c.aliasVersion} → ${c.baseVersion} (tracking base '${c.base}')`,
+      )
+    }
+  }
+  const { ok } = await run('pnpm', ['install'])
+  if (!ok) {
+    process.exitCode = process.exitCode || 1
+  }
 }
 
 // Pass 4 — multi-ecosystem soak-aware plans. Beyond npm, a repo may carry Rust

@@ -44,6 +44,7 @@ import {
   EXCLUDED_BUNDLE_PATH,
   REPO_ROOT,
 } from './paths.mts'
+import { isMainModule } from './_shared/is-main-module.mts'
 
 const logger = getDefaultLogger()
 
@@ -167,6 +168,6 @@ function main(): void {
   logger.log(`Built ${blobOut}.`)
 }
 
-if (process.argv[1] && import.meta.url === `file://${process.argv[1]}`) {
+if (isMainModule(import.meta.url)) {
   main()
 }

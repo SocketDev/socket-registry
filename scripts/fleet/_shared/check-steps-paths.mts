@@ -5,9 +5,10 @@
  *   docs, release-and-docs); see that file for the assembled order.
  */
 
-import { run } from './check-steps.mts'
+import { TSCONFIG_CHECK_PATH } from '../paths.mts'
+import { run, type CheckStep } from './check-steps.mts'
 
-export function buildPathsAndSupplyChainSteps(): Array<() => boolean> {
+export function buildPathsAndSupplyChainSteps(): CheckStep[] {
   return [
     // The only hook disable is the canonical "Allow <X> bypass" phrase. A
     // SOCKET_*_DISABLED env var / disabledEnvVar field / isHookDisabled() call
@@ -29,6 +30,12 @@ export function buildPathsAndSupplyChainSteps(): Array<() => boolean> {
     // runs it. Past incident (2026-06-06): a check rename left doctor:auth
     // pointing at a deleted file and no gate caught it.
     () => run('node', ['scripts/fleet/check/script-paths-resolve.mts']),
+    // Windows-portability classes (unshelled .cmd spawns, URL .pathname as a
+    // filesystem path, hand-rolled platform literals) — each shipped a real
+    // windows-only CI failure that failed OPEN (the bump-order pre-release
+    // gate silently vanished on windows for the guard's whole life). Ratchets
+    // down from the introduction baseline. docs/agents.md/fleet/windows-gotchas.md
+    () => run('node', ['scripts/fleet/check/source-is-windows-portable.mts']),
     // Sibling of script-paths-resolve for prose: every `node <script>` reference
     // in a SKILL.md or command .md must resolve to a real file — a renamed/moved
     // script leaves the doc instruction dead. Past incident (2026-06-06):
@@ -81,6 +88,16 @@ export function buildPathsAndSupplyChainSteps(): Array<() => boolean> {
         'scripts/fleet/check/submodules-are-sparse-or-annotated.mts',
         '--quiet',
       ]),
+    // Every top-level `upstream/<name>` reference submodule is shallow
+    // single-branch (`shallow = true` + `branch = <ref>`) so a clone pulls only
+    // the tracked branch tip, not full history. Complements the sparse gate
+    // above (which owns nested subtree-consumed submodules). See
+    // docs/agents.md/fleet/upstream-references.md.
+    () =>
+      run('node', [
+        'scripts/fleet/check/upstream-submodules-are-shallow-single-branch.mts',
+        '--quiet',
+      ]),
     // Companion: every sparse submodule declares a `verify =` consumer (the
     // command that build-proves the pattern) or `verify = none` (reference-only).
     // A sparse pattern with no declared consumer is unproven — the verify is
@@ -103,7 +120,7 @@ export function buildPathsAndSupplyChainSteps(): Array<() => boolean> {
         'node_modules/typescript/bin/tsc',
         '--noEmit',
         '-p',
-        'tsconfig.check.json',
+        TSCONFIG_CHECK_PATH,
       ]),
     // Path-hygiene check (1 path, 1 reference). Mantra-driven gate;
     // see .claude/skills/path-guard/ + .claude/hooks/fleet/path-guard/.
@@ -187,6 +204,12 @@ export function buildPathsAndSupplyChainSteps(): Array<() => boolean> {
     // EXPECTED_RELEASE_AGE_EXCLUDE — every fleet repo went red on the
     // next install.
     () => run('node', ['scripts/fleet/check/fleet-soak-exclude-parity.mts']),
+    // Every `-stable` catalog alias must pin the same version as its floating
+    // base entry (`@socketsecurity/lib-stable` → `@socketsecurity/lib`).
+    // "Update a Socket package = update its -stable alias too." A desync means
+    // imports of the `-stable` surface resolve an older build than the catalog
+    // ships. Scans both the live workspace + the fleet catalog source.
+    () => run('node', ['scripts/fleet/check/stable-aliases-match-base.mts']),
     // Baseline catalog coverage. Wheelhouse-only (no-ops where the
     // sync-scaffolding manifest is absent). Every `catalog:` dep the fleet
     // package.json baseline (CANONICAL_CATALOG_DEPS) writes onto a member must be
@@ -218,6 +241,9 @@ export function buildPathsAndSupplyChainSteps(): Array<() => boolean> {
     // the deduping-dependencies skill cites; the safe-collapse judgment stays
     // in the skill's decision tree.
     () => run('node', ['scripts/fleet/check/dependencies-are-deduped.mts']),
+    // Every fleet/repo CLI entrypoint must FAIL SOFT (use runMain / a .catch),
+    // never crash the user with a raw unhandled-rejection stack trace.
+    () => run('node', ['scripts/fleet/check/entry-scripts-are-fail-soft.mts']),
     // No package.json may use a `link:` protocol dependency — non-portable,
     // outside the lockfile integrity guarantees, breaks the zero-dep bundle
     // contract. Use workspace: (in-repo) or catalog: (centrally pinned).

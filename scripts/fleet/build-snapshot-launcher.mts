@@ -54,6 +54,7 @@ import path from 'node:path'
 import process from 'node:process'
 
 import { DISPATCH_DIR } from './make-hook-dispatch.mts'
+import { isMainModule } from './_shared/is-main-module.mts'
 
 const require = createRequire(import.meta.url)
 const { blobPath } = require(
@@ -262,6 +263,6 @@ function main(): void {
   )
 }
 
-if (process.argv[1] && import.meta.url === `file://${process.argv[1]}`) {
+if (isMainModule(import.meta.url)) {
   main()
 }

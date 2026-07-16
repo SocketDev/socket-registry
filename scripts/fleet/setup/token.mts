@@ -18,6 +18,7 @@ import {
   promptAndPersist,
   wireBridgeIntoShellRc,
 } from '../../../.claude/hooks/fleet/setup-security-tools/lib/operator-prompts.mts'
+import { isMainModule } from '../_shared/is-main-module.mts'
 
 // The two lines logged when an existing token is found via `source` (env var
 // or keychain) and the prompt is skipped.
@@ -68,6 +69,6 @@ export async function main(): Promise<void> {
   }
 }
 
-if (process.argv[1] && import.meta.url === `file://${process.argv[1]}`) {
+if (isMainModule(import.meta.url)) {
   void main()
 }

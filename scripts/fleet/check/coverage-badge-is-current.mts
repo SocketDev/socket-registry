@@ -28,7 +28,6 @@
 import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
-import { fileURLToPath } from 'node:url'
 
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
@@ -40,6 +39,7 @@ import {
   readmeBadgeForm,
 } from '../lib/coverage-badge.mts'
 import { REPO_ROOT } from '../paths.mts'
+import { isMainModule } from '../_shared/is-main-module.mts'
 
 const logger = getDefaultLogger()
 
@@ -72,6 +72,11 @@ export function checkCoverageBadgeIsCurrent(
     return 0
   }
   const pct = readCoveragePct(opts.repoRoot)
+  // 'img' (current) and 'markdown' (legacy-but-valid; make-coverage-badge
+  // migrates it to <img> opportunistically on the next cover run) both point at
+  // the same asset — verify them below. Only the truly-retired external/legacy
+  // forms fail the gate, so flipping the current form to <img> never breaks a
+  // member that still carries the markdown line.
   if (form === 'shields' || form === 'legacy-asset') {
     if (pct === undefined) {
       // Retired form, but no coverage run on this tree to regenerate from —
@@ -79,7 +84,7 @@ export function checkCoverageBadgeIsCurrent(
       return 0
     }
     logger.fail(
-      '[check-coverage-badge-is-current] README still uses a retired coverage-badge form — the badge is a repo-local SVG at assets/repo/badges/coverage.svg (run make-coverage-badge to migrate).',
+      '[check-coverage-badge-is-current] README still uses a retired coverage-badge form (shields.io or the legacy pre-badges/ path) — the badge is a repo-local SVG at assets/repo/badges/coverage.svg (run make-coverage-badge to migrate).',
     )
     logger.error(FIX_HINT)
     return 1
@@ -132,6 +137,6 @@ function main(): void {
   })
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (isMainModule(import.meta.url)) {
   main()
 }

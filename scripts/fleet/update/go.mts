@@ -22,6 +22,7 @@ import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { rcompare, valid } from 'semver'
 
 import { findOwnFiles, requireSoakDays } from './_shared.mts'
+import { isMainModule } from '../_shared/is-main-module.mts'
 
 const DAY_MS = 86_400_000
 
@@ -460,7 +461,7 @@ export async function main(argv: string[]): Promise<number> {
   return hadViolation ? 1 : 0
 }
 
-if (process.argv[1] && import.meta.url === `file://${process.argv[1]}`) {
+if (isMainModule(import.meta.url)) {
   main(process.argv.slice(2)).then(
     code => {
       process.exitCode = code

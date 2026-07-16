@@ -48,6 +48,12 @@
       "publishes": "js"
     },
     {
+      "name": "decmpfs",
+      "owner": "decmpfs",
+      "description": "Transparent-compression (decmpfs) reader/writer for macOS — Rust crate",
+      "publishes": "cargo"
+    },
+    {
       "name": "envrypt",
       "description": "Encrypted .env library for Rust — ECIES + locked v1/v2, keychain-first",
       "optIns": ["squash-history"]
@@ -56,6 +62,12 @@
       "name": "sdxgen",
       "description": "CycloneDX and SPDX manifest generator (Socket dx gen)",
       "optIns": ["squash-history"]
+    },
+    {
+      "name": "sockeye",
+      "description": "Touch-gated local secret bridge for developer tools and automation",
+      "optIns": ["squash-history"],
+      "publishes": "binary"
     },
     {
       "name": "stuie",

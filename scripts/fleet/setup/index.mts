@@ -22,6 +22,7 @@ import { setupRefero } from './setup-refero.mts'
 import { setupRust } from './setup-rust.mts'
 
 import type { EcosystemStepResult } from './ecosystems.mts'
+import { isMainModule } from '../_shared/is-main-module.mts'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -158,7 +159,7 @@ async function main(): Promise<void> {
   }
 }
 
-if (process.argv[1] && import.meta.url === `file://${process.argv[1]}`) {
+if (isMainModule(import.meta.url)) {
   main().catch((e: unknown) => {
     getDefaultLogger().error(e)
     process.exitCode = 1

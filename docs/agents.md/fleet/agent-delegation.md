@@ -176,6 +176,17 @@ and had to be reverted.
 
 The shape that works for editing fan-outs:
 
+- **The orchestrator owns every SHARED / cross-cutting file.** A file that more
+  than one agent needs — a shared test runner, a config, a manifest, a generated
+  index — is edited by YOU, once, BEFORE fanning out. Never hand a shared file to
+  one agent: it forces every other agent to wait on it (serialization), and if
+  two agents edit it in one checkout they clobber each other. Make the shared
+  change idempotent and land it first; then each agent branches/works from a tree
+  that already has it. (The mistake this prevents: spawning an agent into the
+  primary checkout to edit the shared `<style>` conformance runner while three
+  port agents also needed it — the fan-out could not start until that one agent
+  finished. The fix was to edit the runner in the orchestrator turn, then fan
+  out over the disjoint per-language dirs.)
 - **One unit per agent.** Scope each agent to a single file (or a small disjoint
   set). One file makes "did it stay in scope?" trivially checkable.
 - **`isolation: 'worktree'`.** Each agent edits in its own git worktree, so its
@@ -199,6 +210,27 @@ The validated version of the failed sweep above: one worktree-isolated agent per
 file, broad fixers banned, collect-and-verify in main — scope held (0 strays),
 quality held (named-capture conversions, options-object refactors with in-file
 call-site updates), full suite green. Companion hook: `parallel-agent-spawn-nudge`.
+
+**Worktree isolation vs same-checkout disjoint.** `isolation: 'worktree'` is the
+safe default when slices are file-level or an agent might reach past its scope.
+When the slices are COARSE and cleanly disjoint (a whole language dir per agent),
+same-checkout fan-out is viable and skips the per-worktree `pnpm install` cost —
+but only under all three guards: (a) the orchestrator owns the shared files
+(above), (b) each agent is hard-forbidden broad `--fix`/`format`/`check`
+repo-wide (it would see and rewrite siblings' in-flight work), (c) agents leave
+work UNCOMMITTED and report a touched-file list, and the orchestrator lands each
+by path — no agent runs `git commit` (one reviewer between work and main; no
+`.git/index.lock` race).
+
+**Platform limit on the commit control.** `no-subagent-commit-guard` blocks an
+inline Task subagent's commit (its turn is `isSidechain` in this transcript), but
+a background / Workflow `agent()` subagent writes to its own transcript and its
+Bash reaches the hook with the PARENT transcript — so the guard cannot attribute
+it and does NOT fire. Likewise a Workflow `agent()` spawn bypasses PreToolUse
+entirely, so `parallel-agent-spawn-nudge` never sees it. Those two paths are held
+ONLY by the inlined agent-prompt discipline: every delegation's prompt must
+forbid committing and instruct "leave work uncommitted, report touched files."
+Write that into the prompt; do not rely on a hook to catch it.
 
 Two rules proven at industrial scale (Bun's 1,448-file Zig→Rust rewrite ran
 ~50 continuous agent workflows for 11 days with every line adversarially

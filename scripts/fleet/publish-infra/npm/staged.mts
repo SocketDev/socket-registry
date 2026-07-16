@@ -20,6 +20,7 @@ import {
 } from '../../lib/verify-release-hashes.mts'
 import { ensureTagAndRelease } from '../release.mts'
 import { logger, rootPath, runCapture, runInherit } from '../shared.mts'
+import { withPinnedReadme } from './pin-readme.mts'
 import { isAlreadyPublished } from './registry.mts'
 import type { StageListEntry } from './shared.mts'
 import { isStagingExpected, readPackageJson } from './shared.mts'
@@ -70,7 +71,15 @@ export async function runStaged(
     // touching the registry.
     args.push('--dry-run')
   }
-  const code = await runInherit('pnpm', args, rootPath)
+  // Pin the README's relative asset URLs to the release tag for the packed
+  // tarball only (restored right after) so the npm page's badge is immutable +
+  // matches this version instead of a moving HEAD ref. The same bracket wraps
+  // the --approve verify pack (defaultPackTarball) so the integrity gate sees
+  // identical bytes.
+  const code = await withPinnedReadme(
+    { repository: pkg.repository, rootPath, version: pkg.version },
+    () => runInherit('pnpm', args, rootPath),
+  )
   if (code !== 0) {
     logger.fail(`pnpm stage publish exited ${code}`)
     process.exitCode = code
@@ -148,7 +157,12 @@ export async function runDirect(
   if (dryRun) {
     args.push('--dry-run')
   }
-  const code = await runInherit('pnpm', args, rootPath)
+  // Pin the README to the release tag for the published tarball only (see
+  // runStaged).
+  const code = await withPinnedReadme(
+    { repository: pkg.repository, rootPath, version: pkg.version },
+    () => runInherit('pnpm', args, rootPath),
+  )
   if (code !== 0) {
     logger.fail(`pnpm publish exited ${code}`)
     process.exitCode = code
@@ -174,7 +188,12 @@ export async function defaultPackTarball(
   name: string,
   version: string,
 ): Promise<string | undefined> {
-  const packed = await runCapture('pnpm', ['pack'], rootPath)
+  // Same README-pin bracket as runStaged, so the approve-time verify pack is
+  // byte-identical to the staged tarball (the integrity gate compares them).
+  const packed = await withPinnedReadme(
+    { repository: readPackageJson().repository, rootPath, version },
+    () => runCapture('pnpm', ['pack'], rootPath),
+  )
   const tarballName = `${name.replace(/^@/, '').replace('/', '-')}-${version}.tgz`
   const tarballPath = path.join(rootPath, tarballName)
   return packed.code === 0 && existsSync(tarballPath) ? tarballPath : undefined

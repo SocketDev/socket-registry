@@ -5,11 +5,9 @@
  *   chain, release-and-docs); see that file for the assembled order.
  */
 
-import { run } from './check-steps.mts'
+import { run, type CheckStep } from './check-steps.mts'
 
-export function buildHookAndDocSteps(
-  forwardedArgs: string[],
-): Array<() => boolean> {
+export function buildHookAndDocSteps(forwardedArgs: string[]): CheckStep[] {
   return [
     // Lint scope is forwarded; everything else is full-scope.
     () => run('node', ['scripts/fleet/lint.mts', ...forwardedArgs]),
@@ -106,6 +104,11 @@ export function buildHookAndDocSteps(
     // only at root/docs/.claude). Reuses the guard's classifyMarkdownPath predicate.
     () =>
       run('node', ['scripts/fleet/check/markdown-filenames-are-canonical.mts']),
+    // Commit-time twin of golden-fixture-naming-guard: no tracked test fixture is
+    // named `*.expected.json` (must be `*.golden.json`). Reuses the guard's
+    // goldenTarget predicate.
+    () =>
+      run('node', ['scripts/fleet/check/golden-fixtures-are-named-golden.mts']),
     // package.json's packageManager + engines.{pnpm,npm} are GENERATED from
     // external-tools.json (the single source); this gate fails on drift.
     () =>

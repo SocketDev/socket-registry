@@ -32,6 +32,7 @@ catalog:
   'browserslist': 4.26.3
   'c8': 10.1.3
   'cacache': 20.0.1
+  'chrome-devtools-mcp': 1.5.0
   'clipboardy': 4.0.0
   'debug': ^4.4.3
   'del': 8.0.1
@@ -110,7 +111,7 @@ catalog:
   # platform-binary optionalDependencies, despite the monorepo's internal
   # workspace layout. dtu-github-actions is its GitHub-Actions parser, pinned
   # explicitly (not left transitive) so its version is uniform fleet-wide.
-  '@anthropic-ai/claude-code': 2.1.201
+  '@anthropic-ai/claude-code': 2.1.205
   '@babel/core': 7.28.4
   '@redwoodjs/agent-ci': 0.16.2
   'dtu-github-actions': 0.16.2
@@ -127,14 +128,14 @@ catalog:
   # test/ code uses the canonical name because vitest aliases that
   # to local src/.
   '@socketregistry/packageurl-js-stable': 'npm:@socketregistry/packageurl-js@1.4.2'
-  '@socketsecurity/lib': 6.0.9
-  '@socketsecurity/lib-stable': 'npm:@socketsecurity/lib@6.0.9'
+  '@socketsecurity/lib': 6.0.10
+  '@socketsecurity/lib-stable': 'npm:@socketsecurity/lib@6.0.10'
   '@socketsecurity/registry': 2.0.2
   '@socketsecurity/registry-stable': 'npm:@socketsecurity/registry@2.0.2'
   '@socketsecurity/sdk': 4.0.1
   '@socketsecurity/sdk-stable': 'npm:@socketsecurity/sdk@4.0.1'
   '@types/mdast': 4.0.4
-  '@types/node': 26.1.0
+  '@types/node': 26.1.1
   '@types/semver': 7.7.1
   '@types/shell-quote': 1.7.5
   'compromise': 14.15.1
@@ -155,8 +156,8 @@ catalog:
   'neosanitize': 0.3.0
   'nock': 14.0.16
   'npm-run-all2': 9.0.2
-  'oxfmt': 0.57.0
-  'oxlint': 1.72.0
+  'oxfmt': 0.58.0
+  'oxlint': 1.73.0
   # playwright-core — headless Chromium driver for the seeing-rendered-output
   # skill (render a page / unpacked MV3 extension popup to PNG). Fleet-canonical
   # catalog dep; source of truth is template/pnpm-workspace.fleet.yaml.
@@ -179,9 +180,9 @@ catalog:
   # transitive `vite` (vitest, @vitest/*, plugin authors) to it.
   'typescript': 7.0.2
   'vite': 8.1.0
-  'vitest': 4.1.9
-  '@vitest/coverage-v8': 4.1.9
-  '@vitest/ui': 4.1.9
+  'vitest': 4.1.10
+  '@vitest/coverage-v8': 4.1.10
+  '@vitest/ui': 4.1.10
 
 # pnpm `overrides` block — two purposes:
 #
@@ -208,48 +209,6 @@ minimumReleaseAgeExclude:
   # ahead of the soak by owner directive (out of RC). The main package + its
   # 20-package per-platform binding family are pinned to the exact version
   # (a scope glob would blanket-bypass any future @typescript publish).
-  # published: 2026-07-08 | removable: 2026-07-15
-  - 'typescript@7.0.2'
-  # published: 2026-07-08 | removable: 2026-07-15
-  - '@typescript/typescript-aix-ppc64@7.0.2'
-  # published: 2026-07-08 | removable: 2026-07-15
-  - '@typescript/typescript-darwin-arm64@7.0.2'
-  # published: 2026-07-08 | removable: 2026-07-15
-  - '@typescript/typescript-darwin-x64@7.0.2'
-  # published: 2026-07-08 | removable: 2026-07-15
-  - '@typescript/typescript-freebsd-arm64@7.0.2'
-  # published: 2026-07-08 | removable: 2026-07-15
-  - '@typescript/typescript-freebsd-x64@7.0.2'
-  # published: 2026-07-08 | removable: 2026-07-15
-  - '@typescript/typescript-linux-arm@7.0.2'
-  # published: 2026-07-08 | removable: 2026-07-15
-  - '@typescript/typescript-linux-arm64@7.0.2'
-  # published: 2026-07-08 | removable: 2026-07-15
-  - '@typescript/typescript-linux-loong64@7.0.2'
-  # published: 2026-07-08 | removable: 2026-07-15
-  - '@typescript/typescript-linux-mips64el@7.0.2'
-  # published: 2026-07-08 | removable: 2026-07-15
-  - '@typescript/typescript-linux-ppc64@7.0.2'
-  # published: 2026-07-08 | removable: 2026-07-15
-  - '@typescript/typescript-linux-riscv64@7.0.2'
-  # published: 2026-07-08 | removable: 2026-07-15
-  - '@typescript/typescript-linux-s390x@7.0.2'
-  # published: 2026-07-08 | removable: 2026-07-15
-  - '@typescript/typescript-linux-x64@7.0.2'
-  # published: 2026-07-08 | removable: 2026-07-15
-  - '@typescript/typescript-netbsd-arm64@7.0.2'
-  # published: 2026-07-08 | removable: 2026-07-15
-  - '@typescript/typescript-netbsd-x64@7.0.2'
-  # published: 2026-07-08 | removable: 2026-07-15
-  - '@typescript/typescript-openbsd-arm64@7.0.2'
-  # published: 2026-07-08 | removable: 2026-07-15
-  - '@typescript/typescript-openbsd-x64@7.0.2'
-  # published: 2026-07-08 | removable: 2026-07-15
-  - '@typescript/typescript-sunos-x64@7.0.2'
-  # published: 2026-07-08 | removable: 2026-07-15
-  - '@typescript/typescript-win32-arm64@7.0.2'
-  # published: 2026-07-08 | removable: 2026-07-15
-  - '@typescript/typescript-win32-x64@7.0.2'
   # Socket-owned scopes — bypass the soak window because they ship
   # through Socket's own provenance + publish pipeline. Canonical
   # list: scripts/constants/socket-scopes.mts SOCKET_PACKAGE_PATTERNS.

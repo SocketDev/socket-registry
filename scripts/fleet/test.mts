@@ -243,7 +243,12 @@ function runVitest(
   const opts = { __proto__: null, ...options } as {
     env?: Record<string, string> | undefined
   }
-  log(`Test scope: ${label}`)
+  // Announce the effective budget tier so a CI log answers "which timeout did
+  // the config compute?" without a probe commit — a 30s timeout under a
+  // config that should compute 60s on CI is diagnosable from the run log.
+  log(
+    `Test scope: ${label} (CI=${process.env['CI'] ? 'yes' : 'no'}, budget tier: ${process.env['CI'] ? '60s' : '10s local'})`,
+  )
   const configArgs = existsSync(ROOT_VITEST_CONFIG)
     ? ['--config', ROOT_VITEST_CONFIG]
     : []
@@ -524,16 +529,10 @@ function runFiles(files: string[]): number {
   // the fast path for "test this one file". --passWithNoTests keeps a path
   // that resolves to no test file from erroring.
   //
-  // A template/ path is the CANONICAL copy, which the config excludes by
-  // default (the cascaded live copy is what the suite runs). Setting
-  // FLEET_TEST_TEMPLATE=1 lifts that one exclude so `pnpm test
-  // template/base/.../x.test.mts` verifies a canonical test IN PLACE — before
-  // the cascade — instead of forcing a commit + cascade just to run it.
-  const includeTemplate = files.some(f => f.startsWith('template/'))
   return runVitest(
     ['run', ...files, '--passWithNoTests'],
     `files (${files.length})`,
-    includeTemplate ? { env: { FLEET_TEST_TEMPLATE: '1' } } : undefined,
+    undefined,
   )
 }
 

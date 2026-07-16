@@ -4,12 +4,13 @@
  *   check/coverage-badge-is-current.mts (asserts the badge matches actual
  *   coverage). The badge is a repo-local optimized SVG asset — no third-party
  *   badge host — generated at `assets/repo/badges/coverage.svg` and referenced
- *   by the README as `![Coverage](assets/repo/badges/coverage.svg)`. One place
+ *   by the README as a dimensioned `<img>` (standardized `height="20"` + the
+ *   SVG's exact width, so the badge row aligns with no layout shift). One place
  *   owns the SVG renderer, the color buckets, the README regexes, and the
  *   coverage-total read, so the writer and the checker can never disagree on
- *   what "current" means. READMEs that still carry the retired shields.io badge
- *   form — or the legacy pre-badges/ asset path — are recognized for migration:
- *   `migrateReadmeBadge` rewrites that line to the current reference.
+ *   what "current" means. READMEs carrying a retired form (shields.io or the
+ *   legacy pre-badges/ path) OR the legacy `![]` markdown form are migrated by
+ *   `migrateReadmeBadge` to the current `<img>` reference.
  */
 
 import { existsSync, readFileSync } from 'node:fs'
@@ -21,15 +22,58 @@ import path from 'node:path'
 // never references a missing image.
 export const BADGE_ASSET_PATH = 'assets/repo/badges/coverage.svg'
 
-// The canonical README reference to the badge asset.
+// Standardized badge height (px) — every README badge <img> carries it so the
+// row aligns regardless of each SVG's own metrics. The width is set per-badge
+// (exact, from the SVG) so there's no layout shift and no distortion.
+export const BADGE_HEIGHT = 20
+
+// The `width="…"` on a rendered badge's root `<svg>` — the intrinsic px the
+// README <img> pins so the row has no layout shift. Our renderer emits a bare
+// number; the capture is a lenient numeric run so a unit-suffixed width would
+// still yield its numeric lead.
+const SVG_WIDTH_RE = /^<svg[^>]*\bwidth="([\d.]+)"/ // socket-lint: allow uncommented-regex
+
+/**
+ * The intrinsic width of a rendered badge SVG (its `<svg width="…">`), as a
+ * string. Returns `undefined` when absent so the caller can fall back to a
+ * height-only <img> (aspect-ratio still yields the right width, just without
+ * CLS reservation).
+ */
+export function svgWidth(svg: string): string | undefined {
+  return SVG_WIDTH_RE.exec(svg)?.[1]
+}
+
+/**
+ * A README `<img>` for a local badge SVG: standardized `height="20"` + the
+ * SVG's exact `width` (so badges align on one row, precise, no reflow). Inline
+ * <img> (not markdown `![]`) is what lets us pin the height — and it renders on
+ * GitHub + npm, unlike an inlined `<svg>`.
+ */
+export function badgeImgTag(src: string, alt: string, svg: string): string {
+  const w = svgWidth(svg)
+  const width = w === undefined ? '' : ` width="${w}"`
+  return `<img src="${src}"${width} height="${BADGE_HEIGHT}" alt="${alt}" />`
+}
+
+// The current README reference to the coverage badge — a dimensioned <img>.
+// The `![Coverage](…)` markdown form is legacy (recognized only to migrate it).
+export function coverageBadgeRef(svg: string): string {
+  return badgeImgTag(BADGE_ASSET_PATH, 'Coverage', svg)
+}
+
+// The legacy markdown reference, kept for migration matching.
 export const BADGE_MARKDOWN = `![Coverage](${BADGE_ASSET_PATH})`
 
 // The value text a seeded-but-never-measured badge carries. The check treats
 // an "n/a" badge as "not yet measured" (fail-open), never a mismatch.
 export const BADGE_PLACEHOLDER = 'n/a'
 
-// The local-asset README reference (the current form).
-const ASSET_BADGE_RE = /!\[Coverage\]\(assets\/repo\/badges\/coverage\.svg\)/ // socket-lint: allow uncommented-regex
+// The current README reference: a dimensioned <img> at the badges/ asset path.
+const IMG_BADGE_RE = /<img src="assets\/repo\/badges\/coverage\.svg"[^>]*\/>/ // socket-lint: allow uncommented-regex
+
+// The legacy markdown reference at the current path, matched only to migrate it
+// to the <img> form.
+const MARKDOWN_BADGE_RE = /!\[Coverage\]\(assets\/repo\/badges\/coverage\.svg\)/ // socket-lint: allow uncommented-regex
 
 // The legacy pre-badges/ asset path, matched only to migrate it.
 const LEGACY_ASSET_BADGE_RE = /!\[Coverage\]\(assets\/repo\/coverage\.svg\)/ // socket-lint: allow uncommented-regex
@@ -43,14 +87,18 @@ const SHIELDS_BADGE_RE =
 // machine-readable percent the check reads back.
 const SVG_LABEL_RE = /aria-label="coverage: (\d+%|n\/a)"/ // socket-lint: allow uncommented-regex
 
-export type BadgeForm = 'asset' | 'legacy-asset' | 'shields'
+export type BadgeForm = 'img' | 'markdown' | 'legacy-asset' | 'shields'
 
-// Which badge form the README carries: 'asset' (current), 'legacy-asset'
-// (pre-badges/ path, needs migration), 'shields' (retired, needs migration),
-// or undefined (a repo that opted out of the badge).
+// Which badge form the README carries: 'img' (current — dimensioned <img>),
+// 'markdown' (the `![Coverage](badges/…)` form, needs migration to <img>),
+// 'legacy-asset' (pre-badges/ path), 'shields' (retired), or undefined (a repo
+// that opted out of the badge).
 export function readmeBadgeForm(readme: string): BadgeForm | undefined {
-  if (ASSET_BADGE_RE.test(readme)) {
-    return 'asset'
+  if (IMG_BADGE_RE.test(readme)) {
+    return 'img'
+  }
+  if (MARKDOWN_BADGE_RE.test(readme)) {
+    return 'markdown'
   }
   if (LEGACY_ASSET_BADGE_RE.test(readme)) {
     return 'legacy-asset'
@@ -61,13 +109,20 @@ export function readmeBadgeForm(readme: string): BadgeForm | undefined {
   return undefined
 }
 
-// Rewrite a retired badge line (shields.io or the legacy pre-badges/ asset
-// path) to the current reference. Already-migrated or badge-less READMEs
-// come back unchanged.
-export function migrateReadmeBadge(readme: string): string {
+/**
+ * Rewrite whatever coverage-badge line the README carries to the current
+ * dimensioned `<img>` reference for `svg` (retired shields.io, the legacy
+ * pre-badges/ path, the `![]` markdown form, AND an existing <img> whose width
+ * is stale after a coverage change). Already-current READMEs come back
+ * unchanged. `svg` supplies the exact width the <img> pins.
+ */
+export function migrateReadmeBadge(readme: string, svg: string): string {
+  const ref = coverageBadgeRef(svg)
   return readme
-    .replace(SHIELDS_BADGE_RE, BADGE_MARKDOWN)
-    .replace(LEGACY_ASSET_BADGE_RE, BADGE_MARKDOWN)
+    .replace(SHIELDS_BADGE_RE, ref)
+    .replace(LEGACY_ASSET_BADGE_RE, ref)
+    .replace(MARKDOWN_BADGE_RE, ref)
+    .replace(IMG_BADGE_RE, ref)
 }
 
 // Fill color for a coverage percent — the conventional coverage gradient so
@@ -186,7 +241,17 @@ export function badgeAssetPath(repoRoot: string): string {
 // shapeless — the caller decides whether that's fail-open (the check) or an
 // error (the writer, which needs a real number).
 export function readCoveragePct(repoRoot: string): number | undefined {
-  const summaryPath = path.join(repoRoot, 'coverage', 'coverage-summary.json')
+  // Prefer the merged aggregate cover.mts persists (twin-folded, subprocess
+  // tier included) over the raw single-tier vitest summary — the badge should
+  // show the honest composite number when a full cover run produced one.
+  const aggregatePath = path.join(
+    repoRoot,
+    'coverage',
+    'aggregate-summary.json',
+  )
+  const summaryPath = existsSync(aggregatePath)
+    ? aggregatePath
+    : path.join(repoRoot, 'coverage', 'coverage-summary.json')
   if (!existsSync(summaryPath)) {
     return undefined
   }

@@ -1,8 +1,10 @@
 /* eslint-disable no-shadow -- nested cached-length for-loops intentionally reuse `i`/`length` names for the fleet-wide cached-loop idiom; renaming would diverge from the codebase pattern. */
 /**
  * @file Canonical minimal lint runner for socket-* repos. Scope modes:
- *   (default, or explicit --modified / its alias --changed) Lint files modified
- *   in the working tree vs HEAD. --staged Lint
+ *   Explicit positional file paths (e.g. `pnpm run lint <file…>`) lint exactly
+ *   those files, tracked or brand-new — they win over every flag below,
+ *   including --all. Otherwise: (default, or explicit --modified / its alias
+ *   --changed) Lint files modified in the working tree vs HEAD. --staged Lint
  *   files in the git index (used by .git-hooks/pre-commit). --all Lint the
  *   entire workspace. Flags: --fix Auto-fix issues. --quiet Suppress progress
  *   output. If the chosen scope has no lintable files, the script is a no-op.
@@ -36,10 +38,10 @@ import {
   getModifiedFiles,
   getStagedFiles,
 } from './_shared/format-scope.mts'
-import { pathToFileURL } from 'node:url'
 
 import { resolveScopeMode } from './_shared/scope-flags.mts'
 import type { ScopeMode } from './_shared/scope-flags.mts'
+import { isMainModule } from './_shared/is-main-module.mts'
 
 const logger = getDefaultLogger()
 
@@ -144,6 +146,20 @@ export function escalatesForScope(mode: ScopeMode, files: string[]): boolean {
 
 function filterLintable(files: string[]): string[] {
   return files.filter(f => LINTABLE_EXTS.has(path.extname(f)) && existsSync(f))
+}
+
+// Explicit positional file paths → linted unconditionally, tracked or not.
+// `getModifiedFiles`/`getStagedFiles` resolve through `git diff`, which never
+// surfaces an untracked (never-`git add`ed) file, so a brand-new file passed
+// explicitly on the argv (`pnpm run fix <new-file>`) was silently dropped from
+// the git-diff-derived scope while the scope-count log still reported success.
+// Positional args (anything not starting with `-`) win over the git-diff scope
+// entirely, matching `scripts/fleet/test.mts`'s `fileArgs()` convention: flags
+// (scope flags, `--fix`, `--quiet`/`--silent`) are filtered out, and what
+// remains is treated as file paths (existence + lintable-extension filtered
+// downstream by `filterLintable`, same as the git-diff-derived scope).
+export function resolveExplicitFiles(argv: readonly string[]): string[] {
+  return argv.filter(a => !a.startsWith('-'))
 }
 
 // Wheelhouse-self dogfood path: `template/` ONLY — the canonical SOURCE of
@@ -452,7 +468,47 @@ export function fixScopeReminder(scopeMode: string): string {
   )
 }
 
+// Lint `files` (already scoped) and report pass/fail + the fix-scope
+// reminder. `scopeLabel` names the scope in the progress log — the git-diff
+// mode ('modified'/'staged') or 'explicit' for argv-named files.
+function lintFileSet(scopeLabel: string, files: string[]): void {
+  // Pre-filter against the merged .prettierignore: oxfmt does not apply
+  // --ignore-path to explicitly-passed argv files, so without this a staged
+  // cascade-mirror path (.claude/**, scripts/fleet/**) red-lights the
+  // pre-commit gate on bytes the format run never owns. template/** is exempt
+  // inside filterFormatIgnored (the wheelhouse canon stays gated).
+  const extLintable = filterLintable(files)
+  const lintable = filterFormatIgnored(extLintable)
+  const ignoredCount = extLintable.length - lintable.length
+  if (ignoredCount > 0) {
+    log(
+      `${ignoredCount} format-ignored mirror file(s) skipped (cascade payload — gated at the template source).`,
+    )
+  }
+  log(
+    `Lint scope: ${scopeLabel} (${lintable.length} of ${files.length} files lintable)`,
+  )
+  process.exitCode = runFiles(lintable)
+  if (process.exitCode === 0) {
+    log('Lint passed')
+  } else {
+    log('Lint failed')
+  }
+  if (fix) {
+    log(fixScopeReminder(scopeLabel))
+  }
+}
+
 function main(): void {
+  // Explicit positional file paths win over every scope mode (including
+  // --all): they name exactly what to lint, tracked or brand-new, so the
+  // git-diff/whole-tree scoping below never gets a say over them.
+  const explicitFiles = resolveExplicitFiles(args)
+  if (explicitFiles.length > 0) {
+    lintFileSet('explicit', explicitFiles)
+    return
+  }
+
   if (mode === 'all') {
     log('Lint scope: all')
     process.exitCode = runAll()
@@ -485,36 +541,10 @@ function main(): void {
     return
   }
 
-  // Pre-filter against the merged .prettierignore: oxfmt does not apply
-  // --ignore-path to explicitly-passed argv files, so without this a staged
-  // cascade-mirror path (.claude/**, scripts/fleet/**) red-lights the
-  // pre-commit gate on bytes the format run never owns. template/** is exempt
-  // inside filterFormatIgnored (the wheelhouse canon stays gated).
-  const extLintable = filterLintable(files)
-  const lintable = filterFormatIgnored(extLintable)
-  const ignoredCount = extLintable.length - lintable.length
-  if (ignoredCount > 0) {
-    log(
-      `${ignoredCount} format-ignored mirror file(s) skipped (cascade payload — gated at the template source).`,
-    )
-  }
-  log(
-    `Lint scope: ${mode} (${lintable.length} of ${files.length} files lintable)`,
-  )
-  process.exitCode = runFiles(lintable)
-  if (process.exitCode === 0) {
-    log('Lint passed')
-  } else {
-    log('Lint failed')
-  }
-  if (fix) {
-    log(fixScopeReminder(mode))
-  }
+  lintFileSet(mode, files)
 }
 
-const invokedDirectly =
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
+const invokedDirectly = isMainModule(import.meta.url)
 if (invokedDirectly) {
   main()
 }

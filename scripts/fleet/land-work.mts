@@ -20,7 +20,6 @@
 
 import { existsSync } from 'node:fs'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { normalizePath } from '@socketsecurity/lib-stable/paths/normalize'
@@ -35,6 +34,7 @@ import {
 import { parsePorcelain } from './_shared/git-porcelain.mts'
 import { summarizeGroups } from './land-work/ai-summary.mts'
 import { commitMessage } from './land-work/message.mts'
+import { isMainModule } from './_shared/is-main-module.mts'
 
 const logger = getDefaultLogger()
 
@@ -426,7 +426,7 @@ export async function main(cwd: string = process.cwd()): Promise<number> {
   return failed === 0 ? 0 : 1
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (isMainModule(import.meta.url)) {
   main().then(
     code => {
       process.exitCode = code

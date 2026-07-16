@@ -177,6 +177,10 @@ export default defineConfig({
       '.config/fleet/oxlint-plugin/**',
       'scripts/**/test/**',
       '.claude/hooks/**/test/**',
+      // Ephemeral git worktrees (sub-agent / companion sessions) carry a full
+      // checkout — their test copies would pollute the primary's discovery and
+      // fail against code the primary has already moved past.
+      '.claude/worktrees/**',
       // `template/**` holds CANONICAL non-test sources (the cascaded LIVE
       // copies are what the suite runs); live test/repo is the sole test
       // authoring home, so template is excluded unconditionally.

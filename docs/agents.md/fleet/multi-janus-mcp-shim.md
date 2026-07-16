@@ -1,6 +1,6 @@
 # Multi-Janus MCP shim
 
-A stdio MCP server (`scripts/repo/janus-multi-mcp.mts`) that fronts **many** repo Janus queues behind one connection, so an agent can read or file tickets in any fleet repo's queue without switching checkouts.
+A stdio MCP server (`scripts/fleet/janus-multi-mcp.mts`) that fronts **many** repo Janus queues behind one connection, so an agent can read or file tickets in any fleet repo's queue without switching checkouts.
 
 ## Why
 
@@ -14,7 +14,7 @@ This is a stopgap. The upstream `janus mcp --workspace name=path` (a PR stack ag
 
 ## Workspaces
 
-Zero-config discovery: every fleet repo (from the wheelhouse-canonical `fleet-repos.json`) that is a sibling directory of the wheelhouse root **and** has a `.janus/` dir is a workspace. The workspace name is the repo dir name (e.g. the fleet source repo). Call `list_workspaces` for the live set. A repo with no `.janus/` is not listed (it has not adopted Janus yet).
+Zero-config discovery: every fleet repo (from the fleet-canonical `fleet-repos.json`, cascaded per-repo) that is a sibling directory of the running repo's root **and** has a `.janus/` dir is a workspace. The shim is fleet-tier (`scripts/fleet/`), so it ships to every member — an agent in any repo drives its own queue and its siblings'. The workspace name is the repo dir name (e.g. the fleet source repo). Call `list_workspaces` for the live set. A repo with no `.janus/` is not listed (it has not adopted Janus yet).
 
 ## Tools
 
@@ -36,7 +36,7 @@ Each tool except `list_workspaces` takes a required `workspace` arg.
   "mcpServers": {
     "janus-multi": {
       "command": "node",
-      "args": ["scripts/repo/janus-multi-mcp.mts"]
+      "args": ["scripts/fleet/janus-multi-mcp.mts"]
     }
   }
 }
@@ -50,11 +50,11 @@ Requires the `janus` binary on `PATH` (Homebrew: `brew tap divmain/janus && brew
 ( printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}';
   printf '%s\n' '{"jsonrpc":"2.0","method":"notifications/initialized"}';
   printf '%s\n' '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"list_workspaces","arguments":{}}}';
-  sleep 1 ) | node scripts/repo/janus-multi-mcp.mts
+  sleep 1 ) | node scripts/fleet/janus-multi-mcp.mts
 ```
 
 The pure logic (JSON-RPC dispatch, tool→argv mapping, workspace discovery) is unit-tested in `test/repo/unit/janus-multi-mcp.test.mts`.
 
-## Caveat: `.janus/` is not gitignored
+## `.janus/` is gitignored (release-bundle, not the cascade)
 
-When the fleet adopts Janus, decide per repo whether `.janus/` is tracked (tickets-as-code, synced to GitHub Issues) or ignored. That is an adoption decision separate from this shim — the shim only reads whatever `.janus/` exists.
+`.janus/` is in the fleet-canonical `.gitignore` block, so a repo's ticket queue never enters the byte-identical commit cascade — it rides the gh-release bundle and per-repo seeding instead (less in the cascade, more in the release). The shim only reads whatever `.janus/` exists on disk; a repo that has not been seeded is simply absent from `list_workspaces`.

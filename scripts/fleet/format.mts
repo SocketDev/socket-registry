@@ -18,7 +18,6 @@
 // prefer-async-spawn: sync-required — top-level CLI runner, single oxfmt gate.
 import { spawnSync } from '@socketsecurity/lib-stable/process/spawn/child'
 import process from 'node:process'
-import { fileURLToPath } from 'node:url'
 
 import {
   buildOxfmtArgs,
@@ -26,6 +25,7 @@ import {
   getStagedFiles,
   pickConfig,
 } from './_shared/format-scope.mts'
+import { isMainModule } from './_shared/is-main-module.mts'
 
 // On Windows, `pnpm` is a .cmd shim Node refuses to exec directly via spawnSync
 // (CVE-2024-27980 hardening); the shell wrapper resolves it. On POSIX we keep
@@ -113,6 +113,6 @@ function main(): void {
   process.exitCode = res.status ?? 1
 }
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+if (isMainModule(import.meta.url)) {
   main()
 }

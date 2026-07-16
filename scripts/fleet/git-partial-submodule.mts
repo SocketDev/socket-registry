@@ -15,7 +15,6 @@
  */
 
 import process from 'node:process'
-import { fileURLToPath } from 'node:url'
 
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 
@@ -28,6 +27,7 @@ import {
   cmdRestoreSparse,
   cmdSaveSparse,
 } from './git-partial-submodule-commands.mts'
+import { isMainModule } from './_shared/is-main-module.mts'
 
 const USAGE = `git-partial-submodule — add / clone / save-sparse / restore-sparse partial submodules
 
@@ -141,7 +141,7 @@ async function main(): Promise<void> {
   }
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (isMainModule(import.meta.url)) {
   main().catch((err: unknown) => {
     const msg = errorMessage(err)
     logger.error(`git-partial-submodule: ${msg}`)

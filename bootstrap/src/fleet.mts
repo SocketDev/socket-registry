@@ -53,6 +53,7 @@ import {
   applyThinMode,
   installFiles,
   installSegments,
+  installSettingsSegment,
   installWorkspaceSegment,
   pruneStaleFleetFiles,
   readAppliedRef,
@@ -357,7 +358,9 @@ export async function installFleet(options: InstallOptions): Promise<number> {
       }
     }
     const fileCount = Object.keys(manifest.files).length
-    const segmentCount = manifest.segments?.length ?? 0
+    const segmentCount =
+      (manifest.segments?.length ?? 0) +
+      (manifest.settingsSegment === undefined ? 0 : 1)
     if (opts.dryRun) {
       logger.log(
         `install-fleet: [dry-run] ${fileCount} file(s) + ${segmentCount} segment(s) verified ` +
@@ -371,6 +374,10 @@ export async function installFleet(options: InstallOptions): Promise<number> {
     // a separate cleanup pass.
     const prunedCount = pruneStaleFleetFiles(dest, manifest)
     installSegments(segmentsDir, dest, manifest)
+    const settingsResult = installSettingsSegment(segmentsDir, dest, manifest)
+    if (settingsResult !== 0) {
+      return settingsResult
+    }
     const wsResult = installWorkspaceSegment(segmentsDir, dest, manifest)
     if (wsResult !== 0) {
       return wsResult

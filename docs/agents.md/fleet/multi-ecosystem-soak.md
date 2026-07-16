@@ -70,3 +70,12 @@ A missing/drifted derived artifact heals through the doctor, never by hand:
 Cargo.lock under the nightly gate. Scanner false-positive lesson: text
 scanners must not harvest prose. `brew-parse.mts`'s quote-state scanner exists
 because echo-hint strings once became "installed tools".
+
+## Rust toolchain
+
+Rust's soak needs cargo's `minimum-release-age`, which only stable cargo lacks
+today — so the fleet Rust toolchain is pinned to a nightly (`nightly-2026-07-12`
+at time of writing) in `rust-toolchain.toml` (the canonical pin), held until a
+stable release ships that support. The CLAUDE.md bullet states only the
+invariant ("Rust pins the toolchain nightly"); the exact nightly and its
+removal condition live here.

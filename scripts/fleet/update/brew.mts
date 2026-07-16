@@ -20,7 +20,6 @@
 
 import { writeFileSync } from 'node:fs'
 import process from 'node:process'
-import { fileURLToPath } from 'node:url'
 
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
@@ -47,6 +46,7 @@ import {
 } from './brew-parse.mts'
 
 import type { BrewTool, BrewToolStatus } from './brew-parse.mts'
+import { isMainModule } from '../_shared/is-main-module.mts'
 
 export * from './brew-parse.mts'
 
@@ -205,7 +205,7 @@ export async function main(argv: string[]): Promise<number> {
   return planMode(soakDays, root)
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (isMainModule(import.meta.url)) {
   main(process.argv.slice(2)).then(
     code => {
       process.exitCode = code

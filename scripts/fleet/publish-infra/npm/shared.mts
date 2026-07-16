@@ -24,9 +24,17 @@ export interface StageListEntry {
   shasum?: string | undefined
 }
 
-export function readPackageJson(): { name: string; version: string } {
+export function readPackageJson(): {
+  name: string
+  version: string
+  repository?: string | { url?: string | undefined } | undefined
+} {
   const raw = readFileSync(path.join(rootPath, 'package.json'), 'utf8')
-  return JSON.parse(raw) as { name: string; version: string }
+  return JSON.parse(raw) as {
+    name: string
+    version: string
+    repository?: string | { url?: string | undefined } | undefined
+  }
 }
 
 /**

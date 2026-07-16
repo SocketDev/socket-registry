@@ -28,6 +28,7 @@ import {
   HOOK_BUNDLE_PATH,
 } from './make-hook-dispatch.mts'
 import { REPO_ROOT } from './paths.mts'
+import { isMainModule } from './_shared/is-main-module.mts'
 
 const logger = getDefaultLogger()
 
@@ -126,6 +127,6 @@ function main(): void {
   logger.log(`Built ${path.relative(REPO_ROOT, HOOK_BUNDLE_PATH)}.`)
 }
 
-if (process.argv[1] && import.meta.url === `file://${process.argv[1]}`) {
+if (isMainModule(import.meta.url)) {
   main()
 }

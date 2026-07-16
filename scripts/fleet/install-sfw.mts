@@ -3,7 +3,7 @@
  * @file Install Socket Firewall (sfw) into the Socket _dlx cache via
  *
  * @socketsecurity/lib-stable's downloadBinary helper. Matches the CI install
- *   path: same version source, same binary integrity check (SHA-256 inline),
+ *   path: same version source, same binary integrity check (SRI-verified inline,
  *   same on-disk layout (~/.socket/_dlx/<hash>/sfw — the content-addressed
  *   binary store). Two dev-only handles layer readable paths over that hash:
  *   a rack alias `~/.socket/_wheelhouse/rack/sfw/<version>` → the _dlx dir, and
@@ -16,7 +16,7 @@
  *   _cacache, etc.) — `sfw/` was the lone non-prefixed sibling, now
  *   regularized.
  *
- *   Reads version + per-platform sha256 from the repo's root
+ *   Reads version + per-platform integrity (SRI) from the repo's root
  *   `external-tools.json` under `tools.sfw-free` / `tools.sfw-enterprise`.
  *   That file is the single fleet source of truth — every consumer of
  *   external tooling reads the same entries. Usage: pnpm run install:sfw #
@@ -46,6 +46,7 @@ import {
 } from '@socketsecurity/lib-stable/paths/socket'
 
 import { REPO_ROOT } from './paths.mts'
+import { isMainModule } from './_shared/is-main-module.mts'
 
 const logger = getDefaultLogger()
 
@@ -90,21 +91,26 @@ interface ToolEntry {
   platforms?: Record<string, { asset: string; integrity: string }> | undefined
 }
 
+const SUPPORTED_SRI_RE = /^sha(?:256|384|512)-[A-Za-z0-9+/]+={0,2}$/
+
 /**
- * Decode the Subresource Integrity form (`sha256-<base64>`) the canonical fleet
- * external-tools.json uses into the bare hex digest the downloadBinary helper
- * expects. Single-source-of-truth schema:
+ * Validate the Subresource Integrity string the canonical fleet
+ * external-tools.json uses and return it UNCHANGED. downloadBinary verifies the
+ * raw SRI natively across sha-2 variants, so the whole pipeline passes the SRI
+ * through rather than pre-decoding to a bare sha256 hex — which is why the sfw
+ * assets' `sha512-` pins now install instead of being rejected (the old
+ * sha256-only decoder threw on anything but sha256, stranding sfw at whatever
+ * stale build was last installed and, with it, a proxy CA the client no longer
+ * trusts — `tlsv1 alert unknown ca`). Single-source-of-truth schema:
  * socket-btm/packages/build-infra/lib/external-tools-schema.json.
  */
-export function sriToHex(integrity: string): string {
-  if (!integrity.startsWith('sha256-')) {
+export function assertIntegrity(integrity: string): string {
+  if (!SUPPORTED_SRI_RE.test(integrity)) {
     throw new Error(
-      `Unsupported integrity prefix in external-tools.json (expected 'sha256-'): ${integrity}`,
+      `Unsupported integrity in external-tools.json (expected sha256-/sha384-/sha512-<base64>): ${integrity}`,
     )
   }
-  return Buffer.from(integrity.slice('sha256-'.length), 'base64').toString(
-    'hex',
-  )
+  return integrity
 }
 
 export interface ExternalToolsFile {
@@ -115,7 +121,7 @@ export interface ResolvedSfwTool {
   binaryName: string
   entry: ToolEntry
   platform: string
-  sha256: string
+  integrity: string
   toolKey: string
   url: string
   version: string
@@ -152,7 +158,7 @@ export function resolveSfwTool(options: {
 
   // The canonical version field can carry a leading `v` (template ships
   // `v1.12.0`). Strip it for the URL; the wheelhouse-root mirror stores
-  // it bare. downloadBinary expects the hex form so decode the SRI.
+  // it bare. downloadBinary verifies the raw SRI (any sha-2 variant) directly.
   const version = entry.version.replace(/^v/, '')
   const platformMeta = entry.platforms?.[platform]
   if (!platformMeta) {
@@ -168,11 +174,11 @@ export function resolveSfwTool(options: {
   const repoSlug = entry.repository.replace(/^github:/, '')
   const url = `https://github.com/${repoSlug}/releases/download/v${version}/${platformMeta.asset}`
   const binaryName = win32 ? 'sfw.exe' : 'sfw'
-  const sha256 = sriToHex(platformMeta.integrity)
+  const integrity = assertIntegrity(platformMeta.integrity)
 
   return {
     ok: true,
-    value: { binaryName, entry, platform, sha256, toolKey, url, version },
+    value: { binaryName, entry, platform, integrity, toolKey, url, version },
   }
 }
 
@@ -249,7 +255,7 @@ async function main(): Promise<void> {
     process.exit(1)
     return
   }
-  const { binaryName, sha256, url, version: ver } = resolved.value
+  const { binaryName, integrity, url, version: ver } = resolved.value
 
   if (!values['quiet']) {
     logger.info(`Installing ${toolKey} v${ver} (${platform})`)
@@ -258,8 +264,8 @@ async function main(): Promise<void> {
 
   const { binaryPath, downloaded } = await downloadBinary({
     force: Boolean(values['force']),
+    integrity,
     name: binaryName,
-    sha256,
     url,
   })
 
@@ -306,7 +312,7 @@ async function main(): Promise<void> {
   }
 }
 
-if (process.argv[1] && import.meta.url === `file://${process.argv[1]}`) {
+if (isMainModule(import.meta.url)) {
   main().catch((e: unknown) => {
     logger.fail(errorMessage(e))
     process.exitCode = 1

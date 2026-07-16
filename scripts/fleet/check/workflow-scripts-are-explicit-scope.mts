@@ -35,7 +35,7 @@ const logger = getDefaultLogger()
 // `test:npm`-style sibling scripts from matching.
 // oxlint-disable-next-line socket/require-regex-comment -- documented above
 const INVOCATION_RE =
-  /(?:pnpm\s+(?:run\s+)?|node\s+scripts\/fleet\/)(test|lint|check)(?:\.mts)?(?=$|[\s'"&|;)])/g
+  /(?:pnpm\s+(?:run\s+)?|node\s+scripts\/fleet\/)(?:test|lint|check)(?:\.mts)?(?=$|[\s'"&|;)])/g
 
 export interface ImplicitScopeFinding {
   line: number

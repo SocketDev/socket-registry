@@ -99,6 +99,48 @@ import { isMainModule } from './_shared/is-main-module.mts'
 
 const logger = getDefaultLogger()
 
+// True when the repo at `cwd` is on the `squash-history` cadence — its roster
+// entry (`.claude/skills/fleet/cascading-fleet/lib/fleet-repos.json`) lists
+// `squash-history` in `optIns`. Such a repo squashes local history and
+// force-pushes over origin, so a diverged (behind > 0) local main is the
+// intended state, not a defect. Resolves the repo name from the origin remote,
+// falling back to the directory name. Any read/parse error yields false (the
+// divergence probe then behaves as before).
+function isSquashHistoryRepo(cwd: string): boolean {
+  const rosterPath = path.join(
+    cwd,
+    '.claude/skills/fleet/cascading-fleet/lib/fleet-repos.json',
+  )
+  if (!existsSync(rosterPath)) {
+    return false
+  }
+  let repoName = path.basename(cwd)
+  const remoteR = spawnSync('git', ['config', '--get', 'remote.origin.url'], {
+    cwd,
+    stdioString: true,
+    timeout: 5_000,
+  })
+  if (remoteR.status === 0 && typeof remoteR.stdout === 'string') {
+    const slug = remoteR.stdout
+      .trim()
+      .replace(/\.git$/, '')
+      .split(/[/:]/)
+      .pop()
+    if (slug) {
+      repoName = slug
+    }
+  }
+  try {
+    const roster = JSON.parse(readFileSync(rosterPath, 'utf8')) as {
+      repos?: Array<{ name?: string; optIns?: string[] }>
+    }
+    const entry = roster.repos?.find(r => r.name === repoName)
+    return Boolean(entry?.optIns?.includes('squash-history'))
+  } catch {
+    return false
+  }
+}
+
 // Print a finding in the canonical four-ingredient format.
 function printFinding(f: DoctorFinding, idx: number): void {
   logger.error('')
@@ -495,7 +537,9 @@ async function main(): Promise<void> {
       const behind = parseInt(parts[0] ?? '0', 10)
       const ahead = parseInt(parts[1] ?? '0', 10)
       if (!Number.isNaN(behind) && !Number.isNaN(ahead)) {
-        const divergedFinding = detectDivergedMain(ahead, behind)
+        const divergedFinding = detectDivergedMain(ahead, behind, {
+          squashHistory: isSquashHistoryRepo(cwd),
+        })
         if (divergedFinding) {
           allFindings.push(divergedFinding)
         }

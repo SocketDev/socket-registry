@@ -50,6 +50,7 @@ export {
   HOOK_BUNDLE_PATH,
   resolveHookBundleOut,
 } from './paths.mts'
+import { isMainModule } from './_shared/is-main-module.mts'
 
 const ENTRYPOINT_GUARD_RE =
   /\bvoid\s+runHook\s*\(\s*hook\s*,\s*import\.meta\.url/
@@ -306,6 +307,6 @@ function main(): void {
   )
 }
 
-if (process.argv[1] && import.meta.url === `file://${process.argv[1]}`) {
+if (isMainModule(import.meta.url)) {
   main()
 }

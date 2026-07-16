@@ -44,7 +44,6 @@
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
-import { fileURLToPath } from 'node:url'
 
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
@@ -58,6 +57,7 @@ import {
   TIER_EFFORT,
   TIER_MODEL,
 } from './ai-lint-fix/rule-guidance.mts'
+import { isMainModule } from './_shared/is-main-module.mts'
 
 const logger = getDefaultLogger()
 
@@ -227,7 +227,7 @@ export async function main(): Promise<void> {
   )
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (isMainModule(import.meta.url)) {
   main().catch((e: unknown) => {
     const msg = errorMessage(e)
     logger.error(`ai-lint-fix: ${msg}`)

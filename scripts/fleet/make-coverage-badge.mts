@@ -20,7 +20,6 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
-import { fileURLToPath } from 'node:url'
 
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
@@ -32,6 +31,7 @@ import {
   readmeBadgeForm,
 } from './lib/coverage-badge.mts'
 import { REPO_ROOT } from './paths.mts'
+import { isMainModule } from './_shared/is-main-module.mts'
 
 const logger = getDefaultLogger()
 
@@ -75,7 +75,7 @@ export function makeCoverageBadge(options: MakeCoverageBadgeOptions): number {
   const currentSvg = existsSync(svgPath)
     ? readFileSync(svgPath, 'utf8')
     : undefined
-  const nextReadme = migrateReadmeBadge(readme)
+  const nextReadme = migrateReadmeBadge(readme, nextSvg)
   if (nextSvg === currentSvg && nextReadme === readme) {
     if (!opts.check) {
       logger.success(
@@ -111,6 +111,6 @@ function main(): void {
   })
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (isMainModule(import.meta.url)) {
   main()
 }
