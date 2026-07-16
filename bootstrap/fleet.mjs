@@ -246,30 +246,6 @@ function verifySegments(segmentsDir, manifest) {
 
 //#endregion
 //#region template/base/bootstrap/src/dispatch-wiring.mts
-/**
- * @file Single source of the fleet hook-dispatch WIRING vocabulary — the two
- *   command forms `.claude/settings.json` points each dispatch event at, and
- *   the pure rewrite/canonicalize between them. Kept in ONE place so every site
- *   that touches the wiring agrees on the exact byte-for-byte forms (the loop
- *   guard):
- *
- *   - scripts/fleet/setup/hook-snapshot.mts builds the launcher + wires it
- *   - bootstrap/src/settings.mts PRESERVES a host's launcher form through a
- *     cascade merge, and CANONICALIZES it away for the fleet-drift comparison
- *     The two forms per event: baseline node
- *     "$CLAUDE_PROJECT_DIR"/…/_dispatch/index.cjs <Event> the V8 COMPILE-CACHE
- *     path — correct on every OS/arch with zero per-machine state. The
- *     fleet-cascaded canonical, and the launcher's own fail-open target.
- *     launcher "$CLAUDE_PROJECT_DIR"/…/_dispatch/dispatch-launcher <Event> the
- *     per-host native launcher that re-execs `node --snapshot-blob …` (the V8
- *     startup-snapshot fast path). Built by setup; gitignored; fails open to
- *     the baseline. It is the SAME fleet dispatch slot, just realized for this
- *     host — so the merge treats the two forms as interchangeable:
- *     canonicalize(launcher) === baseline, and a cascade preserves whichever
- *     form the host chose instead of reverting the fast path. PURE: no imports,
- *     no I/O, no side effects — safe to bundle into the dep-0 fetcher and to
- *     import from a plain setup script.
- */
 const DISPATCH_EVENTS = ['PreToolUse', 'PostToolUse', 'SessionStart', 'Stop']
 const INDEX_REL = '.claude/hooks/fleet/_dispatch/index.cjs'
 const LAUNCHER_REL = '.claude/hooks/fleet/_dispatch/dispatch-launcher'

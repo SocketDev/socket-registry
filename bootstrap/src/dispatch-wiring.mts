@@ -1,4 +1,4 @@
-/**
+/*
  * @file Single source of the fleet hook-dispatch WIRING vocabulary — the two
  *   command forms `.claude/settings.json` points each dispatch event at, and
  *   the pure rewrite/canonicalize between them. Kept in ONE place so every site
