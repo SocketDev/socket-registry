@@ -33,6 +33,7 @@ import { REPO_ROOT } from '../paths.mts'
 // Sorted. Thread the detector into a guard, then add it here — the check fails
 // until both are true.
 export const CONVENTION_GUARDS: readonly string[] = [
+  'golden-fixture-naming-guard',
   'markdown-filename-guard',
   'module-noun-name-guard',
   'no-corepack-guard',
