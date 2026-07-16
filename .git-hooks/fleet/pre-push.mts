@@ -50,6 +50,8 @@ import {
 
 const logger = getDefaultLogger()
 
+// Git remotes end in `/name` or `:name`; capture the name and drop optional `.git`.
+const REMOTE_REPO_RE = /[/:]([^/:]+?)(?:\.git)?$/
 const ZERO_SHA = '0000000000000000000000000000000000000000'
 
 // True when THIS repo opts into the squash-history convention (roster
@@ -71,8 +73,7 @@ function isSquashHistoryRepo(): boolean {
     return false
   }
   const remote = readGit(['config', '--get', 'remote.origin.url'])
-  const repo =
-    /[/:]([^/:]+?)(?:\.git)?$/.exec(remote)?.[1] ?? path.basename(root)
+  const repo = REMOTE_REPO_RE.exec(remote)?.[1] ?? path.basename(root)
   const rosterRels = [
     'template/base/.claude/skills/fleet/cascading-fleet/lib/fleet-repos.json',
     '.claude/skills/fleet/cascading-fleet/lib/fleet-repos.json',
