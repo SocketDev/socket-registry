@@ -1,6 +1,6 @@
 ---
 name: release
-description: Orchestrates a release by chaining quality-scan and security-scan as gates, generating a changelog, bumping the version, and offering to publish. Use when preparing a release, cutting a new version, or when `/release-changelog` is invoked.
+description: Orchestrates a release: quality-scan + security-scan gates, changelog generation, version bump, and optional publish. Use when preparing or cutting a release.
 ---
 
 # Release

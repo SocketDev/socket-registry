@@ -1,9 +1,9 @@
 ---
-
 name: updating-workflows
-description: Executes the GitHub Actions SHA pin cascade when a socket-registry action or workflow changes. Lands one layer at a time (direct push to main by default; PR only when the repo's branch protection requires it), waits for each layer's merge SHA, and propagates the final SHA to all consuming repos. Use when workflow files or actions change, or when asked to update workflows or cascade SHAs.
+description: Runs the GitHub Actions SHA pin cascade when an action or workflow changes: lands each layer, waits for its merge SHA, propagates to consumers. Use for workflow/action changes.
 user-invocable: true
-allowed-tools: Bash(pnpm:_), Bash(npm:_), Bash(git:_), Bash(node:_), Bash(rg:_), Bash(grep:_), Bash(find:_), Bash(ls:_), Bash(cat:_), Bash(head:_), Bash(tail:_), Bash(wc:_), Bash(diff:\*), Read, Grep, Glob, Edit---
+allowed-tools: Bash(pnpm:*), Bash(npm:*), Bash(git:*), Bash(node:*), Bash(rg:*), Bash(grep:*), Bash(find:*), Bash(ls:*), Bash(cat:*), Bash(head:*), Bash(tail:*), Bash(wc:*), Bash(diff:*), Read, Grep, Glob, Edit
+---
 
 # Updating Workflows
 

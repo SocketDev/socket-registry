@@ -1,9 +1,9 @@
 ---
-
 name: updating-upstream
-description: Bumps git submodules declared in `.gitmodules` to their latest stable upstream tag, for submodules NOT managed by an lockstep `version-pin` row. Reads the `# <name>-<version>` comment above each submodule as the current pin, finds the latest stable tag (excluding pre-releases), checks out, updates the comment, commits atomically. Invoked by the `updating` umbrella skill; can also be invoked standalone.
+description: Bumps non-lockstep `.gitmodules` submodules to their latest stable upstream tag, updating the `# <name>-<version>` pin comment. Invoked by the `updating` umbrella or standalone.
 user-invocable: true
-allowed-tools: Bash(pnpm:_), Bash(npm:_), Bash(git:_), Bash(node:_), Bash(rg:_), Bash(grep:_), Bash(find:_), Bash(ls:_), Bash(cat:_), Bash(head:_), Bash(tail:_), Bash(wc:_), Bash(diff:\*), Read, Edit, Grep, Glob---
+allowed-tools: Bash(pnpm:*), Bash(npm:*), Bash(git:*), Bash(node:*), Bash(rg:*), Bash(grep:*), Bash(find:*), Bash(ls:*), Bash(cat:*), Bash(head:*), Bash(tail:*), Bash(wc:*), Bash(diff:*), Read, Edit, Grep, Glob
+---
 
 # updating-upstream
 
