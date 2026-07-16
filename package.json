@@ -111,7 +111,6 @@
     "debug": "catalog:",
     "del": "catalog:",
     "del-cli": "catalog:",
-    "dev-null-cli": "catalog:",
     "didyoumean2": "catalog:",
     "eta": "catalog:",
     "fast-glob": "catalog:",

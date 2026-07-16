@@ -317,6 +317,7 @@ overrides:
   # Repo-specific overrides below.
   'is-interactive': 'npm:@socketregistry/is-interactive@1.0.6'
   'is-unicode-supported': 'npm:@socketregistry/is-unicode-supported@1.0.5'
+  'json-stable-stringify': 'npm:@socketregistry/json-stable-stringify@1.0.13'
   'rolldown': 'catalog:'
   'vite': 'catalog:'
   'which@>=4': '7.0.0'
