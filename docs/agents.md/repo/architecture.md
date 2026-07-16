@@ -37,20 +37,6 @@ Minimum **Node 24.0.0**.
 
 🚨 **Forbidden ES2023+ array methods in shipped code** (`registry/src/`, `packages/npm/` overrides): `toReversed()`, `toSorted()`, `toSpliced()`, `with()`. Use `slice().reverse()` / `slice().sort()` instead. The `engines` floor is `>=24`, but npm only warns on an engine mismatch, so overrides still get installed on consumers' older Node where these throw. Dev scripts run on the repo's own Node and are exempt; `socket/no-runtime-features-below-engine-floor` enforces this per file from each `engines` floor.
 
-## GitHub Actions SHA pin cascade
-
-The cascade procedure is documented in detail at [`.claude/skills/updating-workflows/reference.md`](../../../.claude/skills/updating-workflows/reference.md) — invoked via the `/update-workflows` slash command.
-
-Quick orientation:
-
-- **Layered topology** — Layer 1 (leaf actions) → Layer 2a (setup) → Layer 2b (setup-and-install) → Layer 3 (reusable workflows) → Layer 4 (`_local-not-for-reuse-*.yml` wrappers). Each layer is its own PR.
-- 🚨 **Never type or guess SHAs.** Resolve via `git fetch origin main && git rev-parse origin/main` AFTER each layer's PR merges. The merge SHA is the pin for the next layer.
-- **Propagation SHA** = whatever `.github/workflows/_local-not-for-reuse-*.yml` currently pin. Expect exactly one distinct propagation SHA across those files; more means the Layer 4 bump is incomplete.
-- **Consumer-repo cadence:**
-  - Direct push: socket-btm, socket-sdxgen, socket-stuie, ultrathink.
-  - PR required: socket-cli, socket-lib, socket-sdk-js, socket-packageurl-js.
-- 🚨 **Never `sed` / `awk` / `perl -i` workflow YAML.** Use the Edit tool. Stream editors clobber quoting on lines the regex didn't expect.
-
 ## CI testing
 
 - **Mandatory**: invoke `SocketDev/socket-registry/.github/workflows/ci.yml@<SHA>` with a full 40-char commit SHA.
