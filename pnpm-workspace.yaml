@@ -11,8 +11,6 @@ packages:
 
 # Packages allowed to run build scripts (pnpm v11 strictDepBuilds default).
 allowBuilds:
-  # CLI ships prebuilt; its postinstall is setup/telemetry we don't need.
-  '@anthropic-ai/claude-code': false
   # Optional native addon for ssh2; the pure-JS fallback is fine here.
   cpu-features: false
   # test/npm fixture transitive; postinstall only prints a message.
@@ -111,7 +109,6 @@ catalog:
   # platform-binary optionalDependencies, despite the monorepo's internal
   # workspace layout. dtu-github-actions is its GitHub-Actions parser, pinned
   # explicitly (not left transitive) so its version is uniform fleet-wide.
-  '@anthropic-ai/claude-code': 2.1.205
   '@babel/core': 7.28.4
   '@redwoodjs/agent-ci': 0.16.2
   'dtu-github-actions': 0.16.2
