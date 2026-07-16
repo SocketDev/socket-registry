@@ -60,6 +60,7 @@ import os from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
 
+import { WIN32 } from '@socketsecurity/lib-stable/constants/platform'
 import { spawnSync } from '@socketsecurity/lib-stable/process/spawn/child'
 
 import { bashGuard, block, defineHook, runHook } from '../_shared/guard.mts'
@@ -454,6 +455,7 @@ function isTokenFresh(): boolean {
 // blackout doesn't hang the hook.
 function probeTokenValid(): boolean {
   const result = spawnSync('gh', ['api', 'user', '--jq', '.login'], {
+    shell: WIN32,
     stdio: 'pipe',
     // win-timeout: network — bounded `gh api` call; keep it fixed, don't scale by platform.
     timeout: 5000,
@@ -476,6 +478,7 @@ function readGhAuthStatus(): GhAuthStatus {
   // tight and a slow-but-alive gh is killed → empty output → this reads it as
   // "gh absent" and fail-opens, silently skipping the storage check.
   const r = spawnSync('gh', ['auth', 'status'], {
+    shell: WIN32,
     stdio: 'pipe',
     stdioString: true,
     timeout: spawnTimeoutMs(5000),
