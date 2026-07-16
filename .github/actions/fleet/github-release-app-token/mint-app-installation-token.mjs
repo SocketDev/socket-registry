@@ -165,7 +165,8 @@ async function main() {
         `Fix: confirm the app (CLIENT_ID) is installed on ${owner}.`,
     )
   }
-  const installationId = JSON.parse(inst.body).id
+  const installation = JSON.parse(inst.body)
+  const installationId = installation.id
   if (typeof installationId !== 'number') {
     die(`installation lookup returned no id. Saw: ${inst.body}.`)
   }
@@ -199,6 +200,15 @@ async function main() {
 
   process.stdout.write(`::add-mask::${token}\n`)
   appendFileSync(env('GITHUB_OUTPUT'), `token=${token}\n`)
+
+  // Expose the app slug (from the installation lookup) so the caller can build
+  // the `<slug>[bot]` committer identity. An installation token cannot call
+  // `gh api /user` (403 — it has no user), so the workflow needs the slug to do
+  // a by-name `gh api /users/<slug>[bot]` lookup instead.
+  const appSlug = installation.app_slug
+  if (typeof appSlug === 'string' && appSlug) {
+    appendFileSync(env('GITHUB_OUTPUT'), `slug=${appSlug}\n`)
+  }
 }
 
 // Guard the entry IIFE so importing the module (the unit tests import the pure
