@@ -16,8 +16,8 @@
 import {
   existsSync,
   mkdirSync,
-  readFileSync,
   readdirSync,
+  readFileSync,
   statSync,
   writeFileSync,
 } from 'node:fs'
@@ -45,8 +45,8 @@ import { printHeader } from '@socketsecurity/lib-stable/stdio/header'
 
 import type { AggregateCoverage } from './util/coverage-merge.mts'
 import {
-  MissingTierCoverageError,
   mergeCoverageFinal,
+  MissingTierCoverageError,
 } from './util/coverage-merge.mts'
 import { resolveCoverageConfig } from '../../.config/fleet/vitest.coverage.fleet.config.mts'
 import type { CoverThresholds, ResolvedSuite } from './cover/discovery.mts'
@@ -334,9 +334,9 @@ export function describeLiveActors(windowMs: number): string[] {
         const parsed = JSON.parse(
           readFileSync(path.join(dir, entry), 'utf8'),
         ) as {
-          actorId?: string
-          paths?: Record<string, number>
-          updatedAt?: number
+          actorId?: string | undefined
+          paths?: Record<string, number> | undefined
+          updatedAt?: number | undefined
         }
         const updatedAt = parsed.updatedAt ?? 0
         const age = Date.now() - updatedAt
@@ -347,7 +347,7 @@ export function describeLiveActors(windowMs: number): string[] {
           p.startsWith(rootPath),
         )
         out.push(
-          `actor ${String(parsed.actorId).slice(0, 8)} last edited ${Math.round(age / 60000)}min ago (${repoPaths.length} path(s) in this repo)`,
+          `actor ${String(parsed.actorId).slice(0, 8)} last edited ${Math.round(age / 60_000)}min ago (${repoPaths.length} path(s) in this repo)`,
         )
       } catch {
         // Unreadable ledger entry — skip it.
@@ -556,6 +556,10 @@ export async function convertChildrenCoverage(): Promise<boolean> {
   }).run()
   const produced = existsSync(path.join(childrenDir, 'coverage-final.json'))
   if (produced) {
+    // The converted report is the only child artifact the aggregate merge
+    // consumes. Raw V8 profiles are a large intermediate (multiple GB in the
+    // wheelhouse suite), so do not retain them until the next coverage run.
+    safeDeleteSync(rawDir, { force: true, recursive: true })
     logger.info(
       `Merged subprocess coverage from ${rawFiles.length} spawned child process(es).`,
     )

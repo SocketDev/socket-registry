@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
  * @file Fail-closed parity gate for MCP client adapters. `.mcp.json` is the
- * single committed authority; `.codex/config.toml` and `opencode.json` are
- * generated projections and may never carry credentials.
+ *   single committed authority; `.codex/config.toml` and `opencode.json` are
+ *   generated projections and may never carry credentials.
  */
 
 import { existsSync, readFileSync } from 'node:fs'
@@ -41,7 +41,9 @@ function main(): void {
   process.exitCode = 1
 }
 
-/** Return every missing, invalid, or stale committed MCP surface. */
+/**
+ * Return every missing, invalid, or stale committed MCP surface.
+ */
 export function findMcpClientConfigIssues(repoRoot: string): string[] {
   const templateRoot = path.join(repoRoot, 'template', 'base')
   const configRoot = existsSync(path.join(templateRoot, '.mcp.json'))

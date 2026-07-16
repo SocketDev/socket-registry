@@ -5,7 +5,6 @@
  *   descends into) a gitignored tree or a git-submodule mount: the reference
  *   submodules under `upstream/`, `node_modules/`, build/cache output, and any
  *   path a repo's own `.gitignore` excludes.
- *
  *   Why the tracked-set intersection is the correct filter: `globSync` honors
  *   only its static `ignore` list, and npm-packlist's `defaultIgnore` covers
  *   `node_modules`/`.git` but NOT `upstream/` or a repo-specific `.gitignore`
@@ -16,7 +15,6 @@
  *   submodule-internal". Intersecting the glob matches with that set gets the
  *   exclusion right by construction, using git's own ignore engine instead of a
  *   reimplemented `.gitignore` parser or a hand-maintained skip list.
- *
  *   The glob still runs, preserving each caller's pattern + `dot` scope, with
  *   `defaultIgnore` and the submodule mounts spread into `ignore` so the walk
  *   skips the big trees up front instead of collecting-then-discarding them.
@@ -76,7 +74,9 @@ async function listTrackedFiles(cwd: string): Promise<string[]> {
   const text =
     typeof stdout === 'string' ? stdout : stdout ? stdout.toString('utf8') : ''
   const paths: string[] = []
-  for (const entry of text.split('\0')) {
+  const entries = text.split('\0')
+  for (let i = 0, { length } = entries; i < length; i += 1) {
+    const entry = entries[i]!
     if (entry) {
       paths.push(normalizePath(entry))
     }

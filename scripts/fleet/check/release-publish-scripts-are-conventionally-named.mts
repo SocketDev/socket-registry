@@ -32,11 +32,11 @@ import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 
-import { globSync } from '@socketsecurity/lib-stable/globs/match'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
 import { REPO_ROOT } from '../paths.mts'
 import { isMainModule } from '../_shared/is-main-module.mts'
+import { collectTrackedFiles } from '../_shared/tracked-globs.mts'
 
 const logger = getDefaultLogger()
 
@@ -152,11 +152,9 @@ export interface ConventionFinding {
   readonly expectedName: string
 }
 
-export function scanRepo(repoRoot: string): ConventionFinding[] {
-  const manifests = globSync(['**/package.json'], {
+export async function scanRepo(repoRoot: string): Promise<ConventionFinding[]> {
+  const manifests = await collectTrackedFiles(['**/package.json'], {
     cwd: repoRoot,
-    absolute: false,
-    ignore: ['**/node_modules/**'],
   })
   const findings: ConventionFinding[] = []
   for (const rel of manifests) {
@@ -194,9 +192,9 @@ export function scanRepo(repoRoot: string): ConventionFinding[] {
   return findings
 }
 
-function main(): number {
+async function main(): Promise<number> {
   const quiet = process.argv.includes('--quiet')
-  const findings = scanRepo(REPO_ROOT)
+  const findings = await scanRepo(REPO_ROOT)
   if (!findings.length) {
     if (!quiet) {
       logger.success(
@@ -227,5 +225,5 @@ function main(): number {
 }
 
 if (isMainModule(import.meta.url)) {
-  main()
+  void main()
 }

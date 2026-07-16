@@ -1,27 +1,20 @@
 #!/usr/bin/env node
 /**
  * @file `setup:mcp` — bridge the committed `.mcp.json` authority to clients
- * that do not discover it themselves. Codex and OpenCode use generated,
- * project-local files; Kimi requires a per-user config, so this step merges only
- * the fleet-managed server names and preserves all unrelated user state.
+ *   that do not discover it themselves. Codex and OpenCode use generated,
+ *   project-local files; Kimi requires a per-user config, so this step merges
+ *   only the fleet-managed server names and preserves all unrelated user
+ *   state.
  */
 
-import {
-  existsSync,
-  mkdirSync,
-  readFileSync,
-  writeFileSync,
-} from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
 
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 
-import {
-  mergeKimiMcpConfig,
-  parseCanonicalMcpConfig,
-} from '../mcp-config.mts'
+import { mergeKimiMcpConfig, parseCanonicalMcpConfig } from '../mcp-config.mts'
 import { isMainModule } from '../_shared/is-main-module.mts'
 import { resolveEcosystemOptions, skipResult } from './ecosystems.mts'
 
@@ -34,7 +27,9 @@ export interface McpSetupOptions extends EcosystemStepOptions {
   readonly kimiConfigPath?: string | undefined
 }
 
-/** Merge the canonical server inventory into Kimi's user-owned config. */
+/**
+ * Merge the canonical server inventory into Kimi's user-owned config.
+ */
 export async function setupMcp(
   options?: McpSetupOptions | undefined,
 ): Promise<EcosystemStepResult> {
@@ -48,9 +43,7 @@ export async function setupMcp(
   const kimiConfigPath =
     opts.kimiConfigPath ?? path.join(os.homedir(), '.kimi', 'mcp.json')
   try {
-    const servers = parseCanonicalMcpConfig(
-      readFileSync(canonicalPath, 'utf8'),
-    )
+    const servers = parseCanonicalMcpConfig(readFileSync(canonicalPath, 'utf8'))
     const current = existsSync(kimiConfigPath)
       ? readFileSync(kimiConfigPath, 'utf8')
       : '{}'

@@ -115,9 +115,7 @@ export function buildPathsAndSupplyChainSteps(): CheckStep[] {
     // edit, missing adapter, or credential-bearing canonical config before the
     // MCP surfaces silently diverge across agent clients.
     () =>
-      run('node', [
-        'scripts/fleet/check/mcp-client-configs-are-current.mts',
-      ]),
+      run('node', ['scripts/fleet/check/mcp-client-configs-are-current.mts']),
     // Invoke tsc through node directly (typescript is a root devDep, so the bin
     // is always linked at the repo root). Going through `pnpm exec` would prepend
     // pnpm's verify-deps-before-run + prepare preamble and the sfw firewall line;

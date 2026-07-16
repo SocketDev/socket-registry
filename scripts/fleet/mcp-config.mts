@@ -1,16 +1,11 @@
 /**
  * @file Pure adapters from the fleet-canonical Claude `.mcp.json` shape to
- * project-local Codex/OpenCode configs and Kimi's per-user MCP file. Credentials
- * never belong in the canonical or generated project files; each client owns
- * OAuth state in its user data directory.
+ *   project-local Codex/OpenCode configs and Kimi's per-user MCP file.
+ *   Credentials never belong in the canonical or generated project files; each
+ *   client owns OAuth state in its user data directory.
  */
 
-import {
-  existsSync,
-  mkdirSync,
-  readFileSync,
-  writeFileSync,
-} from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 
@@ -30,9 +25,7 @@ export type PortableMcpServer =
       url: string
     }
 
-export type PortableMcpServers = Readonly<
-  Record<string, PortableMcpServer>
->
+export type PortableMcpServers = Readonly<Record<string, PortableMcpServer>>
 
 // Boundary + known secret-bearing key name + boundary, including snake/kebab case.
 const CREDENTIAL_KEY_PATTERN =
@@ -113,10 +106,7 @@ function main(): void {
 }
 
 function parseStringArray(value: unknown, field: string): string[] {
-  if (
-    !Array.isArray(value) ||
-    value.some(item => typeof item !== 'string')
-  ) {
+  if (!Array.isArray(value) || value.some(item => typeof item !== 'string')) {
     throw new Error(`MCP server ${field} must be an array of strings`)
   }
   return [...value]
@@ -140,11 +130,7 @@ function tomlStringArray(values: readonly string[]): string[] {
   if (`args = ${compact}`.length <= 80) {
     return [`args = ${compact}`]
   }
-  return [
-    'args = [',
-    ...values.map(value => `  ${tomlString(value)},`),
-    ']',
-  ]
+  return ['args = [', ...values.map(value => `  ${tomlString(value)},`), ']']
 }
 
 /**
@@ -166,7 +152,7 @@ export function mergeKimiMcpConfig(
   if (!isRecord(parsed)) {
     throw new Error('Existing Kimi MCP config must be a JSON object')
   }
-  const existing = parsed.mcpServers
+  const existing = parsed['mcpServers']
   if (existing !== undefined && !isRecord(existing)) {
     throw new Error('Existing Kimi mcpServers value must be a JSON object')
   }
@@ -185,7 +171,9 @@ export function mergeKimiMcpConfig(
   return `${JSON.stringify({ ...parsed, mcpServers }, undefined, 2)}\n`
 }
 
-/** Parse and validate the one committed MCP authority. */
+/**
+ * Parse and validate the one committed MCP authority.
+ */
 export function parseCanonicalMcpConfig(text: string): PortableMcpServers {
   let parsed: unknown
   try {
@@ -194,38 +182,39 @@ export function parseCanonicalMcpConfig(text: string): PortableMcpServers {
     throw new Error('Canonical .mcp.json must contain valid JSON')
   }
   assertNoCredentials(parsed)
-  if (!isRecord(parsed) || !isRecord(parsed.mcpServers)) {
+  if (!isRecord(parsed) || !isRecord(parsed['mcpServers'])) {
     throw new Error('Canonical .mcp.json must contain an mcpServers object')
   }
 
   const servers: Record<string, PortableMcpServer> = {}
-  for (const [name, rawServer] of Object.entries(parsed.mcpServers)) {
+  for (const [name, rawServer] of Object.entries(parsed['mcpServers'])) {
     if (!isRecord(rawServer)) {
       throw new Error(`MCP server ${name} must be an object`)
     }
-    if (rawServer.type === 'http') {
-      if (typeof rawServer.url !== 'string' || rawServer.url.length === 0) {
+    if (rawServer['type'] === 'http') {
+      const url = rawServer['url']
+      if (typeof url !== 'string' || url.length === 0) {
         throw new Error(`HTTP MCP server ${name} must have a URL`)
       }
-      servers[name] = { kind: 'http', url: rawServer.url }
+      servers[name] = { kind: 'http', url }
       continue
     }
-    if (
-      typeof rawServer.command !== 'string' ||
-      rawServer.command.length === 0
-    ) {
+    const command = rawServer['command']
+    if (typeof command !== 'string' || command.length === 0) {
       throw new Error(`stdio MCP server ${name} must have a command`)
     }
     servers[name] = {
-      args: parseStringArray(rawServer.args ?? [], `${name}.args`),
-      command: rawServer.command,
+      args: parseStringArray(rawServer['args'] ?? [], `${name}.args`),
+      command,
       kind: 'stdio',
     }
   }
   return servers
 }
 
-/** Render the trusted-project `.codex/config.toml` MCP section. */
+/**
+ * Render the trusted-project `.codex/config.toml` MCP section.
+ */
 export function renderCodexMcpConfig(servers: PortableMcpServers): string {
   const lines = [
     '# Generated from ../.mcp.json by scripts/fleet/mcp-config.mts.',
@@ -243,7 +232,9 @@ export function renderCodexMcpConfig(servers: PortableMcpServers): string {
   return `${lines.join('\n')}\n`
 }
 
-/** Render OpenCode's project-root `opencode.json`. */
+/**
+ * Render OpenCode's project-root `opencode.json`.
+ */
 export function renderOpenCodeMcpConfig(servers: PortableMcpServers): string {
   const mcp: Record<string, unknown> = {}
   for (const [name, server] of Object.entries(servers)) {
@@ -264,7 +255,9 @@ export function renderOpenCodeMcpConfig(servers: PortableMcpServers): string {
   return `${compactOpenCodeCommandArrays(rendered, servers)}\n`
 }
 
-/** Regenerate the two committed project adapters from `.mcp.json`. */
+/**
+ * Regenerate the two committed project adapters from `.mcp.json`.
+ */
 export function writeMcpClientConfigs(repoRoot: string): void {
   const templateRoot = path.join(repoRoot, 'template', 'base')
   const configRoot = existsSync(path.join(templateRoot, '.mcp.json'))
