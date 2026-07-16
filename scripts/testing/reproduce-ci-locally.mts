@@ -162,16 +162,17 @@ export async function runNpmPackageTests(workDir) {
   logger.error('')
   logger.info('--- Running NPM Package Tests (CI Mode) ---')
 
-  const args = ['scripts/npm/test-npm-packages.mts']
+  const args = ['run', 'test:npm']
 
   if (cliArgs.package?.length) {
     for (let i = 0, { length } = cliArgs.package; i < length; i += 1) {
       const pkg = cliArgs.package[i]
-      args.push('--package', pkg)
+      // vitest positional filter — matches the override's test file path.
+      args.push(pkg)
     }
   }
 
-  const result = await runCiCommand('node', args, { cwd: workDir })
+  const result = await runCiCommand('pnpm', args, { cwd: workDir })
 
   if (result.code !== 0) {
     logger.error('NPM package tests failed')
