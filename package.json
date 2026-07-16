@@ -62,7 +62,8 @@
     "setup:go": "node scripts/fleet/setup/setup-go.mts",
     "setup:python": "node scripts/fleet/setup/setup-python.mts",
     "setup:refero": "node scripts/fleet/setup/setup-refero.mts",
-    "setup:rust": "node scripts/fleet/setup/setup-rust.mts"
+    "setup:rust": "node scripts/fleet/setup/setup-rust.mts",
+    "setup:mcp": "node scripts/fleet/setup/setup-mcp.mts"
   },
   "devDependencies": {
     "@anthropic-ai/claude-code": "catalog:",
@@ -105,6 +106,7 @@
     "@vitest/ui": "catalog:",
     "@zkochan/js-yaml": "catalog:",
     "browserslist": "catalog:",
+    "c8": "catalog:",
     "cacache": "catalog:",
     "chrome-devtools-mcp": "catalog:",
     "clipboardy": "catalog:",

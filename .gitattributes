@@ -85,6 +85,7 @@ template/.claude/hooks/fleet/_shared/acorn/acorn.wasm binary
 .claude/rules/fleet linguist-generated=true
 .claude/skills/fleet linguist-generated=true
 .claude/workflows linguist-generated=true
+.codex/config.toml linguist-generated=true
 .config/fleet/.markdownlint-cli2.jsonc linguist-generated=true
 .config/fleet/.prettierignore linguist-generated=true
 .config/fleet/git-authors.json linguist-generated=true
@@ -153,6 +154,7 @@ assets/fleet/socket-lockup-light.svg linguist-generated=true
 bootstrap linguist-generated=true
 docs/agents.md/fleet linguist-generated=true
 docs/references/sfw-local-install.md linguist-generated=true
+opencode.json linguist-generated=true
 packages/build-infra/lib/release-checksums/consumer.mts linguist-generated=true
 packages/build-infra/lib/release-checksums/core.mts linguist-generated=true
 packages/build-infra/lib/release-checksums/producer.mts linguist-generated=true
