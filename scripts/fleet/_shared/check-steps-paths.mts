@@ -110,6 +110,14 @@ export function buildPathsAndSupplyChainSteps(): CheckStep[] {
       run('node', [
         'scripts/fleet/check/researching-recency-contract-is-current.mts',
       ]),
+    // `.mcp.json` is the one committed server inventory. Codex and OpenCode
+    // consume generated project-local projections; this gate catches a manual
+    // edit, missing adapter, or credential-bearing canonical config before the
+    // MCP surfaces silently diverge across agent clients.
+    () =>
+      run('node', [
+        'scripts/fleet/check/mcp-client-configs-are-current.mts',
+      ]),
     // Invoke tsc through node directly (typescript is a root devDep, so the bin
     // is always linked at the repo root). Going through `pnpm exec` would prepend
     // pnpm's verify-deps-before-run + prepare preamble and the sfw firewall line;

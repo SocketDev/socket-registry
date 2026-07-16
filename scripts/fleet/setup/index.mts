@@ -17,6 +17,7 @@ import { discoverRepoSetup } from '../_shared/repo-setup.mts'
 import { REPO_ROOT } from '../paths.mts'
 import { setupBrew } from './setup-brew.mts'
 import { setupGo } from './setup-go.mts'
+import { setupMcp } from './setup-mcp.mts'
 import { setupPython } from './setup-python.mts'
 import { setupRefero } from './setup-refero.mts'
 import { setupRust } from './setup-rust.mts'
@@ -34,6 +35,7 @@ const ECOSYSTEM_STEPS: ReadonlyArray<
 > = [
   ['setup:brew', setupBrew],
   ['setup:go', setupGo],
+  ['setup:mcp', setupMcp],
   ['setup:python', setupPython],
   ['setup:refero', setupRefero],
   ['setup:rust', setupRust],

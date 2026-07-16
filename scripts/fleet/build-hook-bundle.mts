@@ -22,8 +22,10 @@ import process from 'node:process'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
 import {
+  DISPATCH_MANIFEST_PATH,
   DISPATCH_TABLE_PATH,
   FLEET_HOOKS_DIR,
+  generateDispatchManifestSource,
   generateDispatchTableSource,
   HOOK_BUNDLE_PATH,
 } from './make-hook-dispatch.mts'
@@ -81,6 +83,7 @@ export function classifyBundleBuild(
 function main(): void {
   const checkOnly = process.argv.includes('--check')
   const generated = generateDispatchTableSource(FLEET_HOOKS_DIR)
+  const generatedManifest = generateDispatchManifestSource(FLEET_HOOKS_DIR)
   if (checkOnly) {
     const onDisk = existsSync(DISPATCH_TABLE_PATH)
       ? readFileSync(DISPATCH_TABLE_PATH, 'utf8')
@@ -93,10 +96,25 @@ function main(): void {
       process.exitCode = 2
       return
     }
-    logger.log('dispatch-table.mts is current (no rebuild requested).')
+    const manifestOnDisk = existsSync(DISPATCH_MANIFEST_PATH)
+      ? readFileSync(DISPATCH_MANIFEST_PATH, 'utf8')
+      : ''
+    if (isDispatchTableStale(generatedManifest, manifestOnDisk)) {
+      logger.error(
+        `dispatch-manifest.json is stale. Rebuild:\n` +
+          `  node scripts/fleet/build-hook-bundle.mts`,
+      )
+      process.exitCode = 2
+      return
+    }
+    logger.log('dispatch-table.mts + dispatch-manifest.json are current.')
     return
   }
   writeFileSync(DISPATCH_TABLE_PATH, generated)
+  // The dep-0 bootstrap dispatcher routes off the manifest; regenerate it in
+  // lock-step with the table so the two never drift (this is the dogfood path —
+  // build-hook-bundle writes the table directly, not via make-hook-dispatch).
+  writeFileSync(DISPATCH_MANIFEST_PATH, generatedManifest)
 
   if (!existsSync(ROLLDOWN_BIN)) {
     logger.error(

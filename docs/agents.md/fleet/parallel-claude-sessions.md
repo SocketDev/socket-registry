@@ -46,6 +46,16 @@ Both halves matter: surgical `git add` keeps your index clean, surgical `git com
 
 The wheelhouse cascade is the documented exception: it commits the whole index in a fresh worktree off `origin/main`, opted in via the `FLEET_SYNC=1` sentinel.
 
+## Squash-history repos coordinate on paths, not commits
+
+A repo opted into `squash-history` discards intermediate commit boundaries at
+the final collapse. Never wait for another session to commit when its dirty
+paths are disjoint from yours. Continue immediately, edit only your paths, and
+commit them with an explicit pathspec. Pause only when the same path changes
+between your reads or when starting the final repo-wide squash/push. The
+`parallel-agent-on-stop-nudge` reads the fleet roster and reinforces this rule
+in squash-opted repos.
+
 ## Whose work is this? Own-work-first check
 
 `git status` or `git log` shows unfamiliar changes? Before treating them as another session's, run the own-work check:

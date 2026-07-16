@@ -230,7 +230,6 @@ Supply-chain hygiene:
 - `dep-derived-source-nudge` — PostToolUse(Edit/Write), non-blocking. After an edit to a manifest's dependency surface, reminds to regenerate the lockfile AND update the derived canonical sources (soak-exclude parity, cross-major dedup, catalog).
 - `dirty-lockfile-nudge` — PostToolUse(git|pnpm Bash), non-blocking. After a git/pnpm command, checks whether `pnpm-lock.yaml` is dirty in the working tree and reminds to run `pnpm i` before landing.
 - `minimum-release-age-guard` — enforces the 7-day soak on new deps
-- `no-hand-edit-registry-pin-guard` — BLOCKS an Edit/Write that changes a SocketDev/socket-registry shared workflow/action SHA pin by hand — those pins are cascade-owned. Bypass `Allow registry-pin-edit bypass`.
 - `no-pkgjson-pnpm-overrides-guard` — version-range pins go in `pnpm-workspace.yaml` `overrides:`, not `package.json`
 - `npmrc-trust-optout-guard` — blocks the pnpm trust-aware env-expansion opt-out (`PNPM_CONFIG_NPMRC_AUTH_FILE`/`NPM_CONFIG_USERCONFIG`) + `${ENV}`-beside-`_authToken` in a committed `.npmrc`
 - `package-manager-auto-update-guard` — blocks a package-manager invocation while that manager's auto-update is still enabled on this machine. Bypass `Allow package-manager-auto-update bypass` (or per-manager).

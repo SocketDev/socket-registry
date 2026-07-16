@@ -189,10 +189,19 @@ export function repoBaseUrl(
  * Render one bullet for a commit: a bold scope prefix when present, the
  * description, and a `**BREAKING:**` marker for breaking changes.
  */
+function escapeMarkdownText(value: string): string {
+  return value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+}
+
 function renderBullet(commit: ConventionalCommit): string {
   const breaking = commit.breaking ? '**BREAKING:** ' : ''
-  const scope = commit.scope ? `**\`${commit.scope}\`** — ` : ''
-  return `- ${breaking}${scope}${commit.description}`
+  const scope = commit.scope
+    ? `**\`${escapeMarkdownText(commit.scope)}\`** — `
+    : ''
+  return `- ${breaking}${scope}${escapeMarkdownText(commit.description)}`
 }
 
 /**
@@ -202,8 +211,8 @@ function renderBullet(commit: ConventionalCommit): string {
  * appear, grouped into Added / Changed / Fixed in that order.
  */
 /**
- * The `## <version> - <date>` heading (linked to the release tag when a repo URL
- * is known). One definition, shared by section generation and Unreleased
+ * The `## <version> - <date>` heading (linked to the release tag when a repo
+ * URL is known). One definition, shared by section generation and Unreleased
  * promotion.
  */
 export function changelogHeading(
@@ -227,7 +236,13 @@ export function generateChangelogSection(options: {
    */
   heading?: string | undefined
 }): string {
-  const { commits, date, heading: headingOverride, repoUrl, version } = {
+  const {
+    commits,
+    date,
+    heading: headingOverride,
+    repoUrl,
+    version,
+  } = {
     __proto__: null,
     ...options,
   } as {
@@ -303,7 +318,8 @@ export function withChangelogEntry(section: string, bullet: string): string {
 /**
  * The `[start, end)` line range of the `## [Unreleased]` block within `lines`
  * (heading at `start`, `end` at the next `## ` heading or EOF), or undefined
- * when there is no `[Unreleased]` heading. One scanner, shared by promote+merge.
+ * when there is no `[Unreleased]` heading. One scanner, shared by
+ * promote+merge.
  */
 function unreleasedRange(
   lines: readonly string[],
@@ -442,7 +458,10 @@ export function promoteUnreleased(
   if (!range) {
     return undefined
   }
-  const body = lines.slice(range.start + 1, range.end).join('\n').trim()
+  const body = lines
+    .slice(range.start + 1, range.end)
+    .join('\n')
+    .trim()
   if (!sectionHasEntries(body)) {
     return undefined
   }

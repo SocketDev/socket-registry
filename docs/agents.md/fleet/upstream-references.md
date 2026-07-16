@@ -10,14 +10,14 @@ single-branch.
 
 The `.gitmodules` block declares four things beyond `path`/`url`:
 
-```
+```ini
 # actions-checkout-v6.0.2 sha256:<64hex>
 [submodule "upstream/actions-checkout"]
-	path = upstream/actions-checkout
-	url = https://github.com/actions/checkout.git
-	branch = releases/v6
-	ref = de0fac2e4500dabe0009e67214ff5f5447ce83dd
-	shallow = true
+  path = upstream/actions-checkout
+  url = https://github.com/actions/checkout.git
+  branch = releases/v6
+  ref = de0fac2e4500dabe0009e67214ff5f5447ce83dd
+  shallow = true
 ```
 
 - `branch = <ref>` pins the single branch the reference tracks; `shallow = true`
@@ -35,7 +35,7 @@ The `.gitmodules` block declares four things beyond `path`/`url`:
 
 ## Adding one
 
-```
+```sh
 # .gitignore re-include (outside the fleet-canonical block) so the fleet-wide
 # `**/upstream/` ignore does not drop the gitlink:
 #   !/upstream/

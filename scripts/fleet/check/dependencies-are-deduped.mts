@@ -132,6 +132,16 @@ export function majorOf(version: string): string {
   return first
 }
 
+// A resolved version is semver-shaped when it starts with a digit. Git / tarball
+// URL resolutions (`https://….tar.gz`, `git+ssh://…`) and other non-registry
+// sources are NOT npm majors — they are source-pinned deps (e.g. a
+// `packages/npm/<pkg>` drop-in testing against its upstream git tarball) that
+// never reach the rolldown bundle, so they must not count toward cross-major
+// dedup. Filtering them keeps the analysis to real registry majors.
+export function isSemverVersion(version: string): boolean {
+  return /^\d/.test(version)
+}
+
 // Collect every `<name>@<version>` key under a top-level section (`packages:`
 // or `snapshots:`), returning name → set of distinct versions.
 function collectResolvedVersions(lines: string[]): Map<string, Set<string>> {
@@ -210,9 +220,11 @@ export function scan(
 
   const duplicates: DuplicateFamily[] = []
   for (const [name, versions] of byName) {
-    const majors = [...new Set([...versions].map(majorOf))].toSorted((a, b) =>
-      a.localeCompare(b, undefined, { numeric: true }),
-    )
+    // Count registry semver resolutions only. A git or tarball URL resolution
+    // is not an npm major and is excluded from cross-major dedup.
+    const majors = [
+      ...new Set([...versions].filter(isSemverVersion).map(majorOf)),
+    ].toSorted((a, b) => a.localeCompare(b, undefined, { numeric: true }))
     if (majors.length > 1) {
       duplicates.push({ majors, name })
     }

@@ -3,11 +3,11 @@
  *   script's `main()` so a throw / rejection can NEVER escape as an unhandled
  *   rejection + raw stack trace: the error is surfaced via the logger as a
  *   MESSAGE (never a stack) and the process exits non-zero. `main()` may return
- *   its exit code (or nothing → 0). This replaces the bare
- *   `void (async () => { process.exitCode = await main() })()` entry pattern,
- *   which crashes with a raw stack if `main()` throws. Enforced by
- *   `scripts/fleet/check/entry-scripts-are-fail-soft.mts` (a fleet CLI entry must
- *   fail soft — never hard-crash the user).
+ *   its exit code (or nothing → 0). This replaces the bare `void (async () => {
+ *   process.exitCode = await main() })()` entry pattern, which crashes with a
+ *   raw stack if `main()` throws. Enforced by
+ *   `scripts/fleet/check/entry-scripts-are-fail-soft.mts` (a fleet CLI entry
+ *   must fail soft — never hard-crash the user).
  */
 
 import process from 'node:process'
@@ -33,15 +33,13 @@ type MainFn = () =>
  * the entrypoint guard:
  *
  * @example
- *   ```ts
+ *   ;```ts
  *   if (isMainModule(import.meta.url)) {
  *     runMain(main)
  *   }
  *   ```
  */
-export function runMain(
-  main: MainFn,
-): void {
+export function runMain(main: MainFn): void {
   void runMainAsync(main)
 }
 
@@ -51,9 +49,7 @@ export function runMain(
  * Resolves (never rejects). Exported so tests can await the settled result;
  * production entrypoints call the fire-and-forget {@link runMain}.
  */
-export async function runMainAsync(
-  main: MainFn,
-): Promise<void> {
+export async function runMainAsync(main: MainFn): Promise<void> {
   try {
     const code = await main()
     process.exitCode = typeof code === 'number' ? code : 0

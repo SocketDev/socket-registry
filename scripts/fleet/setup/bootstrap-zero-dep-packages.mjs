@@ -148,6 +148,7 @@ function installPackage(repoRoot, pkgName, fetchPkg, version, integrity) {
   } catch (error) {
     rmSync(stageDir, { recursive: true, force: true })
     fail(
+      // oxlint-disable-next-line socket/prefer-error-message, socket/prefer-error-message-helper -- pre-pnpm bootstrap cannot import the lib error helper it is provisioning.
       `× ${pkgName}@${version} has an invalid package.json: ${error instanceof Error ? error.message : String(error)}`,
     )
     return false

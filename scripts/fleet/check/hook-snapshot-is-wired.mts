@@ -103,6 +103,18 @@ export function settingsRoutesToLauncher(settingsText: string): boolean {
   return /dispatch-launcher/.test(settingsText)
 }
 
+/**
+ * True for a fresh checkout that has never opted into the host fast path.
+ */
+export function isFreshSnapshotCheckout(options: {
+  hasLauncher: boolean
+  hasSnapshotBundle: boolean
+  wiredToLauncher: boolean
+}): boolean {
+  const opts = { __proto__: null, ...options }
+  return !opts.wiredToLauncher && !opts.hasLauncher && !opts.hasSnapshotBundle
+}
+
 function main(): number {
   // Member without the snapshot infra: nothing to verify (the fast path isn't
   // shipped here — the portable compile-cache baseline is the only dispatch
@@ -122,6 +134,23 @@ function main(): number {
     /* c8 ignore next - settings.json is a fleet invariant; unreadable is not a testable path here */
   }
   const wiredToLauncher = settingsRoutesToLauncher(settingsText)
+
+  // Fresh checkout / CI: the portable compile-cache baseline is intentional.
+  // Generated snapshot artifacts are gitignored, so their joint absence with
+  // baseline settings means this host never opted in — there is nothing to
+  // validate. A partial/opted-in setup still proceeds and fails loud below.
+  if (
+    isFreshSnapshotCheckout({
+      hasLauncher: existsSync(LAUNCHER),
+      hasSnapshotBundle: existsSync(SNAPSHOT_BUNDLE),
+      wiredToLauncher,
+    })
+  ) {
+    logger.log(
+      '[hook-snapshot-is-wired] fresh checkout on compile-cache baseline — skipping.',
+    )
+    return 0
+  }
 
   // WIRING CONSISTENCY: settings routing to the launcher while its binary is
   // absent is WORSE than baseline — the live dispatch points at a missing

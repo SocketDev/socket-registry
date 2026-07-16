@@ -1,18 +1,17 @@
 /**
  * @file Code-as-law: a fleet/repo CLI entry must FAIL SOFT — never hard-crash
  *   the user with a raw unhandled-rejection stack trace. The crash-prone shape
- *   is the async IIFE entrypoint
- *   `void (async () => { process.exitCode = await main() })()` with NO error
- *   handling: if `main()` rejects, the rejection is unhandled and Node prints a
- *   stack + exits nonzero uncontrolled. The fix is the shared `runMain(main)`
- *   (scripts/fleet/_shared/run-main.mts), which awaits main() inside a
- *   try/catch, logs the MESSAGE (not the stack), and sets the exit code.
- *
- *   This check scans every `.mts` under scripts/fleet/ + scripts/repo/ and
- *   flags any entrypoint guard (`isMainModule(import.meta.url)` /
- *   `import.meta.main`) whose body launches an async IIFE without a `.catch`,
- *   `try`, or `runMain`. Sync `main()` entries + `.catch`-guarded ones are fine.
- *   Run standalone: `node scripts/fleet/check/entry-scripts-are-fail-soft.mts`.
+ *   is the async IIFE entrypoint `void (async () => { process.exitCode = await
+ *   main() })()` with NO error handling: if `main()` rejects, the rejection is
+ *   unhandled and Node prints a stack + exits nonzero uncontrolled. The fix is
+ *   the shared `runMain(main)` (scripts/fleet/_shared/run-main.mts), which
+ *   awaits main() inside a try/catch, logs the MESSAGE (not the stack), and
+ *   sets the exit code. This check scans every `.mts` under scripts/fleet/ +
+ *   scripts/repo/ and flags any entrypoint guard
+ *   (`isMainModule(import.meta.url)` / `import.meta.main`) whose body launches
+ *   an async IIFE without a `.catch`, `try`, or `runMain`. Sync `main()`
+ *   entries + `.catch`-guarded ones are fine. Run standalone: `node
+ *   scripts/fleet/check/entry-scripts-are-fail-soft.mts`.
  */
 
 import { readFileSync } from 'node:fs'
@@ -36,7 +35,8 @@ export interface Finding {
 
 // The entrypoint-guard openers a fleet script uses to run main() only when it
 // IS the process entry.
-const ENTRY_GUARD_RE = /\bisMainModule\(import\.meta\.url\)|\bimport\.meta\.main\b/
+const ENTRY_GUARD_RE =
+  /\bisMainModule\(import\.meta\.url\)|\bimport\.meta\.main\b/
 
 /**
  * True when `text` (a whole .mts source) contains a crash-prone async-IIFE

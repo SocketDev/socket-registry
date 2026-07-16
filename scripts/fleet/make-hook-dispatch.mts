@@ -31,6 +31,7 @@ import process from 'node:process'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
 import {
+  DISPATCH_MANIFEST_PATH,
   DISPATCH_TABLE_EXCLUDED_PATH,
   DISPATCH_TABLE_PATH,
   DISPATCH_TABLE_SNAPSHOT_PATH,
@@ -45,6 +46,7 @@ const logger = getDefaultLogger()
 export {
   DISPATCH_DIR,
   DISPATCH_ENTRY_PATH,
+  DISPATCH_MANIFEST_PATH,
   DISPATCH_TABLE_PATH,
   FLEET_HOOKS_DIR,
   HOOK_BUNDLE_PATH,
@@ -70,12 +72,83 @@ export interface EligibleHook {
   readonly name: string
   readonly snapshotExcluded: boolean
   readonly tools: readonly string[]
+  readonly triggers: readonly string[]
+}
+
+const EXPORT_TRIGGERS_RE = /\bexport\s+const\s+triggers\b/
+const INLINE_TRIGGERS_RE = /\btriggers\s*:\s*\[/
+
+/**
+ * Index just before the `triggers` array literal a hook declares, or -1 when it
+ * declares none. Two forms: `export const triggers[: type] = [ … ]` (referenced
+ * by shorthand in defineHook — return the index of its `=`, so the caller's
+ * `indexOf('[')` skips the `[` in a `readonly string[]` annotation) or an
+ * inline `triggers: [ … ]` property (return the index of its `[`).
+ */
+function findTriggersArrayStart(source: string): number {
+  const exportMatch = EXPORT_TRIGGERS_RE.exec(source)
+  if (exportMatch) {
+    return source.indexOf('=', exportMatch.index + exportMatch[0].length)
+  }
+  const inlineMatch = INLINE_TRIGGERS_RE.exec(source)
+  if (inlineMatch) {
+    return inlineMatch.index + inlineMatch[0].length - 1
+  }
+  return -1
 }
 
 /**
- * Parse a hook's source for the eligibility markers + optional event/tools
- * declarations. Returns the eligible-hook descriptor, or undefined when the
- * hook is not bundle-safe.
+ * Extract the quoted-string tokens of a hook's `triggers` array in declared
+ * order (`[]` when none). Scans for the array's matching `]` while honoring
+ * quoted strings, so a token that itself contains a `]` (the OSC-52 `]52;`
+ * clipboard trigger) does not end the array early. Tokens may hold other
+ * special chars (`(`, `=`) and either quote style.
+ */
+export function parseTriggers(source: string): string[] {
+  const start = findTriggersArrayStart(source)
+  if (start === -1) {
+    return []
+  }
+  const open = source.indexOf('[', start)
+  if (open === -1) {
+    return []
+  }
+  const tokens: string[] = []
+  let quote = ''
+  let token = ''
+  for (let i = open + 1, { length } = source; i < length; i += 1) {
+    const ch = source[i]!
+    if (quote) {
+      if (ch === '\\') {
+        token += source[i + 1] ?? ''
+        i += 1
+        continue
+      }
+      if (ch === quote) {
+        tokens.push(token)
+        token = ''
+        quote = ''
+        continue
+      }
+      token += ch
+      continue
+    }
+    if (ch === "'" || ch === '"') {
+      quote = ch
+      token = ''
+      continue
+    }
+    if (ch === ']') {
+      break
+    }
+  }
+  return tokens
+}
+
+/**
+ * Parse a hook's source for the eligibility markers + optional event/tools/
+ * triggers declarations. Returns the eligible-hook descriptor, or undefined
+ * when the hook is not bundle-safe.
  */
 export function parseHookSource(
   name: string,
@@ -100,6 +173,7 @@ export function parseHookSource(
     name,
     snapshotExcluded: SNAPSHOT_EXCLUDE_RE.test(source),
     tools,
+    triggers: parseTriggers(source),
   } as EligibleHook
 }
 
@@ -264,6 +338,73 @@ export function generateDispatchTableSource(
   return renderDispatchTable(subset, variant, all)
 }
 
+export type ManifestHookEntry =
+  | string
+  | { readonly path: string; readonly triggers: readonly string[] }
+
+export interface ManifestGroup {
+  readonly matcher: string
+  readonly hooks: readonly ManifestHookEntry[]
+}
+
+export type DispatchManifestShape = Record<string, readonly ManifestGroup[]>
+
+/**
+ * Render the dep-0 dispatch manifest the bootstrap dispatcher (`_shared/
+ * dispatch.mts`) routes off. Keyed by EVENT; each event is an array of `{
+ * matcher, hooks }` groups. `matcher` is `tools.join('|')` in DECLARED order
+ * (`''` for a no-tool event like Stop/SessionStart), so two hooks whose tool
+ * arrays differ only in order land in DISTINCT groups. A hook with no triggers
+ * is the bare path string; one with triggers is `{ path, triggers }`. Ordering
+ * is canonical + deterministic: events sorted, matcher groups sorted by
+ * matcher, hooks sorted by name within a group. Output matches
+ * JSON.stringify(_, null, 2) plus a trailing newline (the committed manifest's
+ * byte shape).
+ */
+export function renderDispatchManifest(hooks: readonly EligibleHook[]): string {
+  const byEvent = new Map<string, Map<string, EligibleHook[]>>()
+  for (let i = 0, { length } = hooks; i < length; i += 1) {
+    const hook = hooks[i]!
+    const matcher = hook.tools.join('|')
+    let byMatcher = byEvent.get(hook.event)
+    if (!byMatcher) {
+      byMatcher = new Map<string, EligibleHook[]>()
+      byEvent.set(hook.event, byMatcher)
+    }
+    const list = byMatcher.get(matcher)
+    if (list) {
+      list.push(hook)
+    } else {
+      byMatcher.set(matcher, [hook])
+    }
+  }
+  const events = [...byEvent.keys()].toSorted()
+  const entries = events.map((event): [string, ManifestGroup[]] => {
+    const byMatcher = byEvent.get(event)!
+    const matchers = [...byMatcher.keys()].toSorted()
+    const groups: ManifestGroup[] = matchers.map(matcher => {
+      const groupHooks = [...byMatcher.get(matcher)!].sort((a, b) =>
+        a.name < b.name ? -1 : a.name > b.name ? 1 : 0,
+      )
+      const hookEntries: ManifestHookEntry[] = groupHooks.map(hook => {
+        const rel = `fleet/${hook.name}/index.mts`
+        return hook.triggers.length
+          ? { path: rel, triggers: [...hook.triggers] }
+          : rel
+      })
+      return { matcher, hooks: hookEntries }
+    })
+    return [event, groups]
+  })
+  // Object.fromEntries preserves the sorted insertion order for JSON.stringify.
+  const manifest: DispatchManifestShape = Object.fromEntries(entries)
+  return `${JSON.stringify(manifest, undefined, 2)}\n`
+}
+
+export function generateDispatchManifestSource(hooksDir: string): string {
+  return renderDispatchManifest(collectEligibleHooks(hooksDir))
+}
+
 export const TABLE_OUTPUTS: ReadonlyArray<readonly [TableVariant, string]> = [
   ['full', DISPATCH_TABLE_PATH],
   ['snapshot', DISPATCH_TABLE_SNAPSHOT_PATH],
@@ -290,7 +431,25 @@ function main(): void {
         return
       }
     }
-    logger.log('dispatch tables are current.')
+    const manifestGenerated = generateDispatchManifestSource(FLEET_HOOKS_DIR)
+    let manifestOnDisk = ''
+    try {
+      manifestOnDisk = readFileSync(DISPATCH_MANIFEST_PATH, 'utf8')
+    } catch {
+      manifestOnDisk = ''
+    }
+    if (manifestOnDisk !== manifestGenerated) {
+      logger.error(
+        'dispatch-manifest.json is stale (the dep-0 bootstrap dispatcher routes\n' +
+          `  off it, so a stale manifest leaves hooks silently inert on that path).\n` +
+          `  Where: ${path.relative(REPO_ROOT, DISPATCH_MANIFEST_PATH)}\n` +
+          '  Saw:   the committed manifest differs from a regen over the current hook dirs.\n' +
+          '  Fix:   node scripts/fleet/make-hook-dispatch.mts',
+      )
+      process.exitCode = 2
+      return
+    }
+    logger.log('dispatch tables + manifest are current.')
     return
   }
   for (const [variant, outPath] of TABLE_OUTPUTS) {
@@ -299,10 +458,15 @@ function main(): void {
       generateDispatchTableSource(FLEET_HOOKS_DIR, variant),
     )
   }
+  writeFileSync(
+    DISPATCH_MANIFEST_PATH,
+    generateDispatchManifestSource(FLEET_HOOKS_DIR),
+  )
   const all = collectEligibleHooks(FLEET_HOOKS_DIR)
   const excluded = all.filter(h => h.snapshotExcluded).length
   logger.log(
-    `Wrote ${path.relative(REPO_ROOT, DISPATCH_TABLE_PATH)} (+snapshot/excluded variants): ` +
+    `Wrote ${path.relative(REPO_ROOT, DISPATCH_TABLE_PATH)} (+snapshot/excluded variants) ` +
+      `+ ${path.relative(REPO_ROOT, DISPATCH_MANIFEST_PATH)}: ` +
       `${all.length} bundle-safe hook${all.length === 1 ? '' : 's'}, ${excluded} snapshot-excluded.`,
   )
 }

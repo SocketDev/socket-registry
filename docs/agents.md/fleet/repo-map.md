@@ -11,10 +11,13 @@ then read only the one line span you actually need.
 directory: one header line per file plus one line per top-level symbol,
 `Lstart-Lend  <signature>`. Deterministic and read-only apart from `--write`.
 
-```
-node scripts/fleet/make-repo-map.mts <file|dir> [<file|dir>…]   # skeleton → stdout
-node scripts/fleet/make-repo-map.mts --write .                  # (re)build the on-disk cache
-node scripts/fleet/make-repo-map.mts --write --changed          # incremental refresh (git-touched only)
+```sh
+# Print a skeleton to stdout.
+node scripts/fleet/make-repo-map.mts <file|dir> [<file|dir>…]
+# (Re)build the on-disk cache.
+node scripts/fleet/make-repo-map.mts --write .
+# Refresh only git-touched files.
+node scripts/fleet/make-repo-map.mts --write --changed
 ```
 
 Default mode prints the skeleton to stdout with a `source → skeleton` savings

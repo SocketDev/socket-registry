@@ -566,7 +566,7 @@ export async function convertChildrenCoverage(): Promise<boolean> {
 export async function main(): Promise<void> {
   // Re-exec under the pinned node when a stale PATH node (below the hook floor)
   // is active, so the coverage vitest + the hooks it spawns run on the fleet
-  // runtime instead of failing "Hook requires Node >= 25".
+  // runtime instead of failing "Hook requires Node >= 24".
   ensurePinnedNode()
   const { values } = parseArgs({
     options: {

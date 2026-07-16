@@ -191,7 +191,11 @@ export function findSkillCatalogDefects(skillsRoot: string): SkillDefect[] {
     const tier = SKILL_TIERS[i]!
     const tierDir = path.join(skillsRoot, tier)
     const tierDefects = findSkillDefects(tierDir)
-    for (let j = 0, { length: defectCount } = tierDefects; j < defectCount; j += 1) {
+    for (
+      let j = 0, { length: defectCount } = tierDefects;
+      j < defectCount;
+      j += 1
+    ) {
       const defect = tierDefects[j]!
       defects.push({ ...defect, name: `${tier}/${defect.name}` })
     }

@@ -154,6 +154,18 @@ export const EXCLUDED_BUNDLE_PATH = path.join(
 )
 
 /**
+ * The GENERATED dispatch manifest the dep-0 bootstrap dispatcher
+ * (`_shared/dispatch.mts`) routes off. Emitted by make-hook-dispatch alongside
+ * the dispatch tables — never hand-maintained. Lives in `_shared/` (not
+ * `_dispatch/`) because the bootstrap runtime path reads it directly.
+ */
+export const DISPATCH_MANIFEST_PATH = path.join(
+  FLEET_HOOKS_DIR,
+  '_shared',
+  'dispatch-manifest.json',
+)
+
+/**
  * The dispatcher entry that rolldown bundles.
  */
 export const DISPATCH_ENTRY_PATH = path.join(DISPATCH_DIR, 'dispatch-entry.mts')

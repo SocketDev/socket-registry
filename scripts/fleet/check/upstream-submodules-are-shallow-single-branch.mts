@@ -4,14 +4,15 @@
  *   `.gitmodules` is shallow single-branch — it declares `shallow = true` AND a
  *   `branch = <ref>`. A reference submodule vendors an upstream whole-tree for
  *   provenance review (see docs/agents.md/fleet/upstream-references.md), so it
- *   is pinned to one branch and fetched shallow; without both fields a
- *   `git submodule update` drags the branch's full history into every clone.
- *   Scope is the top-level `upstream/` convention only — a nested
+ *   is pinned to one branch and fetched shallow; without both fields a `git
+ *   submodule update` drags the branch's full history into every clone. Scope
+ *   is the top-level `upstream/` convention only — a nested
  *   `packages/x/upstream/y` conformance submodule is subtree-sparse'd instead
- *   (submodules-are-sparse-or-annotated owns that shape) and is left alone here.
- *   Exit: 0 — every upstream reference is shallow single-branch (or there are
- *   none); 1 — one or more is missing a field. Usage:
- *   node scripts/fleet/check/upstream-submodules-are-shallow-single-branch.mts [--quiet]
+ *   (submodules-are-sparse-or-annotated owns that shape) and is left alone
+ *   here. Exit: 0 — every upstream reference is shallow single-branch (or there
+ *   are none); 1 — one or more is missing a field. Usage: node
+ *   scripts/fleet/check/upstream-submodules-are-shallow-single-branch.mts
+ *   [--quiet]
  */
 
 import { existsSync, readFileSync } from 'node:fs'

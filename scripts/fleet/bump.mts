@@ -324,10 +324,7 @@ async function main(): Promise<void> {
     path.join(rootPath, 'package.json'),
     replaceVersion(pkgRaw, nextVersion),
   )
-  writeFileSync(
-    changelogPath,
-    insertChangelogSection(baseChangelog, section),
-  )
+  writeFileSync(changelogPath, insertChangelogSection(baseChangelog, section))
 
   if (writeOnly) {
     logger.success(

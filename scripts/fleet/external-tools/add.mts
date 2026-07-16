@@ -119,7 +119,8 @@ export function buildGithubEntry(
     entry.description = opts.description
   }
   if (opts.binaryName) {
-    ;(entry as unknown as Record<string, unknown>)['binaryName'] = opts.binaryName
+    ;(entry as unknown as Record<string, unknown>)['binaryName'] =
+      opts.binaryName
   }
   return entry
 }
