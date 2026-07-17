@@ -239,11 +239,11 @@ catalogs:
       specifier: 8.0.3
       version: 8.0.3
     '@redwoodjs/agent-ci':
-      specifier: 0.16.2
-      version: 0.16.2
+      specifier: 0.17.1
+      version: 0.17.1
     '@sinclair/typebox':
-      specifier: 0.34.49
-      version: 0.34.49
+      specifier: 0.34.50
+      version: 0.34.50
     '@socketregistry/packageurl-js-stable':
       specifier: npm:@socketregistry/packageurl-js@1.4.2
       version: 1.4.2
@@ -481,7 +481,7 @@ overrides:
   iconv-lite: 0.7.2
   isexe@>=3: 4.0.0
   lru-cache@>=10: 11.3.6
-  magic-string: 0.30.21
+  magic-string: 1.0.0
   mime-db: 1.54.0
   mime-types@>=3: 3.0.2
   minipass@>=4: 7.1.3
@@ -542,10 +542,10 @@ importers:
         version: 8.0.3
       '@redwoodjs/agent-ci':
         specifier: 'catalog:'
-        version: 0.16.2
+        version: 0.17.1
       '@sinclair/typebox':
         specifier: 'catalog:'
-        version: 0.34.49
+        version: 0.34.50
       '@socketregistry/is-unicode-supported':
         specifier: workspace:*
         version: link:packages/npm/is-unicode-supported
@@ -673,8 +673,8 @@ importers:
         specifier: 'catalog:'
         version: 9.0.9
       magic-string:
-        specifier: 0.30.21
-        version: 0.30.21
+        specifier: 1.0.0
+        version: 1.0.0
       make-fetch-happen:
         specifier: 'catalog:'
         version: 15.0.2
@@ -2405,8 +2405,8 @@ packages:
   '@quansync/fs@1.0.0':
     resolution: {integrity: sha512-4TJ3DFtlf1L5LDMaM6CanJ/0lckGNtJcMjQ1NAV6zDmA0tEHKZtxNKin8EgPaVX1YzljbxckyT2tJrpQKAtngQ==}
 
-  '@redwoodjs/agent-ci@0.16.2':
-    resolution: {integrity: sha512-F7w9J1G1h4NPC+GDbBTznr+2g6rhCAMeqcK9kzTNfpUHGIgRDFa3lBgKBKSfZa2liM+pr3k6yRbIL7FUZ9owGw==}
+  '@redwoodjs/agent-ci@0.17.1':
+    resolution: {integrity: sha512-uf8tUPJ4+LUfLCAfo5ECQuGAO3yWfIgUsqFR5Wep0S9vTGD3pXK0AfMt+EzF1iySDjPPXIYZnTxvyDC6L5fbVQ==}
     engines: {node: '>=22'}
     hasBin: true
 
@@ -2532,8 +2532,8 @@ packages:
     resolution: {integrity: sha512-qv7+G3J2cc6wwFj3yKvXOamzqhMwSk1ogPGmhpS8iXllcPrJaIIBA+4HbttlHVu1pqWTdmaCH/WE7UOC51kdoA==}
     engines: {node: ^20.17.0 || >=22.9.0}
 
-  '@sinclair/typebox@0.34.49':
-    resolution: {integrity: sha512-brySQQs7Jtn0joV8Xh9ZV/hZb9Ozb0pmazDIASBkYKCjXrXU3mpcFahmK/z4YDhGkQvP9mWJbVyahdtU5wQA+A==}
+  '@sinclair/typebox@0.34.50':
+    resolution: {integrity: sha512-ydBWw0G6WFwWHzh9RK4B5c690UkreOG0llq0r+DaI7LgKgxigf8mhHzIPI3S0850g1BPkq/zpuCfrq4QFgUlTQ==}
 
   '@sindresorhus/chunkify@2.0.0':
     resolution: {integrity: sha512-srajPSoMTC98FETCJIeXJhJqB77IRPJSu8g907jLuuioLORHZJ3YAOY2DsP5ebrZrjOrAwjqf+Cgkg/I8TGPpw==}
@@ -3358,9 +3358,9 @@ packages:
     resolution: {integrity: sha512-XJgGhoR/CLpqshm4d3L7rzH6t8NgDFUIIpztYlLHIApeJjMZKYJMz2zxPsYxnejq5h3ELYSw/RBsi3t5h7gNTA==}
     engines: {node: '>= 8.0'}
 
-  dockerode@4.0.12:
-    resolution: {integrity: sha512-/bCZd6KlGcjZO8Buqmi/vXuqEGVEZ0PNjx/biBNqJD3MhK9DmdiAuKxqfNhflgDESDIiBz3qF+0e55+CpnrUcw==}
-    engines: {node: '>= 8.0'}
+  dockerode@5.0.1:
+    resolution: {integrity: sha512-avsq/xk4YPIrn0CgleX5bjT9Y8IT1p9PxrNQ++RBQ2WEyFfHCTDsT9kmyxz+H/axnjAwg8wJWEIuPGOUuNupiA==}
+    engines: {node: '>= 14.17'}
 
   dom-serializer@2.0.0:
     resolution: {integrity: sha512-wIkAryiqt/nV5EQKqQpo3SToSOV9J0DnbJqwK7Wv/Trc92zIAYZ4FlMu+JPFW1DfGFt81ZTCGgDEabffXeLyJg==}
@@ -3375,8 +3375,8 @@ packages:
   domutils@3.2.2:
     resolution: {integrity: sha512-6kZKyUajlDuqlHKVX1w7gyslj9MPIXzIFiz/rGu35uC1wMi+kMhQwGhl4lt9unC9Vb9INnY9Z3/ZA3+FhASLaw==}
 
-  dtu-github-actions@0.16.2:
-    resolution: {integrity: sha512-yFtWpQbPaUXjoLu2e3nen8bF8VhZ5d+/Qaa8FRGKglACIxLz5qJ59mw3vHjIcm/knINrOGW7dA3TqWGda+9Umw==}
+  dtu-github-actions@0.17.1:
+    resolution: {integrity: sha512-r4qrvnTg+jB4ThDTErECoBLnDXycrKHZp8/GJT67j4HFzpJ5fAznAqnzw1jtLQsKNusE+s1yEoMBHICmHE/zsw==}
     engines: {node: '>=22'}
 
   dunder-proto@1.0.1:
@@ -4125,8 +4125,8 @@ packages:
   lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
 
-  magic-string@0.30.21:
-    resolution: {integrity: sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==}
+  magic-string@1.0.0:
+    resolution: {integrity: sha512-CGvjzMN08iv6w1mm4/x3Gh1hLb4VnyRUA15FFpl6CsCIGGoe36k7kY5KNz9QDbSBN5I/fWHM6ZlIkUTa5xdUEA==}
 
   magicast@0.5.3:
     resolution: {integrity: sha512-pVKE4UdSQ7DvHzivsCIFx2BJn1mHG6KsyrFcaxFx6tONdneEuThrDx0Cj3AMg58KyN4pzYT+LHOotxDQDjNvkw==}
@@ -5330,10 +5330,6 @@ packages:
   util@0.12.5:
     resolution: {integrity: sha512-kZf/K6hEIrWHI6XqOFUiiMa+79wE/D8Q+NCNAWclkyg3b4d2k7s0QGepNjiABc+aR3N1PAyHL7p6UcLY6LmrnA==}
 
-  uuid@11.1.1:
-    resolution: {integrity: sha512-vIYxrBCC/N/K+Js3qSN88go7kIfNPssr/hHCesKCQNAjmgvYS2oqr69kIufEG+O4+PfezOH4EbIeHCfFov8ZgQ==}
-    hasBin: true
-
   v8-to-istanbul@9.3.0:
     resolution: {integrity: sha512-kiGUalWN+rgBJ/1OHZsBtU4rXZOfj/7rKQxULKlIzwzQSvMJUUNgPwJEEh7gU6xEVxC0ahoOBvN2YI8GH6FNgA==}
     engines: {node: '>=10.12.0'}
@@ -6220,11 +6216,11 @@ snapshots:
     dependencies:
       quansync: 1.0.0
 
-  '@redwoodjs/agent-ci@0.16.2':
+  '@redwoodjs/agent-ci@0.17.1':
     dependencies:
       '@actions/workflow-parser': 0.3.43
-      dockerode: 4.0.12
-      dtu-github-actions: 0.16.2
+      dockerode: 5.0.1
+      dtu-github-actions: 0.17.1
       minimatch: 10.2.5
       yaml: 2.9.0
     transitivePeerDependencies:
@@ -6313,7 +6309,7 @@ snapshots:
       '@sigstore/core': 3.2.1
       '@sigstore/protobuf-specs': 0.5.1
 
-  '@sinclair/typebox@0.34.49': {}
+  '@sinclair/typebox@0.34.50': {}
 
   '@sindresorhus/chunkify@2.0.0': {}
 
@@ -6563,7 +6559,7 @@ snapshots:
     dependencies:
       '@vitest/spy': 4.1.10
       estree-walker: 3.0.3
-      magic-string: 0.30.21
+      magic-string: 1.0.0
     optionalDependencies:
       vite: 8.1.0(@types/node@26.1.1)(jiti@2.7.0)(yaml@2.9.0)
 
@@ -6580,7 +6576,7 @@ snapshots:
     dependencies:
       '@vitest/pretty-format': 4.1.10
       '@vitest/utils': 4.1.10
-      magic-string: 0.30.21
+      magic-string: 1.0.0
       pathe: 2.0.3
 
   '@vitest/spy@4.1.10': {}
@@ -7140,7 +7136,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  dockerode@4.0.12:
+  dockerode@5.0.1:
     dependencies:
       '@balena/dockerignore': 1.0.2
       '@grpc/grpc-js': 1.14.4
@@ -7148,7 +7144,6 @@ snapshots:
       docker-modem: 5.0.7
       protobufjs: 7.6.4
       tar-fs: 2.1.5
-      uuid: 11.1.1
     transitivePeerDependencies:
       - supports-color
 
@@ -7170,7 +7165,7 @@ snapshots:
       domelementtype: 2.3.0
       domhandler: 5.0.3
 
-  dtu-github-actions@0.16.2:
+  dtu-github-actions@0.17.1:
     dependencies:
       body-parser: 2.3.0
       minimatch: 10.2.5
@@ -7984,7 +7979,7 @@ snapshots:
     dependencies:
       yallist: 3.1.1
 
-  magic-string@0.30.21:
+  magic-string@1.0.0:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.5
 
@@ -9427,7 +9422,7 @@ snapshots:
   type-coverage-core@2.29.7(typescript@7.0.2):
     dependencies:
       fast-glob: 3.3.3
-      minimatch: 9.0.7
+      minimatch: 10.2.5
       normalize-path: 3.0.0
       tslib: 2.8.1
       tsutils: 3.21.0(typescript@7.0.2)
@@ -9601,8 +9596,6 @@ snapshots:
       is-typed-array: 1.1.15
       which-typed-array: 1.1.22
 
-  uuid@11.1.1: {}
-
   v8-to-istanbul@9.3.0:
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
@@ -9640,7 +9633,7 @@ snapshots:
       '@vitest/utils': 4.1.10
       es-module-lexer: 2.3.0
       expect-type: 1.4.0
-      magic-string: 0.30.21
+      magic-string: 1.0.0
       obug: 2.1.3
       pathe: 2.0.3
       picomatch: 4.0.4
