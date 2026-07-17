@@ -49,8 +49,8 @@
     "provenance": true
   },
   "scripts": {
-    "build": "node scripts/repo/build.mts",
-    "build:watch": "node scripts/repo/build.mts --watch",
+    "build": "node scripts/build.mts",
+    "build:watch": "node scripts/build.mts --watch",
     "check": "tsgo --noEmit",
     "clean": "del-cli dist '**/*.tsbuildinfo'",
     "dev": "pnpm run build:watch",

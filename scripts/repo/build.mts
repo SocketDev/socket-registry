@@ -3,9 +3,7 @@
  *   package build with proper flag handling.
  */
 
-import path from 'node:path'
 import process from 'node:process'
-import { fileURLToPath } from 'node:url'
 
 import colors from 'yoctocolors-cjs'
 
@@ -13,12 +11,9 @@ import { isQuiet } from '@socketsecurity/lib-stable/argv/flag-predicates'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
 import { runCommand } from '../fleet/util/run-command.mts'
+import { REGISTRY_PKG_PATH } from '../constants/paths.mts'
 
 const logger = getDefaultLogger()
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const rootPath = path.resolve(__dirname, '..')
-const registryPath = path.join(rootPath, 'registry')
 
 // Parse all flags from command line to pass through.
 const args = process.argv.slice(2)
@@ -34,7 +29,7 @@ async function main(): Promise<void> {
   }
 
   const exitCode = await runCommand('pnpm', buildArgs, {
-    cwd: registryPath,
+    cwd: REGISTRY_PKG_PATH,
   })
 
   if (exitCode !== 0) {
