@@ -5,9 +5,9 @@ packages:
   # Test fixture exercising overrides against upstream-original packages;
   # folded into the root workspace (no separate fixture lockfile).
   - test/npm
-  - .claude/hooks/*
   - '.config/fleet/oxlint-plugin'
   - '.config/fleet/oxlint-plugin/fleet/*'
+  - '.claude/hooks/fleet/*'
 
 # Packages allowed to run build scripts (pnpm v11 strictDepBuilds default).
 allowBuilds:
