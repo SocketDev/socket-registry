@@ -55,7 +55,7 @@
     "clean": "del-cli dist '**/*.tsbuildinfo'",
     "dev": "pnpm run build:watch",
     "prepublishOnly": "pnpm run build",
-    "test": "vitest",
+    "test": "node scripts/test.mts",
     "type-ci": "pnpm run check"
   },
   "devDependencies": {
