@@ -110,8 +110,8 @@ catalog:
   # workspace layout. dtu-github-actions is its GitHub-Actions parser, pinned
   # explicitly (not left transitive) so its version is uniform fleet-wide.
   '@babel/core': 7.28.4
-  '@redwoodjs/agent-ci': 0.16.2
-  'dtu-github-actions': 0.16.2
+  '@redwoodjs/agent-ci': 0.17.1
+  'dtu-github-actions': 0.17.1
   '@sinclair/typebox': 0.34.50
   '@socketregistry/packageurl-js': 1.4.2
   # -stable aliases: pnpm `overrides:` can't redirect a package's own
@@ -143,7 +143,7 @@ catalog:
   # published: 2026-05-07 (26 days, past 7-day soak)
   'comptime': 0.1.0
   'html5parser': 3.0.0
-  'magic-string': 0.30.21
+  'magic-string': 1.0.0
   'markdownlint-cli2': 0.23.0
   'mdast-util-from-markdown': 2.0.3
   'micromark': 4.0.2
@@ -259,6 +259,12 @@ minimumReleaseAgeExclude:
   - '@sdxgen/*'
   - 'sdxgen'
   - 'stuie'
+  # published: 2026-07-14 | removable: 2026-07-21
+  - '@redwoodjs/agent-ci@0.17.1'
+  # published: 2026-07-14 | removable: 2026-07-21
+  - 'dtu-github-actions@0.17.1'
+  # published: 2026-07-16 | removable: 2026-07-23
+  - 'magic-string@1.0.0'
 
 blockExoticSubdeps: true
 
