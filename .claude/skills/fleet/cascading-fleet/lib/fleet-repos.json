@@ -1,18 +1,6 @@
 {
   "repos": [
     {
-      "name": "socket-addon",
-      "description": "NAPI .node binaries for @socketaddon/* npm packages",
-      "optIns": ["squash-history"],
-      "publishes": "node"
-    },
-    {
-      "name": "socket-bin",
-      "description": "SEA-packed CLI distributions for @socketbin/* packages",
-      "optIns": ["squash-history"],
-      "publishes": "binary"
-    },
-    {
       "name": "socket-btm",
       "description": "Build toolchain — produces signed prebuilt binaries for @socketaddon/* and @socketbin/*",
       "optIns": ["squash-history"],
@@ -50,6 +38,7 @@
     {
       "name": "abitious",
       "description": "napi-rs alternative — ship native .node addons as compressed hybrid .node via decmpfs",
+      "optIns": ["squash-history"],
       "publishes": "cargo"
     },
     {

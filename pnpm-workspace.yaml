@@ -112,7 +112,7 @@ catalog:
   '@babel/core': 7.28.4
   '@redwoodjs/agent-ci': 0.16.2
   'dtu-github-actions': 0.16.2
-  '@sinclair/typebox': 0.34.49
+  '@sinclair/typebox': 0.34.50
   '@socketregistry/packageurl-js': 1.4.2
   # -stable aliases: pnpm `overrides:` can't redirect a package's own
   # name when used INSIDE that same package — Node ESM treats it as a
@@ -295,7 +295,7 @@ overrides:
   'iconv-lite': '0.7.2'
   'isexe@>=3': '4.0.0'
   'lru-cache@>=10': '11.3.6'
-  'magic-string': '0.30.21'
+  'magic-string': '1.0.0'
   'mime-db': '1.54.0'
   'mime-types@>=3': '3.0.2'
   'minipass@>=4': '7.1.3'

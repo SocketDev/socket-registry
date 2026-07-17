@@ -1,5 +1,3 @@
-socket-addon
-socket-bin
 socket-btm
 socket-cli
 socket-lib

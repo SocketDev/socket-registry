@@ -1,4 +1,11 @@
-# Fleet-canonical cargo soak config. Owned by
+# Fleet-canonical cargo soak config. A repository that needs target runners,
+# rustflags, or other local Cargo settings puts them in `config.repo.toml`;
+# Cargo merges that optional file first, then this file keeps the fleet trust
+# keys authoritative. This split lets the cascade stay byte-identical without
+# deleting legitimate platform configuration.
+include = [{ path = "config.repo.toml", optional = true }]
+
+# Owned by
 # scripts/fleet/update/cargo.mts (renderMinPublishAgeConfig derives this exact
 # body from SOAK_DAYS, scripts/fleet/constants/soak.mts); gated by
 # scripts/fleet/check/cargo-soak-config-is-current.mts, which asserts this

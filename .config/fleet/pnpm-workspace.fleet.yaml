@@ -15,12 +15,9 @@
 # name in FLEET_CANONICAL_CATALOG_NAMES (scripts/repo/sync-scaffolding/manifest.mts).
 # loadExpectedCatalogEntries() reads versions from this file + merges the purpose.
 catalog:
-  # The fleet AI CLI — gh-aw workflow engine + socket-lib src/ai spawnAiAgent
-  # runtime. Soaked (published 2026-06-04). Members reference it via `catalog:`.
-  '@anthropic-ai/claude-code': 2.1.205
   '@redwoodjs/agent-ci': 0.17.1
   'dtu-github-actions': 0.17.1
-  '@sinclair/typebox': 0.34.49
+  '@sinclair/typebox': 0.34.50
   '@socketregistry/packageurl-js': 1.4.2
   '@socketsecurity/lib': 6.0.10
   '@socketsecurity/registry': 2.0.2
@@ -50,7 +47,7 @@ catalog:
   # 14.15.1 is the attested re-publish that cleared the 14.15.0
   # trust-downgrade flag.
   'compromise': 14.15.1
-  'magic-string': 0.30.21
+  'magic-string': 1.0.0
   'markdownlint-cli2': 0.23.0
   'mdast-util-from-markdown': 2.0.3
   'micromark': 4.0.2

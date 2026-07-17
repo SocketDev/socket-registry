@@ -672,12 +672,13 @@ runs:
             echo "× no tap pin for homebrew-${SHORT} in brew-tap-pins.mts." >&2
             exit 1
           fi
-          # Ensure the tap's git checkout exists, then pin it. GitHub permits a
-          # depth-1 fetch of an exact commit.
+          # Ensure the tap's git checkout exists, then pin it. Runner images
+          # may ship tracked formula edits, so force the soaked commit instead
+          # of letting image drift abort checkout.
           brew tap "$SLUG" >/dev/null 2>&1 || true
           REPO="$(brew --repository "$SLUG")"
           git -C "$REPO" fetch --depth 1 origin "$SHA"
-          git -C "$REPO" checkout -q "$SHA"
+          git -C "$REPO" checkout -q -f "$SHA"
         }
         pin_tap core homebrew/core
         if grep -q '^cask ' "${GITHUB_WORKSPACE}/Brewfile"; then

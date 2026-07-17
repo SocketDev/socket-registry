@@ -42,6 +42,7 @@ import path from 'node:path'
 import process from 'node:process'
 
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
+import { normalizePath } from '@socketsecurity/lib-stable/paths/normalize'
 
 import { REPO_ROOT } from './paths.mts'
 import { isMainModule } from './_shared/is-main-module.mts'
@@ -136,7 +137,7 @@ export function discoverSkills(repoRoot: string): MirrorEntry[] {
       }
       entries.push({
         mirrorName: `${tier}-${name}`,
-        source: path.relative(repoRoot, skillDir),
+        source: normalizePath(path.relative(repoRoot, skillDir)),
       })
     }
   }
@@ -162,14 +163,15 @@ export function renderMirrorEntry(
         continue
       }
       const fileAbs = path.join(srcAbs, childRel)
+      const outputRel = normalizePath(childRel)
       if (childRel === 'SKILL.md') {
         const rewritten = rewriteSkillName(
           readFileSync(fileAbs, 'utf8'),
           entry.mirrorName,
         )
-        out.set(childRel, Buffer.from(rewritten, 'utf8'))
+        out.set(outputRel, Buffer.from(rewritten, 'utf8'))
       } else {
-        out.set(childRel, readFileSync(fileAbs))
+        out.set(outputRel, readFileSync(fileAbs))
       }
     }
   }

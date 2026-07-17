@@ -18,6 +18,7 @@ import nock from 'nock'
 import { afterAll, afterEach, beforeAll, expect } from 'vitest'
 
 import { isolateGitEnv } from '../../../.git-hooks/_shared/isolate-git-env.mts'
+import { prepareSubprocessCoverageEnv } from '../../_shared/fleet/lib/coverage-env.mts'
 import { toContainPathResult } from '../../_shared/fleet/lib/matchers.mts'
 
 // Neutralize the inherited git env so a test's `git` spawns can't touch the
@@ -27,20 +28,10 @@ import { toContainPathResult } from '../../_shared/fleet/lib/matchers.mts'
 // .git-hooks/_shared/isolate-git-env.mts.
 isolateGitEnv({ pinConfigToNull: true })
 
-// Subprocess coverage capture (cover.mts sets FLEET_CHILD_V8_COVERAGE_DIR):
-// V8 reads NODE_V8_COVERAGE at process START, so setting it here — inside an
-// already-running vitest worker — never makes the worker itself dump raw
-// coverage, but every node child the tests spawn inherits it and writes its
-// V8 coverage into the dir on exit. That is how script entrypoints exercised
-// via subprocess (doctor.mts, check.mts, …) get measured at all; in-process
-// coverage cannot see them. Outside a cover run the variable is absent and
-// this is a no-op.
-if (
-  process.env['FLEET_CHILD_V8_COVERAGE_DIR'] &&
-  !process.env['NODE_V8_COVERAGE']
-) {
-  process.env['NODE_V8_COVERAGE'] = process.env['FLEET_CHILD_V8_COVERAGE_DIR']
-}
+// Subprocess coverage capture (cover.mts sets FLEET_CHILD_V8_COVERAGE_DIR).
+// This also drops the already-consumed COVERAGE flag so a test-spawned Vitest
+// child cannot clean the outer run's shared coverage/.tmp reports.
+prepareSubprocessCoverageEnv(process.env)
 
 // Fail network CLOSED fleet-wide: block every real connection so an unmocked
 // third-party request throws instead of reaching the internet. Loopback stays
