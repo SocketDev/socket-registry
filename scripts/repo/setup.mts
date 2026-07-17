@@ -17,7 +17,7 @@ import { safeDelete } from '@socketsecurity/lib-stable/fs/safe'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 
-import { REPO_ROOT } from './fleet/paths.mts'
+import { REPO_ROOT } from '../fleet/paths.mts'
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 
 const logger = getDefaultLogger()

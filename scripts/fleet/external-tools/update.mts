@@ -22,7 +22,7 @@
  *      (via the setup-security-tools cascade) inherit the same window because
  *      the file is byte-cascaded; running this script against a downstream repo
  *      would use that repo's pnpm-workspace.yaml soak time. Invoked as: node
- *      scripts/update-external-tools.mts [--apply] [--target <path>] Where
+ *      scripts/repo/update-external-tools.mts [--apply] [--target <path>] Where
  *      <path> is a directory containing an external-tools.json + a
  *      pnpm-workspace.yaml. Defaults to the wheelhouse template's
  *      setup-security-tools/external-tools.json + the wheelhouse's
@@ -508,7 +508,7 @@ function parseArgs(): CliOpts {
       i += 1
     } else if (a === '--help') {
       process.stdout.write(
-        'Usage: node scripts/update-external-tools.mts ' +
+        'Usage: node scripts/repo/update-external-tools.mts ' +
           '[--apply] [--verify-assets] [--target <dir>]\n' +
           '\n' +
           'Default dry-run prints the planned changes. --apply flushes.\n' +

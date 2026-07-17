@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/**
+/*
  * Update the repo-root `external-tools.json` to pick up new releases of every
  * tool listed with `"release": "asset"` (today: pnpm, zizmor).
  *

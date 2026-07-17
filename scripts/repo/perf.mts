@@ -13,7 +13,7 @@ import fastGlob from 'fast-glob'
 
 const logger = getDefaultLogger()
 
-import { PERF_NPM_PATH } from './constants/paths.mts'
+import { PERF_NPM_PATH } from '../constants/paths.mts'
 
 async function main(): Promise<void> {
   for (const perfFile of await fastGlob.glob(['*.perf.mts'], {
