@@ -18,6 +18,7 @@ allowBuilds:
   # Ships prebuilt dist; postinstall codegen not needed as a dependency.
   protobufjs: false
   # Postinstall fetches the per-platform native binding; required to run.
+  puppeteer: false
   rolldown: true
   # Native bindings are optional (cpu-features above); JS paths suffice.
   ssh2: false
@@ -58,6 +59,7 @@ catalog:
   'npm-package-arg': 13.0.0
   'out-url': 1.2.2
   'pacote': 21.0.1
+  'portless': 0.15.4
   'read-yaml-file': 2.1.0
   'source-map-support': 0.5.21
   'spdx-correct': 3.2.0
@@ -170,7 +172,7 @@ catalog:
   'regjsparser': 0.13.2
   'rolldown': 1.1.4
   'semver': 7.8.5
-  'shell-quote': 1.9.0
+  'shell-quote': 1.10.0
   'taze': 19.14.1
   # vite 8.0.14 swaps esbuild → rolldown natively (bundles rolldown
   # 1.0.2). Tracked here so the pnpm override below can pin every
@@ -265,6 +267,8 @@ minimumReleaseAgeExclude:
   - 'dtu-github-actions@0.17.1'
   # published: 2026-07-16 | removable: 2026-07-23
   - 'magic-string@1.0.0'
+  # published: 2026-07-16 | removable: 2026-07-23
+  - 'portless@0.15.4'
 
 blockExoticSubdeps: true
 
