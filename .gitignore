@@ -59,6 +59,7 @@ package-lock.json
 **/*.tgz
 **/*.tmp
 **/*.tsbuildinfo
+**/tsconfig.build.tsbuildinfo.tmp-build/
 .nyc_output/
 
 # Logs and debug files
