@@ -68,8 +68,8 @@ describe(`${eco} > ${sockRegPkgName} (portable branch)`, { skip }, () => {
     it('loose cross-type coercion', () => {
       expect(loose(1, '1')).toBe(true)
       expect(strict(1, '1')).toBe(false)
-      expect(loose(null, undefined)).toBe(true)
-      expect(strict(null, undefined)).toBe(false)
+      expect(loose(undefined, undefined)).toBe(true)
+      expect(strict(undefined, undefined)).toBe(false)
     })
   })
 

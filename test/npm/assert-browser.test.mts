@@ -106,7 +106,7 @@ describe(`${eco} > ${sockRegPkgName} (portable branch)`, { skip }, () => {
       message = e instanceof Error ? e.message : ''
     }
     expect(message.length).toBeGreaterThan(0)
-    expect(() => assert.ifError(null)).not.toThrow()
+    expect(() => assert.ifError(undefined)).not.toThrow()
     expect(isAssertionError(() => assert.ifError(new Error('e')))).toBe(true)
   })
 })

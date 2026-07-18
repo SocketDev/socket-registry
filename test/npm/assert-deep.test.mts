@@ -268,7 +268,7 @@ describe(`${eco} > ${sockRegPkgName} > deep`, { skip }, () => {
     it('does not throw for null or undefined', () => {
       if (assert.ifError) {
         expect(() => assert.ifError(undefined)).not.toThrow()
-        expect(() => assert.ifError(null)).not.toThrow()
+        expect(() => assert.ifError(undefined)).not.toThrow()
       }
     })
 

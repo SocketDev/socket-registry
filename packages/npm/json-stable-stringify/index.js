@@ -189,7 +189,7 @@ function sortKeysIterative(root) {
   if (typeof root !== 'object') {
     return root
   }
-  const queue = [{ parent: null, key: '', value: root }]
+  const queue = [{ parent: undefined, key: '', value: root }]
   const processed = new Map()
   let result
 
@@ -202,7 +202,7 @@ function sortKeysIterative(root) {
       typeof value !== 'object' ||
       isRawJSON(value)
     ) {
-      if (parent === null) {
+      if (parent === undefined) {
         result = value
       } else if (ArrayIsArray(parent)) {
         parent[key] = value
@@ -214,7 +214,7 @@ function sortKeysIterative(root) {
 
     if (processed.has(value)) {
       const cached = processed.get(value)
-      if (parent === null) {
+      if (parent === undefined) {
         result = cached
       } else if (ArrayIsArray(parent)) {
         parent[key] = cached
@@ -228,7 +228,7 @@ function sortKeysIterative(root) {
       const arr = []
       processed.set(value, arr)
 
-      if (parent === null) {
+      if (parent === undefined) {
         result = arr
       } else if (ArrayIsArray(parent)) {
         parent[key] = arr
@@ -244,7 +244,7 @@ function sortKeysIterative(root) {
       const obj = {}
       processed.set(value, obj)
 
-      if (parent === null) {
+      if (parent === undefined) {
         result = obj
       } else if (ArrayIsArray(parent)) {
         parent[key] = obj

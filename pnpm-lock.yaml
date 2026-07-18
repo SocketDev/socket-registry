@@ -409,6 +409,9 @@ catalogs:
     playwright-core:
       specifier: 1.61.1
       version: 1.61.1
+    portless:
+      specifier: 0.15.4
+      version: 0.15.4
     read-yaml-file:
       specifier: 2.1.0
       version: 2.1.0
@@ -419,8 +422,8 @@ catalogs:
       specifier: 7.8.5
       version: 7.8.5
     shell-quote:
-      specifier: 1.9.0
-      version: 1.9.0
+      specifier: 1.10.0
+      version: 1.10.0
     source-map-support:
       specifier: 0.5.21
       version: 0.5.21
@@ -723,6 +726,9 @@ importers:
       playwright-core:
         specifier: 'catalog:'
         version: 1.61.1
+      portless:
+        specifier: 'catalog:'
+        version: 0.15.4
       read-yaml-file:
         specifier: 'catalog:'
         version: 2.1.0
@@ -737,7 +743,7 @@ importers:
         version: 7.8.5
       shell-quote:
         specifier: 'catalog:'
-        version: 1.9.0
+        version: 1.10.0
       source-map-support:
         specifier: 'catalog:'
         version: 0.5.21
@@ -875,7 +881,7 @@ importers:
     dependencies:
       shell-quote:
         specifier: 'catalog:'
-        version: 1.9.0
+        version: 1.10.0
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -888,7 +894,7 @@ importers:
         version: '@socketsecurity/lib@6.0.10(typescript@7.0.2)'
       shell-quote:
         specifier: 'catalog:'
-        version: 1.9.0
+        version: 1.10.0
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -974,7 +980,7 @@ importers:
     dependencies:
       shell-quote:
         specifier: 'catalog:'
-        version: 1.9.0
+        version: 1.10.0
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -1030,7 +1036,7 @@ importers:
     dependencies:
       shell-quote:
         specifier: 'catalog:'
-        version: 1.9.0
+        version: 1.10.0
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -1167,7 +1173,7 @@ importers:
     dependencies:
       shell-quote:
         specifier: 'catalog:'
-        version: 1.9.0
+        version: 1.10.0
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -1205,7 +1211,7 @@ importers:
     dependencies:
       shell-quote:
         specifier: 'catalog:'
-        version: 1.9.0
+        version: 1.10.0
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -1300,7 +1306,7 @@ importers:
     dependencies:
       shell-quote:
         specifier: 'catalog:'
-        version: 1.9.0
+        version: 1.10.0
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -1377,7 +1383,7 @@ importers:
     dependencies:
       shell-quote:
         specifier: 'catalog:'
-        version: 1.9.0
+        version: 1.10.0
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -1461,7 +1467,7 @@ importers:
     dependencies:
       shell-quote:
         specifier: 'catalog:'
-        version: 1.9.0
+        version: 1.10.0
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -1471,7 +1477,7 @@ importers:
     dependencies:
       shell-quote:
         specifier: 'catalog:'
-        version: 1.9.0
+        version: 1.10.0
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -1499,7 +1505,7 @@ importers:
     dependencies:
       shell-quote:
         specifier: 'catalog:'
-        version: 1.9.0
+        version: 1.10.0
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -1536,7 +1542,7 @@ importers:
     dependencies:
       shell-quote:
         specifier: 'catalog:'
-        version: 1.9.0
+        version: 1.10.0
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -1593,7 +1599,7 @@ importers:
     dependencies:
       shell-quote:
         specifier: 'catalog:'
-        version: 1.9.0
+        version: 1.10.0
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -1603,7 +1609,7 @@ importers:
     dependencies:
       shell-quote:
         specifier: 'catalog:'
-        version: 1.9.0
+        version: 1.10.0
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -1683,13 +1689,13 @@ importers:
     dependencies:
       shell-quote:
         specifier: 'catalog:'
-        version: 1.9.0
+        version: 1.10.0
 
   .claude/hooks/fleet/npm-otp-flow-nudge:
     dependencies:
       shell-quote:
         specifier: 'catalog:'
-        version: 1.9.0
+        version: 1.10.0
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -1711,7 +1717,7 @@ importers:
     dependencies:
       shell-quote:
         specifier: 'catalog:'
-        version: 1.9.0
+        version: 1.10.0
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -1754,7 +1760,7 @@ importers:
     dependencies:
       shell-quote:
         specifier: 'catalog:'
-        version: 1.9.0
+        version: 1.10.0
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -1886,7 +1892,7 @@ importers:
     dependencies:
       shell-quote:
         specifier: 'catalog:'
-        version: 1.9.0
+        version: 1.10.0
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -1976,7 +1982,7 @@ importers:
     dependencies:
       shell-quote:
         specifier: 'catalog:'
-        version: 1.9.0
+        version: 1.10.0
     devDependencies:
       '@socketsecurity/lib-stable':
         specifier: 'catalog:'
@@ -2014,7 +2020,7 @@ importers:
     dependencies:
       shell-quote:
         specifier: 'catalog:'
-        version: 1.9.0
+        version: 1.10.0
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -2181,7 +2187,7 @@ importers:
     dependencies:
       shell-quote:
         specifier: 'catalog:'
-        version: 1.9.0
+        version: 1.10.0
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -2226,7 +2232,7 @@ importers:
     dependencies:
       shell-quote:
         specifier: 'catalog:'
-        version: 1.9.0
+        version: 1.10.0
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -2250,7 +2256,7 @@ importers:
     dependencies:
       shell-quote:
         specifier: 'catalog:'
-        version: 1.9.0
+        version: 1.10.0
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -6216,6 +6222,12 @@ packages:
   polka@0.5.2:
     resolution: {integrity: sha512-FVg3vDmCqP80tOrs+OeNlgXYmFppTXdjD5E7I4ET1NjvtNmQrb1/mJibybKkb/d4NA7YWAr1ojxuhpL3FHqdlw==}
 
+  portless@0.15.4:
+    resolution: {integrity: sha512-tOxEsdlDGuPHO6DPkuK3c3mMV5ctXEgVFm53Sa8nfZ2RsRGTq4By424C6z5+JWfNbd3ktR5SOd1FJBOlB1Woqg==}
+    engines: {node: '>=24'}
+    os: [darwin, linux, win32]
+    hasBin: true
+
   possible-typed-array-names@1.1.0:
     resolution: {integrity: sha512-/+5VFTchJDoVj3bhoqi6UeymcD00DAwb1nJwamzPvHEszJ4FpF6SNNbUbOS8yI56qHzdV8eK0qEfOSiodkTdxg==}
     engines: {node: '>= 0.4'}
@@ -6405,8 +6417,8 @@ packages:
     resolution: {integrity: sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==}
     engines: {node: '>=8'}
 
-  shell-quote@1.9.0:
-    resolution: {integrity: sha512-Iov+JwFv/2HcTpcwNMKd8+IWNb8tboQJNQTkAY/LLVK7gGH9jy+LGkVqPxfekHl+yMmiqXszdGWXgkfml7hjqA==}
+  shell-quote@1.10.0:
+    resolution: {integrity: sha512-w1aiOKwKuRgtwAReIIj89puqg+I7GvX4IbLrvmhXbzQsj1+Zwi4VO3+fa6ZF91TWSjIxoEkKnMeHcLEODK5ZXA==}
     engines: {node: '>= 0.4'}
 
   siginfo@2.0.0:
@@ -9999,7 +10011,7 @@ snapshots:
       picomatch: 4.0.4
       pidtree: 1.0.0
       read-package-json-fast: 6.0.0
-      shell-quote: 1.9.0
+      shell-quote: 1.10.0
       which: 7.0.0
 
   npm-run-path@3.1.0:
@@ -10295,6 +10307,8 @@ snapshots:
       '@polka/url': 0.5.0
       trouter: 2.0.1
 
+  portless@0.15.4: {}
+
   possible-typed-array-names@1.1.0: {}
 
   postcss-selector-parser@7.1.4:
@@ -10536,7 +10550,7 @@ snapshots:
 
   shebang-regex@3.0.0: {}
 
-  shell-quote@1.9.0: {}
+  shell-quote@1.10.0: {}
 
   siginfo@2.0.0: {}
 
