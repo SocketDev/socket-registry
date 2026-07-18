@@ -192,6 +192,7 @@
     "cpu-features": false,
     "es5-ext": true,
     "protobufjs": false,
+    "puppeteer": false,
     "rolldown": true,
     "ssh2": false
   },
