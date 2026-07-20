@@ -45,6 +45,7 @@ catalog:
   'eslint-plugin-sort-destructure-keys': 2.0.0
   'eslint-plugin-unicorn': 56.0.1
   'eta': 3.5.0
+  'fast-check': 4.9.0
   'fast-glob': 3.3.3
   'fast-sort': 3.4.1
   'fs-extra': 11.3.1
@@ -114,8 +115,8 @@ catalog:
   '@babel/core': 7.28.4
   '@redwoodjs/agent-ci': 0.17.1
   'dtu-github-actions': 0.17.1
-  '@sinclair/typebox': 0.34.50
-  '@socketregistry/packageurl-js': 1.4.2
+  '@sinclair/typebox': 0.34.52
+  '@socketregistry/packageurl-js': 1.4.4
   # -stable aliases: pnpm `overrides:` can't redirect a package's own
   # name when used INSIDE that same package — Node ESM treats it as a
   # self-reference and resolves through the local exports map, not
@@ -127,8 +128,8 @@ catalog:
   # test/ code uses the canonical name because vitest aliases that
   # to local src/.
   '@socketregistry/packageurl-js-stable': 'npm:@socketregistry/packageurl-js@1.4.2'
-  '@socketsecurity/lib': 6.0.10
-  '@socketsecurity/lib-stable': 'npm:@socketsecurity/lib@6.0.10'
+  '@socketsecurity/lib': 6.1.0
+  '@socketsecurity/lib-stable': 'npm:@socketsecurity/lib@6.1.0'
   '@socketsecurity/registry': 2.0.2
   '@socketsecurity/registry-stable': 'npm:@socketsecurity/registry@2.0.2'
   '@socketsecurity/sdk': 4.0.1
