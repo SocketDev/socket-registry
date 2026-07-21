@@ -235,3 +235,7 @@ pnpm-debug.log
 !/packages/npm/deep-equal/package/external/
 !/.node-version
 !/registry/CHANGELOG.md
+
+# vitiate coverage-guided fuzz lane caches (regenerable; never commit)
+/.swc/
+/.vitiate/

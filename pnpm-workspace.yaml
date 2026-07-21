@@ -11,6 +11,8 @@ packages:
 
 # Packages allowed to run build scripts (pnpm v11 strictDepBuilds default).
 allowBuilds:
+  # @swc/core native binding — vitiate's coverage-guided fuzz lane.
+  '@swc/core': true
   # Optional native addon for ssh2; the pure-JS fallback is fine here.
   cpu-features: false
   # test/npm fixture transitive; postinstall only prints a message.
@@ -180,7 +182,9 @@ catalog:
   # transitive `vite` (vitest, @vitest/*, plugin authors) to it.
   'typescript': 7.0.2
   'vite': 8.1.0
+  'vitiate': 0.3.1
   'vitest': 4.1.10
+  '@vitiate/core': 0.3.1
   '@vitest/coverage-v8': 4.1.10
   '@vitest/ui': 4.1.10
 
