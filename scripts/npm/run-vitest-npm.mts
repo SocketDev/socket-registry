@@ -13,9 +13,21 @@ const logger = getDefaultLogger()
 process.env['INCLUDE_NPM_TESTS'] = '1'
 
 async function main() {
+  // Pass the repo vitest config explicitly — bare `vitest` auto-discovers the
+  // ROOT vitest.config.mts, which is the vitiate fuzz-lane config (include:
+  // test/**/*.fuzz.ts) and finds zero files under test/npm/. Same contract as
+  // scripts/fleet/test.mts.
   const result = await spawn(
     'pnpm',
-    ['exec', 'vitest', 'run', 'test/npm/', ...process.argv.slice(2)],
+    [
+      'exec',
+      'vitest',
+      'run',
+      '--config',
+      '.config/repo/vitest.config.mts',
+      'test/npm/',
+      ...process.argv.slice(2),
+    ],
     {
       shell: process.platform === 'win32',
       stdio: 'inherit',
