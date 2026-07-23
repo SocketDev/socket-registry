@@ -35,6 +35,12 @@ export default defineConfig(
     // reaches zero findings — the fleet lint-modernization campaign owns
     // the sweep.
     rules: {
+      // Same staged-adoption treatment for brand-new socket/* rules from the
+      // plugin sync: packages/npm/** mirrors upstream signatures (options
+      // bags keep upstream names) and the publish scripts' semver usage
+      // migrates to lib-stable/versions/* as its own reviewed change.
+      'socket/bag-param-optionality-naming': 'off',
+      'socket/prefer-lib-versions-over-semver': 'off',
       'typescript/await-thenable': 'off',
       'typescript/consistent-return': 'off',
       'typescript/no-array-delete': 'off',

@@ -61,7 +61,9 @@
     "socket/no-vitest-skipped-tests": "error",
     "socket/no-vitest-standalone-expect": [
       "error",
-      { "additionalTestBlockFunctions": ["cmdit"] }
+      {
+        "additionalTestBlockFunctions": ["cmdit"]
+      }
     ],
     "socket/no-which-for-local-bin": "error",
     "socket/normalize-path-before-match": "error",
@@ -240,7 +242,13 @@
     "**/coverage-isolated",
     "**/dist",
     "**/node_modules",
+    "**/external",
+    "**/packages/build-infra/lib/release-checksums/consumer.mts",
+    "**/packages/build-infra/lib/release-checksums/core.mts",
+    "**/packages/build-infra/lib/release-checksums/producer.mts",
+    "**/packages/npm/assert/package/build",
     "**/patches",
+    "**/scripts/fleet/plugin-patches",
     "**/test/fixtures",
     "**/test/packages",
     "**/test/repo",
@@ -267,6 +275,15 @@
     "**/wasm_exec.js",
     "**/.config/repo/vitest.config.mts",
     "**/.mcp.json",
-    "#fleet-canonical-end"
+    "#fleet-canonical-end",
+    "**/vendor/**",
+    "**/test/_shared/fleet/**",
+    "**/test/scripts/fleet/**",
+    "**/scripts/fleet/plugin-patches/**/*.files/**",
+    "**/scripts/fleet/plugin-patches/**/*.patch",
+    "**/.config/fleet/lockstep.schema.json",
+    "**/.kimi-code/mcp.json",
+    "**/opencode.json",
+    "**/packages/build-infra/release-assets.schema.json"
   ]
 }
