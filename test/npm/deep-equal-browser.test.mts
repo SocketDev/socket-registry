@@ -69,7 +69,10 @@ describe(`${eco} > ${sockRegPkgName} (portable branch)`, { skip }, () => {
       expect(loose(1, '1')).toBe(true)
       expect(strict(1, '1')).toBe(false)
       expect(loose(undefined, undefined)).toBe(true)
-      expect(strict(undefined, undefined)).toBe(false)
+      // Upstream deep-equal short-circuits `is(actual, expected)` before any
+      // type check, so strict(undefined, undefined) is true — same as the
+      // node-branch (index.cjs) and upstream inspect-js/node-deep-equal.
+      expect(strict(undefined, undefined)).toBe(true)
     })
   })
 
