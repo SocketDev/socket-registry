@@ -224,8 +224,6 @@ minimumReleaseAgeExclude:
   # Mirrored in `.config/taze.config.mts` (same scopes, same reason)
   # and consumed by scripts/repo/update-external-tools.mts via
   # isSocketSourcedPackage / isSocketSourcedRepository.
-  - '@socketaddon/*'
-  - '@socketbin/*'
   - '@socketoverride/*'
   - '@socketregistry/*'
   - '@socketsecurity/*'
