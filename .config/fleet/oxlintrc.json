@@ -61,9 +61,7 @@
     "socket/no-vitest-skipped-tests": "error",
     "socket/no-vitest-standalone-expect": [
       "error",
-      {
-        "additionalTestBlockFunctions": ["cmdit"]
-      }
+      { "additionalTestBlockFunctions": ["cmdit"] }
     ],
     "socket/no-which-for-local-bin": "error",
     "socket/normalize-path-before-match": "error",
@@ -164,11 +162,17 @@
     ],
     "typescript/consistent-type-imports": "error",
     "typescript/no-duplicate-enum-values": "error",
-    "typescript/no-duplicate-type-constituents": "error",
+    "typescript/no-duplicate-type-constituents": [
+      "error",
+      {
+        "ignoreUnions": true
+      }
+    ],
     "typescript/no-explicit-any": "error",
     "typescript/no-extra-non-null-assertion": "error",
     "typescript/no-misused-new": "error",
     "typescript/no-non-null-asserted-optional-chain": "off",
+    "typescript/no-redundant-type-constituents": "off",
     "typescript/no-this-alias": [
       "error",
       {
@@ -242,13 +246,7 @@
     "**/coverage-isolated",
     "**/dist",
     "**/node_modules",
-    "**/external",
-    "**/packages/build-infra/lib/release-checksums/consumer.mts",
-    "**/packages/build-infra/lib/release-checksums/core.mts",
-    "**/packages/build-infra/lib/release-checksums/producer.mts",
-    "**/packages/npm/assert/package/build",
     "**/patches",
-    "**/scripts/fleet/plugin-patches",
     "**/test/fixtures",
     "**/test/packages",
     "**/test/repo",
@@ -276,14 +274,15 @@
     "**/.config/repo/vitest.config.mts",
     "**/.mcp.json",
     "#fleet-canonical-end",
-    "**/vendor/**",
+    "**/external",
+    "**/packages/build-infra/lib/release-checksums/consumer.mts",
+    "**/packages/build-infra/lib/release-checksums/core.mts",
+    "**/packages/build-infra/lib/release-checksums/producer.mts",
+    "**/packages/build-infra/release-assets.schema.json",
+    "**/packages/npm/assert/package/build",
     "**/test/_shared/fleet/**",
     "**/test/scripts/fleet/**",
-    "**/scripts/fleet/plugin-patches/**/*.files/**",
-    "**/scripts/fleet/plugin-patches/**/*.patch",
-    "**/.config/fleet/lockstep.schema.json",
     "**/.kimi-code/mcp.json",
-    "**/opencode.json",
-    "**/packages/build-infra/release-assets.schema.json"
+    "**/opencode.json"
   ]
 }

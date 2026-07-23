@@ -1108,6 +1108,16 @@ importers:
         specifier: 'catalog:'
         version: 26.1.1
 
+  .claude/hooks/fleet/concurrent-cargo-build-guard:
+    dependencies:
+      shell-quote:
+        specifier: 'catalog:'
+        version: 1.10.0
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 26.1.1
+
   .claude/hooks/fleet/consumer-grep-nudge:
     devDependencies:
       '@types/node':
@@ -1295,6 +1305,12 @@ importers:
         specifier: 'catalog:'
         version: 26.1.1
 
+  .claude/hooks/fleet/keep-working-while-waiting-nudge:
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 26.1.1
+
   .claude/hooks/fleet/land-fast-nudge:
     devDependencies:
       '@socketsecurity/lib-stable':
@@ -1337,6 +1353,12 @@ importers:
       shell-quote:
         specifier: 'catalog:'
         version: 1.10.0
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 26.1.1
+
+  .claude/hooks/fleet/memory-codify-nudge:
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -1671,6 +1693,12 @@ importers:
         version: 26.1.1
 
   .claude/hooks/fleet/no-token-in-dotenv-guard:
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 26.1.1
+
+  .claude/hooks/fleet/no-total-squash-guard:
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -2253,6 +2281,12 @@ importers:
   .claude/hooks/fleet/uses-sha-verify-guard: {}
 
   .claude/hooks/fleet/variant-analysis-nudge:
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 26.1.1
+
+  .claude/hooks/fleet/verify-absence-claims-nudge:
     devDependencies:
       '@types/node':
         specifier: 'catalog:'

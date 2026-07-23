@@ -40,6 +40,12 @@ export default defineConfig(
       // bags keep upstream names) and the publish scripts' semver usage
       // migrates to lib-stable/versions/* as its own reviewed change.
       'socket/bag-param-optionality-naming': 'off',
+      // Bundle v1.0.10 widened the rule to optional function PARAMETERS
+      // (previously properties only), surfacing ~34 findings across
+      // scripts/repo, test/npm, and registry/src. Staged off pending the
+      // param-autofix fixes (the wheelhouse fixer's optional-param autofix
+      // is known-buggy); burn down and delete this entry once green.
+      'socket/optional-explicit-undefined': 'off',
       'socket/prefer-lib-versions-over-semver': 'off',
       'typescript/await-thenable': 'off',
       'typescript/consistent-return': 'off',
