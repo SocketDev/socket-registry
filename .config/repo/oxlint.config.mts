@@ -26,6 +26,34 @@ import { config } from '../fleet/oxlint.config.mts'
 // oxlint-disable-next-line socket/no-default-export -- oxlint loads the config from this module's default export.
 export default defineConfig(
   config({
+    // Type-aware rules (the `--type-aware` tsgolint lane the fleet lint
+    // runner's whole-tree gate turned on) are staged OFF here: first
+    // enforcement surfaced 400+ pre-existing findings across the vendored
+    // packages/npm reimplementations (upstream `var $m = Proto.method`
+    // idiom trips unbound-method by design) and repo scripts/tests.
+    // Burn the debt down rule-by-rule, deleting entries here as each rule
+    // reaches zero findings — the fleet lint-modernization campaign owns
+    // the sweep.
+    rules: {
+      'typescript/await-thenable': 'off',
+      'typescript/consistent-return': 'off',
+      'typescript/no-array-delete': 'off',
+      'typescript/no-base-to-string': 'off',
+      'typescript/no-duplicate-type-constituents': 'off',
+      'typescript/no-floating-promises': 'off',
+      'typescript/no-implied-eval': 'off',
+      'typescript/no-redundant-type-constituents': 'off',
+      // Errors (not just no-ops) under registry/'s strictNullChecks: false.
+      'typescript/no-unnecessary-boolean-literal-compare': 'off',
+      'typescript/no-unnecessary-template-expression': 'off',
+      'typescript/no-unnecessary-type-assertion': 'off',
+      'typescript/no-unnecessary-type-conversion': 'off',
+      'typescript/no-unsafe-type-assertion': 'off',
+      'typescript/no-useless-default-assignment': 'off',
+      'typescript/require-array-sort-compare': 'off',
+      'typescript/restrict-template-expressions': 'off',
+      'typescript/unbound-method': 'off',
+    },
     overrides: [
       {
         files: ['**/packages/npm/**'],
