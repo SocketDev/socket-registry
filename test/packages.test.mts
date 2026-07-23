@@ -244,13 +244,18 @@ for (let i = 0, { length } = ecosystems; i < length; i += 1) {
 
         if (jsonFiles.length) {
           it('should have valid .json files', async () => {
-            await Promise.all(
+            const results = await Promise.allSettled(
               jsonFiles.map(async jsonPath => {
                 await expect(
                   readJson(req.resolve(jsonPath), undefined),
                 ).resolves.toBeDefined()
               }),
             )
+            const failures = results.filter(r => r.status === 'rejected')
+            expect(
+              failures.map(f => String(f.reason)),
+              'every .json file parses',
+            ).toEqual([])
           })
         }
 
