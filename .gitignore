@@ -235,6 +235,7 @@ pnpm-debug.log
 
 # ─── repo-local (socket-wheelhouse): keep hand-authored files that the
 # fleet-canonical globs would otherwise ignore (untrack-ignored-files fix) ───
+!/packages/npm/assert/package/build/
 !/packages/npm/assert/package/external/
 !/packages/npm/deep-equal/package/external/
 !/.node-version
