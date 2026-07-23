@@ -7,7 +7,7 @@
 
 import crypto from 'node:crypto'
 import { createReadStream, existsSync, readFileSync } from 'node:fs'
-import { mkdir, open, readFile, unlink, writeFile } from 'node:fs/promises'
+import { mkdir, open, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
 
@@ -102,14 +102,14 @@ export async function acquireLock(
       await fd.writeFile(String(process.pid))
       await fd.close()
       return async () => {
-        await unlink(lockPath).catch(() => {})
+        await safeDelete(lockPath).catch(() => {})
       }
     } catch (err: unknown) {
       if (isErrnoException(err) && err.code === 'EEXIST') {
         try {
           const pid = parseInt(readFileSync(lockPath, 'utf8').trim(), 10)
           if (pid && !isProcessAlive(pid)) {
-            await unlink(lockPath).catch(() => {})
+            await safeDelete(lockPath).catch(() => {})
             continue
           }
         } catch {}

@@ -28,6 +28,39 @@ const isCoverageEnabled =
   envAsBoolean(process.env['COVERAGE']) ||
   process.argv.some(arg => arg.startsWith('--coverage'))
 
+export function capMaxWorkers(
+  configuredMaxWorkers: number | undefined,
+  fallbackMaxWorkers: number,
+): number {
+  return configuredMaxWorkers === undefined
+    ? fallbackMaxWorkers
+    : Math.min(configuredMaxWorkers, fallbackMaxWorkers)
+}
+
+// A lane's dir globs → test-file include patterns (`--lane mid|slow` runs ONLY
+// that lane; a trailing `/**` becomes `/**/*.test.{…}`).
+export function laneToTestGlobs(globs: string[]) {
+  return globs.map(
+    g => `${g.replace(/\/\*+$/, '')}/**/*.test.{js,ts,mjs,mts,cjs}`,
+  )
+}
+
+export function readNonIsolatedGlobs(): string[] {
+  return resolveVitestKey('nonIsolated')
+}
+
+export function readVitestConfigTier(file: string): VitestRepoConfig {
+  if (!existsSync(file)) {
+    return {}
+  }
+  try {
+    const parsed = JSON.parse(readFileSync(file, 'utf8')) as VitestRepoConfig
+    return parsed && typeof parsed === 'object' ? parsed : {}
+  } catch {
+    return {}
+  }
+}
+
 // One repo-tunable vitest config, resolved fleet-default + repo-override (the
 // same shape as .config/{fleet,repo}/git-authors.json):
 //   nonIsolated        — globs safe to run in the faster non-isolated pool.
@@ -88,29 +121,11 @@ export function readVitestLanes(): VitestLanes {
   }
   return {}
 }
-export function readNonIsolatedGlobs(): string[] {
-  return resolveVitestKey('nonIsolated')
-}
-export function readVitestConfigTier(file: string): VitestRepoConfig {
-  if (!existsSync(file)) {
-    return {}
-  }
-  try {
-    const parsed = JSON.parse(readFileSync(file, 'utf8')) as VitestRepoConfig
-    return parsed && typeof parsed === 'object' ? parsed : {}
-  } catch {
-    return {}
-  }
-}
+
 export function repoNodeTestExcludeGlobs(): string[] {
   return resolveVitestKey('nodeTestExclude')
 }
-export function resolveFallbackMaxWorkers(): number {
-  if (getCI()) {
-    return 4
-  }
-  return isCoverageEnabled ? 8 : 16
-}
+
 export function resolveConfiguredMaxWorkers(): number | undefined {
   const fleet = readVitestConfigTier('.config/fleet/vitest.json').maxWorkers
   const repo = readVitestConfigTier('.config/repo/vitest.json').maxWorkers
@@ -119,26 +134,28 @@ export function resolveConfiguredMaxWorkers(): number | undefined {
   )
   return candidates.length > 0 ? Math.min(...candidates) : undefined
 }
-export function capMaxWorkers(
-  configuredMaxWorkers: number | undefined,
-  fallbackMaxWorkers: number,
-): number {
-  return configuredMaxWorkers === undefined
-    ? fallbackMaxWorkers
-    : Math.min(configuredMaxWorkers, fallbackMaxWorkers)
+
+export function resolveFallbackMaxWorkers(): number {
+  if (getCI()) {
+    return 4
+  }
+  return isCoverageEnabled ? 8 : 16
 }
+
 export function resolveMaxWorkers(): number {
   return capMaxWorkers(
     resolveConfiguredMaxWorkers(),
     resolveFallbackMaxWorkers(),
   )
 }
+
 export function resolvePool(): 'forks' | 'threads' {
   const fleet = readVitestConfigTier('.config/fleet/vitest.json').pool
   const repo = readVitestConfigTier('.config/repo/vitest.json').pool
   const chosen = repo ?? fleet
   return chosen === 'forks' || chosen === 'threads' ? chosen : 'threads'
 }
+
 export function resolveVitestKey(key: keyof VitestRepoConfig): string[] {
   const fleet = readVitestConfigTier('.config/fleet/vitest.json')[key]
   const repo = readVitestConfigTier('.config/repo/vitest.json')[key]
@@ -159,11 +176,6 @@ const activeLane = process.env['FLEET_LANE']
 const laneFilterActive =
   !isCoverageEnabled &&
   (activeLane === 'fast' || activeLane === 'mid' || activeLane === 'slow')
-// A lane's dir globs → test-file include patterns (`--lane mid|slow` runs ONLY
-// that lane; a trailing `/**` becomes `/**/*.test.{…}`).
-const laneToTestGlobs = (globs: string[]): string[] =>
-  globs.map(g => `${g.replace(/\/\*+$/, '')}/**/*.test.{js,ts,mjs,mts,cjs}`)
-
 export default defineConfig({
   test: {
     deps: {
