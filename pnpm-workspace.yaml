@@ -11,6 +11,9 @@ packages:
 
 # Packages allowed to run build scripts (pnpm v11 strictDepBuilds default).
 allowBuilds:
+  # 4.0.2 leaked a repo-dev preinstall script whose file isn't in the
+  # published tarball; the shipped dist needs no build step.
+  '@socketsecurity/sdk': false
   # @swc/core native binding — vitiate's coverage-guided fuzz lane.
   '@swc/core': true
   # Optional native addon for ssh2; the pure-JS fallback is fine here.
@@ -134,8 +137,8 @@ catalog:
   '@socketsecurity/lib-stable': 'npm:@socketsecurity/lib@6.2.2'
   '@socketsecurity/registry': 2.0.2
   '@socketsecurity/registry-stable': 'npm:@socketsecurity/registry@2.0.2'
-  '@socketsecurity/sdk': 4.0.1
-  '@socketsecurity/sdk-stable': 'npm:@socketsecurity/sdk@4.0.1'
+  '@socketsecurity/sdk': 4.0.2
+  '@socketsecurity/sdk-stable': 'npm:@socketsecurity/sdk@4.0.2'
   '@types/mdast': 4.0.4
   '@types/node': 26.1.1
   '@types/semver': 7.7.1
