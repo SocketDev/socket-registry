@@ -302,7 +302,7 @@
         "engines": {
           "node": ">=24"
         },
-        "interop": ["cjs"],
+        "interop": ["browserify", "cjs"],
         "license": "MIT",
         "name": "@socketregistry/assert",
         "package": "assert",
@@ -1248,7 +1248,7 @@
       }
     ],
     [
-      "pkg:npm/%40socketregistry/packageurl-js@1.4.2",
+      "pkg:npm/%40socketregistry/packageurl-js@1.4.6",
       {
         "categories": ["levelup"],
         "engines": {
@@ -1258,7 +1258,7 @@
         "license": "MIT",
         "name": "@socketregistry/packageurl-js",
         "package": "packageurl-js",
-        "version": "1.4.2"
+        "version": "1.4.6"
       }
     ],
     [
@@ -1850,7 +1850,7 @@
       }
     ],
     [
-      "pkg:npm/shell-quote@1.8.3",
+      "pkg:npm/shell-quote@1.10.0",
       {
         "categories": ["tuneup"],
         "engines": {
@@ -1860,7 +1860,7 @@
         "license": "MIT",
         "name": "shell-quote",
         "package": "shell-quote",
-        "version": "1.8.3"
+        "version": "1.10.0"
       }
     ]
   ]
