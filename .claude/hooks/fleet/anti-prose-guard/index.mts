@@ -42,19 +42,17 @@ const ENFORCEMENT_TREES = [
 
 const ENFORCEMENT_CATALOG = 'docs/agents.md/fleet/hook-registry.md'
 
-function isEnforcementSurface(normalizedPath: string): boolean {
+function isEnforcementSurface(rawPath: string): boolean {
+  const unixPath = normalizePath(rawPath)
   for (let i = 0, { length } = ENFORCEMENT_TREES; i < length; i += 1) {
     const tree = ENFORCEMENT_TREES[i]!
-    if (
-      normalizedPath.startsWith(tree) ||
-      normalizedPath.includes(`/${tree}`)
-    ) {
+    if (unixPath.startsWith(tree) || unixPath.includes(`/${tree}`)) {
       return true
     }
   }
   return (
-    normalizedPath === ENFORCEMENT_CATALOG ||
-    normalizedPath.endsWith(`/${ENFORCEMENT_CATALOG}`)
+    unixPath === ENFORCEMENT_CATALOG ||
+    unixPath.endsWith(`/${ENFORCEMENT_CATALOG}`)
   )
 }
 

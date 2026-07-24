@@ -1,4 +1,4 @@
-/**
+/*
  * @file Repo bump overlay for the fleet npm-publish path. socket-registry is a
  *   MONOREPO whose release subject is NOT the root manifest: the published
  *   package is `@socketsecurity/registry`, whose manifest lives at

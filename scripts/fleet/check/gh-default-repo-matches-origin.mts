@@ -1,4 +1,4 @@
-/**
+/*
  * @file Fleet check — the gh CLI's default repo for this checkout matches the
  *   `origin` remote's owner/name. In a FORK checkout, a bare `gh` command
  *   (`gh run list`, `gh workflow run`, `gh issue list`, `gh api` helpers) that

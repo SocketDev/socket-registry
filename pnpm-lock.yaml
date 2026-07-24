@@ -1112,6 +1112,16 @@ importers:
         specifier: 'catalog:'
         version: 26.1.1
 
+  .claude/hooks/fleet/concurrent-cargo-build-guard:
+    dependencies:
+      shell-quote:
+        specifier: 'catalog:'
+        version: 1.10.0
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 26.1.1
+
   .claude/hooks/fleet/consumer-grep-nudge:
     devDependencies:
       '@types/node':

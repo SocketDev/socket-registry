@@ -162,10 +162,10 @@ export function buildPathsAndSupplyChainSteps(): CheckStep[] {
     // from paths.mts, so it catches a new output tracked BEFORE it is gitignored
     // — the gap the ignore-based belt above can't see. Only the dep-0 seeds
     // (fleet.mjs, .npmrc) may be committed. See
-    // docs/agents.md/fleet/generated-outputs-stay-untracked.md.
+    // docs/agents.md/fleet/generated-outputs-are-untracked.md.
     () =>
       run('node', [
-        'scripts/fleet/check/generated-outputs-stay-untracked.mts',
+        'scripts/fleet/check/generated-outputs-are-untracked.mts',
         '--quiet',
       ]),
     // Companion: every sparse submodule declares a `verify =` consumer (the

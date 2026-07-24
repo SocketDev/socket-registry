@@ -347,7 +347,9 @@ export function bypassPhraseInAgentContent(
         break
       }
     } else {
-      collected.push(raw.replace(REMINDER_SPAN, ' ').replace(REMINDER_TAIL, ' '))
+      collected.push(
+        raw.replace(REMINDER_SPAN, ' ').replace(REMINDER_TAIL, ' '),
+      )
     }
   }
   if (collected.length === 0) {
@@ -1049,13 +1051,13 @@ export function resolveRoleAndContent(evt: unknown):
  * harness routes several NON-human payloads through `role:'user'` turns, each
  * carrying a positive marker:
  *
- *   - `isMeta: true` — harness-injected (Stop-hook feedback, local-command
- *     caveats, scheduled prompts).
- *   - `origin.kind` other than `'human'` — `'peer'` (a cross-session
- *     SendMessage relay: THE permission-laundering vector),
- *     `'task-notification'`, etc. Genuine typing carries `'human'`.
- *   - `promptSource` other than `'typed'` / `'queued'` — `'sdk'` (an
- *     orchestrator/workflow prompt driving a headless session), `'system'`.
+ * - `isMeta: true` — harness-injected (Stop-hook feedback, local-command caveats,
+ *   scheduled prompts).
+ * - `origin.kind` other than `'human'` — `'peer'` (a cross-session SendMessage
+ *   relay: THE permission-laundering vector), `'task-notification'`, etc.
+ *   Genuine typing carries `'human'`.
+ * - `promptSource` other than `'typed'` / `'queued'` — `'sdk'` (an
+ *   orchestrator/workflow prompt driving a headless session), `'system'`.
  *
  * Rejection is POSITIVE-SIGNAL only: an event with none of these fields (older
  * harness versions, minimal test fixtures) still counts as human, so the

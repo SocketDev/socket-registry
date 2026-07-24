@@ -12,7 +12,7 @@ what this rule prevents.
 |---|---|---|---|
 | **Source** | `template/make/…`, `template/base/…` | ✅ | canonical, cascaded (or wheelhouse-only) |
 | **Generated output** | `_dist/`, the oxlint `.mjs`, dispatch tables, snapshot blobs | ❌ gitignored | built locally or fetched from the release bundle |
-| **Dep-0 seed** | `scripts/repo/bootstrap/fleet.mjs`, `.npmrc` | ✅ (the ONLY committed generated artifacts) | cascaded live seed |
+| **Dep-0 seed** | `scripts/repo/bootstrap/fleet.mjs`, `.npmrc` | ✅ — the ONLY committed generated artifacts | cascaded live seed |
 
 ## Why the two seeds are the only exception
 
@@ -30,7 +30,7 @@ Two checks, run per-tree in the wheelhouse and every member:
 
 - **`ignored-files-are-untracked.mts`** — fails if any *gitignored* path is
   tracked (`git ls-files -ci`). Catches "ignored yet tracked."
-- **`generated-outputs-stay-untracked.mts`** — fails if any *build output* is
+- **`generated-outputs-are-untracked.mts`** — fails if any *build output* is
   tracked, knowing a path is an output structurally from `paths.mts` (the single
   owner of build-output paths), not from the gitignore patterns. This catches the
   gap the first check cannot: a new output under `_dist/` tracked *before* it is

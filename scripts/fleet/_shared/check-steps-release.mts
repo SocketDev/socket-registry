@@ -250,6 +250,17 @@ export function buildReleaseAndDocsSteps(): CheckStep[] {
       'scripts/fleet/check/release-and-cascade-are-paired.mts',
       '--quiet',
     ]),
+    // The RELEASE CASCADE GRAPH's read side: every published fleet package's
+    // downstream declarations — consumer catalog pins, the fleet catalog,
+    // socket-registry's manifest.json purl entry — track its registry latest,
+    // with lag going red and the owed action named. Registry reads → release
+    // tier; sibling-clone/offline gaps skip honestly; wheelhouse-only in
+    // effect (members have no template/base → vacuous pass). Graph:
+    // scripts/fleet/lib/release-cascade.mts.
+    releaseStep([
+      'scripts/fleet/check/cascade-followups-are-settled.mts',
+      '--quiet',
+    ]),
     // Persisted release pins store ONLY exact canonical values — the belt twin of
     // the write-time bundle-pin validators (bootstrap/src/lockstep.mts +
     // sync-scaffolding/socket-wheelhouse-config.mts). Asserts the committed

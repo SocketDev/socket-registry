@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/**
+/*
  * @file Fleet-wide check: the `@lockstep-mirror` lint/format exemption can only
  *   land on a GENUINE verbatim mirror, and every declared mirror is actually
  *   protected. The marker (grammar in the oxlint plugin's comment-markers.mts)

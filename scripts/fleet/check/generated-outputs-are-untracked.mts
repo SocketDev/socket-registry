@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/**
+/*
  * @file `check --all` gate: git-TRACKED files never include a build OUTPUT. The
  *   only committed generated artifacts are the dep-0 seeds (`fleet.mjs`,
  *   `.npmrc`) — dogfooded, on repo-critical paths, and run before any fetch or
@@ -24,7 +24,7 @@
  *   Runs per-tree (wheelhouse + every member). Fails open when git is
  *   unavailable. Exit: 0 — clean / no git; 1 — a build output is tracked.
  *
- *   Usage: node scripts/fleet/check/generated-outputs-stay-untracked.mts [--quiet]
+ *   Usage: node scripts/fleet/check/generated-outputs-are-untracked.mts [--quiet]
  */
 
 import path from 'node:path'
@@ -58,9 +58,9 @@ export const SANCTIONED_TRACKED_SEEDS: readonly string[] = [
 ]
 
 /**
- * The repo-root-relative tail of an absolute `paths.mts` constant, normalized to
- * `/`. Matching tracked paths by tail (not exact) is mirror-agnostic: it catches
- * the live copy AND the `template/base/` mirror without listing both.
+ * The repo-root-relative tail of an absolute `paths.mts` constant, normalized
+ * to `/`. Matching tracked paths by tail (not exact) is mirror-agnostic: it
+ * catches the live copy AND the `template/base/` mirror without listing both.
  */
 export function outputTail(absPath: string): string {
   return normalizePath(path.relative(REPO_ROOT, absPath))
@@ -137,15 +137,13 @@ async function main(): Promise<void> {
   })
   if (violations.length === 0) {
     if (!process.argv.includes('--quiet')) {
-      logger.log(
-        'generated-outputs-stay-untracked: no build output is tracked.',
-      )
+      logger.log('generated-outputs-are-untracked: no build output is tracked.')
     }
     process.exitCode = 0
     return
   }
   logger.fail(
-    `generated-outputs-stay-untracked: ${violations.length} build output(s) are git-tracked:`,
+    `generated-outputs-are-untracked: ${violations.length} build output(s) are git-tracked:`,
   )
   for (let i = 0, { length } = violations; i < length; i += 1) {
     logger.fail(`  ${violations[i]!}`)
@@ -167,7 +165,7 @@ async function main(): Promise<void> {
 /* c8 ignore start - entrypoint guard; exercised via subprocess */
 if (isMainModule(import.meta.url)) {
   main().catch((e: unknown) => {
-    logger.fail(`generated-outputs-stay-untracked failed: ${String(e)}`)
+    logger.fail(`generated-outputs-are-untracked failed: ${String(e)}`)
     process.exitCode = 1
   })
 }
