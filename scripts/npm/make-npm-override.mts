@@ -12,7 +12,8 @@
 
 import { existsSync, promises as fs } from 'node:fs'
 import path from 'node:path'
-import { execScript } from '@socketsecurity/lib-stable/eco/npm/script'
+import process from 'node:process'
+import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
 import { indentString } from '@socketsecurity/lib-stable/strings/format'
 import { pluralize } from '@socketsecurity/lib-stable/words/pluralize'
@@ -450,12 +451,23 @@ async function main(): Promise<void> {
 
   // Update monorepo package.json workspaces definition and test/npm files.
   try {
+    // Invoke the updater scripts directly — the `update:manifest` /
+    // `update:package-json` root script aliases these once ran through were
+    // dropped from package.json, which left this call site dead.
     const spawnOptions = {
       cwd: ROOT_PATH,
       stdio: 'inherit',
     } as const
-    await execScript('update:manifest', [], spawnOptions)
-    await execScript('update:package-json', [], spawnOptions)
+    await spawn(
+      process.execPath,
+      ['scripts/npm/update-manifest.mts'],
+      spawnOptions,
+    )
+    await spawn(
+      process.execPath,
+      ['scripts/npm/update-npm-package-json.mts'],
+      spawnOptions,
+    )
     if (!cliArgs['quiet']) {
       logger.log('Finished 🎉')
     }

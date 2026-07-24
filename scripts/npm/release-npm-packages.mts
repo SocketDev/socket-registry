@@ -8,7 +8,6 @@ import path from 'node:path'
 import process from 'node:process'
 
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
-import { execScript } from '@socketsecurity/lib-stable/eco/npm/script'
 import { getAbortSignal } from '@socketsecurity/lib-stable/process/abort'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import {
@@ -481,9 +480,14 @@ async function main(): Promise<void> {
   await withSpinner({
     message: 'Updating manifest and package.json files…',
     operation: async () => {
+      // Direct node invocations — the update:package-json / update:manifest
+      // root script aliases these once ran through were dropped, which left
+      // this call site dead.
       const spawnOptions = { cwd: ROOT_PATH, stdio: 'inherit' as const }
-      await execScript('update:package-json', [], spawnOptions)
-      await execScript('update:manifest', ['--', '--force'], spawnOptions)
+      const update = (args: string[]) =>
+        spawn(process.execPath, args, spawnOptions)
+      await update(['scripts/npm/update-npm-package-json.mts'])
+      await update(['scripts/npm/update-manifest.mts', '--force'])
     },
     spinner: getCachedDefaultSpinner(),
   })
