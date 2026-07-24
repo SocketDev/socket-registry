@@ -25,18 +25,18 @@ export interface GhRelease {
   tag_name: string
 }
 
-export interface GhApiLatestReleaseOptions {
+export interface GhApiLatestReleaseConfig {
   includePrerelease: boolean
 }
 
 export async function ghApiLatestRelease(
   repo: string,
-  options: GhApiLatestReleaseOptions,
+  config: GhApiLatestReleaseConfig,
 ): Promise<GhRelease> {
   const { includePrerelease } = {
     __proto__: null,
-    ...options,
-  } as typeof options
+    ...config,
+  } as typeof config
   // Two tracks:
   //   stable     → `/releases/latest` returns the latest non-prerelease
   //                non-draft release. Good default for mature tools.

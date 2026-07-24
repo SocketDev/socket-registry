@@ -17,7 +17,7 @@ interface GetPackageVersionSpecOptions {
   testNpmPackageJson?: TestNpmPackageJson | undefined
 }
 
-interface ShouldSkipTestsOptions {
+interface ShouldSkipTestsConfig {
   ecosystem?: 'npm' | undefined
   testNpmPackageJson?: TestNpmPackageJson | undefined
   testPath: string
@@ -63,10 +63,10 @@ export function getPackageVersionSpec(
  */
 export function shouldSkipTests(
   packageName: string,
-  options: ShouldSkipTestsOptions,
+  config: ShouldSkipTestsConfig,
 ): boolean {
-  const opts = { __proto__: null, ...options } as ShouldSkipTestsOptions
-  const { testNpmPackageJson = getTestNpmPackageJson(), testPath } = opts
+  const cfg = { __proto__: null, ...config } as ShouldSkipTestsConfig
+  const { testNpmPackageJson = getTestNpmPackageJson(), testPath } = cfg
 
   // Check if package has test file.
   const testFilePath = path.join(testPath, `${packageName}.test.mts`)
