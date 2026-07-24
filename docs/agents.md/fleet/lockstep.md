@@ -233,7 +233,7 @@ That legitimately fights the fleet fidelity rules — `no-default-export`,
 A mirror declares itself with ONE header line in its leading comment block, the
 single-file analogue of the multi-file `BEGIN LOCK-STEP HEADER` block:
 
-```
+```ts
 // @lockstep-mirror packages/core/src/lib/yoga.ts @ 0c8c4f7cff2927e3df63a9757a45eff9a343611c
 ```
 

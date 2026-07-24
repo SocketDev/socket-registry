@@ -43,6 +43,12 @@ each delete (`PACE_MS`) and, on a throttle response, backs off exponentially
 mode a few repos are pruned concurrently (`CONCURRENCY`), all sharing the one
 token's budget.
 
+A **refused** delete (HTTP 409 — the run is still in progress) is retried
+within the same sweep: a refusals-only round waits `REFUSED_RETRY_DELAY_MS`
+for those runs to finish, then re-lists and retries — the wait doubles each
+consecutive dry round (3m, 6m, …) — up to `REFUSED_RETRIES` such rounds
+before leaving the remainder to the weekly cadence.
+
 ## Running it
 
 ```bash
