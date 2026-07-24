@@ -3,7 +3,6 @@
   "hooks": {
     "PostToolUse": [
       {
-        "matcher": ".*",
         "hooks": [
           {
             "type": "command",
@@ -63,23 +62,6 @@
           {
             "type": "command",
             "command": "node \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/fleet/repo-map-refresh/index.mts"
-          }
-        ]
-      },
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/fleet/enterprise-push-nudge/index.mts"
-          },
-          {
-            "type": "command",
-            "command": "node \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/fleet/stale-node-modules-nudge/index.mts"
-          },
-          {
-            "type": "command",
-            "command": "node \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/fleet/dirty-lockfile-nudge/index.mts"
           }
         ]
       }
