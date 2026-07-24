@@ -105,6 +105,15 @@ Vitest `include` globs must not match `node:test` files. Mismatched runners prod
 
 `rolldown`, NOT `esbuild`. The fleet standardizes on rolldown for direct bundling (see `template/.config/rolldown/`). Transitive esbuild deps (e.g. via vitest) are unavoidable today. The rule is no _new direct_ esbuild use anywhere in the fleet.
 
+## Engine-gate folding (`engine-gate-fold`)
+
+`.config/repo/rolldown/engine-gate-fold.mts` (`createEngineGateFoldPlugin`) precomputes semver-vs-runtime engine gates in bundled (vendored) code from the `engines.node` of the package being built. Vendored deps ship gates like `useNative = node.satisfies('>=16.7.0')` (the @npmcli/fs `lib/common/node.js` shape) whose losing branch — usually a polyfill — is dead weight the bundler can't drop because the gate looks dynamic. Motivating incident: socket-packageurl-js's bundled `dist/exists.js` crashed at require-time on exactly that vendored gate.
+
+- **Statically-safe shapes only, string-literal ranges only**: `satisfies(process.version, 'R')` / `semver.satisfies(process.version, 'R')` and comparator forms `gte|gt|lte|lt(process.version, 'V')` when the callee provably binds to the `semver` package, plus `helper.satisfies('R')` when the callee resolves to a vendored node-version helper module structurally verified to wrap `semver.satisfies(process.version, range)`. Anything dynamic stays untouched.
+- **Verdicts are interval math against `engines.node`** (read once at plugin creation; the factory throws without a valid range): engines ⊆ gate-range → literal `true`; provably disjoint → literal `false`; partial overlap → untouched. Unbounded floors are honest: `>=99` under engines `>=18` is a partial overlap (a future node 99 exists in both sets), not a false fold — provable `false` comes from upper-bounded gates (`lt(process.version, '18.0.0')` under `>=18`) or bounded engines unions (`^18 || ^20` vs `>=99`).
+- **The literal lets rolldown DCE drop the dead branch** (and its polyfill imports). Every folded site is logged (module id + gate source + verdict) — silent transforms are banned.
+- **Wire it into the repo's `rolldown.config.mts` `plugins`**: `createEngineGateFoldPlugin()` (reads `engines.node` from cwd; pass `{ packageDir }` otherwise). Requires `semver` catalog-pinned in devDependencies and `define-guarded.mts` alongside (it imports its AST helpers) — the cascade delivers the file to every repo carrying `.config/repo/rolldown/define-guarded.mts` (CONDITIONAL_FILES marker).
+
 ## Compile-time defines (`INLINED_*`)
 
 Build-inlined constants use the `process.env.INLINED_*` naming convention (mirrors socket-cli: `INLINED_VERSION`, `INLINED_NAME`, …). The `INLINED_` prefix flags at a glance that a value is substituted at build time, not read from the real environment at runtime.

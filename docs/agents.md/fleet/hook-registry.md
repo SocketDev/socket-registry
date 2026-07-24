@@ -161,7 +161,8 @@ The fleet hooks each cite their own trigger + bypass surface in their `README.md
 - `prefer-rebase-over-revert-nudge` — rebase unpushed commits, don't revert
 - `prefer-type-import-guard` — PreToolUse Write/Edit: blocks mixing an inline type-only specifier into a value import statement; requires a separate type-only import statement. Bypass `Allow separate-type-import bypass`.
 - `prefer-vitest-guard` — PreToolUse(Bash) hook: blocks a raw `node --test` on a src/repo test, or a bare vitest binary call, and steers to `pnpm test [<file>]`. The non-vitest tiers (hook/lint-rule/script/git-hook tests) keep `node --test` as their sanctioned runner.
-- `primary-checkout-branch-guard` — blocks `git checkout/switch <branch>` / `-b` / `-c` in the primary checkout (branch work goes in a worktree); bypass `Allow primary-branch bypass`
+- `primary-checkout-branch-guard` — blocks `git checkout/switch <branch>` / `-b` / `-c` in the primary checkout (branch work goes in a worktree); allows switching TO the default branch (restore is safe); honors subshell `cd` + `-C`; bypass `Allow primary-branch bypass`
+- `primary-checkout-on-default-stop-guard` — Stop hook: blocks turn-end when the PRIMARY checkout is off its default branch, catching branch switches from ANY source (scripts, tools) that the PreToolUse guard can't see; worktrees exempt; bypass `Allow off-default bypass`
 - `private-name-nudge` — blocks private repo / company names in public surface
 - `prose-code-format-nudge` — PostToolUse(Edit/Write on `*.md`), non-blocking. Flags a known software identifier (rustls, reqwest, rolldown, …) written as a bare word instead of a code span, from the shared `_shared/known-names.mts` dictionary.
 - `provenance-publish-nudge` — `--staged` provenance lifecycle reminder

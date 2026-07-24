@@ -21,6 +21,7 @@ import {
   mkdtempSync,
   readdirSync,
   readFileSync,
+  writeFileSync,
 } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
@@ -32,6 +33,11 @@ import { errorMessage } from '@socketsecurity/lib/errors/message'
 import { safeDeleteSync } from '@socketsecurity/lib/fs/safe'
 import { getDefaultLogger } from '@socketsecurity/lib/logger/default'
 import { spawn } from '@socketsecurity/lib/process/spawn/child'
+
+import {
+  hasFleetCanonicalEndSentinel,
+  spliceFleetCanonicalContent,
+} from './_shared/fleet-canonical-splice.mts'
 
 const logger = getDefaultLogger()
 
@@ -121,6 +127,40 @@ export function verifyFiles(
   return problems
 }
 
+// Place verified bundle files into the repo. Sentinel-scoped for files
+// carrying `#fleet-canonical-end` — today `.config/fleet/oxlintrc.json`: the
+// bundle bytes replace everything through the end sentinel, and the repo-local
+// tail after it survives byte-for-byte. The lint runner re-emits that tail as
+// CLI ignore args, so a whole-file copy here silently unmasks hundreds of
+// findings — the recurring socket-registry incident. Every other file is a
+// plain byte copy, as is a sentinel file landing for the first time.
+export function placeFiles(
+  filesDir: string,
+  rels: readonly string[],
+  destDir: string,
+): void {
+  for (let i = 0, { length } = rels; i < length; i += 1) {
+    const rel = rels[i]!
+    const src = path.join(filesDir, rel)
+    const dest = path.join(destDir, rel)
+    mkdirSync(path.dirname(dest), { recursive: true })
+    if (existsSync(dest)) {
+      const srcBuf = readFileSync(src)
+      if (hasFleetCanonicalEndSentinel(srcBuf.toString('utf8'))) {
+        writeFileSync(
+          dest,
+          spliceFleetCanonicalContent(
+            srcBuf.toString('utf8'),
+            readFileSync(dest, 'utf8'),
+          ),
+        )
+        continue
+      }
+    }
+    cpSync(src, dest)
+  }
+}
+
 export async function main(): Promise<number> {
   const opts = parseArgs(process.argv.slice(2))
   if (!opts.ref) {
@@ -203,13 +243,7 @@ export async function main(): Promise<number> {
     }
 
     // 5. Place the verified files into the repo.
-    const rels = Object.keys(manifest.files)
-    for (let i = 0, { length } = rels; i < length; i += 1) {
-      const rel = rels[i]!
-      const dest = path.join(opts.dest, rel)
-      mkdirSync(path.dirname(dest), { recursive: true })
-      cpSync(path.join(filesDir, rel), dest)
-    }
+    placeFiles(filesDir, Object.keys(manifest.files), opts.dest)
     logger.log(
       `Placed ${count} verified file(s) from ${opts.ref} (template ${manifest.templateSha}).`,
     )

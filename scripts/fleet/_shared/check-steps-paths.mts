@@ -157,6 +157,17 @@ export function buildPathsAndSupplyChainSteps(): CheckStep[] {
         'scripts/fleet/check/ignored-files-are-untracked.mts',
         '--quiet',
       ]),
+    // Companion: no build OUTPUT is tracked (bundle / dispatch tables / oxlint
+    // plugin / anything under _dist/). Knows a path is an output structurally
+    // from paths.mts, so it catches a new output tracked BEFORE it is gitignored
+    // — the gap the ignore-based belt above can't see. Only the dep-0 seeds
+    // (fleet.mjs, .npmrc) may be committed. See
+    // docs/agents.md/fleet/generated-outputs-stay-untracked.md.
+    () =>
+      run('node', [
+        'scripts/fleet/check/generated-outputs-stay-untracked.mts',
+        '--quiet',
+      ]),
     // Companion: every sparse submodule declares a `verify =` consumer (the
     // command that build-proves the pattern) or `verify = none` (reference-only).
     // A sparse pattern with no declared consumer is unproven — the verify is

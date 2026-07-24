@@ -1276,6 +1276,12 @@ importers:
         specifier: 'catalog:'
         version: '@socketsecurity/lib@6.2.2(typescript@7.0.2)'
 
+  .claude/hooks/fleet/honesty-framing-guard:
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 26.1.1
+
   .claude/hooks/fleet/immutable-release-guard:
     devDependencies:
       '@types/node':
@@ -1956,6 +1962,12 @@ importers:
         version: 26.1.1
 
   .claude/hooks/fleet/primary-checkout-branch-guard:
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 26.1.1
+
+  .claude/hooks/fleet/primary-checkout-on-default-stop-guard:
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
