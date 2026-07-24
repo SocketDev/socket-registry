@@ -19,6 +19,7 @@ import { withSpinner } from '@socketsecurity/lib-stable/spinner/with'
 import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 import { DEFAULT_CONCURRENCY } from '../constants/core.mts'
 import { getNpmPackageNames } from '../constants/testing.mts'
+import { isMainModule } from '../fleet/_shared/is-main-module.mts'
 import { getModifiedFiles } from '../repo/util/git.mts'
 import { fetchPackageManifest } from '@socketsecurity/lib-stable/packages/manifest'
 import { resolveOriginalPackageName } from '@socketsecurity/lib-stable/packages/normalize'
@@ -67,10 +68,15 @@ interface PackageManifestInfo {
 }
 
 interface AddNpmManifestDataOptions {
+  // Accumulates the names of packages the run attempted but could not fully
+  // resolve — registry 404s, tarball extraction failures, unreadable
+  // package.json files. The dropped-package guard in main() uses this set to
+  // tell a transient fetch failure apart from an intentional removal.
+  fetchFailures?: Set<string> | undefined
   spinner?: SpinnerInstance | undefined
 }
 
-type ManifestEntry = [string, Record<string, unknown>]
+export type ManifestEntry = [string, Record<string, unknown>]
 
 const logger = getDefaultLogger()
 
@@ -78,6 +84,12 @@ const require = createRequire(import.meta.url)
 
 const { values: cliArgs } = parseArgs({
   options: {
+    // Acknowledge intentional package deletions — packages the extensions
+    // config or packages/npm tree no longer lists. Without this flag any
+    // shrink of the manifest's package set aborts the write.
+    'allow-removals': {
+      type: 'boolean',
+    },
     force: {
       type: 'boolean',
       short: 'f',
@@ -94,6 +106,7 @@ export async function addNpmManifestData(
   options?: AddNpmManifestDataOptions,
 ) {
   const opts = { __proto__: null, ...options } as typeof options
+  const fetchFailures = opts?.fetchFailures
   const spinner = opts?.spinner
   const eco = NPM
   const manifestData: ManifestEntry[] = []
@@ -111,6 +124,8 @@ export async function addNpmManifestData(
         | undefined
       if (!nmPkgManifest) {
         spinner?.warn(`${nmPkgId}: Not found in ${NPM} registry`)
+        fetchFailures?.add(data.name)
+        fetchFailures?.add(data.package)
         return
       }
       let nmPkgJson: PackageJson | undefined
@@ -119,6 +134,8 @@ export async function addNpmManifestData(
       })
       if (!nmPkgJson) {
         spinner?.warn(`${nmPkgId}: Unable to read package.json`)
+        fetchFailures?.add(data.name)
+        fetchFailures?.add(data.package)
         return
       }
       // Socket-maintained overrides take engines from the published
@@ -160,6 +177,7 @@ export async function addNpmManifestData(
         | undefined
       if (!nmPkgManifest) {
         spinner?.warn(`${nmPkgId}: Not found in ${NPM} registry`)
+        fetchFailures?.add(origPkgName)
         return
       }
       let nmPkgJson: PackageJson | undefined
@@ -168,12 +186,14 @@ export async function addNpmManifestData(
       })
       if (!nmPkgJson) {
         spinner?.warn(`${nmPkgId}: Unable to read package.json`)
+        fetchFailures?.add(origPkgName)
         return
       }
       const pkgPath = path.join(NPM_PACKAGES_PATH, sockRegPkgName)
       const pkgJson = await readPackageJson(pkgPath, { normalize: true })
       if (!pkgJson) {
         spinner?.warn(`${sockRegPkgName}: Unable to read package.json`)
+        fetchFailures?.add(origPkgName)
         return
       }
       const { engines, name, socket } = pkgJson
@@ -187,6 +207,10 @@ export async function addNpmManifestData(
         | undefined
       if (!sockPkgManifest) {
         spinner?.warn(`${name}: Not found in ${NPM} registry`)
+        if (name) {
+          fetchFailures?.add(name)
+        }
+        fetchFailures?.add(origPkgName)
         return
       }
       const version = sockPkgManifest.version
@@ -300,6 +324,89 @@ export function filterEngines(
   return filteredEngines
 }
 
+export interface ManifestDropReport {
+  // Packages present in the previous manifest, absent from the regenerated
+  // one, and attributable to a recorded fetch failure — a transient drop that
+  // must never be written.
+  failedDrops: string[]
+  // Packages present before, absent now, with no recorded fetch failure —
+  // the extensions/config stopped listing them. Written only under
+  // --allow-removals.
+  removals: string[]
+}
+
+/**
+ * Diff the package set of the previous on-disk manifest against a freshly
+ * regenerated one. A package that vanished is classified by the fetch-failure
+ * list the run accumulated: recorded failure → `failedDrops`, otherwise →
+ * `removals`. Matching keys off each entry's `name` and `package` meta fields
+ * so both the Socket override name and the original npm name resolve.
+ */
+export function diffDroppedPackages(
+  previous: Record<string, ManifestEntry[]> | undefined,
+  next: Record<string, ManifestEntry[]>,
+  fetchFailures: ReadonlySet<string>,
+): ManifestDropReport {
+  const failedDrops: string[] = []
+  const removals: string[] = []
+  if (!previous) {
+    return { failedDrops, removals }
+  }
+  const metaString = (
+    entry: ManifestEntry | undefined,
+    key: string,
+  ): string | undefined => {
+    const value = entry?.[1]?.[key]
+    return typeof value === 'string' ? value : undefined
+  }
+  for (const { 0: eco, 1: prevEntries } of Object.entries(previous)) {
+    if (!Array.isArray(prevEntries)) {
+      continue
+    }
+    const nextNames = new Set<string>()
+    for (const entry of next[eco] ?? []) {
+      const name = metaString(entry, 'name')
+      if (name) {
+        nextNames.add(name)
+      }
+    }
+    for (const entry of prevEntries) {
+      const name = metaString(entry, 'name')
+      if (!name || nextNames.has(name)) {
+        continue
+      }
+      const origName = metaString(entry, 'package')
+      if (
+        fetchFailures.has(name) ||
+        (origName !== undefined && fetchFailures.has(origName))
+      ) {
+        failedDrops.push(name)
+      } else {
+        removals.push(name)
+      }
+    }
+  }
+  failedDrops.sort(naturalCompare)
+  removals.sort(naturalCompare)
+  return { failedDrops, removals }
+}
+
+async function readCurrentManifest(): Promise<
+  Record<string, ManifestEntry[]> | undefined
+> {
+  let raw: string
+  try {
+    raw = await fs.readFile(REGISTRY_MANIFEST_JSON_PATH, 'utf8')
+  } catch (e) {
+    if ((e as NodeJS.ErrnoException | undefined)?.code === 'ENOENT') {
+      // First-ever generation — nothing to guard against.
+      return undefined
+    }
+    throw e
+  }
+  return JSON.parse(raw) as Record<string, ManifestEntry[]>
+}
+
 async function main(): Promise<void> {
   // Exit early if no relevant files have been modified and not forced.
   if (!cliArgs['force']) {
@@ -315,8 +422,35 @@ async function main(): Promise<void> {
   await withSpinner({
     message: `Updating ${REL_REGISTRY_MANIFEST_JSON_PATH}...`,
     operation: async () => {
+      const previous = await readCurrentManifest()
       const manifest: Record<string, ManifestEntry[]> = {}
-      await addNpmManifestData(manifest, { spinner })
+      const fetchFailures = new Set<string>()
+      await addNpmManifestData(manifest, { fetchFailures, spinner })
+      // Previously-present-package-disappeared guard: a transient registry
+      // failure must fail the run loudly instead of silently shrinking the
+      // manifest — observed live when @socketregistry/string.prototype.at
+      // vanished on one run and reappeared on the next.
+      const { failedDrops, removals } = diffDroppedPackages(
+        previous,
+        manifest,
+        fetchFailures,
+      )
+      if (failedDrops.length) {
+        throw new Error(
+          `Refusing to write ${REL_REGISTRY_MANIFEST_JSON_PATH}: ` +
+            `${failedDrops.length} previously-present package${failedDrops.length === 1 ? '' : 's'} ` +
+            `dropped after registry fetch failures — transient errors must not ` +
+            `shrink the manifest; re-run the update: ${failedDrops.join(', ')}`,
+        )
+      }
+      if (removals.length && !cliArgs['allow-removals']) {
+        throw new Error(
+          `Refusing to write ${REL_REGISTRY_MANIFEST_JSON_PATH}: ` +
+            `${removals.length} previously-present package${removals.length === 1 ? '' : 's'} ` +
+            `would be removed: ${removals.join(', ')}. If the deletion is ` +
+            `intentional, re-run with --allow-removals.`,
+        )
+      }
       await fs.writeFile(
         REGISTRY_MANIFEST_JSON_PATH,
         `${JSON.stringify(manifest, null, 2)}\n`,
@@ -339,7 +473,9 @@ async function main(): Promise<void> {
   )
 }
 
-main().catch((e: unknown) => {
-  logger.error(e)
-  process.exitCode = 1
-})
+if (isMainModule(import.meta.url)) {
+  main().catch((e: unknown) => {
+    logger.error(e)
+    process.exitCode = 1
+  })
+}
