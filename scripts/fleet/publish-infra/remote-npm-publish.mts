@@ -8,9 +8,12 @@
  *   `--repo` lets a member dispatch ITS OWN workflow. Fail-soft — main()
  *   catches, logs, sets a non-zero exit code; it never throws. CLI:
  *   remote:npm:publish [--publish] [--dist-tag <tag>] [--release-as <lvl>]
- *   [--repo <owner/name>] [--ref <branch|tag>] [--dry-run] `--dry-run` is a
- *   LOCAL preview of the `gh` command (nothing is dispatched); `--publish`
- *   controls whether the dispatched CI run publishes vs. previews.
+ *   [--backfill-version <ver>] [--checkout-ref <ref>] [--repo <owner/name>]
+ *   [--ref <branch|tag>] [--dry-run] `--dry-run` is a LOCAL preview of the
+ *   `gh` command (nothing is dispatched); `--publish` controls whether the
+ *   dispatched CI run publishes vs. previews. `--backfill-version` +
+ *   `--checkout-ref` dispatch the sanctioned gap-fill backfill mode — CI
+ *   enforces the hard guards (publish-infra/npm/backfill.mts).
  */
 
 import process from 'node:process'
@@ -31,6 +34,8 @@ export interface NpmPublishDispatchArgs {
   publish: boolean
   distTag: string
   releaseAs: string | undefined
+  backfillVersion: string | undefined
+  checkoutRef: string | undefined
   repo: string | undefined
   ref: string | undefined
   dryRun: boolean
@@ -51,6 +56,8 @@ export function parseNpmPublishArgs(
       publish: { default: false, type: 'boolean' },
       'dist-tag': { default: 'latest', type: 'string' },
       'release-as': { type: 'string' },
+      'backfill-version': { type: 'string' },
+      'checkout-ref': { type: 'string' },
       repo: { type: 'string' },
       ref: { type: 'string' },
       'dry-run': { default: false, type: 'boolean' },
@@ -66,6 +73,14 @@ export function parseNpmPublishArgs(
       typeof values['release-as'] === 'string'
         ? values['release-as']
         : undefined,
+    backfillVersion:
+      typeof values['backfill-version'] === 'string'
+        ? values['backfill-version']
+        : undefined,
+    checkoutRef:
+      typeof values['checkout-ref'] === 'string'
+        ? values['checkout-ref']
+        : undefined,
     repo: typeof values['repo'] === 'string' ? values['repo'] : undefined,
     ref: typeof values['ref'] === 'string' ? values['ref'] : undefined,
     dryRun: !!values['dry-run'],
@@ -75,9 +90,9 @@ export function parseNpmPublishArgs(
 /**
  * The `workflow_dispatch` inputs for npm-publish.yml. Pure. Always sends
  * `publish` (false = the CI dry-run default) + `dist-tag`; forwards
- * `release-as` ONLY when the caller set it (npm-publish.yml doesn't declare it
- * today, and a dispatch with an undeclared input is rejected — so it stays
- * opt-in for a repo whose workflow adds the input).
+ * `release-as`, `backfill-version`, and `checkout-ref` ONLY when the caller
+ * set them (a dispatch with an input the target workflow doesn't declare is
+ * rejected — so they stay opt-in for repos whose workflow predates them).
  */
 export function buildNpmPublishInputs(
   args: NpmPublishDispatchArgs,
@@ -88,6 +103,12 @@ export function buildNpmPublishInputs(
   }
   if (args.releaseAs !== undefined) {
     inputs['release-as'] = args.releaseAs
+  }
+  if (args.backfillVersion !== undefined) {
+    inputs['backfill-version'] = args.backfillVersion
+  }
+  if (args.checkoutRef !== undefined) {
+    inputs['checkout-ref'] = args.checkoutRef
   }
   return inputs
 }

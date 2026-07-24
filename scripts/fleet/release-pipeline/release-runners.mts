@@ -166,6 +166,10 @@ export async function runStagePublish(config: {
     return await runLocalStagePublish(cfg, seams)
   }
   const spec = buildNpmPublishSpec({
+    // The pipeline never backfills — gap-fill republishes are a deliberate
+    // manual dispatch of npm-publish.yml (see publish-infra/npm/backfill.mts).
+    backfillVersion: undefined,
+    checkoutRef: undefined,
     distTag: cfg.distTag,
     dryRun: false,
     publish: true,

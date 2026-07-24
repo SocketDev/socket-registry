@@ -1108,16 +1108,6 @@ importers:
         specifier: 'catalog:'
         version: 26.1.1
 
-  .claude/hooks/fleet/concurrent-cargo-build-guard:
-    dependencies:
-      shell-quote:
-        specifier: 'catalog:'
-        version: 1.10.0
-    devDependencies:
-      '@types/node':
-        specifier: 'catalog:'
-        version: 26.1.1
-
   .claude/hooks/fleet/consumer-grep-nudge:
     devDependencies:
       '@types/node':
@@ -1345,8 +1335,6 @@ importers:
       '@types/node':
         specifier: 'catalog:'
         version: 26.1.1
-
-  .claude/hooks/fleet/marketplace-comment-guard: {}
 
   .claude/hooks/fleet/mass-delete-guard:
     dependencies:
@@ -1873,16 +1861,6 @@ importers:
         version: 26.1.1
 
   .claude/hooks/fleet/plan-review-nudge:
-    devDependencies:
-      '@types/node':
-        specifier: 'catalog:'
-        version: 26.1.1
-
-  .claude/hooks/fleet/plugin-patch-format-guard:
-    dependencies:
-      '@socketsecurity/lib-stable':
-        specifier: 'catalog:'
-        version: '@socketsecurity/lib@6.2.0(typescript@7.0.2)'
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
