@@ -71,7 +71,7 @@
 // Reads a Claude Code PreToolUse JSON payload from stdin:
 //   { "tool_name": "Bash", "tool_input": { "command": "..." } }
 
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
@@ -164,12 +164,13 @@ export function countPriorDispatches(
   transcriptPath: string | undefined,
   workflow: string,
 ): number {
-  if (!transcriptPath || !workflow) {
+  const { resolvedPath } = resolveTranscriptSource(transcriptPath)
+  if (!resolvedPath || !workflow) {
     return 0
   }
   let raw: string
   try {
-    raw = readFileSync(transcriptPath, 'utf8')
+    raw = readFileSync(resolvedPath, 'utf8')
   } catch {
     return 0
   }
@@ -239,6 +240,66 @@ export function countPriorDispatches(
   return count
 }
 
+export interface TranscriptSource {
+  givenPath: string | undefined
+  resolvedPath: string | undefined
+  state: 'given' | 'missing' | 'sibling-fallback'
+}
+
+/**
+ * Resolve the transcript file the ledger reads. The harness-provided
+ * `transcript_path` is authoritative when its file exists. A continued or
+ * compacted session can hand hooks a transcript_path whose file was never
+ * materialized while the live events keep appending to the original session's
+ * file in the same project directory — so when the given path is absent, fall
+ * back to the NEWEST `.jsonl` sibling in its directory. Without the fallback
+ * every credit reads as zero and a typed bypass phrase is silently ignored
+ * (observed 2026-07-24: five denials against a provably positive ledger).
+ */
+export function resolveTranscriptSource(
+  transcriptPath: string | undefined,
+): TranscriptSource {
+  if (!transcriptPath) {
+    return { givenPath: transcriptPath, resolvedPath: undefined, state: 'missing' }
+  }
+  if (existsSync(transcriptPath)) {
+    return { givenPath: transcriptPath, resolvedPath: transcriptPath, state: 'given' }
+  }
+  try {
+    const dir = path.dirname(transcriptPath)
+    let newest: string | undefined
+    let newestMtime = -1
+    for (const name of readdirSync(dir)) {
+      if (!name.endsWith('.jsonl')) {
+        continue
+      }
+      const candidate = path.join(dir, name)
+      const { mtimeMs } = statSync(candidate)
+      if (mtimeMs > newestMtime) {
+        newestMtime = mtimeMs
+        newest = candidate
+      }
+    }
+    if (newest) {
+      return {
+        givenPath: transcriptPath,
+        resolvedPath: newest,
+        state: 'sibling-fallback',
+      }
+    }
+  } catch {
+    // Directory unreadable/absent — fall through to missing.
+  }
+  return { givenPath: transcriptPath, resolvedPath: undefined, state: 'missing' }
+}
+
+export interface DispatchLedgerReport {
+  consumed: number
+  credits: number
+  remaining: number
+  source: TranscriptSource
+}
+
 // Chronological credit/debit ledger over the whole transcript: each accepted
 // phrase OCCURRENCE in a user turn adds one credit; each PRIOR non-denied
 // dispatch of the same workflow consumes one (floored at zero, so a dispatch
@@ -246,20 +307,24 @@ export function countPriorDispatches(
 // credit). Windowing phrases while counting dispatches unwindowed was the
 // prior design's defect: as phrases aged out of the window the un-aged
 // dispatch debits ate every fresh phrase, and the budget could never go
-// positive again.
-export function dispatchLedgerRemaining(
+// positive again. Returns the full report (not just the remaining count) so
+// a denial can print WHICH transcript it read and the credit/consumed split —
+// the diagnosability a bare zero denies the operator.
+export function dispatchLedgerReport(
   transcriptPath: string | undefined,
   phrases: readonly string[],
   workflow: string,
-): number {
-  if (!transcriptPath || !workflow) {
-    return 0
+): DispatchLedgerReport {
+  const source = resolveTranscriptSource(transcriptPath)
+  const empty = { consumed: 0, credits: 0, remaining: 0, source }
+  if (!source.resolvedPath || !workflow) {
+    return empty
   }
   let raw: string
   try {
-    raw = readFileSync(transcriptPath, 'utf8')
+    raw = readFileSync(source.resolvedPath, 'utf8')
   } catch {
-    return 0
+    return empty
   }
   const lines = raw.split('\n')
   const deniedIds = collectHookDeniedToolUseIds(lines)
@@ -267,6 +332,7 @@ export function dispatchLedgerRemaining(
   const accepted = new Set([workflow, workflow.replace(/\.(?:yaml|yml)$/i, '')])
   const needles = phrases.map(p => normalizeBypassText(p))
   let credits = 0
+  let consumed = 0
   for (let i = 0, { length } = lines; i < length; i += 1) {
     const line = lines[i]!
     if (!line) {
@@ -337,11 +403,15 @@ export function dispatchLedgerRemaining(
       }
       const dispatch = detectDispatch(cmd)
       if (dispatch.workflow && accepted.has(dispatch.workflow)) {
-        credits = credits > 0 ? credits - 1 : 0
+        // Consume floored at the credit balance: a dispatch that ran outside
+        // this gate never eats a future credit.
+        if (consumed < credits) {
+          consumed += 1
+        }
       }
     }
   }
-  return credits
+  return { consumed, credits, remaining: credits - consumed, source }
 }
 
 // Marker every PreToolUse denial carries in its tool_result content. The
@@ -864,18 +934,31 @@ export const check = bashGuard((command, payload) => {
   // and subtract the number of prior dispatches against the same
   // workflow already in the transcript. If anything's left, this
   // dispatch consumes one slot and is allowed.
+  let ledgerDiagnostic = ''
   /* c8 ignore next - workflow is always defined when detectDispatch returns blocked:true; defensive guard for future code paths */
   if (workflow) {
-    const remaining = dispatchLedgerRemaining(
+    const report = dispatchLedgerReport(
       payload.transcript_path,
       buildAcceptedPhrases(workflow),
       workflow,
     )
-    if (remaining > 0) {
+    if (report.remaining > 0) {
+      const via =
+        report.source.state === 'sibling-fallback'
+          ? `; transcript via sibling fallback ${report.source.resolvedPath}`
+          : ''
       return notify(
-        `[release-workflow-guard] ALLOWED: ${shape} on ${workflow} — bypass phrase consumed (${remaining - 1} remaining for this workflow)`,
+        `[release-workflow-guard] ALLOWED: ${shape} on ${workflow} — bypass phrase consumed (${report.remaining - 1} remaining for this workflow${via})`,
       )
     }
+    // Denials must be diagnosable in the field: say WHICH transcript the
+    // ledger read (or that none resolved) and the credit/consumed split, so
+    // "typed the phrase, still blocked" is triageable from the banner alone.
+    const read =
+      report.source.resolvedPath === undefined
+        ? `NONE resolved (given: ${report.source.givenPath ?? '<absent>'})`
+        : `${report.source.resolvedPath}${report.source.state === 'sibling-fallback' ? ' (sibling fallback)' : ''}`
+    ledgerDiagnostic = `  Ledger for ${workflow}: credits ${report.credits}, consumed ${report.consumed}, remaining 0.\n  Transcript read: ${read}\n`
   }
 
   /* c8 ignore start - workflow is always defined when blocked:true; the else/null arms here are defensive fallbacks unreachable from detectDispatch */
@@ -908,6 +991,7 @@ export const check = bashGuard((command, payload) => {
       '        dispatch of that exact workflow. A second dispatch (or a',
       '        different workflow) needs its own phrase.',
       '',
+      ...(ledgerDiagnostic ? [ledgerDiagnostic] : []),
       '  Without a bypass, the user runs workflow_dispatch jobs',
       '  manually. Tell the user to run the command in their own',
       '  terminal (or via the GitHub Actions UI), then resume.',

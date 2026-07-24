@@ -19,7 +19,9 @@
  *      repo with `.gitmodules` but NO lockstep manifest has only repo-specific
  *      submodule bumps, which stay with the AI pass (no single deterministic
  *      entrypoint). Recorded as a skip note so the remainder is explicit.
- *   3. npm deps — `update.mts` (taze 2-pass + lockfile). Mechanical.
+ *   3. npm deps — the update script (taze 2-pass + lockfile), resolved
+ *      overlay-first: scripts/repo/update.mts when the repo ships one, else the
+ *      canonical scripts/fleet/update.mts. Mechanical.
  *   4. package-manager pins — `sync-package-manager-pins.mts` rewrites the
  *      `package.json` pnpm/npm pins from `external-tools.json`.
  *   5. gh-aw action pins — `sync-gh-aw-action-pins.mts` recompiles every tracked
@@ -228,13 +230,31 @@ export function noteSubmoduleRemainder(): ChainStepResult {
   }
 }
 
-// npm deps via the existing update.mts (taze 2-pass + lockfile).
+// Resolve the update script overlay-first: a repo-specific
+// scripts/repo/update.mts — the seam socket-registry uses for its manifest
+// regen — wins over the canonical scripts/fleet/update.mts, mirroring
+// resolveBumpScript's overlay-over-canonical precedence. `repoRoot` is
+// injectable for tests.
+export function resolveUpdateScript(repoRoot: string): string {
+  const repoUpdate = path.join(repoRoot, 'scripts', 'repo', 'update.mts')
+  return existsSync(repoUpdate)
+    ? repoUpdate
+    : path.join(repoRoot, 'scripts', 'fleet', 'update.mts')
+}
+
+// npm deps via the update entrypoint (taze 2-pass + lockfile), resolved
+// overlay-first so the weekly path runs the SAME script the interactive
+// `pnpm run update` wiring points at. Invoking scripts/fleet/update.mts
+// directly here used to bypass repo overlays entirely — a repo's own update
+// hooks never ran on the weekly cadence.
 export async function bumpNpmDeps(): Promise<ChainStepResult> {
-  const updateScript = path.join(REPO_ROOT, 'scripts', 'fleet', 'update.mts')
+  const updateScript = resolveUpdateScript(REPO_ROOT)
   const ok = await run(process.execPath, [updateScript])
   return {
     name: 'npm-deps',
-    note: ok ? undefined : 'update.mts exited non-zero',
+    note: ok
+      ? undefined
+      : `${path.relative(REPO_ROOT, updateScript)} exited non-zero`,
     ok,
   }
 }

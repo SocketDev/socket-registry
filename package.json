@@ -49,7 +49,7 @@
     "test:fuzz": "node scripts/repo/fuzz.mts",
     "test:npm": "node scripts/npm/run-vitest-npm.mts",
     "type": "node node_modules/typescript/bin/tsc --noEmit -p .config/fleet/tsconfig.check.json",
-    "update": "node scripts/repo/update.mts",
+    "update": "node scripts/fleet/update.mts",
     "update:external-tools": "node scripts/repo/update-external-tools.mts",
     "validate-ci": "node scripts/testing/reproduce-ci-locally.mts",
     "validate-packages": "node scripts/testing/validate-package-tests.mts",
@@ -69,7 +69,8 @@
     "setup:refero": "node scripts/fleet/setup/setup-refero.mts",
     "setup:rust": "node scripts/fleet/setup/setup-rust.mts",
     "setup:mcp": "node scripts/fleet/setup/setup-mcp.mts",
-    "lockstep:emit-mirror-globs": "node scripts/fleet/lockstep-emit-mirror-globs.mts"
+    "lockstep:emit-mirror-globs": "node scripts/fleet/lockstep-emit-mirror-globs.mts",
+    "socket-wheelhouse:emit-schema": "node scripts/fleet/socket-wheelhouse-emit-schema.mts"
   },
   "devDependencies": {
     "@babel/core": "catalog:",
@@ -84,6 +85,7 @@
     "@npmcli/package-json": "catalog:",
     "@npmcli/promise-spawn": "catalog:",
     "@redwoodjs/agent-ci": "catalog:",
+    "@shadscan/cli": "catalog:",
     "@sinclair/typebox": "catalog:",
     "@socketregistry/is-unicode-supported": "workspace:*",
     "@socketregistry/packageurl-js": "catalog:",
