@@ -1,6 +1,6 @@
 {
   "name": "@socketregistry/monorepo",
-  "version": "1.0.0",
+  "version": "2.0.3",
   "private": true,
   "description": "Monorepo for Socket.dev optimized package overrides",
   "homepage": "http://github.com/SocketDev/socket-registry",
@@ -13,6 +13,10 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/SocketDev/socket-registry.git"
+  },
+  "publishConfig": {
+    "directory": "registry",
+    "linkDirectory": false
   },
   "scripts": {
     "analyze-ci-failures": "node scripts/testing/analyze-ci-failures.mts",

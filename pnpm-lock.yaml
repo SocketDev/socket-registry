@@ -819,6 +819,7 @@ importers:
       yoctocolors-cjs:
         specifier: 'catalog:'
         version: 2.1.3
+    publishDirectory: registry
 
   .claude/hooks/fleet/actionlint-on-workflow-edit:
     devDependencies:
