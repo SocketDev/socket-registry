@@ -16,9 +16,9 @@ import { pEach } from '@socketsecurity/lib-stable/promises/iterate'
 import { naturalCompare } from '@socketsecurity/lib-stable/sorts/natural'
 import { getDefaultSpinner } from '@socketsecurity/lib-stable/spinner/default'
 import { withSpinner } from '@socketsecurity/lib-stable/spinner/with'
+import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 import { DEFAULT_CONCURRENCY } from '../constants/core.mts'
 import { getNpmPackageNames } from '../constants/testing.mts'
-import { biomeFormat } from '../repo/util/biome.mts'
 import { getModifiedFiles } from '../repo/util/git.mts'
 import { fetchPackageManifest } from '@socketsecurity/lib-stable/packages/manifest'
 import { resolveOriginalPackageName } from '@socketsecurity/lib-stable/packages/normalize'
@@ -32,6 +32,7 @@ import {
   REGISTRY_MANIFEST_JSON_PATH,
   REL_REGISTRY_MANIFEST_JSON_PATH,
   ROOT_PACKAGES_PATH,
+  ROOT_PATH,
   TEST_NPM_PATH,
 } from '../constants/paths.mts'
 import {
@@ -316,13 +317,26 @@ async function main(): Promise<void> {
     operation: async () => {
       const manifest: Record<string, ManifestEntry[]> = {}
       await addNpmManifestData(manifest, { spinner })
-      const output = await biomeFormat(JSON.stringify(manifest, null, 2), {
-        filepath: REGISTRY_MANIFEST_JSON_PATH,
-      })
-      await fs.writeFile(REGISTRY_MANIFEST_JSON_PATH, output, 'utf8')
+      await fs.writeFile(
+        REGISTRY_MANIFEST_JSON_PATH,
+        `${JSON.stringify(manifest, null, 2)}\n`,
+        'utf8',
+      )
     },
     spinner,
   })
+  // Canonicalize the rewritten manifest with the fleet formatter — the format
+  // gate checks oxfmt's output, and the biomeFormat this script used to call
+  // was dead code: biome is not installed, so it silently returned its input
+  // unformatted.
+  await spawn(
+    process.execPath,
+    [
+      path.join(ROOT_PATH, 'scripts', 'fleet', 'format.mts'),
+      REGISTRY_MANIFEST_JSON_PATH,
+    ],
+    { cwd: ROOT_PATH, stdio: 'inherit' },
+  )
 }
 
 main().catch((e: unknown) => {
