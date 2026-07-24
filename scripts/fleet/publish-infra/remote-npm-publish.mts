@@ -8,7 +8,8 @@
  *   `--repo` lets a member dispatch ITS OWN workflow. Fail-soft — main()
  *   catches, logs, sets a non-zero exit code; it never throws. CLI:
  *   remote:npm:publish [--publish] [--dist-tag <tag>] [--release-as <lvl>]
- *   [--backfill-version <ver>] [--checkout-ref <ref>] [--repo <owner/name>]
+ *   [--no-bump] [--backfill-version <ver>] [--checkout-ref <ref>]
+ *   [--repo <owner/name>]
  *   [--ref <branch|tag>] [--dry-run] `--dry-run` is a LOCAL preview of the
  *   `gh` command (nothing is dispatched); `--publish` controls whether the
  *   dispatched CI run publishes vs. previews. `--backfill-version` +
@@ -34,6 +35,10 @@ export interface NpmPublishDispatchArgs {
   publish: boolean
   distTag: string
   releaseAs: string | undefined
+  // False (`--no-bump`) skips the workflow's CI bump step — for callers whose
+  // bump commit already landed (the publish pipeline), so the whole chain
+  // bumps exactly once.
+  bump: boolean
   backfillVersion: string | undefined
   checkoutRef: string | undefined
   repo: string | undefined
@@ -56,6 +61,8 @@ export function parseNpmPublishArgs(
       publish: { default: false, type: 'boolean' },
       'dist-tag': { default: 'latest', type: 'string' },
       'release-as': { type: 'string' },
+      // parseArgs supports `--no-bump` negation natively for boolean flags.
+      bump: { default: true, type: 'boolean' },
       'backfill-version': { type: 'string' },
       'checkout-ref': { type: 'string' },
       repo: { type: 'string' },
@@ -69,6 +76,7 @@ export function parseNpmPublishArgs(
     publish: !!values['publish'],
     distTag:
       typeof values['dist-tag'] === 'string' ? values['dist-tag'] : 'latest',
+    bump: values['bump'] !== false,
     releaseAs:
       typeof values['release-as'] === 'string'
         ? values['release-as']
@@ -90,9 +98,10 @@ export function parseNpmPublishArgs(
 /**
  * The `workflow_dispatch` inputs for npm-publish.yml. Pure. Always sends
  * `publish` (false = the CI dry-run default) + `dist-tag`; forwards
- * `release-as`, `backfill-version`, and `checkout-ref` ONLY when the caller
- * set them (a dispatch with an input the target workflow doesn't declare is
- * rejected — so they stay opt-in for repos whose workflow predates them).
+ * `release-as`, `bump=false`, `backfill-version`, and `checkout-ref` ONLY
+ * when the caller set them off their defaults (a dispatch with an input the
+ * target workflow doesn't declare is rejected — so they stay opt-in for
+ * repos whose workflow predates them).
  */
 export function buildNpmPublishInputs(
   args: NpmPublishDispatchArgs,
@@ -103,6 +112,9 @@ export function buildNpmPublishInputs(
   }
   if (args.releaseAs !== undefined) {
     inputs['release-as'] = args.releaseAs
+  }
+  if (!args.bump) {
+    inputs['bump'] = 'false'
   }
   if (args.backfillVersion !== undefined) {
     inputs['backfill-version'] = args.backfillVersion

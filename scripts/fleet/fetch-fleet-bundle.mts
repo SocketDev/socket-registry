@@ -44,21 +44,21 @@ const repoRoot = path.resolve(
   '..',
 )
 
-export interface FetchOptions {
+export interface FetchConfig {
   dest: string
   dryRun: boolean
   ref: string | undefined
   repo: string
 }
 
-export function parseArgs(argv: readonly string[]): FetchOptions {
+export function parseArgs(argv: readonly string[]): FetchConfig {
   const opts = {
     __proto__: null,
     dest: repoRoot,
     dryRun: argv.includes('--dry-run'),
     ref: undefined,
     repo: DEFAULT_REPO,
-  } as unknown as FetchOptions
+  } as unknown as FetchConfig
   for (let i = 0, { length } = argv; i < length; i += 1) {
     const arg = argv[i]!
     if (arg === '--ref') {

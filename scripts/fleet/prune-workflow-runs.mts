@@ -41,6 +41,7 @@ import {
 } from './check/member-ci-fires-on-push.mts'
 import { REPO_ROOT } from './paths.mts'
 import { runCapture } from './publish-infra/shared.mts'
+import { createBackoff, sleep } from './_shared/backoff.mts'
 import { isMainModule } from './_shared/is-main-module.mts'
 
 const logger = getDefaultLogger()
@@ -60,6 +61,14 @@ const PACE_MS = 1500
 // dynamic workflows (update-graph / dependabot-updates) and the retired
 // gh-audit-* audit workflows.
 const PURGE_PATTERNS_DEFAULT = ['dynamic/dependabot/', 'gh-audit-*']
+// A refusals-only round (every remaining doomed run refused deletion — the
+// in-progress-run shape) waits out the grace delay and retries, up to this
+// many consecutive dry rounds, so runs that finish mid-sweep still get
+// pruned instead of waiting a whole cadence week. The delay doubles each
+// consecutive dry round (3m, 6m, …), giving longer runs a real chance to
+// finish without stalling the sweep worker indefinitely.
+const REFUSED_RETRIES = 3
+const REFUSED_RETRY_DELAY_MS = 180_000
 const RETENTION_DAYS_DEFAULT = 15
 
 export interface WorkflowEntry {
@@ -174,16 +183,6 @@ export function selectRunsToDelete(
     }
   }
   return doomed
-}
-
-// The timer must hold the event loop open: with an unref'd timer, the moment
-// every worker sits in a paced sleep with no gh child in flight the loop
-// drains and node exits 0 mid-sweep — the silent false-green that let run
-// history pile up under the weekly cadence.
-function sleep(ms: number): Promise<void> {
-  return new Promise(resolve => {
-    setTimeout(resolve, ms)
-  })
 }
 
 export async function resolveRepoSlug(): Promise<string | undefined> {
@@ -354,6 +353,8 @@ export async function pruneRepo(
   // Source-presence memo, shared across rounds — the workflow inventory
   // barely changes between rounds, so each path is verified once.
   const presenceByPath = new Map<string, SourcePresence>()
+  const grace = createBackoff(REFUSED_RETRY_DELAY_MS)
+  let dryRounds = 0
   for (let pass = 1; pass <= MAX_PASSES; pass += 1) {
     const workflows = await listWorkflows(repo)
     if (!workflows) {
@@ -405,6 +406,9 @@ export async function pruneRepo(
       `[${repo}] round ${pass}: ${doomed.length} of ${runs.length} listed run(s) to prune.`,
     )
     if (doomed.length === 0) {
+      // Nothing left to prune — clear any refused snapshot from the prior
+      // round (those runs are gone now, however they went).
+      result.failed = 0
       break
     }
     if (cfg.dryRun) {
@@ -419,32 +423,53 @@ export async function pruneRepo(
       return result
     }
     let passDeleted = 0
-    let backoff = INITIAL_BACKOFF_MS
+    let passRefused = 0
+    const throttle = createBackoff(INITIAL_BACKOFF_MS, {
+      maxMs: MAX_BACKOFF_MS,
+    })
     for (let i = 0, { length } = doomed; i < length; i += 1) {
       const outcome = await deleteRun(repo, doomed[i]!)
       if (outcome === 'deleted') {
         passDeleted += 1
-        backoff = INITIAL_BACKOFF_MS
+        throttle.reset()
         if (passDeleted % 25 === 0) {
           logger.log(`[${repo}]   deleted ${passDeleted}/${doomed.length}`)
         }
         await sleep(PACE_MS)
       } else if (outcome === 'throttled') {
         logger.warn(
-          `[${repo}]   throttled at ${passDeleted}; backing off ${Math.round(backoff / 1000)}s`,
+          `[${repo}]   throttled at ${passDeleted}; backing off ${Math.round(throttle.currentMs() / 1000)}s`,
         )
-        await sleep(backoff)
-        backoff = Math.min(backoff * 2, MAX_BACKOFF_MS)
+        await throttle.wait()
         i -= 1
       } else {
-        result.failed += 1
+        passRefused += 1
       }
     }
     result.deleted += passDeleted
-    if (passDeleted === 0) {
-      // Every remaining doomed run refused deletion (likely in-progress);
-      // the weekly cadence sweeps them once they finish.
-      break
+    // The refused count is the LAST round's snapshot, not a running sum — a
+    // run refused in round N is re-listed and retried in round N+1, and only
+    // what still refuses at exit is genuinely left behind.
+    result.failed = passRefused
+    if (passDeleted === 0 && passRefused > 0) {
+      // Every remaining doomed run refused deletion (the in-progress-run
+      // shape). Wait out the grace delay so those runs can finish, then
+      // retry; the delay doubles each consecutive dry round, and the worker
+      // gives up only after REFUSED_RETRIES of them.
+      dryRounds += 1
+      if (dryRounds >= REFUSED_RETRIES) {
+        logger.warn(
+          `[${repo}]   ${passRefused} run(s) still refused after ${REFUSED_RETRIES} retry rounds; the weekly cadence sweeps them once they finish.`,
+        )
+        break
+      }
+      logger.log(
+        `[${repo}]   ${passRefused} run(s) refused (likely in-progress); retrying in ${Math.round(grace.currentMs() / 60_000)}m (${dryRounds}/${REFUSED_RETRIES})`,
+      )
+      await grace.wait()
+    } else {
+      dryRounds = 0
+      grace.reset()
     }
   }
   logger.log(

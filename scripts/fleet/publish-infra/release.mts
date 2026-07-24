@@ -11,7 +11,7 @@ import os from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
 
-import { sleep } from '@socketsecurity/lib/promises/timers'
+import { sleep } from '@socketsecurity/lib-stable/promises/timers'
 
 import { logger, rootPath, runCapture } from './shared.mts'
 

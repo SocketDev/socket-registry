@@ -7,7 +7,6 @@
 import { httpJson } from '@socketsecurity/lib-stable/http-request'
 
 import { NPM_REGISTRY_URL } from '../../constants/npm-registry.mts'
-import { runCapture } from '../shared.mts'
 
 /**
  * The registry `dist-tags.latest` for a package — the currently-published
@@ -77,20 +76,30 @@ export async function fetchRegistryReleaseState(
 }
 
 /**
- * `npm view <name>@<version> version` exits 0 iff the version exists on the
- * registry. Faster than fetching the full packument for a yes/no check.
+ * Whether `<name>@<version>` exists on the public registry. An abbreviated
+ * packument read (not `npm view`: bare npm invocations die on EBADDEVENGINES
+ * inside repos whose devEngines pin pnpm, which made this probe false-negative
+ * everywhere — including the release stage's registry-liveness gate). Staged
+ * entries are absent from the public packument, so a staged-only version
+ * correctly reads as not published. Returns false on any network failure,
+ * matching the old exit-code semantics.
  */
 export async function isAlreadyPublished(
   name: string,
   version: string,
-  cwd: string,
 ): Promise<boolean> {
-  const { code } = await runCapture(
-    'npm',
-    ['view', `${name}@${version}`, 'version'],
-    cwd,
-  )
-  return code === 0
+  const url = `${NPM_REGISTRY_URL}/${encodeURIComponent(name).replace('%40', '@')}`
+  try {
+    const json = await httpJson<{
+      versions?: Record<string, unknown> | undefined
+    }>(url, {
+      headers: { accept: 'application/vnd.npm.install-v1+json' },
+      timeout: 15_000,
+    })
+    return Boolean(json.versions && version in json.versions)
+  } catch {
+    return false
+  }
 }
 
 /**
