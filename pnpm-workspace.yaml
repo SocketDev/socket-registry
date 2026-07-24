@@ -448,3 +448,7 @@ patchedDependencies:
   # while taze still exits 0 (false green; update.mts fails loud on it).
   # On a taze bump, regenerate via `pnpm patch taze` + `pnpm patch-commit`.
   taze@19.16.0: patches/taze@19.16.0.patch
+  # 1.4.5 ships dist/index.d.mts but its exports map has no `types`
+  # condition, so tsc can't find declarations behind the `-stable` alias.
+  # Drop this patch when a release adds the condition upstream.
+  '@socketregistry/packageurl-js@1.4.5': patches/@socketregistry__packageurl-js@1.4.5.patch

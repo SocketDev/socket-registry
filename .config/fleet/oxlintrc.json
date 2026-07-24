@@ -274,16 +274,6 @@
     "**/wasm_exec.js",
     "**/.config/repo/vitest.config.mts",
     "**/.mcp.json",
-    "#fleet-canonical-end",
-    "**/external",
-    "**/packages/build-infra/lib/release-checksums/consumer.mts",
-    "**/packages/build-infra/lib/release-checksums/core.mts",
-    "**/packages/build-infra/lib/release-checksums/producer.mts",
-    "**/packages/build-infra/release-assets.schema.json",
-    "**/packages/npm/assert/package/build",
-    "**/test/_shared/fleet/**",
-    "**/test/scripts/fleet/**",
-    "**/.kimi-code/mcp.json",
-    "**/opencode.json"
+    "#fleet-canonical-end"
   ]
 }

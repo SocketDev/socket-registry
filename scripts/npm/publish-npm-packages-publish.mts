@@ -305,7 +305,7 @@ export async function approveStagedPackages(
     if (
       entry.name &&
       entry.version &&
-      !(await isAlreadyPublished(entry.name, entry.version, cwd))
+      !(await isAlreadyPublished(entry.name, entry.version))
     ) {
       eligible.push(entry)
     }

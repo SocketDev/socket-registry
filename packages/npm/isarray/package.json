@@ -33,9 +33,18 @@
         "default": "./index.js"
       }
     },
-    "./index.cjs": "./index.cjs",
-    "./index.js": "./index.js",
-    "./index.mjs": "./index.mjs",
+    "./index.cjs": {
+      "types": "./index.d.cts",
+      "default": "./index.cjs"
+    },
+    "./index.js": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
+    "./index.mjs": {
+      "types": "./index.d.mts",
+      "default": "./index.mjs"
+    },
     "./package.json": "./package.json"
   },
   "publishConfig": {

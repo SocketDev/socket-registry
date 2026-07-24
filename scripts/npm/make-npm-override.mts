@@ -295,7 +295,7 @@ async function main(): Promise<void> {
     if (answer) {
       const searchResult = await search({
         message: 'Which one?',
-        source: async (term: string) => {
+        source: async (term: string | undefined) => {
           if (!term) {
             return []
           }
