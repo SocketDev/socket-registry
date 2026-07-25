@@ -138,15 +138,7 @@ export function diffActionPins(
 // pattern as pnpm 11.10.0 and @shadscan/cli 0.2.0. The key carries the
 // version, so the next release re-soaks; drop an entry once its removable
 // date passes.
-//
-// github/gh-aw-actions setup + setup-cli v0.82.13 — forced ahead of the soak
-// by owner directive: issue-intent adoption ships with the v0.82.13 compiler
-// bump. Both subpaths resolve to the same v0.82.13 tag commit.
-// published: 2026-07-18 | removable: 2026-07-25
-export const FORCED_AHEAD_ACTION_PINS: ReadonlySet<string> = new Set([
-  'github/gh-aw-actions/setup-cli@v0.82.13',
-  'github/gh-aw-actions/setup@v0.82.13',
-])
+export const FORCED_AHEAD_ACTION_PINS: ReadonlySet<string> = new Set()
 
 // Soak-partition pin bumps. Socket-owned action repos are exempt (own
 // provenance pipeline, mirroring the npm SOCKET_SCOPES bypass), as is any

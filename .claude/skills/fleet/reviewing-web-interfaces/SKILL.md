@@ -1,6 +1,8 @@
 ---
 name: reviewing-web-interfaces
 description: Reviews web interface quality before landing UI changes.
+metadata:
+  internal: true
 ---
 
 # Reviewing Web Interfaces

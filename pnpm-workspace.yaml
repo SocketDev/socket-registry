@@ -153,7 +153,7 @@ catalog:
   'comptime': 0.1.0
   'html5parser': 3.0.0
   'magic-string': 1.0.0
-  'markdownlint-cli2': 0.23.0
+  'markdownlint-cli2': 0.23.1
   'mdast-util-from-markdown': 2.0.3
   'micromark': 4.0.2
   # nock 14.0.15 — HTTP mocking for tests (disableNetConnect() + stubs). The

@@ -28,6 +28,13 @@
  *      `*.github/workflows/*.md` via `gh aw compile --approve`, refreshing action
  *      SHAs and container image digests in the sibling `.lock.yml` +
  *      `.github/aw/actions-lock.json`. Best-effort when `gh aw` is not installed.
+ *   6. vendored action reference pins — `vendor-actions.mts --check` reports
+ *      any `upstream/<owner>-<repo>` reference behind its latest soaked
+ *      release. Check-only, never auto-writes: re-pinning a ported upstream
+ *      requires the paired re-port review that advances `portedAt` in the port
+ *      map (`action-ports-are-lock-stepped`), so the drift is surfaced as an
+ *      advisory note for the AI pass. Skipped where no reference is vendored —
+ *      members carry no upstream action pins.
  *
  * The chain mutates the working tree; the caller commits/PRs afterward.
  */
@@ -42,6 +49,10 @@ import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 import { applyBump, planFromReport } from '../lockstep/auto-bump.mts'
 import { readManifest } from '../lockstep/manifest.mts'
 import { lockstepManifestCandidates, REPO_ROOT } from '../paths.mts'
+import {
+  runCheck as vendorActionsCheck,
+  vendoringEnrolled,
+} from '../vendor-actions.mts'
 
 import type { Report } from '../lockstep/types.mts'
 
@@ -297,6 +308,38 @@ export async function syncGhAwActionPins(): Promise<ChainStepResult> {
   }
 }
 
+// Vendored upstream action reference pins — check-only drift report. A pin
+// behind its latest soaked release is an ADVISORY note for the AI pass, never
+// an auto-write: the re-pin must land together with the re-port review that
+// advances the port map's `portedAt`, or `action-ports-are-lock-stepped` reds.
+// Skipped where no reference is vendored; a gh/network failure warns without
+// blocking the chain.
+export async function checkVendoredActionPins(): Promise<ChainStepResult> {
+  if (!vendoringEnrolled()) {
+    return {
+      name: 'vendored-action-pins',
+      note: 'no vendored upstream action pins — skipped',
+      ok: true,
+    }
+  }
+  try {
+    const behind = vendorActionsCheck() !== 0
+    return {
+      name: 'vendored-action-pins',
+      note: behind
+        ? 'reference pin(s) behind latest — re-pin + re-port review left for the AI pass'
+        : undefined,
+      ok: true,
+    }
+  } catch (e) {
+    return {
+      name: 'vendored-action-pins',
+      note: errorMessage(e),
+      ok: false,
+    }
+  }
+}
+
 // Run the full deterministic chain in order. Each step is best-effort: a
 // non-zero step logs and the chain continues, so a single flaky step never
 // blocks the others or the AI advisory pass.
@@ -307,6 +350,7 @@ export async function runDeterministicChain(): Promise<ChainStepResult[]> {
   steps.push(await bumpNpmDeps())
   steps.push(await syncPackageManagerPins())
   steps.push(await syncGhAwActionPins())
+  steps.push(await checkVendoredActionPins())
   for (let i = 0, { length } = steps; i < length; i += 1) {
     const step = steps[i]!
     const suffix = step.note ? ` — ${step.note}` : ''

@@ -227,6 +227,7 @@ Tooling + package manager:
 - `prefer-fff-search-nudge` — PreToolUse(Bash, Grep), non-blocking nudge. Points ripgrep/grep repo-searches — the `Grep` tool + bash `rg`/`ripgrep`/recursive `grep -r` — at the fff MCP tools (`ffgrep`/`fffind`); time-throttled (`SOCKET_FFF_NUDGE_INTERVAL_HOURS`, default 2h).
 - `prefer-pipx-over-pip-guard` — blocks `pip`/`pip3`; use `pypa-tool` or `pipx install <pkg>==<ver>`
 - `reserved-script-dir-guard` — blocks build/output dir names under `scripts/`; bypass `Allow reserved-script-dir bypass`
+- `rg-replace-flag-nudge` — PreToolUse(Bash), non-blocking. Fires when an `rg` short-flag cluster puts `r` at a non-final position (`-rln` parses as `--replace 'ln'`, silently rewriting output); points at spelling `-r` separately or using long flags. `-r` last in a cluster or standalone stays silent.
 - `zsh-word-split-nudge` — PreToolUse(Bash), non-blocking. Fires when a space-joined list built from a command substitution is later expanded unquoted (zsh doesn't word-split it, so it passes as ONE argument); points at safe splitting alternatives.
 
 Supply-chain hygiene:
