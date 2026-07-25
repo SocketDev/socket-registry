@@ -32,6 +32,7 @@ import { hash } from '@socketsecurity/lib/crypto/hash'
 import { errorMessage } from '@socketsecurity/lib/errors/message'
 import { safeDeleteSync } from '@socketsecurity/lib/fs/safe'
 import { getDefaultLogger } from '@socketsecurity/lib/logger/default'
+import { normalizePath } from '@socketsecurity/lib/paths/normalize'
 import { spawn } from '@socketsecurity/lib/process/spawn/child'
 
 import {
@@ -79,9 +80,11 @@ export function parseArgs(argv: readonly string[]): FetchConfig {
 }
 
 // The manifest the producer (make-release-bundle.mts) writes alongside the
-// tarball: a flat map of repo-relative path → sha256 hex.
+// tarball: a flat map of repo-relative path → sha256 hex, plus the tombstoned
+// paths a past bundle shipped that have since moved/retired.
 export interface BundleManifest {
   readonly files: Record<string, string>
+  readonly removedPaths?: readonly string[] | undefined
   readonly templateSha: string
   readonly version: string
 }
@@ -159,6 +162,37 @@ export function placeFiles(
     }
     cpSync(src, dest)
   }
+}
+
+// Delete the manifest's TOMBSTONED paths (files or whole dirs) that still
+// exist in the repo — the deletion half of a fleet move/retire, mirroring the
+// bootstrap installer's removeTombstonedPaths (a bundle refresh must be a true
+// sync: the v1.0.12 `.github/actions/fleet/lib` → `_shared` move shipped no
+// deletion and orphaned `lib/` fleet-wide). Belt: a tombstone the current
+// manifest ships a file at/under is skipped, so a bad producer entry can never
+// delete freshly placed payload. Returns the count deleted.
+export function removeTombstonedPaths(
+  destDir: string,
+  manifest: BundleManifest,
+): number {
+  const removedPaths = manifest.removedPaths
+  if (!removedPaths || removedPaths.length === 0) {
+    return 0
+  }
+  const shipped = Object.keys(manifest.files).map(rel => normalizePath(rel))
+  let removed = 0
+  for (let i = 0, { length } = removedPaths; i < length; i += 1) {
+    const rel = normalizePath(removedPaths[i]!)
+    if (!rel || shipped.some(f => f === rel || f.startsWith(`${rel}/`))) {
+      continue
+    }
+    const abs = path.join(destDir, rel)
+    if (existsSync(abs)) {
+      safeDeleteSync(abs)
+      removed += 1
+    }
+  }
+  return removed
 }
 
 export async function main(): Promise<number> {
@@ -242,10 +276,15 @@ export async function main(): Promise<number> {
       return 0
     }
 
-    // 5. Place the verified files into the repo.
+    // 5. Place the verified files into the repo, then drop any tombstoned
+    // paths (moved/retired payload) still present — the deletion half of a
+    // fleet move, so a refresh is a true sync.
     placeFiles(filesDir, Object.keys(manifest.files), opts.dest)
+    const tombstoned = removeTombstonedPaths(opts.dest, manifest)
+    const tombstonedNote =
+      tombstoned > 0 ? `, removed ${tombstoned} tombstoned path(s)` : ''
     logger.log(
-      `Placed ${count} verified file(s) from ${opts.ref} (template ${manifest.templateSha}).`,
+      `Placed ${count} verified file(s)${tombstonedNote} from ${opts.ref} (template ${manifest.templateSha}).`,
     )
     return 0
   } finally {

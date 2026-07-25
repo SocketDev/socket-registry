@@ -123,6 +123,184 @@ function spliceFleetBlock(config) {
   }
   return `${target.replace(/\n+$/, '')}\n\n${fleetBlock}\n`
 }
+function run(cmd, args) {
+  execFileSync(cmd, args, { stdio: 'inherit' })
+}
+function segmentFileName(relativePath) {
+  return `${relativePath.replace(/^\./, 'dot-')}.fleetblock`
+}
+function readManifest(manifestPath) {
+  return JSON.parse(readFileSync(manifestPath, 'utf8'))
+}
+/**
+ * Verify every file in `manifest.files` against its expected SHA-256 digest.
+ * Returns a list of problem descriptions — empty means all verified. A single
+ * mismatch must abort the whole install (fail closed).
+ */
+function verifyBundleFiles(filesDir, manifest) {
+  const problems = []
+  for (const [rel, expected] of Object.entries(manifest.files)) {
+    const abs = path.join(filesDir, rel)
+    if (!existsSync(abs)) {
+      problems.push(`missing from bundle: ${rel}`)
+      continue
+    }
+    const actual = computeSha256(readFileSync(abs))
+    if (actual !== expected)
+      problems.push(`sha256 mismatch: ${rel} (got ${actual}, want ${expected})`)
+  }
+  return problems
+}
+/**
+ * Verify every generic block segment and the specialized Claude settings
+ * segment against its expected SHA-256. A mismatch is just as fatal as a file
+ * mismatch — the merge result would silently differ from producer intent.
+ */
+function verifySegments(segmentsDir, manifest) {
+  const segments = manifest.segments
+  const problems = []
+  for (const entry of segments ?? []) {
+    const destName = segmentFileName(entry.path)
+    const abs = path.join(segmentsDir, destName)
+    if (!existsSync(abs)) {
+      problems.push(`missing segment: ${entry.path}`)
+      continue
+    }
+    const actual = computeSha256(readFileSync(abs))
+    if (actual !== entry.sha256)
+      problems.push(
+        `sha256 mismatch for segment ${entry.path} (got ${actual}, want ${entry.sha256})`,
+      )
+  }
+  const settingsSegment = manifest.settingsSegment
+  if (settingsSegment !== void 0) {
+    const abs = path.join(segmentsDir, segmentFileName(settingsSegment.path))
+    if (!existsSync(abs))
+      problems.push(`missing settings segment: ${settingsSegment.path}`)
+    else {
+      const actual = computeSha256(readFileSync(abs))
+      if (actual !== settingsSegment.sha256)
+        problems.push(
+          `sha256 mismatch for settings segment ${settingsSegment.path} (got ${actual}, want ${settingsSegment.sha256})`,
+        )
+    }
+  }
+  return problems
+}
+
+//#endregion
+//#region template/bootstrap/src/applied-state.mts
+const SETTINGS_CANDIDATES = [
+  '.config/repo/socket-wheelhouse.json',
+  '.config/socket-wheelhouse.json',
+  '.socket-wheelhouse.json',
+]
+function resolveSettingsPath(dest) {
+  for (let i = 0, { length } = SETTINGS_CANDIDATES; i < length; i += 1) {
+    const p = path.join(dest, SETTINGS_CANDIDATES[i])
+    if (existsSync(p)) return p
+  }
+}
+const APPLIED_MARKER =
+  'node_modules/.cache/fleet/socket-wheelhouse/bundle-applied'
+const APPLIED_FILES_MARKER =
+  'node_modules/.cache/fleet/socket-wheelhouse/applied-files'
+const FLAT_APPLIED_MARKER =
+  'node_modules/.cache/socket-wheelhouse/bundle-applied'
+const LEGACY_APPLIED_MARKER = '.config/fleet/.bundle-applied'
+/**
+ * Default bundle ref for a member — `bundle.ref` in its wheelhouse settings
+ * file. Lets install-fleet (and the prepare/CI wires) omit an explicit --ref so
+ * the pin lives in exactly one place. Returns undefined when absent/malformed.
+ */
+function readBundleRef(dest) {
+  const p = resolveSettingsPath(dest)
+  if (!p) return
+  try {
+    return JSON.parse(readFileSync(p, 'utf8')).bundle?.ref
+  } catch {
+    return
+  }
+}
+/**
+ * Read the member's full pinned `bundle` block (ref + cascadeSha) from the
+ * wheelhouse settings file. The lock-step verify + the `fleet:status` verb need
+ * BOTH halves — `readBundleRef` returns only the ref for the fetch default.
+ * Returns both as undefined when the file is absent / malformed.
+ */
+function readBundleConfig(dest) {
+  const p = resolveSettingsPath(dest)
+  if (!p)
+    return {
+      ref: void 0,
+      cascadeSha: void 0,
+    }
+  try {
+    const json = JSON.parse(readFileSync(p, 'utf8'))
+    return {
+      cascadeSha: json.bundle?.cascadeSha,
+      ref: json.bundle?.ref,
+    }
+  } catch {
+    return {
+      ref: void 0,
+      cascadeSha: void 0,
+    }
+  }
+}
+function readAppliedRef(dest) {
+  const p = path.join(dest, APPLIED_MARKER)
+  return existsSync(p) ? readFileSync(p, 'utf8').trim() : void 0
+}
+/**
+ * The file list the LAST applied bundle owned, or undefined when no record
+ * exists. Feeds pruneStaleFleetFiles — see APPLIED_FILES_MARKER.
+ */
+function readAppliedFiles(dest) {
+  const p = path.join(dest, APPLIED_FILES_MARKER)
+  if (!existsSync(p)) return
+  return readFileSync(p, 'utf8')
+    .split('\n')
+    .map(l => l.trim())
+    .filter(Boolean)
+}
+/**
+ * Record the manifest file list the apply just placed, replacing the previous
+ * record. Written after a successful apply only, beside the applied-ref
+ * marker.
+ */
+function writeAppliedFiles(dest, files) {
+  const p = path.join(dest, APPLIED_FILES_MARKER)
+  mkdirSync(path.dirname(p), { recursive: true })
+  writeFileSync(p, `${files.map(normalizeBundlePath).toSorted().join('\n')}\n`)
+}
+function writeAppliedRef(dest, ref) {
+  const p = path.join(dest, APPLIED_MARKER)
+  mkdirSync(path.dirname(p), { recursive: true })
+  writeFileSync(p, `${ref}\n`)
+  const legacy = path.join(dest, LEGACY_APPLIED_MARKER)
+  if (existsSync(legacy)) safeDeleteSync(legacy)
+  const flat = path.join(dest, FLAT_APPLIED_MARKER)
+  if (existsSync(flat)) safeDeleteSync(flat)
+}
+
+//#endregion
+//#region template/bootstrap/src/install-thin-prune.mts
+/**
+ * The hybrid (segment + settingsSegment) path set thinIgnoreEntries excludes
+ * from its wholly-fleet list.
+ */
+function computeHybridPaths(manifest) {
+  const hybridPaths = new Set(
+    (manifest.segments ?? []).map(entry => normalizeBundlePath(entry.path)),
+  )
+  if (manifest.settingsSegment !== void 0)
+    hybridPaths.add(normalizeBundlePath(manifest.settingsSegment.path))
+  return hybridPaths
+}
+
+//#endregion
+//#region template/bootstrap/src/yaml-merge.mts
 const COL0_KEY_RE = /^[A-Za-z][\w-]*:/
 /**
  * Parse a YAML string into an ordered list of top-level key blocks. Each block
@@ -288,85 +466,6 @@ function mergeWorkspaceYaml(config) {
     .map(b => b.lines.join('\n'))
     .join('\n')
     .replace(/\n+$/, '')}\n`
-}
-function run(cmd, args) {
-  execFileSync(cmd, args, { stdio: 'inherit' })
-}
-function segmentFileName(relativePath) {
-  return `${relativePath.replace(/^\./, 'dot-')}.fleetblock`
-}
-function readManifest(manifestPath) {
-  return JSON.parse(readFileSync(manifestPath, 'utf8'))
-}
-/**
- * Verify every file in `manifest.files` against its expected SHA-256 digest.
- * Returns a list of problem descriptions — empty means all verified. A single
- * mismatch must abort the whole install (fail closed).
- */
-function verifyBundleFiles(filesDir, manifest) {
-  const problems = []
-  for (const [rel, expected] of Object.entries(manifest.files)) {
-    const abs = path.join(filesDir, rel)
-    if (!existsSync(abs)) {
-      problems.push(`missing from bundle: ${rel}`)
-      continue
-    }
-    const actual = computeSha256(readFileSync(abs))
-    if (actual !== expected)
-      problems.push(`sha256 mismatch: ${rel} (got ${actual}, want ${expected})`)
-  }
-  return problems
-}
-/**
- * Verify every generic block segment and the specialized Claude settings
- * segment against its expected SHA-256. A mismatch is just as fatal as a file
- * mismatch — the merge result would silently differ from producer intent.
- */
-function verifySegments(segmentsDir, manifest) {
-  const segments = manifest.segments
-  const problems = []
-  for (const entry of segments ?? []) {
-    const destName = segmentFileName(entry.path)
-    const abs = path.join(segmentsDir, destName)
-    if (!existsSync(abs)) {
-      problems.push(`missing segment: ${entry.path}`)
-      continue
-    }
-    const actual = computeSha256(readFileSync(abs))
-    if (actual !== entry.sha256)
-      problems.push(
-        `sha256 mismatch for segment ${entry.path} (got ${actual}, want ${entry.sha256})`,
-      )
-  }
-  const settingsSegment = manifest.settingsSegment
-  if (settingsSegment !== void 0) {
-    const abs = path.join(segmentsDir, segmentFileName(settingsSegment.path))
-    if (!existsSync(abs))
-      problems.push(`missing settings segment: ${settingsSegment.path}`)
-    else {
-      const actual = computeSha256(readFileSync(abs))
-      if (actual !== settingsSegment.sha256)
-        problems.push(
-          `sha256 mismatch for settings segment ${settingsSegment.path} (got ${actual}, want ${settingsSegment.sha256})`,
-        )
-    }
-  }
-  return problems
-}
-
-//#endregion
-//#region template/bootstrap/src/install-thin-prune.mts
-/**
- * The hybrid (segment + settingsSegment) path set thinIgnoreEntries excludes
- * from its wholly-fleet list.
- */
-function computeHybridPaths(manifest) {
-  const hybridPaths = new Set(
-    (manifest.segments ?? []).map(entry => normalizeBundlePath(entry.path)),
-  )
-  if (manifest.settingsSegment !== void 0)
-    hybridPaths.add(normalizeBundlePath(manifest.settingsSegment.path))
-  return hybridPaths
 }
 
 //#endregion
@@ -822,6 +921,35 @@ function applyThinMode(config) {
     }
 }
 /**
+ * Delete the manifest's TOMBSTONED paths (`removedPaths`) — files or whole
+ * dirs a past bundle shipped that the wheelhouse has since moved/retired. The
+ * applied-files prune below only covers a member whose record OWNED the old
+ * path; a fresh clone or a member whose record began after the move keeps the
+ * orphan forever (the v1.0.12 `.github/actions/fleet/lib` → `_shared` move did
+ * exactly that fleet-wide). Manifest-scoped like the prune — never a directory
+ * walk. Belt: a tombstone the current manifest ships a file at/under is
+ * skipped, so a bad producer entry can never delete freshly placed payload.
+ */
+function removeTombstonedPaths(dest, manifest) {
+  const removedPaths = manifest.removedPaths
+  if (!removedPaths || removedPaths.length === 0) return 0
+  const shipped = Object.keys(manifest.files).map(rel =>
+    normalizeBundlePath(rel),
+  )
+  let removed = 0
+  for (let i = 0, { length } = removedPaths; i < length; i += 1) {
+    const rel = normalizeBundlePath(removedPaths[i])
+    if (!rel || shipped.some(f => f === rel || f.startsWith(`${rel}/`)))
+      continue
+    const abs = path.join(dest, rel)
+    if (existsSync(abs)) {
+      safeDeleteSync(abs)
+      removed += 1
+    }
+  }
+  return removed
+}
+/**
  * Prune stale fleet files so a fetch is a true SYNC (place + prune) — scoped
  * to what the bundle PREVIOUSLY owned. Only a file the last-applied manifest
  * shipped (the applied-files record, see readAppliedFiles) that the current
@@ -852,99 +980,6 @@ function pruneStaleFleetFiles(dest, manifest, previousFiles) {
     }
   }
   return pruned
-}
-const SETTINGS_CANDIDATES = [
-  '.config/repo/socket-wheelhouse.json',
-  '.config/socket-wheelhouse.json',
-  '.socket-wheelhouse.json',
-]
-function resolveSettingsPath(dest) {
-  for (let i = 0, { length } = SETTINGS_CANDIDATES; i < length; i += 1) {
-    const p = path.join(dest, SETTINGS_CANDIDATES[i])
-    if (existsSync(p)) return p
-  }
-}
-const APPLIED_MARKER =
-  'node_modules/.cache/fleet/socket-wheelhouse/bundle-applied'
-const APPLIED_FILES_MARKER =
-  'node_modules/.cache/fleet/socket-wheelhouse/applied-files'
-const FLAT_APPLIED_MARKER =
-  'node_modules/.cache/socket-wheelhouse/bundle-applied'
-const LEGACY_APPLIED_MARKER = '.config/fleet/.bundle-applied'
-/**
- * Default bundle ref for a member — `bundle.ref` in its wheelhouse settings
- * file. Lets install-fleet (and the prepare/CI wires) omit an explicit --ref so
- * the pin lives in exactly one place. Returns undefined when absent/malformed.
- */
-function readBundleRef(dest) {
-  const p = resolveSettingsPath(dest)
-  if (!p) return
-  try {
-    return JSON.parse(readFileSync(p, 'utf8')).bundle?.ref
-  } catch {
-    return
-  }
-}
-/**
- * Read the member's full pinned `bundle` block (ref + cascadeSha) from the
- * wheelhouse settings file. The lock-step verify + the `fleet:status` verb need
- * BOTH halves — `readBundleRef` returns only the ref for the fetch default.
- * Returns both as undefined when the file is absent / malformed.
- */
-function readBundleConfig(dest) {
-  const p = resolveSettingsPath(dest)
-  if (!p)
-    return {
-      ref: void 0,
-      cascadeSha: void 0,
-    }
-  try {
-    const json = JSON.parse(readFileSync(p, 'utf8'))
-    return {
-      cascadeSha: json.bundle?.cascadeSha,
-      ref: json.bundle?.ref,
-    }
-  } catch {
-    return {
-      ref: void 0,
-      cascadeSha: void 0,
-    }
-  }
-}
-function readAppliedRef(dest) {
-  const p = path.join(dest, APPLIED_MARKER)
-  return existsSync(p) ? readFileSync(p, 'utf8').trim() : void 0
-}
-/**
- * The file list the LAST applied bundle owned, or undefined when no record
- * exists. Feeds pruneStaleFleetFiles — see APPLIED_FILES_MARKER.
- */
-function readAppliedFiles(dest) {
-  const p = path.join(dest, APPLIED_FILES_MARKER)
-  if (!existsSync(p)) return
-  return readFileSync(p, 'utf8')
-    .split('\n')
-    .map(l => l.trim())
-    .filter(Boolean)
-}
-/**
- * Record the manifest file list the apply just placed, replacing the previous
- * record. Written after a successful apply only, beside the applied-ref
- * marker.
- */
-function writeAppliedFiles(dest, files) {
-  const p = path.join(dest, APPLIED_FILES_MARKER)
-  mkdirSync(path.dirname(p), { recursive: true })
-  writeFileSync(p, `${files.map(normalizeBundlePath).toSorted().join('\n')}\n`)
-}
-function writeAppliedRef(dest, ref) {
-  const p = path.join(dest, APPLIED_MARKER)
-  mkdirSync(path.dirname(p), { recursive: true })
-  writeFileSync(p, `${ref}\n`)
-  const legacy = path.join(dest, LEGACY_APPLIED_MARKER)
-  if (existsSync(legacy)) safeDeleteSync(legacy)
-  const flat = path.join(dest, FLAT_APPLIED_MARKER)
-  if (existsSync(flat)) safeDeleteSync(flat)
 }
 
 //#endregion
@@ -1610,6 +1645,7 @@ async function installFleet(config) {
       manifest,
       readAppliedFiles(dest),
     )
+    const tombstonedCount = removeTombstonedPaths(dest, manifest)
     installSegments(segmentsDir, dest, manifest)
     const settingsResult = installSettingsSegment(segmentsDir, dest, manifest)
     if (settingsResult !== 0) return settingsResult
@@ -1623,7 +1659,8 @@ async function installFleet(config) {
       })
     writeAppliedRef(dest, sourceRef)
     writeAppliedFiles(dest, Object.keys(manifest.files))
-    const prunedNote = prunedCount > 0 ? `, pruned ${prunedCount} stale` : ''
+    const prunedTotal = prunedCount + tombstonedCount
+    const prunedNote = prunedTotal > 0 ? `, pruned ${prunedTotal} stale` : ''
     logger.log(
       `install-fleet: placed ${fileCount} file(s) + ${segmentCount} segment(s)${prunedNote} from ${sourceRef} (template ${manifest.templateSha}) → ${dest}.`,
     )
@@ -1688,6 +1725,7 @@ export {
   readBundleRef,
   readManifest,
   readNoticeStore,
+  removeTombstonedPaths,
   resolveLockStepState,
   resolveNewestRef,
   resolveReleaseTemplateSha,
