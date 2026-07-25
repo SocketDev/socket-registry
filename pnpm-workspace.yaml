@@ -339,6 +339,12 @@ minimumReleaseAgeExclude:
   - 'verkit@0.1.2'
   # published: 2026-07-24 | removable: 2026-07-31
   - '@shadscan/cli@0.2.0'
+  # js-yaml 5.2.2 — HIGH security fix, GHSA-pm4m-ph32-ghv5; the overrides
+  # entry below forces it past markdownlint-cli2's 5.2.1 pin. Soak bypassed
+  # per the high-severity security exception; exact-pinned so a future
+  # version re-soaks.
+  # published: 2026-07-23 | removable: 2026-07-30
+  - 'js-yaml@5.2.2'
 
 blockExoticSubdeps: true
 
@@ -394,6 +400,12 @@ overrides:
   # Repo-specific overrides below.
   'is-interactive': 'npm:@socketregistry/is-interactive@1.0.6'
   'is-unicode-supported': 'npm:@socketregistry/is-unicode-supported@1.0.5'
+  # Security: GHSA-pm4m-ph32-ghv5, high — exponential parse time in js-yaml
+  # flow collections. markdownlint-cli2 0.23.1, the latest release,
+  # exact-pins the vulnerable js-yaml 5.2.1; force the patched 5.2.2 until
+  # upstream ships a release carrying it, then drop this override. The range
+  # leaves the unaffected js-yaml 4.x line via cosmiconfig alone.
+  'js-yaml@>=5.0.0 <5.2.2': '5.2.2'
   'json-stable-stringify': 'npm:@socketregistry/json-stable-stringify@1.0.13'
   'rolldown': 'catalog:'
   'vite': 'catalog:'
