@@ -157,3 +157,43 @@ jobs:
         with:
           setup-script: pnpm run build
           main-script: pnpm run test:npm
+
+  # Repo-owned: every override declares `engines.node: >=24`, but the jobs
+  # above run a newer current-line Node — nothing executes the FLOOR, so a
+  # too-new syntax/API in an override stays green here and only breaks in a
+  # consumer pinned to the floor. This job side-installs the exact floor
+  # release (sha256-verified against nodejs.org's published SHASUMS256 before
+  # extraction) and dynamic-imports every override's node entry under it.
+  floor-node-smoke:
+    name: 🧪 NPM Overrides on Floor Node
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Bootstrap checkout
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          SERVER_URL: ${{ github.server_url }}
+          REPOSITORY: ${{ github.repository }}
+          TRIGGER_REF: ${{ github.ref }}
+        run: |
+          set -euo pipefail
+          git init -q
+          git config --local advice.detachedHead false
+          git remote remove origin 2>/dev/null || true
+          git remote add origin "${SERVER_URL}/${REPOSITORY}"
+          FETCH_ARGS=(--no-tags --prune --depth 1 origin "${TRIGGER_REF}")
+          if [ -n "${GITHUB_TOKEN}" ]; then
+            AUTH_B64="$(printf 'x-access-token:%s' "${GITHUB_TOKEN}" | base64 | tr -d '\n')"
+            git -c "http.${SERVER_URL}/.extraheader=AUTHORIZATION: basic ${AUTH_B64}" fetch "${FETCH_ARGS[@]}"
+          else
+            git fetch "${FETCH_ARGS[@]}"
+          fi
+          git checkout -q --detach FETCH_HEAD
+      - uses: ./.github/actions/fleet/setup-and-install
+        with:
+          node-version: 24
+          socket-api-token: ${{ secrets.SOCKET_API_TOKEN }}
+      - uses: ./.github/actions/fleet/run-script
+        with:
+          main-script: pnpm run test:npm:floor
