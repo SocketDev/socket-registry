@@ -84,6 +84,21 @@ export const LintSchema = Type.Object(
   { description: 'oxlint profile.' },
 )
 
+export const ViteSchema = Type.Object(
+  {
+    allowEsbuild: Type.Optional(
+      Type.String({
+        description:
+          'Reasoned opt-out of the esbuild ban in vite-is-rolldown-native for a legitimate NON-BUNDLER esbuild use (e.g. an opt-in minify pass that dynamic-imports esbuild, a browser-bundle e2e arm). The vite<8 floor stays unconditional and the build bundler stays rolldown; this only tolerates esbuild as a declared test/dev dependency. The string is the why — name the consuming module(s).',
+      }),
+    ),
+  },
+  {
+    description:
+      'vite/rolldown posture knobs read by scripts/fleet/check/vite-is-rolldown-native.mts.',
+  },
+)
+
 // ---------------------------------------------------------------------------
 // Opt-in config the `lock-step-ref-nudge` hook reads to resolve
 // `with/from <Lang>: <path>` code-comment refs. Kept in ONE member-owned

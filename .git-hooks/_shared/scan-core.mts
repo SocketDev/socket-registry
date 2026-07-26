@@ -85,19 +85,18 @@ const LEGACY_ZIZMOR_MARKER_RE = /(?:#|\/\*|\/\/)\s*zizmor:\s*[\w-]+/
 //
 // Add entries as `<alias>: <canonical>`; both directions match in the
 // comparison below.
-const RULE_ALIASES: { [k: string]: string | undefined } = {
-  __proto__: null,
+const RULE_ALIASES = new Map<string, string>([
   // 'logger' was the original name when the scanner only flagged
   // process.std{out,err}.write; it now flags console.* too, so the
   // canonical marker is 'console'. Keep 'logger' for one cycle.
-  logger: 'console',
-}
+  ['logger', 'console'],
+])
 
 export function aliasMatches(marker: string, rule: string): boolean {
   if (marker === rule) {
     return true
   }
-  return RULE_ALIASES[marker] === rule || RULE_ALIASES[rule] === marker
+  return RULE_ALIASES.get(marker) === rule || RULE_ALIASES.get(rule) === marker
 }
 
 export function lineIsSuppressed(

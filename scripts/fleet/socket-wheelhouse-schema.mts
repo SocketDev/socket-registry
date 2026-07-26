@@ -1,13 +1,12 @@
 /*
  * @file TypeBox schema for the per-fleet-repo socket-wheelhouse config consumed
- *   by `sync-scaffolding`. Two valid locations:
- *   `.config/socket-wheelhouse.json` (primary) or `.socket-wheelhouse.json` at
- *   the repo root (alternative). Both are first-class — pick the location that
- *   fits your repo's convention. Each fleet repo (socket-lib, socket-cli,
- *   ultrathink, …) ships this config declaring its `layout` + `native` axes
- *   plus any per-repo opt-ins. The runner reads it to decide which optional
- *   files the repo is expected to ship and which it must not ship.
- *   Source-of-truth flow:
+ *   by `sync-scaffolding`. The config lives at
+ *   `.config/repo/socket-wheelhouse.json` (the segregated member surface —
+ *   see `findSocketWheelhouseConfig` in `paths.mts`). Each fleet repo
+ *   (socket-lib, socket-cli, ultrathink, …) ships this config declaring its
+ *   `layout` + `native` axes plus any per-repo opt-ins. The runner reads it to
+ *   decide which optional files the repo is expected to ship and which it must
+ *   not ship. Source-of-truth flow:
  *
  *   - This TypeBox source → `Static<typeof SocketWheelhouseConfigSchema>` for
  *     typed reads in the runner.
@@ -47,6 +46,7 @@ import {
   LintSchema,
   LockstepSchema,
   ScriptsSchema,
+  ViteSchema,
 } from './socket-wheelhouse-schema/tooling.mts'
 
 import type { Static } from '@sinclair/typebox'
@@ -96,13 +96,14 @@ export const SocketWheelhouseConfigSchema = Type.Object(
     ),
     release: Type.Optional(ReleaseSchema),
     scripts: Type.Optional(ScriptsSchema),
+    vite: Type.Optional(ViteSchema),
     vitest: Type.Optional(VitestSchema),
     workflows: Type.Optional(WorkflowsSchema),
     workspace: Type.Optional(WorkspaceSchema),
   },
   {
     description:
-      "Per-repo socket-wheelhouse config. Two valid locations: `.config/socket-wheelhouse.json` (primary) or `.socket-wheelhouse.json` at the repo root (alternative). Both are first-class — pick the location that fits your repo's convention.",
+      'Per-repo socket-wheelhouse config, at `.config/repo/socket-wheelhouse.json` (the segregated member surface).',
   },
 )
 
@@ -110,4 +111,5 @@ export type SocketWheelhouseConfig = Static<typeof SocketWheelhouseConfigSchema>
 export type Repo = Static<typeof RepoSchema>
 export type Build = Static<typeof BuildSchema>
 export type Secondary = Static<typeof SecondarySchema>
+export type Vite = Static<typeof ViteSchema>
 export type Vitest = Static<typeof VitestSchema>

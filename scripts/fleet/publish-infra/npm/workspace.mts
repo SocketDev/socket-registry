@@ -1,4 +1,4 @@
-/**
+/*
  * @file Multi-package npm workspace layout resolution for the publish engine.
  *   A repo's publishable npm surface is DERIVED, never declared twice: the
  *   pnpm-workspace.yaml `packages:` globs name the members, `private: false`

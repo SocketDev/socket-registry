@@ -1,4 +1,4 @@
-/**
+/*
  * @file Canonical minimal test runner for socket-* repos. Delegates the
  *   scope-to-tests mapping to vitest itself rather than rolling a basename-
  *   based mapper that would inevitably drift from the actual module graph.
