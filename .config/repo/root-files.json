@@ -1,0 +1,6 @@
+{
+  "allow": {
+    "perf": "repo-primary content directories",
+    "registry": "repo-primary content directories"
+  }
+}
