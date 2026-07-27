@@ -277,7 +277,12 @@ async function main(): Promise<void> {
   }
 
   // Load external tools config.
-  const configPath = path.join(REPO_ROOT, 'external-tools.json')
+  const configPath = path.join(
+    REPO_ROOT,
+    '.config',
+    'repo',
+    'external-tools.json',
+  )
   if (!existsSync(configPath)) {
     log.warn('No external-tools.json found')
     return

@@ -1,24 +1,27 @@
 /**
- * @file Schema, types, and read/write I/O for the repo-root
- *   `external-tools.json` the updater maintains. Split out of
- *   update-external-tools.mts so the orchestrator and the one-shot migration
- *   share one source of truth for the config shape and stay under the file-size
- *   soft cap.
+ * @file Schema, types, and read/write I/O for the
+ *   `.config/repo/external-tools.json` manifest the updater maintains. Split
+ *   out of update-external-tools.mts so the orchestrator and the one-shot
+ *   migration share one source of truth for the config shape and stay under the
+ *   file-size soft cap.
  */
 
 import { promises as fs, readFileSync } from 'node:fs'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 
 import { Type } from '@sinclair/typebox'
 import type { Static } from '@sinclair/typebox'
 
 import { parseSchema } from '@socketsecurity/lib-stable/schema/parse'
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const REPO_ROOT = path.resolve(__dirname, '..')
+import { REPO_ROOT } from '../fleet/paths.mts'
 
-export const CONFIG_FILE = path.join(REPO_ROOT, 'external-tools.json')
+export const CONFIG_FILE = path.join(
+  REPO_ROOT,
+  '.config',
+  'repo',
+  'external-tools.json',
+)
 
 // Schema matches the sibling security-tools hook style (typebox +
 // parseSchema via @socketsecurity/lib-stable/schema/parse). Keep the two in

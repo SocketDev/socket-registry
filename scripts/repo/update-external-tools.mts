@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /*
- * Update the repo-root `external-tools.json` to pick up new releases of every
+ * Update the `.config/repo/external-tools.json` manifest to pick up new releases of every
  * tool listed with `"release": "asset"` (today: pnpm, zizmor).
  *
  * Contract for this file:
@@ -26,7 +26,6 @@
 import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
-import { fileURLToPath } from 'node:url'
 
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
@@ -46,13 +45,11 @@ import {
   computeIntegrityFromUrl,
   ghApiLatestRelease,
 } from './update-external-tools-github.mts'
+import { REPO_ROOT } from '../fleet/paths.mts'
 import type { GhRelease } from './update-external-tools-github.mts'
 import { migrateTool } from './update-external-tools-migrate.mts'
 
 const logger = getDefaultLogger()
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const REPO_ROOT = path.resolve(__dirname, '..')
 
 const MS_PER_MINUTE = 60_000
 const DEFAULT_COOLDOWN_MINUTES = 10_080
