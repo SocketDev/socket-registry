@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.5](https://github.com/SocketDev/socket-registry/releases/tag/v2.0.5) - 2026-07-27
+
+### Fixed
+
+- **`readme`** — migrate coverage badge to the repo-local svg asset
+- **`fleet`** — restore fetch-fleet-bundle to the v1.0.14 manifest bytes
+- **`fuzz`** — sweep orphaned vitiate shm segments before the run
+- **`deps`** — override js-yaml to 5.2.2 for GHSA-pm4m-ph32-ghv5
+- **`deps`** — sync -stable catalog aliases to their base versions
+- **`repo`** — fail manifest regen loudly when fetch failures drop packages
+
 ## [2.0.4](https://github.com/SocketDev/socket-registry/releases/tag/v2.0.4) - 2026-07-24
 
 ### Changed
