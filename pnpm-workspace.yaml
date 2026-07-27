@@ -33,10 +33,10 @@ pmOnFail: warn
 catalog:
   '@shadscan/cli': 0.2.0
   '@ultrathink/acorn.wasm': npm:@ultrathink/acorn-wasm@0.0.1
-  'brace-expansion': 5.0.6
-  'browserslist': 4.26.3
+  'brace-expansion': 5.0.7
+  'browserslist': 4.28.6
   'c8': 12.0.0
-  'cacache': 20.0.1
+  'cacache': 20.0.4
   'chrome-devtools-mcp': 1.6.0
   'clipboardy': 4.0.0
   'debug': ^4.4.3
@@ -44,67 +44,67 @@ catalog:
   'del-cli': 6.0.0
   'dev-null-cli': 2.0.0
   'didyoumean2': 7.0.4
-  'eslint': 9.35.0
-  'eslint-import-resolver-typescript': 4.4.4
-  'eslint-plugin-import-x': 4.16.1
-  'eslint-plugin-n': 17.23.1
+  'eslint': 9.39.5
+  'eslint-import-resolver-typescript': 4.4.5
+  'eslint-plugin-import-x': 4.17.1
+  'eslint-plugin-n': 17.24.0
   'eslint-plugin-sort-destructure-keys': 2.0.0
   'eslint-plugin-unicorn': 56.0.1
   'eta': 3.5.0
   'fast-check': 4.9.0
   'fast-glob': 3.3.3
   'fast-sort': 3.4.1
-  'fs-extra': 11.3.1
-  'get-east-asian-width': 1.3.0
-  'globals': 16.4.0
+  'fs-extra': 11.3.6
+  'get-east-asian-width': 1.6.0
+  'globals': 16.5.0
   'iconv-lite': 0.6.3
   'js-yaml': npm:@zkochan/js-yaml@0.0.10
-  'libnpmpack': 9.0.9
-  'make-fetch-happen': 15.0.2
-  'minimatch': 9.0.7
+  'libnpmpack': 9.1.11
+  'make-fetch-happen': 15.0.6
+  'minimatch': 9.0.9
   'normalize-package-data': 8.0.0
-  'npm-package-arg': 13.0.0
+  'npm-package-arg': 13.0.2
   'out-url': 1.2.2
-  'pacote': 21.0.1
+  'pacote': 21.5.1
   'portless': 0.15.4
   'read-yaml-file': 2.1.0
   'source-map-support': 0.5.21
   'spdx-correct': 3.2.0
   'spdx-expression-parse': 4.0.0
   'streaming-iterables': 8.0.1
-  'svgo': 4.0.1
-  'tar': 7.5.11
-  'trash': 10.0.0
+  'svgo': 4.0.2
+  'tar': 7.5.20
+  'trash': 10.1.1
   'type-coverage': 2.29.7
-  'typescript-eslint': 8.44.1
-  'update-browserslist-db': 1.1.3
+  'typescript-eslint': 8.64.0
+  'update-browserslist-db': 1.2.3
   'validate-npm-package-name': 6.0.2
   'which': 5.0.0
   'yargs-parser': 22.0.0
   'yoctocolors-cjs': 2.1.3
   # Restored repo-owned entries an older cascade splice dropped; versions
   # match the last state origin CI installed with.
-  '@babel/generator': 7.28.3
-  '@babel/parser': 7.28.4
-  '@babel/traverse': 7.28.4
-  '@babel/types': 7.28.4
-  '@biomejs/biome': 2.2.4
+  '@babel/generator': 7.29.7
+  '@babel/parser': 7.29.7
+  '@babel/traverse': 7.29.7
+  '@babel/types': 7.29.7
+  '@biomejs/biome': 2.5.4
   '@biomejs/js-api': 3.0.0
-  '@biomejs/wasm-nodejs': 2.2.4
-  '@eslint/compat': 1.3.2
-  '@eslint/js': 9.35.0
-  '@inquirer/checkbox': 4.2.4
-  '@inquirer/core': 10.2.2
-  '@inquirer/prompts': 7.8.6
-  '@mdn/browser-compat-data': 7.1.5
-  '@npmcli/package-json': 7.0.0
+  '@biomejs/wasm-nodejs': 2.5.4
+  '@eslint/compat': 1.4.1
+  '@eslint/js': 9.39.5
+  '@inquirer/checkbox': 4.3.2
+  '@inquirer/core': 10.3.2
+  '@inquirer/prompts': 7.10.1
+  '@mdn/browser-compat-data': 7.3.17
+  '@npmcli/package-json': 7.0.5
   '@npmcli/promise-spawn': 8.0.3
   '@types/fs-extra': 11.0.4
   '@types/normalize-package-data': 2.4.4
   '@types/npm-package-arg': 6.1.4
   '@types/npmcli__package-json': 4.0.4
   '@types/npmcli__promise-spawn': 6.0.3
-  '@types/picomatch': 4.0.2
+  '@types/picomatch': 4.0.3
   '@types/spdx-correct': 3.1.3
   '@types/spdx-expression-parse': 3.0.5
   '@types/validate-npm-package-name': 4.0.2
@@ -118,7 +118,7 @@ catalog:
   # platform-binary optionalDependencies, despite the monorepo's internal
   # workspace layout. dtu-github-actions is its GitHub-Actions parser, pinned
   # explicitly (not left transitive) so its version is uniform fleet-wide.
-  '@babel/core': 7.28.4
+  '@babel/core': 7.29.7
   '@redwoodjs/agent-ci': 0.17.1
   'dtu-github-actions': 0.17.1
   '@sinclair/typebox': 0.34.52
@@ -138,8 +138,8 @@ catalog:
   '@socketsecurity/lib-stable': 'npm:@socketsecurity/lib@6.2.3'
   '@socketsecurity/registry': 2.0.4
   '@socketsecurity/registry-stable': 'npm:@socketsecurity/registry@2.0.4'
-  '@socketsecurity/sdk': 4.0.4
-  '@socketsecurity/sdk-stable': 'npm:@socketsecurity/sdk@4.0.4'
+  '@socketsecurity/sdk': 4.1.1
+  '@socketsecurity/sdk-stable': 'npm:@socketsecurity/sdk@4.1.1'
   '@types/mdast': 4.0.4
   '@types/node': 26.1.1
   '@types/semver': 7.7.1
@@ -190,7 +190,7 @@ catalog:
   # 1.0.2). Tracked here so the pnpm override below can pin every
   # transitive `vite` (vitest, @vitest/*, plugin authors) to it.
   'typescript': 7.0.2
-  'vite': 8.1.0
+  'vite': 8.1.5
   'vitiate': 0.3.1
   'vitest': 4.1.10
   '@vitiate/core': 0.3.1
@@ -378,9 +378,9 @@ overrides:
   'has-symbols': 'npm:@socketregistry/has-symbols@1.0.7'
   'has-tostringtag': 'npm:@socketregistry/has-tostringtag@1.0.7'
   'hasown': 'npm:@socketregistry/hasown@1.0.7'
-  'iconv-lite': '0.7.2'
+  'iconv-lite': '0.7.3'
   'isexe@>=3': '4.0.0'
-  'lru-cache@>=10': '11.3.6'
+  'lru-cache@>=10': '11.5.2'
   'magic-string': '1.0.0'
   'mime-db': '1.54.0'
   'mime-types@>=3': '3.0.2'
