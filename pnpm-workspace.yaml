@@ -32,6 +32,7 @@ pmOnFail: warn
 
 catalog:
   '@shadscan/cli': 0.2.0
+  '@ultrathink/acorn.rs.wasm': 0.1.1
   '@ultrathink/acorn.wasm': npm:@ultrathink/acorn-wasm@0.0.1
   'brace-expansion': 5.0.7
   'browserslist': 4.28.6
@@ -335,8 +336,6 @@ minimumReleaseAgeExclude:
   - 'taze@19.16.0'
   # obug + verkit — new dev-only transitives of taze 19.16.0 (same owner
   # directive); exact-pinned so future versions re-soak.
-  # published: 2026-07-19 | removable: 2026-07-26
-  - 'verkit@0.1.2'
   # published: 2026-07-24 | removable: 2026-07-31
   - '@shadscan/cli@0.2.0'
   # js-yaml 5.2.2 — HIGH security fix, GHSA-pm4m-ph32-ghv5; the overrides
@@ -380,6 +379,7 @@ overrides:
   'hasown': 'npm:@socketregistry/hasown@1.0.7'
   'iconv-lite': '0.7.3'
   'isexe@>=3': '4.0.0'
+  'js-yaml@>=5.0.0 <5.2.2': '5.2.2'
   'lru-cache@>=10': '11.5.2'
   'magic-string': '1.0.0'
   'mime-db': '1.54.0'
@@ -400,12 +400,6 @@ overrides:
   # Repo-specific overrides below.
   'is-interactive': 'npm:@socketregistry/is-interactive@1.0.6'
   'is-unicode-supported': 'npm:@socketregistry/is-unicode-supported@1.0.5'
-  # Security: GHSA-pm4m-ph32-ghv5, high — exponential parse time in js-yaml
-  # flow collections. markdownlint-cli2 0.23.1, the latest release,
-  # exact-pins the vulnerable js-yaml 5.2.1; force the patched 5.2.2 until
-  # upstream ships a release carrying it, then drop this override. The range
-  # leaves the unaffected js-yaml 4.x line via cosmiconfig alone.
-  'js-yaml@>=5.0.0 <5.2.2': '5.2.2'
   'json-stable-stringify': 'npm:@socketregistry/json-stable-stringify@1.0.13'
   'rolldown': 'catalog:'
   'vite': 'catalog:'

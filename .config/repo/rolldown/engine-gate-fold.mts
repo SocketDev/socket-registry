@@ -781,7 +781,7 @@ export function createEngineGateFoldPlugin(
       // Rust-backed instance on meta.magicString when the build opts into
       // experimental.nativeMagicString; fall back to the npm package.
       const native = (
-        meta as { magicString?: MagicString | undefined } | undefined
+        meta as unknown as { magicString?: MagicString | undefined } | undefined
       )?.magicString
       const ms = native ?? new MagicString(code)
       let folded = false
@@ -812,7 +812,10 @@ export function createEngineGateFoldPlugin(
       if (native) {
         return { code: ms as unknown as string }
       }
-      return { code: ms.toString(), map: ms.generateMap({ hires: true }) }
+      return {
+        code: ms.toString(),
+        map: ms.generateMap({ hires: true }).toString(),
+      }
     },
   }
 }

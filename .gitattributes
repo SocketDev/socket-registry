@@ -122,6 +122,7 @@ template/.claude/hooks/fleet/_shared/acorn/acorn.wasm binary
 .github/actions/fleet/checkout linguist-generated=true
 .github/actions/fleet/cleanup-git-signing linguist-generated=true
 .github/actions/fleet/debug linguist-generated=true
+.github/actions/fleet/github-payload-app-token linguist-generated=true
 .github/actions/fleet/github-pr-app-token linguist-generated=true
 .github/actions/fleet/github-release linguist-generated=true
 .github/actions/fleet/github-release-app-token linguist-generated=true
@@ -134,7 +135,7 @@ template/.claude/hooks/fleet/_shared/acorn/acorn.wasm binary
 .github/actions/fleet/setup-git-signing linguist-generated=true
 .github/agent-ci.Dockerfile linguist-generated=true
 .github/dependabot.yml linguist-generated=true
-.github/workflows/*.lock.yml linguist-generated=true
+.github/workflows/*.lock.yml linguist-generated=true merge=ours
 .github/workflows/get-green.lock.yml linguist-generated=true
 .github/workflows/get-green.md linguist-generated=true
 .github/workflows/get-green.yml linguist-generated=true
@@ -160,5 +161,7 @@ patches/taze@19.16.0.patch linguist-generated=true
 scripts/fleet linguist-generated=true
 scripts/repo/bootstrap linguist-generated=true
 test/fleet/_shared/lib linguist-generated=true
+test/fleet/nock-loopback-passthrough.test.mts linguist-generated=true
+test/fleet/publish-infra-placeholder.test.mts linguist-generated=true
 test/fleet/scripts/setup.mts linguist-generated=true
 # </fleet-canonical>
