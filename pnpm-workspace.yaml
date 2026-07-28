@@ -89,9 +89,9 @@ catalog:
   '@babel/parser': 7.29.7
   '@babel/traverse': 7.29.7
   '@babel/types': 7.29.7
-  '@biomejs/biome': 2.5.4
+  '@biomejs/biome': 2.5.5
   '@biomejs/js-api': 3.0.0
-  '@biomejs/wasm-nodejs': 2.5.4
+  '@biomejs/wasm-nodejs': 2.5.5
   '@eslint/compat': 1.4.1
   '@eslint/js': 9.39.5
   '@inquirer/checkbox': 4.3.2
