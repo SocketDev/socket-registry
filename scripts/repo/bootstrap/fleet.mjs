@@ -7,6 +7,7 @@ import {
   readFileSync,
   readdirSync,
   realpathSync,
+  renameSync,
   writeFileSync,
 } from 'node:fs'
 import os from 'node:os'
@@ -18,7 +19,7 @@ import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import crypto from 'node:crypto'
 import { execFileSync } from 'node:child_process'
 
-//#region template/bootstrap/src/helpers.mts
+//#region scripts/repo/gen/bootstrap/src/helpers.mts
 /**
  * Normalize bundle-manifest paths to their portable `/` wire format.
  */
@@ -189,7 +190,7 @@ function verifySegments(segmentsDir, manifest) {
 }
 
 //#endregion
-//#region template/bootstrap/src/applied-state.mts
+//#region scripts/repo/gen/bootstrap/src/applied-state.mts
 const SETTINGS_CANDIDATES = [
   '.config/repo/socket-wheelhouse.json',
   '.config/socket-wheelhouse.json',
@@ -285,7 +286,84 @@ function writeAppliedRef(dest, ref) {
 }
 
 //#endregion
-//#region template/bootstrap/src/install-thin-prune.mts
+//#region template/base/scripts/fleet/_shared/fleet-canonical-splice.mts
+const FLEET_CANONICAL_END_SENTINEL = ['#fleet', 'canonical', 'end'].join('-')
+const FLEET_CANONICAL_SPLICE_FILES = [
+  '.config/fleet/oxlintrc.json',
+  '.config/fleet/.prettierignore',
+]
+/**
+ * True when `relPath` (repo-relative, either separator) is a designated
+ * segment file — the path gate every splice call site checks first.
+ */
+function isFleetCanonicalSpliceFile(relPath) {
+  return FLEET_CANONICAL_SPLICE_FILES.includes(relPath.replaceAll('\\', '/'))
+}
+/**
+ * Index just past the first end-sentinel token, including the closing quote
+ * when the sentinel is a JSON string element. Returns -1 when the sentinel is
+ * absent. The FIRST occurrence is the boundary — a tail that mentions the
+ * sentinel text again never moves it.
+ */
+function fleetCanonicalEndBoundary(content) {
+  const idx = content.indexOf(FLEET_CANONICAL_END_SENTINEL)
+  if (idx === -1) return -1
+  let boundary = idx + FLEET_CANONICAL_END_SENTINEL.length
+  if (content.charAt(boundary) === '"') boundary += 1
+  return boundary
+}
+/**
+ * True when `content` carries the end sentinel, i.e. placement must be
+ * sentinel-scoped rather than a whole-file copy. Content is the SECOND gate:
+ * call sites gate on `isFleetCanonicalSpliceFile` first — a non-designated
+ * file is always a plain byte copy no matter what its content mentions.
+ */
+function hasFleetCanonicalEndSentinel(content) {
+  return content.includes(FLEET_CANONICAL_END_SENTINEL)
+}
+/**
+ * Compute the placement result for a designated segment file: the canonical
+ * source's bytes through its end sentinel, followed by the target's bytes
+ * after its own end sentinel — the repo-local tail, preserved byte-for-byte.
+ * A target with no tail round-trips to exactly the source bytes. When either
+ * side lacks the end sentinel the source wins whole — the plain mirror-copy
+ * behavior, which also seeds a first placement.
+ */
+function spliceFleetCanonicalContent(source, target) {
+  const sourceBoundary = fleetCanonicalEndBoundary(source)
+  if (sourceBoundary === -1) return source
+  const targetBoundary = fleetCanonicalEndBoundary(target)
+  if (targetBoundary === -1) return source
+  return source.slice(0, sourceBoundary) + target.slice(targetBoundary)
+}
+
+//#endregion
+//#region template/base/scripts/fleet/_shared/github-tracked-surface.mts
+const ALWAYS_TRACKED_GITHUB_PREFIXES = [
+  '.github/actions/fleet/',
+  '.github/workflows/',
+]
+/**
+ * True when `relPath` (repo-relative, either separator) is part of the GitHub
+ * CI surface a member must keep git-tracked even when thin — a workflow file or
+ * a fleet composite action. `thinIgnoreEntries` gates on this so the untrack
+ * set can never strand CI: GitHub reads both surfaces from the committed tree
+ * before any fetch step runs, so a `git rm --cached` would break the member's
+ * CI outright.
+ */
+function isAlwaysTrackedGitHubSurface(relPath) {
+  const p = relPath.replaceAll('\\', '/')
+  for (
+    let i = 0, { length } = ALWAYS_TRACKED_GITHUB_PREFIXES;
+    i < length;
+    i += 1
+  )
+    if (p.startsWith(ALWAYS_TRACKED_GITHUB_PREFIXES[i])) return true
+  return false
+}
+
+//#endregion
+//#region scripts/repo/gen/bootstrap/src/install-thin-prune.mts
 /**
  * The hybrid (segment + settingsSegment) path set thinIgnoreEntries excludes
  * from its wholly-fleet list.
@@ -300,7 +378,7 @@ function computeHybridPaths(manifest) {
 }
 
 //#endregion
-//#region template/bootstrap/src/yaml-merge.mts
+//#region scripts/repo/gen/bootstrap/src/yaml-merge.mts
 const COL0_KEY_RE = /^[A-Za-z][\w-]*:/
 /**
  * Parse a YAML string into an ordered list of top-level key blocks. Each block
@@ -559,7 +637,7 @@ function rewriteDispatchCommands(settings, make) {
 }
 
 //#endregion
-//#region template/bootstrap/src/settings.mts
+//#region scripts/repo/gen/bootstrap/src/settings.mts
 const FLEET_SETTINGS_BEGIN = '// <fleet-canonical>'
 const FLEET_SETTINGS_END = '// </fleet-canonical>'
 function cloneJson(value) {
@@ -661,19 +739,160 @@ function spliceRepoHookEntry(settings, event, matcher, hook) {
 }
 
 //#endregion
-//#region template/bootstrap/src/install.mts
+//#region scripts/repo/gen/bootstrap/src/install-prune.mts
+/**
+ * @file Installer-side manifest SYNC-PRUNE: the three operations that make a
+ *   bundle refresh a true sync (place + prune) rather than an additive smear —
+ *   apply per-repo-owned file MOVES, delete manifest TOMBSTONES, and prune
+ *   stale fleet files the previous manifest owned. All three are
+ *   manifest-scoped (they read the manifest / applied-files record, never a
+ *   directory walk) and carry the same producer-agnostic "shipped belt" so a
+ *   bad manifest entry can never touch freshly placed payload. Split out of
+ *   install.mts along the sync-prune seam to hold that file under the line cap;
+ *   install.mts re-exports these so its public surface (and fleet.mts's
+ *   re-export of it) is unchanged. Dep-0, same invariant as install.mts (node:
+ *   builtins + lib-stable only, never the in-repo socket-lib).
+ */
+/**
+ * Apply the manifest's per-repo-owned file MOVES (`movedPaths`) — the rename
+ * half of relocating a file the fleet does NOT byte-mirror. A plain tombstone
+ * would delete the member's only copy with nothing in the bundle to re-create
+ * it (the file is repo-owned; the bundle never ships it), so the move renames
+ * `from` → `to` when `to` is absent — repo-owned content survives
+ * byte-for-byte — and deletes a stale `from` leftover once `to` exists. Runs
+ * BEFORE removeTombstonedPaths. Idempotent: a missing `from` is a no-op.
+ * Belt: a move whose `from` the current manifest ships a file at/under is
+ * skipped, so a bad producer entry can never displace freshly placed payload.
+ * Returns the count of paths acted on (renamed or cleaned up).
+ */
+function applyMovedPaths(dest, manifest) {
+  const movedPaths = manifest.movedPaths
+  if (!movedPaths || movedPaths.length === 0) return 0
+  const shipped = Object.keys(manifest.files).map(rel =>
+    normalizeBundlePath(rel),
+  )
+  let moved = 0
+  for (let i = 0, { length } = movedPaths; i < length; i += 1) {
+    const entry = movedPaths[i]
+    const from = normalizeBundlePath(entry.from)
+    const to = normalizeBundlePath(entry.to)
+    if (
+      !from ||
+      !to ||
+      shipped.some(f => f === from || f.startsWith(`${from}/`))
+    )
+      continue
+    const fromAbs = path.join(dest, from)
+    if (!existsSync(fromAbs)) continue
+    const toAbs = path.join(dest, to)
+    if (existsSync(toAbs)) safeDeleteSync(fromAbs)
+    else {
+      mkdirSync(path.dirname(toAbs), { recursive: true })
+      renameSync(fromAbs, toAbs)
+    }
+    moved += 1
+  }
+  return moved
+}
+/**
+ * Delete the manifest's TOMBSTONED paths (`removedPaths`) — files or whole
+ * dirs a past bundle shipped that the wheelhouse has since moved/retired. The
+ * applied-files prune below only covers a member whose record OWNED the old
+ * path; a fresh clone or a member whose record began after the move keeps the
+ * orphan forever (the v1.0.12 `.github/actions/fleet/lib` → `_shared` move did
+ * exactly that fleet-wide). Manifest-scoped like the prune — never a directory
+ * walk. Belt: a tombstone the current manifest ships a file at/under is
+ * skipped, so a bad producer entry can never delete freshly placed payload.
+ */
+function removeTombstonedPaths(dest, manifest) {
+  const removedPaths = manifest.removedPaths
+  if (!removedPaths || removedPaths.length === 0) return 0
+  const shipped = Object.keys(manifest.files).map(rel =>
+    normalizeBundlePath(rel),
+  )
+  let removed = 0
+  for (let i = 0, { length } = removedPaths; i < length; i += 1) {
+    const rel = normalizeBundlePath(removedPaths[i])
+    if (!rel || shipped.some(f => f === rel || f.startsWith(`${rel}/`)))
+      continue
+    const abs = path.join(dest, rel)
+    if (existsSync(abs)) {
+      safeDeleteSync(abs)
+      removed += 1
+    }
+  }
+  return removed
+}
+/**
+ * Prune stale fleet files so a fetch is a true SYNC (place + prune) — scoped
+ * to what the bundle PREVIOUSLY owned. Only a file the last-applied manifest
+ * shipped (the applied-files record, see readAppliedFiles) that the current
+ * manifest no longer ships is deleted. The prune list comes from MANIFESTS,
+ * never a directory walk, so repo-owned files that merely live beside the
+ * fleet payload — per-repo EXPECTED variants like
+ * `.config/fleet/tsconfig.check.json`, `.gitkeep` seeds, cascade-only
+ * release-excluded scripts under `scripts/fleet/` — can never be collateral.
+ * With no record (fresh clone, or the first refresh that introduces the
+ * record) nothing is pruned; the record starts with this apply and the next
+ * refresh prunes precisely.
+ */
+function pruneStaleFleetFiles(dest, manifest, previousFiles) {
+  if (!previousFiles || previousFiles.length === 0) return 0
+  const kept = new Set(Object.keys(manifest.files).map(normalizeBundlePath))
+  for (const segment of manifest.segments ?? [])
+    kept.add(normalizeBundlePath(segment.path))
+  if (manifest.settingsSegment !== void 0)
+    kept.add(normalizeBundlePath(manifest.settingsSegment.path))
+  let pruned = 0
+  for (let i = 0, { length } = previousFiles; i < length; i += 1) {
+    const rel = normalizeBundlePath(previousFiles[i])
+    if (kept.has(rel)) continue
+    const abs = path.join(dest, rel)
+    if (existsSync(abs)) {
+      safeDeleteSync(abs)
+      pruned += 1
+    }
+  }
+  return pruned
+}
+
+//#endregion
+//#region scripts/repo/gen/bootstrap/src/install.mts
 const logger$3 = getDefaultLogger()
 /**
- * Copy every verified byte-identical file from `filesDir` into `dest`,
- * creating parent directories as needed.
+ * Place every verified bundle file from `filesDir` into `dest`, creating
+ * parent directories as needed. Sentinel-scoped ONLY for the DESIGNATED
+ * segment files (FLEET_CANONICAL_SPLICE_FILES): the bundle bytes replace
+ * everything through the fleet-canonical end sentinel and the member tail
+ * after it survives byte-for-byte — the repo-local oxlintrc ignorePatterns,
+ * the derived .prettierignore lockstep-mirrors block. A whole-file copy here
+ * wiped exactly those tails on every bootstrap-path refresh. Every other file
+ * is a plain byte copy — the PATH gate is load-bearing: content-only gating
+ * spliced ANY placed file merely mentioning the sentinel token, stitching
+ * stale member tails onto fresh bundle heads (the v1.0.14 fetcher-chimera
+ * incident). A designated file landing for the first time also byte-copies.
  */
 function installFiles(filesDir, dest, manifest) {
   const rels = Object.keys(manifest.files)
   for (let i = 0, { length } = rels; i < length; i += 1) {
     const rel = rels[i]
+    const source = path.join(filesDir, rel)
     const target = path.join(dest, rel)
     mkdirSync(path.dirname(target), { recursive: true })
-    copyFileSync(path.join(filesDir, rel), target)
+    if (isFleetCanonicalSpliceFile(rel) && existsSync(target)) {
+      const sourceContent = readFileSync(source, 'utf8')
+      if (hasFleetCanonicalEndSentinel(sourceContent)) {
+        writeFileSync(
+          target,
+          spliceFleetCanonicalContent(
+            sourceContent,
+            readFileSync(target, 'utf8'),
+          ),
+        )
+        continue
+      }
+    }
+    copyFileSync(source, target)
   }
 }
 /**
@@ -856,7 +1075,17 @@ function normalizeManifestEntryPath(entry) {
  * Compute the gitignore entries for thin mode — the wholly-fleet files that the
  * download/fetch action supplies, so they need not be git-tracked. Hybrid paths
  * (manifest.segments — CLAUDE.md, pnpm-workspace.yaml, …) are merged per repo
- * and stay tracked, so they're excluded.
+ * and stay tracked, so they're excluded. The DESIGNATED sentinel-splice files
+ * are hybrids too — they carry a member tail below the fleet-canonical end
+ * sentinel that only the member's git history preserves; untracking one turns
+ * the next fresh clone into a tail wipe.
+ *
+ * The GitHub CI surface (`isAlwaysTrackedGitHubSurface` —
+ * `.github/workflows/**` and `.github/actions/fleet/**`) is HARD-excluded too:
+ * GitHub reads a workflow's cron and a `uses: ./.github/actions/...` composite
+ * from the committed default-branch tree BEFORE any fetch step runs, so
+ * untracking one breaks CI outright. The bundle still ships them; they reach
+ * members in the cascade COMMIT, tracked.
  *
  * EVERY entry is EXPLICIT — one line per bundle file, never a blanket
  * `…/fleet/` dir entry. A dir blanket also swallows any future non-bundle
@@ -870,7 +1099,12 @@ function thinIgnoreEntries(manifest) {
   const files = Object.keys(manifest.files)
   for (let i = 0, { length } = files; i < length; i += 1) {
     const p = normalizeBundlePath(files[i])
-    if (hybridPaths.has(p)) continue
+    if (
+      hybridPaths.has(p) ||
+      isFleetCanonicalSpliceFile(p) ||
+      isAlwaysTrackedGitHubSurface(p)
+    )
+      continue
     entries.add(p)
   }
   return [...entries].toSorted()
@@ -920,70 +1154,9 @@ function applyThinMode(config) {
       )
     }
 }
-/**
- * Delete the manifest's TOMBSTONED paths (`removedPaths`) — files or whole
- * dirs a past bundle shipped that the wheelhouse has since moved/retired. The
- * applied-files prune below only covers a member whose record OWNED the old
- * path; a fresh clone or a member whose record began after the move keeps the
- * orphan forever (the v1.0.12 `.github/actions/fleet/lib` → `_shared` move did
- * exactly that fleet-wide). Manifest-scoped like the prune — never a directory
- * walk. Belt: a tombstone the current manifest ships a file at/under is
- * skipped, so a bad producer entry can never delete freshly placed payload.
- */
-function removeTombstonedPaths(dest, manifest) {
-  const removedPaths = manifest.removedPaths
-  if (!removedPaths || removedPaths.length === 0) return 0
-  const shipped = Object.keys(manifest.files).map(rel =>
-    normalizeBundlePath(rel),
-  )
-  let removed = 0
-  for (let i = 0, { length } = removedPaths; i < length; i += 1) {
-    const rel = normalizeBundlePath(removedPaths[i])
-    if (!rel || shipped.some(f => f === rel || f.startsWith(`${rel}/`)))
-      continue
-    const abs = path.join(dest, rel)
-    if (existsSync(abs)) {
-      safeDeleteSync(abs)
-      removed += 1
-    }
-  }
-  return removed
-}
-/**
- * Prune stale fleet files so a fetch is a true SYNC (place + prune) — scoped
- * to what the bundle PREVIOUSLY owned. Only a file the last-applied manifest
- * shipped (the applied-files record, see readAppliedFiles) that the current
- * manifest no longer ships is deleted. The prune list comes from MANIFESTS,
- * never a directory walk, so repo-owned files that merely live beside the
- * fleet payload — per-repo EXPECTED variants like
- * `.config/fleet/tsconfig.check.json`, `.gitkeep` seeds, cascade-only
- * release-excluded scripts under `scripts/fleet/` — can never be collateral.
- * With no record (fresh clone, or the first refresh that introduces the
- * record) nothing is pruned; the record starts with this apply and the next
- * refresh prunes precisely.
- */
-function pruneStaleFleetFiles(dest, manifest, previousFiles) {
-  if (!previousFiles || previousFiles.length === 0) return 0
-  const kept = new Set(Object.keys(manifest.files).map(normalizeBundlePath))
-  for (const segment of manifest.segments ?? [])
-    kept.add(normalizeBundlePath(segment.path))
-  if (manifest.settingsSegment !== void 0)
-    kept.add(normalizeBundlePath(manifest.settingsSegment.path))
-  let pruned = 0
-  for (let i = 0, { length } = previousFiles; i < length; i += 1) {
-    const rel = normalizeBundlePath(previousFiles[i])
-    if (kept.has(rel)) continue
-    const abs = path.join(dest, rel)
-    if (existsSync(abs)) {
-      safeDeleteSync(abs)
-      pruned += 1
-    }
-  }
-  return pruned
-}
 
 //#endregion
-//#region template/bootstrap/src/lockstep.mts
+//#region scripts/repo/gen/bootstrap/src/lockstep.mts
 const FLEET_REF_RE = /^fleet-[0-9a-f]{7,}$/
 const FULL_SHA_RE = /^[0-9a-f]{40}$/
 const FUZZY_REF_RE = /[\^~*]|\b(?:canary|head|latest|lts|main|master|next)\b/i
@@ -1196,7 +1369,7 @@ function formatUpdateNotice(config) {
 }
 
 //#endregion
-//#region template/bootstrap/src/resolve.mts
+//#region scripts/repo/gen/bootstrap/src/resolve.mts
 /**
  * @file GitHub release resolution and lock-step assertion helpers.
  *   Extracted from fleet.mts to keep that file under the 500-line soft cap.
@@ -1300,7 +1473,7 @@ function resolveReleaseTemplateSha(ref, repo) {
 }
 
 //#endregion
-//#region template/bootstrap/src/status.mts
+//#region scripts/repo/gen/bootstrap/src/status.mts
 /**
  * @file Status display helpers for `fleet:status` — the read-only status verb.
  *   Extracted from fleet.mts to keep that file under the 500-line soft cap.
@@ -1398,7 +1571,7 @@ function statusJson(state) {
 }
 
 //#endregion
-//#region template/bootstrap/src/fleet.mts
+//#region scripts/repo/gen/bootstrap/src/fleet.mts
 const logger = getDefaultLogger()
 const DEFAULT_REPO = 'SocketDev/socket-wheelhouse'
 const MANIFEST_NAME = 'release-bundle-manifest.json'
@@ -1645,6 +1818,7 @@ async function installFleet(config) {
       manifest,
       readAppliedFiles(dest),
     )
+    const movedCount = applyMovedPaths(dest, manifest)
     const tombstonedCount = removeTombstonedPaths(dest, manifest)
     installSegments(segmentsDir, dest, manifest)
     const settingsResult = installSettingsSegment(segmentsDir, dest, manifest)
@@ -1660,7 +1834,9 @@ async function installFleet(config) {
     writeAppliedRef(dest, sourceRef)
     writeAppliedFiles(dest, Object.keys(manifest.files))
     const prunedTotal = prunedCount + tombstonedCount
-    const prunedNote = prunedTotal > 0 ? `, pruned ${prunedTotal} stale` : ''
+    const movedNote = movedCount > 0 ? `, moved ${movedCount}` : ''
+    const prunedNote =
+      (prunedTotal > 0 ? `, pruned ${prunedTotal} stale` : '') + movedNote
     logger.log(
       `install-fleet: placed ${fileCount} file(s) + ${segmentCount} segment(s)${prunedNote} from ${sourceRef} (template ${manifest.templateSha}) → ${dest}.`,
     )
@@ -1692,6 +1868,7 @@ export {
   PREPARE_FETCH,
   SYNC_FLEET_SCRIPT,
   UPDATE_NOTIFIER_OPT_OUT_ENV,
+  applyMovedPaths,
   applyThinMode,
   assertLockStep,
   beginMarker,
