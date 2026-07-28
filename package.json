@@ -70,7 +70,8 @@
     "setup:rust": "node scripts/fleet/setup/rust.mts",
     "setup:mcp": "node scripts/fleet/setup/mcp.mts",
     "lockstep:emit-mirror-globs": "node scripts/fleet/lockstep-emit-mirror-globs.mts",
-    "socket-wheelhouse:emit-schema": "node scripts/fleet/socket-wheelhouse-emit-schema.mts"
+    "socket-wheelhouse:emit-schema": "node scripts/fleet/socket-wheelhouse-emit-schema.mts",
+    "mcp:reset": "node scripts/fleet/mcp-reset.mts"
   },
   "devDependencies": {
     "@babel/core": "catalog:",
