@@ -334,7 +334,7 @@ const FLEET_CANONICAL_SPLICE_FILES = [
   '.config/fleet/.prettierignore',
 ]
 /**
- * True when `relPath` (repo-relative, either separator) is a designated
+ * True when `relPath`, repo-relative, either separator, is a designated
  * segment file — the path gate every splice call site checks first.
  */
 function isFleetCanonicalSpliceFile(relPath) {
@@ -385,7 +385,7 @@ const ALWAYS_TRACKED_GITHUB_PREFIXES = [
   '.github/workflows/',
 ]
 /**
- * True when `relPath` (repo-relative, either separator) is part of the GitHub
+ * True when `relPath`, repo-relative, either separator, is part of the GitHub
  * CI surface a member must keep git-tracked even when thin — a workflow file or
  * a fleet composite action. `thinIgnoreEntries` gates on this so the untrack
  * set can never strand CI: GitHub reads both surfaces from the committed tree
@@ -593,15 +593,15 @@ const DISPATCH_EVENTS = ['PreToolUse', 'PostToolUse', 'SessionStart', 'Stop']
 const INDEX_REL = '.claude/hooks/fleet/index.cjs'
 const LAUNCHER_REL = '.claude/hooks/fleet/_dispatch/dispatch-launcher'
 /**
- * The compile-cache baseline command for an event (the cascaded canonical).
+ * The compile-cache baseline command for an event, the cascaded canonical.
  */
 function baselineCommand(event) {
   return `node "$CLAUDE_PROJECT_DIR"/${INDEX_REL} ${event}`
 }
 /**
- * A dispatch command for `event` in either form (baseline or launcher). Used to
+ * A dispatch command for `event` in either form, baseline or launcher. Used to
  * recognize an existing dispatch entry regardless of which path it's wired to,
- * so a rewrite is idempotent and replaces (never duplicates) the entry.
+ * so a rewrite is idempotent and replaces, never duplicates, the entry.
  */
 function isDispatchCommand(command, event) {
   return (
@@ -647,7 +647,7 @@ function launcherWiredEvents(settings) {
  * Rewrite every recognized dispatch command in `settings` to the form
  * `make(event)` produces. Returns the number of commands changed. Mutates in
  * place; the caller decides whether to persist. Passing `baselineCommand` as
- * `make` CANONICALIZES (both forms collapse to the baseline) — the shape the
+ * `make` CANONICALIZES, both forms collapse to the baseline — the shape the
  * fleet-drift comparison needs so a launcher-wired host doesn't read as drift.
  */
 function rewriteDispatchCommands(settings, make) {
