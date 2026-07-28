@@ -1,7 +1,9 @@
 /**
  * @file Git and npm-version discovery helpers for the publish workflow:
- *   checking out a commit, ensuring npm meets the trusted-publishing version
- *   floor, finding registry version-bump commits, and reading branch/SHA refs.
+ *   checking out a commit (a no-op under --dry-run, and a refusal rather than
+ *   a `git reset --hard` over a dirty local worktree), ensuring npm meets the
+ *   trusted-publishing version floor, finding registry version-bump commits,
+ *   and reading branch/SHA refs.
  *   Split out of publish-npm-packages.mts so that orchestrator stays under the
  *   file-size soft cap.
  */
@@ -11,14 +13,48 @@ import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 // oxlint-disable-next-line socket/prefer-stable-external-semver -- @socketsecurity/lib-stable has no ./external/semver export at the pinned version; semver is a devDependency (scripts/tests only, not bundled).
 import semver from 'semver'
 
+import { getEnv } from '../constants/env.mts'
 import { WIN32 } from '../constants/node.mts'
 
 const logger = getDefaultLogger()
 
+export interface CheckoutCommitOptions {
+  dryRun?: boolean | undefined
+}
+
 /**
- * Checkout a specific commit and discard uncommitted changes.
+ * Check out a specific commit for the publish flow.
+ *
+ * A dry run previews the flow, so it leaves the worktree exactly as it found
+ * it — no reset, no checkout. A real run discards the previous iteration's
+ * build output before moving, which is safe on CI's disposable checkout but
+ * would destroy a parallel session's uncommitted work in a shared local one;
+ * a dirty local worktree therefore refuses instead of being blown away.
  */
-export async function checkoutCommit(sha: string) {
+export async function checkoutCommit(
+  sha: string,
+  options?: CheckoutCommitOptions | undefined,
+): Promise<void> {
+  const { dryRun = false } = {
+    __proto__: null,
+    ...options,
+  } as CheckoutCommitOptions
+  if (dryRun) {
+    logger.log(
+      `[dry-run] Leaving the worktree untouched; a real run would reset and check out ${sha}.`,
+    )
+    return
+  }
+  const status = await spawn('git', ['status', '--porcelain'])
+  const dirty = status.stdout.trim()
+  if (dirty && !getEnv().CI) {
+    throw new Error(
+      `Refusing to reset a dirty worktree for the publish checkout.\n` +
+        `  Where: this checkout, moving to ${sha}.\n` +
+        `  Saw vs wanted: ${dirty.split('\n').length} uncommitted change(s); wanted a clean worktree, because the checkout starts with \`git reset --hard\` and would discard them permanently (fleet checkouts are shared with parallel sessions).\n` +
+        `  Fix: commit or move the changes, then re-run — or pass --dry-run to preview the publish flow without touching the worktree.`,
+    )
+  }
   // Discard any uncommitted changes from previous builds.
   await spawn('git', ['reset', '--hard'])
   await spawn('git', ['checkout', sha])
