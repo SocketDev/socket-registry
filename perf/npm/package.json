@@ -4,8 +4,8 @@
   "private": true,
   "bin": {},
   "devDependencies": {
-    "@socketregistry/json-stable-stringify": "workspace:^",
-    "@socketsecurity/registry": "file:../../registry",
+    "@socketregistry/json-stable-stringify": "workspace:1.0.14",
+    "@socketsecurity/registry": "catalog:",
     "fast-json-stable-stringify": "2.1.0",
     "json-stable-stringify": "1.3.0",
     "tinybench": "5.0.1"

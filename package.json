@@ -87,7 +87,7 @@
     "@redwoodjs/agent-ci": "catalog:",
     "@shadscan/cli": "catalog:",
     "@sinclair/typebox": "catalog:",
-    "@socketregistry/is-unicode-supported": "workspace:*",
+    "@socketregistry/is-unicode-supported": "workspace:1.0.5",
     "@socketregistry/packageurl-js": "catalog:",
     "@socketregistry/packageurl-js-stable": "catalog:",
     "@socketsecurity/lib": "catalog:",
