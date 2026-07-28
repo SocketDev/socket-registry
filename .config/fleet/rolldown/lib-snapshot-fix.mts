@@ -48,7 +48,7 @@ const ASYNC_LOCAL_STORAGE_REL = ['env/rewire.js', 'themes/context.js'] as const
  * = new AsyncLocalStorage()` becomes a lazily-constructed accessor. Every read
  * site already goes through a function body, so swapping the eager binding for
  * a first-use getter is behavior-preserving. The transform is a targeted
- * textual edit (the store source is rolldown-emitted, stable shape): the `const
+ * textual edit, the store source is rolldown-emitted, stable shape: the `const
  * <name> = new AsyncLocalStorage()` line is replaced with a `__lazy_<name>`
  * holder + a getter, and every later `<name>.` member access is routed through
  * the getter.
@@ -62,7 +62,7 @@ function deferAsyncLocalStorage(src: string): string {
     names.push(name)
     // Lazy holder + getter. `AsyncLocalStorage` is the destructured ctor already
     // in module scope; the getter is the only thing that calls `new`, deferring
-    // the native-handle registration to first use (post-deserialize at runtime).
+    // the native-handle registration to first use, post-deserialize at runtime.
     return (
       `let __lazy_${name};\n` +
       `function __get_${name}() {\n` +

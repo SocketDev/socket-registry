@@ -78,7 +78,7 @@ export async function runApproveStep(config: {
     args.push('--dry-run')
   }
   // A --yes run off a terminal still needs a PTY: the registry challenges 2FA
-  // and npm only opens the browser (and stays alive to poll) when it believes
+  // and npm only opens the browser, and stays alive to poll, when it believes
   // it has one. On a real TTY npm drives its own flow, so run unwrapped.
   const pty =
     !cfg.dryRun && !isTty

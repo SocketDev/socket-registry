@@ -70,8 +70,8 @@ export function renameFactorySuffixes(code: string): string {
   const targets = new Map<string, string>()
   return code.replace(
     // `\b` word boundary, group 1: `require_` + letter/underscore start + word
-    // chars (the factory base name), then a literal `$`, group 2: one or more
-    // digits (the deconflicter-appended numeric suffix), then `\b` boundary.
+    // chars, the factory base name, then a literal `$`, group 2: one or more
+    // digits, the deconflicter-appended numeric suffix, then `\b` boundary.
     /\b(require_[A-Za-z_]\w*)\$(\d+)\b/g,
     (whole, base: string, n: string) => {
       let target = targets.get(whole)

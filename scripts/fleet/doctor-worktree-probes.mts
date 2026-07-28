@@ -3,7 +3,7 @@
  *   possible reinstall, kept out of doctor.mts's dispatcher so it stays under
  *   the file-size cap:
  *
- *   - GAP 13: worktree node_modules is a FOREIGN symlink (into another repo).
+ *   - GAP 13: worktree node_modules is a FOREIGN symlink, into another repo.
  *     lstat the entry; only a symlink is readlink'd + resolved and judged by
  *     the pure isForeignNodeModulesSymlink. --fix removes the LINK only
  *     (safeDelete, never the target) then reinstalls with a frozen lockfile in
@@ -127,7 +127,7 @@ export async function runWorktreeProbes(config: {
  * has been SUSTAINEDLY tracked-clean + index.lock-free + HEAD/origin-stable
  * before the doctor diagnoses a moving tree. Returns whether the doctor may
  * proceed: true when the flag is absent or the repo settled, false on timeout
- * (the caller bails). The production consumer of awaitQuiescence.
+ * the caller bails. The production consumer of awaitQuiescence.
  */
 export async function readyToLand(
   argv: readonly string[],

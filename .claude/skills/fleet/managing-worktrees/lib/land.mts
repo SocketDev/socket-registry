@@ -29,16 +29,16 @@
  *   6. Fast-forward `origin/<base>` to the cherry-picked tip. NEVER force-push; if
  *      the push wouldn't be a clean fast-forward, abort and report (someone
  *      pushed since — re-run to pick up their commits).
- *   7. Remove the throwaway worktree + branch. Default is --dry-run (plan only).
+ *   7. Remove the throwaway worktree + branch. Default is --dry-run, plan only.
  *      Pass --push to act. This is the engine behind `managing-worktrees land`.
  *      Usage: node land.mts <commit>... # dry-run: plan landing these commits
  *      node land.mts --last 2 # the last 2 commits of HEAD node land.mts
  *      <commit>... --push # actually land them node land.mts --last 2 --push
  *      --local # target the LOCAL <base> instead of origin — fast-forwards
- *      the primary checkout's branch (no push), the tool for landing
+ *      the primary checkout's branch, no push, the tool for landing
  *      verified worktree commits onto local main
  *      --no-verify-lint / --no-verify-format # skip the lint / format re-assert
- *      (each only when a worktree can't run that tool). Neither skips the tsc
+ *      each only when a worktree can't run that tool. Neither skips the tsc
  *      type gate — that is mandatory and has no escape flag.
  */
 
@@ -103,8 +103,8 @@ export interface LandPlan {
 
 /**
  * Resolve the list of commit SHAs to land. `--last N` expands to the last N
- * commits of HEAD (oldest-first, the cherry-pick order); explicit SHAs are
- * taken as-is (also normalized oldest-first by their commit order).
+ * commits of HEAD, oldest-first, the cherry-pick order; explicit SHAs are
+ * taken as-is, also normalized oldest-first by their commit order.
  */
 export async function resolveCommits(
   repoDir: string,
@@ -125,7 +125,7 @@ export async function resolveCommits(
     ])
     return range.split('\n').filter(Boolean)
   }
-  // Explicit SHAs (everything that isn't a flag or a flag's value).
+  // Explicit SHAs, everything that isn't a flag or a flag's value.
   const flagValues = new Set<string>()
   const commits: string[] = []
   for (let i = 0, { length } = argv; i < length; i += 1) {
@@ -290,10 +290,10 @@ export async function formatLandsClean(
 /**
  * Generate the hook dispatch table into `repoDir`. The whole-project type gate
  * resolves imports across the tree — including `_dispatch/dispatch-table.mts`,
- * which is generated (not committed), so a fresh land / gate worktree lacks it
+ * which is generated, not committed, so a fresh land / gate worktree lacks it
  * and tsc would false-red on the missing module rather than surface real type
  * errors. Running the generator first makes the type check honest. A repo whose
- * checkout has no generator (a non-wheelhouse member) is a no-op. Best-effort:
+ * checkout has no generator, a non-wheelhouse member, is a no-op. Best-effort:
  * a generator failure leaves the table absent, and tsc then reds loudly on the
  * missing module — the type gate is never silently turned into a no-op.
  */
@@ -449,7 +449,7 @@ export async function cherryPickSeries(
  * the landing set's tip commit — with the primary checkout's
  * node_modules symlinked in for the toolchain. The edit-time gates then
  * assert the COMMIT bytes, not the working tree's: an uncommitted edit
- * (or revert) sitting on a changed file in the invoking checkout can
+ * or revert, sitting on a changed file in the invoking checkout can
  * neither green nor red a land it isn't part of.
  */
 export async function withGateWorktree<T>(

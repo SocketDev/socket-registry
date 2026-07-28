@@ -2807,6 +2807,8 @@ importers:
 
   .config/fleet/oxlint-plugin/fleet/no-package-manager-auto-update-reenable: {}
 
+  .config/fleet/oxlint-plugin/fleet/no-parenthetical-aside: {}
+
   .config/fleet/oxlint-plugin/fleet/no-placeholders: {}
 
   .config/fleet/oxlint-plugin/fleet/no-platform-specific-import: {}

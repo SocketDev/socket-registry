@@ -24,7 +24,7 @@
  *   tags accumulate in `.git`, so ONE tags-carrying checkout anywhere in the
  *   job satisfies every later step.
  *
- *   OUT OF SCOPE (by evidence, not by omission) — a job that reads tags from
+ *   OUT OF SCOPE, by evidence, not by omission — a job that reads tags from
  *   the REMOTE (`git ls-remote --tags`, as release-reconcile's `gap` job does)
  *   needs no local tags, and a job that only resolves a tag name from the event
  *   payload (github-release.yml's resolve-release-tag.mjs) never touches the
@@ -97,7 +97,7 @@ export const DERIVATION_ENTRIES: readonly DerivationEntry[] = [
 // Matches the key line only; the value must be exactly true.
 const FETCH_TAGS_TRUE_RE = /^\s*fetch-tags:\s*['"]?true['"]?\s*(?:#.*)?$/
 
-// `fetch-depth: 0` (full history, which carries tags) on either the third-party
+// `fetch-depth: 0`, full history, which carries tags, on either the third-party
 // action's `with:` block or the fleet composites' `checkout-fetch-depth:` input.
 const FETCH_DEPTH_ZERO_RE =
   /^\s*(?:checkout-)?fetch-depth:\s*['"]?0['"]?\s*(?:#.*)?$/
@@ -259,7 +259,7 @@ export function checkoutSignals(job: WorkflowJob): string[] {
 
 /**
  * True when some step in the job checks out with the `v*` tags reachable:
- * `fetch-tags: true`, a full-history `fetch-depth: 0` (which carries tags), or
+ * `fetch-tags: true`, a full-history `fetch-depth: 0`, which carries tags, or
  * an inline `git fetch … --tags` bootstrap. Per-JOB, because tags fetched by an
  * earlier step stay in `.git` for every later one. Pure.
  */

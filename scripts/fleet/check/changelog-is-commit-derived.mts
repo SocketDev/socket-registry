@@ -201,7 +201,7 @@ async function main(): Promise<void> {
   }
 
   // The top CHANGELOG section must be the pending version. A mismatch means the
-  // bump touched package.json without a matching CHANGELOG entry (or vice versa).
+  // bump touched package.json without a matching CHANGELOG entry, or vice versa.
   if (topVersion !== version) {
     fail(
       `package.json is at ${version} (ahead of tag ${tag}) but the top CHANGELOG ` +
@@ -213,14 +213,14 @@ async function main(): Promise<void> {
 
   const { commits } = derivation
   if (commits.length === 0) {
-    // No history to derive from (shallow clone) — fail-open.
+    // No history to derive from, shallow clone — fail-open.
     return
   }
   const repositoryUrl =
     typeof pkg.repository === 'string' ? pkg.repository : pkg.repository?.url
   const expected = generateChangelogSection({
     commits,
-    // Date is excluded from the comparison (bullets only), so any value is fine.
+    // Date is excluded from the comparison, bullets only, so any value is fine.
     date: '0000-00-00',
     repoUrl: repoBaseUrl(repositoryUrl),
     version,

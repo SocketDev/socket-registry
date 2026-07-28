@@ -11,7 +11,7 @@
  *   commit; this pipeline stages the bumped version, verifies it, and its
  *   `--approve` promotes + releases. The two share one state file, so publish
  *   resumes from the recorded target version + a passing `bump` receipt; it
- *   REFUSES when the bump hasn't landed (run the release pipeline first). The
+ *   REFUSES when the bump hasn't landed, run the release pipeline first. The
  *   GATE INVERSION is deliberate: publishing never waits on a GitHub release —
  *   the release waits on the publish. The release stage REFUSES without a
  *   passed approve receipt AND without the version being resolvable on the
@@ -167,7 +167,7 @@ export async function runPublishPipeline(
     if (outcome.releaseChecksums) {
       state_ = withReleaseChecksums(state_, outcome.releaseChecksums)
     }
-    // Publish stages key on the target version (the bumped version), never the
+    // Publish stages key on the target version, the bumped version, never the
     // tree sha — the bump commit already moved HEAD by design.
     state_ = persistOutcome(state_, stage, outcome, {
       dryRun: cli.dryRun,

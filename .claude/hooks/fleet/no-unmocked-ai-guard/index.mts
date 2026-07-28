@@ -91,7 +91,7 @@ export function callsUnmockedAi(content: string): boolean {
 
 // True when the file ALREADY on disk mocks something. An Edit's content is
 // only the inserted fragment, so a test whose `vi.mock` sits at the top of the
-// file (where it must, to be hoisted) looks unmocked to a fragment-only scan —
+// file, where it must, to be hoisted, looks unmocked to a fragment-only scan —
 // adding any `spawnAiAgent(` call to a properly-mocked suite would false-block.
 // The whole-file read is the authority for the mock, the payload for the call.
 export function fileAlreadyMocks(filePath: string): boolean {

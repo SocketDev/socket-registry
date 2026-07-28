@@ -29,7 +29,7 @@ const config: RolldownOptions = {
     codeSplitting: false,
     file: EXCLUDED_BUNDLE_PATH,
     format: 'cjs',
-    // Fleet hard rule: never minify, no source maps (auditable output).
+    // Fleet hard rule: never minify, no source maps, auditable output.
     minify: false,
     sourcemap: false,
   },

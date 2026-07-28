@@ -95,7 +95,7 @@ export async function runQuietCommand(
 // Move a vitest tier's throwaway scratch `coverage-final.json` to its flat
 // per-tier path in COVERAGE_DIR. The next tier's `clean: true` wipes the scratch
 // report, so each tier's result must be lifted out before the next runs. copy
-// (not rename) since scratch lives in os.tmpdir, possibly on another device.
+// not rename, since scratch lives in os.tmpdir, possibly on another device.
 // Returns whether a report was present to persist.
 function persistScratchFinal(destPath: string): boolean {
   const scratchFinal = path.join(
@@ -270,7 +270,7 @@ export function pnpmDirChurned(
  * empty merged report is a v8→istanbul conversion failure (a false-green
  * 0.00%), not a real 0% codebase. Best-effort per dir — a missing or unreadable
  * dir contributes nothing. Must be read BEFORE the conversion, which consumes
- * (and deletes) the children-raw dir.
+ * and deletes, the children-raw dir.
  */
 export function countRawV8Profiles(
   dirs?: readonly string[] | undefined,
@@ -429,7 +429,7 @@ export async function waitForPnpmQuiescence(
 
 // Thrown when the subprocess coverage capture is PROVABLY incomplete at the
 // drain timeout — the raw-fragment dir is still growing, or a fragment is
-// truncated (a child was mid-write when read). Failing loud is deliberate:
+// truncated, a child was mid-write when read. Failing loud is deliberate:
 // silently merging a partial capture under-reports the aggregate (a coverage
 // false-red that flips on runner timing). See drainChildFragments.
 export class IncompleteChildCaptureError extends Error {
@@ -509,7 +509,7 @@ function fragmentsStable(a: FragmentSnapshot, b: FragmentSnapshot): boolean {
  * FAIL LOUD: if the cap is hit while the dir is STILL growing or a fragment is
  * truncated, throw IncompleteChildCaptureError rather than merge a partial —
  * never silently report a low aggregate. Conservative: if the final observed
- * state is stable + complete (just short of the quiet streak), it ACCEPTS
+ * state is stable + complete, just short of the quiet streak, it ACCEPTS
  * rather than false-red a genuinely settled dir.
  *
  * Honest limit: a child SIGKILLed on a test-timeout wrote no fragment at all,
@@ -668,7 +668,7 @@ export async function buildChildrenCoverageReport(): Promise<boolean> {
   return produced
 }
 
-// Build with source maps for coverage (repos that ship a build entry) so v8
+// Build with source maps for coverage, repos that ship a build entry, so v8
 // coverage maps back to original sources; repos with no build entry are
 // instrumented directly. Returns whether the build failed.
 export async function buildWithSourceMaps(repoRoot: string): Promise<boolean> {

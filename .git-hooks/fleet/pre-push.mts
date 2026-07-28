@@ -9,11 +9,11 @@
 //   `core.hooksPath = .git-hooks`) → node .git-hooks/pre-push.mts
 //
 // Range logic:
-//   New branch:  remote/<default_branch>..<local_sha>  (only new commits)
-//   Existing:    <remote_sha>..<local_sha>             (only new commits)
+//   New branch:  remote/<default_branch>..<local_sha>  only new commits
+//   Existing:    <remote_sha>..<local_sha>             only new commits
 //   We never use release tags — that would re-scan already-merged history.
 //
-// Stdin format (provided by git): one push line per ref, each line:
+// Stdin format, provided by git: one push line per ref, each line:
 //   <local_ref> <local_sha> <remote_ref> <remote_sha>
 //
 // This entry point is a thin orchestrator: each gate lives in a focused
@@ -26,7 +26,7 @@ import { spawnSync } from '@socketsecurity/lib-stable/process/spawn/child'
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
-// Import `splitLines` from the barrel (not the scan-core leaf) so the Node-25
+// Import `splitLines` from the barrel, not the scan-core leaf, so the Node-25
 // version gate in `../_shared/helpers.mts` runs at load — every gate below
 // assumes native .mts type stripping.
 import { splitLines } from '../_shared/helpers.mts'
@@ -96,7 +96,7 @@ const main = async (): Promise<number> => {
     totalErrors += scanFilesInRange(range)
   }
 
-  // File-targeted scans (working-tree state, not per-commit-range).
+  // File-targeted scans, working-tree state, not per-commit-range.
   totalErrors += scanSoakAnnotations()
 
   // Fast lint/format gate — the build-independent slice of the quality bar,

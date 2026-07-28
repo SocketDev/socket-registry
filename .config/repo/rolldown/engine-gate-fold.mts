@@ -86,7 +86,7 @@ export type EngineGateFoldOptions = {
   /**
    * Directory holding the package.json of the package BEING BUILT — its
    * `engines.node` decides every fold verdict. Defaults to process.cwd()
-   * (builds run from the repo root).
+   * builds run from the repo root.
    */
   readonly packageDir?: string | undefined
 }
@@ -124,7 +124,7 @@ export function readEnginesNode(packageDir: string): string {
 /**
  * Interval math for one gate: every version allowed by engines satisfies the
  * gate range → constant true; no allowed version satisfies it → constant
- * false; partial overlap (or an unparsable range) → undefined = untouched.
+ * false; partial overlap, or an unparsable range → undefined = untouched.
  */
 export function foldVerdict(
   enginesRange: string,
@@ -143,7 +143,7 @@ export function foldVerdict(
 }
 
 // oxc emits `MemberExpression` in ESTree mode but older/native shapes use the
-// Static/Computed split — tolerate all three (same posture as define-guarded).
+// Static/Computed split — tolerate all three, same posture as define-guarded.
 function isMemberType(type: unknown): boolean {
   return (
     type === 'ComputedMemberExpression' ||
@@ -200,7 +200,7 @@ function moduleBindingForSpec(spec: string): GateBinding | undefined {
   return undefined
 }
 
-// A binding that holds one named export (named import, destructured require).
+// A binding that holds one named export, named import, destructured require.
 function namedBindingForSpec(
   spec: string,
   importedName: string,
@@ -386,7 +386,7 @@ function classifyGateCall(
     return undefined
   }
   // Direct semver forms: exactly (process.version, 'literal'). An options
-  // argument (or any extra) leaves the gate untouched — its prerelease
+  // argument, or any extra, leaves the gate untouched — its prerelease
   // semantics aren't worth modeling here.
   if (
     args.length !== 2 ||
@@ -741,7 +741,7 @@ async function verifyHelper(
 
 /**
  * Build the engine-gate-fold rolldown plugin. Reads `engines.node` from
- * `packageDir` (default cwd) once and throws when it is missing or invalid —
+ * `packageDir`, default cwd, once and throws when it is missing or invalid —
  * the transform never runs against an undeclared runtime floor.
  */
 export function createEngineGateFoldPlugin(

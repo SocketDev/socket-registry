@@ -9,12 +9,12 @@
  *   sibling agent is actively editing. Real quiescence therefore folds in the
  *   PRIMARY TREE (trackedDirty — tracked-only, so a stray build artifact never
  *   masks it), a stable LOCAL HEAD (the co-session's own commits land here
- *   first), and a held .git/index.lock (a git operation in flight), and it must
+ *   first), and a held .git/index.lock, a git operation in flight, and it must
  *   be SUSTAINED across several samples rather than caught in a single lucky gap.
  *
  *   Complements _shared/git-mutex.mts: the mutex SERIALIZES fleet landers so two
  *   of them never race .git/index.lock; this module answers the orthogonal
- *   question of whether ANY actor (fleet or not, agent or human) is mid-flight,
+ *   question of whether ANY actor, fleet or not, agent or human, is mid-flight,
  *   so a cross-session land can hold off before it even reaches for the mutex.
  */
 
@@ -60,7 +60,7 @@ export interface RunResult {
 }
 
 /**
- * Injectable command runner: (cmd, args, cwd) -> { status, stdout }. Tests pass
+ * Injectable command runner: cmd, args, cwd -> { status, stdout }. Tests pass
  * canned git output; production uses `defaultRun` (blocking spawnSync, like
  * git-mutex's rev-parse probe and cascade-and-land's defaultRun seam).
  */
@@ -189,7 +189,7 @@ function sleep(ms: number): Promise<void> {
 
 /**
  * Poll readQuiescenceSignal until the repo has been BOTH quiescent AND stable
- * (vs the immediately prior sample) for `needStable` consecutive samples, then
+ * vs the immediately prior sample, for `needStable` consecutive samples, then
  * return that settled signal. Returns undefined on timeout. The loop is thin by
  * design — every decision lives in the pure isRepoQuiescent / signalsStable
  * functions above.

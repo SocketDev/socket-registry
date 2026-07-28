@@ -74,7 +74,7 @@ if (!TEMPLATE_SHA) {
 const SCRIPT_DIR = import.meta.dirname
 const FLEET_REPOS_FILE = path.join(SCRIPT_DIR, 'fleet-repos.txt')
 // The structured roster carries each member's GitHub owner. The .txt is bare
-// names; owner (for a cross-org member like decmpfs) lives in the .json sibling.
+// names; owner, for a cross-org member like decmpfs, lives in the .json sibling.
 const FLEET_REPOS_JSON = path.join(SCRIPT_DIR, 'fleet-repos.json')
 const PROJECTS = process.env['PROJECTS'] || path.join(os.homedir(), 'projects')
 
@@ -108,7 +108,7 @@ function loadRoster(): RosterView {
     }
   } catch {
     // No / invalid .json — every repo defaults to SocketDev via ownerOf, and
-    // the membership gate below refuses the wave (no roster, no writes).
+    // the membership gate below refuses the wave, no roster, no writes.
   }
   return { names, owners }
 }
@@ -197,7 +197,7 @@ function preflightOrAbort(): void {
     )
     process.exit(2)
   }
-  // (2) No other cascade in flight (concurrent waves wedge on the sfw proxy).
+  // (2) No other cascade in flight, concurrent waves wedge on the sfw proxy.
   const ps = spawnSync('pgrep', ['-f', 'cascade-template\\.mts'], {
     encoding: 'utf8',
   })

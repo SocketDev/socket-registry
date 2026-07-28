@@ -1,6 +1,6 @@
 /**
  * @file Generate a package.json `exports` map from a publishable package's
- *   public file surface. Opt-in per package (a package supplies a config); the
+ *   public file surface. Opt-in per package, a package supplies a config; the
  *   guiding question is "when we publish to npm, what do we want a consumer to
  *   import?". One generator handles both dist-based packages (output under
  *   `dist/`) and packages whose published files sit at the package root.
@@ -36,7 +36,7 @@ import { isMainModule } from '../_shared/is-main-module.mts'
 
 const logger = getDefaultLogger()
 
-// A single export condition target (a file path) keyed by condition name.
+// A single export condition target, a file path, keyed by condition name.
 // `source` (dev: resolve to TS src for coverage), `browser`, `types`, and
 // `default` are the conditions the engine emits. Order is significant in the
 // emitted object — most-specific first — so consumers/bundlers match correctly.
@@ -53,7 +53,7 @@ export interface ExportConditions {
 }
 
 // One alias entry: a public subpath that re-points at the canonical target's
-// value (no source file behind it). Used for fleet-compat barrels.
+// value, no source file behind it. Used for fleet-compat barrels.
 // When `browserTo` is set, the alias additionally splices a `browser` condition
 // pointing at THAT leaf's value — the `./logger` (Node) → `./logger/browser`
 // (browser-impl) pattern, where the browser build wants a different file.
@@ -72,13 +72,13 @@ export interface ExportsConfig {
   readonly nodeRange?: string | undefined
   // Named after the package.json fields they produce.
   //
-  // `files` — globs (relative to the package) of candidate published files;
+  // `files` — globs, relative to the package, of candidate published files;
   // produces both the export surface and the `files[]` allowlist. Defaults to
   // every JS/JSON/d.ts under outDir.
   readonly files?: readonly string[] | undefined
   // `ignore` — exclusion globs on top of the built-in privacy taxonomy.
   readonly ignore?: readonly string[] | undefined
-  // `browser` — glob patterns (matched against the post-strip export path) that
+  // `browser` — glob patterns, matched against the post-strip export path, that
   // declare sibling-LESS leaves browser-safe; each match gets a self-routing
   // `browser` condition — browser resolves to the SAME file. Covers a subtree
   // (`./arrays/**`) or a browser-impl leaf (`**/browser`). This is the glob's
@@ -108,7 +108,7 @@ export interface ExportsConfig {
 
 // Built-in privacy taxonomy: a path segment of `external`, or any underscore-
 // prefixed leaf/dir, is private regardless of dist. Configurable per package
-// via ExportsConfig.privateSegments (adds exact segment names). The
+// via ExportsConfig.privateSegments, adds exact segment names. The
 // `_`-prefix rule is always on. Matched against a normalized (`/`) path.
 const DEFAULT_PRIVATE_PATH_RE = /(?:\/|^)(?:_[^/]*|external)(?:$|\/)/
 
@@ -121,7 +121,7 @@ export function privatePathMatcher(
   // Sort the configured segments (ASCII) so the alternation is stable +
   // satisfies sort-regex-alternations, then OR them with the defaults.
   const extra = [...privateSegments]
-    // oxlint-disable-next-line unicorn/no-array-sort -- the spread already copies `privateSegments` (no shared mutation); .toSorted() would trip socket/no-runtime-features-below-engine-floor in cascaded Node-18 repos.
+    // oxlint-disable-next-line unicorn/no-array-sort -- the spread already copies `privateSegments`, no shared mutation; .toSorted() would trip socket/no-runtime-features-below-engine-floor in cascaded Node-18 repos.
     .sort()
     .map(s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
     .join('|')
@@ -307,7 +307,7 @@ function browserSiblingEntry(
 // Add a `browser` condition to two kinds of entry:
 //   - OVERRIDE (automatic, needs NO glob): an entry whose `default` target has a
 //     `.browser.<ext>` build sibling. The `browser` condition points at that
-//     sibling and the sibling's own entry is consumed (never its own export).
+//     sibling and the sibling's own entry is consumed, never its own export.
 //     Order: source?, types, browser, default — `types` precedes every runtime
 //     condition so nodenext resolves types before the browser build. A sibling
 //     override ALWAYS wins, whether or not a `browser` glob is configured.
@@ -548,7 +548,7 @@ async function runGenerator(): Promise<void> {
   // A package opts in by shipping `scripts/repo/package-exports.config.mts`
   // (resolved relative to REPO_ROOT, not process.cwd() — scripts may be invoked
   // from any directory) with a default export of `{ config, packageDir? }`.
-  // Absent config = this package does not generate exports (the no-op opt-out).
+  // Absent config = this package does not generate exports, the no-op opt-out.
   const configPath = path.join(
     REPO_ROOT,
     'scripts/repo/package-exports.config.mts',

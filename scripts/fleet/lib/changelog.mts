@@ -51,7 +51,7 @@ const SUBJECT_RE =
 /**
  * Parse one `<type>(<scope>)!: <description>` subject plus its body into a
  * `ConventionalCommit`. Returns `undefined` for a subject that isn't
- * Conventional-Commit-shaped (merge commits, ad-hoc messages) so the caller can
+ * Conventional-Commit-shaped, merge commits, ad-hoc messages, so the caller can
  * skip it.
  */
 export function parseCommit(
@@ -76,7 +76,7 @@ export function parseCommit(
 
 /**
  * Parse a `git log --format=COMMIT_LOG_FORMAT` stream into commits, newest
- * first (git's default order). Non-conforming subjects are dropped.
+ * first, git's default order. Non-conforming subjects are dropped.
  */
 export function parseConventionalCommits(raw: string): ConventionalCommit[] {
   const out: ConventionalCommit[] = []
@@ -130,7 +130,7 @@ export function bumpLevelFor(
  * A committed version HINT: when package.json's version carries a prerelease
  * suffix (`6.0.10-prerelease`, `6.0.10-rc.1`), the base version IS the
  * human-named release target — the bump uses it instead of the commit-type
- * heuristic. A plain release version (no suffix) yields undefined (derive as
+ * heuristic. A plain release version, no suffix, yields undefined (derive as
  * usual). This lets a human pre-commit the version decision as a repo
  * artifact instead of threading a flag.
  */
@@ -144,7 +144,7 @@ export function versionHintFrom(current: string): string | undefined {
 
 /**
  * Apply a bump level to a semver `MAJOR.MINOR.PATCH` string. Any prerelease /
- * build suffix is dropped (a release bump produces a clean release version).
+ * build suffix is dropped, a release bump produces a clean release version.
  */
 export function computeNextVersion(current: string, level: BumpLevel): string {
   const parsed = parseVersion(current)
@@ -174,7 +174,7 @@ export interface ResolveBumpBaseConfig {
  * pre-bumped to 1.4.3, then the release bumped 1.4.3 → 1.4.4, so 1.4.3 was
  * never published. Excluding the manifest from the base means an ahead manifest
  * can never inflate it. Falls back to the manifest core ONLY for a genuine
- * first release (no published version, no tag).
+ * first release, no published version, no tag.
  */
 export function resolveBumpBase(config: ResolveBumpBaseConfig): string {
   const cfg = { __proto__: null, ...config } as ResolveBumpBaseConfig
@@ -339,7 +339,7 @@ export function withChangelogEntry(section: string, bullet: string): string {
 
 /**
  * Parse a changelog section's `### <Section>` blocks into a
- * `{ section -> bullet lines }` map (bullets kept verbatim, already rendered).
+ * `{ section -> bullet lines }` map, bullets kept verbatim, already rendered.
  * Pure over its input.
  */
 export function parseSectionBullets(section: string): Map<string, string[]> {

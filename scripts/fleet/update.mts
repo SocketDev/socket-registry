@@ -153,7 +153,7 @@ async function main(): Promise<void> {
     let { ok, output } = await run(step.cmd, step.args)
     if (ok && step.tazePass && collectPackumentFailures(output).length > 0) {
       // One retry absorbs a transient blip; a persistent failure set is a real
-      // outage (or a blocked endpoint) and must not pass silently.
+      // outage, or a blocked endpoint, and must not pass silently.
       logger.warn(
         'update: taze reported version-lookup failures; retrying the pass once…',
       )
@@ -337,7 +337,7 @@ async function main(): Promise<void> {
   // scripts) and age-checking each formula/cask/tap against its tap-commit date.
   // The node runner age-checks the pinned Node release against its published
   // date the same way. Each runner self-detects
-  // its OWN manifests/sites (skipping vendored trees) and, in its default
+  // its OWN manifests/sites, skipping vendored trees, and, in its default
   // dry-plan mode, prints the soak-cleared updates it WOULD apply — no ecosystem
   // toolchain is needed to plan. Applying stays a deliberate per-ecosystem step
   // (`node scripts/fleet/update/<eco>.mts --soak-days N --apply|--fix`) because it

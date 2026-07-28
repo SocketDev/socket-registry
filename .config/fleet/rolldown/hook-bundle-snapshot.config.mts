@@ -52,7 +52,7 @@ const config: RolldownOptions = {
     // (`const SharedArrayBufferCtor = SharedArrayBuffer`) at module-eval for
     // anti-tampering — throwing `SharedArrayBuffer is not defined` and breaking
     // the bundle. The dispatch boot path never constructs a SharedArrayBuffer, so
-    // a benign build-time alias (only when genuinely absent) lets the capture
+    // a benign build-time alias, only when genuinely absent, lets the capture
     // succeed without changing any runtime behavior. Gated on
     // `isBuildingSnapshot()` so it is a pure build-pass shim — a deserialized
     // process sees the real global. Mirrors the logger/semver snapshot-only stubs.
@@ -180,7 +180,7 @@ const config: RolldownOptions = {
     // In the dispatch path the logger is NEVER reached: the bundled guards'
     // `check` fns return verdict DATA (block/notify), and the dispatcher
     // surfaces messages itself via process.std{err,out} — `applyGuardResult`
-    // / `runGuard` (the only logger consumers) are standalone-entry paths the
+    // / `runGuard`, the only logger consumers, are standalone-entry paths the
     // snapshot deserialize-main never calls. Stubbing it here keeps the
     // PRODUCTION bundle's logger intact while letting the snapshot build.
     createLibStubPlugin({
@@ -229,7 +229,7 @@ const config: RolldownOptions = {
     // inside `getNotFoundCache()` — never on the snapshot boot path. This stub
     // re-implements the leaf with a `getCacache()` that requires the cacache
     // bundle on FIRST CALL (and `__toESM`-normalizes it the same way), so the
-    // cacache module-eval (and its handle) is deferred to runtime. Standalone
+    // cacache module-eval, and its handle, is deferred to runtime. Standalone
     // aube / the production bundle keep the eager `_internal.js`. This is what
     // unblocks check-new-deps for bundle A.
     createLibStubPlugin({

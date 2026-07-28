@@ -16,7 +16,7 @@
  *   the bump commit.
  *   ORDERING INVARIANT (bump-exactly-once): the bump — version + CHANGELOG
  *   section — happens LOCALLY, at release time, exactly once; CI never
- *   re-derives it (the re-entry no-op below refuses a second write). A
+ *   re-derives it, the re-entry no-op below refuses a second write. A
  *   section written early in CI while main advanced underneath went stale
  *   (packageurl-js 1.4.5 shipped a changelog missing later commits); deriving
  *   at the moment the release is cut means the section and the released
@@ -159,7 +159,7 @@ export async function findVersionFlipCommit(
  * and the CHANGELOG the drift check expects can never disagree: same base,
  * same anchor chain, same commit stream, same parser. Returns `undefined`
  * when a previous release exists but no anchor resolves, or when the registry
- * is unreachable (offline the released base cannot be confirmed) — never
+ * is unreachable, offline the released base cannot be confirmed — never
  * widen to an older tag.
  */
 export async function deriveReleaseCommits(config: {
@@ -240,7 +240,7 @@ export function changelogVersionSections(changelog: string): string[] {
     if (!line.startsWith('## ')) {
       continue
     }
-    // `## ` then an optional `[` (link-style heading) and optional `v`, then
+    // `## ` then an optional `[`, link-style heading, and optional `v`, then
     // the captured version: three dot-separated numbers plus an optional
     // `-prerelease` tail. Anchored, so only a heading's own version matches.
     const version = /^##\s+\[?v?(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)/.exec(
@@ -314,7 +314,7 @@ export function dropUnreleasedChangelogSections(
 
 /**
  * Insert a new CHANGELOG section above the first existing `## ` version heading
- * (after the file's intro). When the file has no version sections yet, append
+ * after the file's intro. When the file has no version sections yet, append
  * after a trailing blank line. IDEMPOTENT per version: when the changelog
  * already carries a section for the version the new section names, the input
  * is returned unchanged — a re-entrant bump (the release pipeline bumps
@@ -349,7 +349,7 @@ export function insertChangelogSection(
 
 /**
  * Compose the release section for `version` from BOTH bullet sources: the
- * commit-derived bullets (the shared anchor-chain derivation) UNIONED with the
+ * commit-derived bullets, the shared anchor-chain derivation, UNIONED with the
  * hand-written bullets accrued under `## [Unreleased]`, merged under their
  * matching Added/Changed/Fixed headings with exact-duplicate lines collapsed.
  * Promotion empties the `[Unreleased]` block from the returned
@@ -440,7 +440,7 @@ export function invisibleSrcCommits(
 /**
  * The files each of `hashes` touched, via `git diff-tree` per commit. Feeds
  * `invisibleSrcCommits`; a git failure yields an empty list for that hash
- * (the warning is best-effort, never a release blocker).
+ * the warning is best-effort, never a release blocker.
  */
 async function collectTouchedFiles(
   hashes: readonly string[],
@@ -526,7 +526,7 @@ export async function applyLockstepBump(
     siblingNames,
   }))
   if (layout.versionSource.relManifestPath === 'package.json') {
-    // The root manifest carries the version (the stuie shape) — it moves in
+    // The root manifest carries the version, the stuie shape — it moves in
     // lockstep too.
     inputs.push({
       name: '',
@@ -700,7 +700,7 @@ async function main(): Promise<void> {
   // The publish layout decides the bump subject: a single-package repo bumps
   // the root manifest exactly as before; a multi-package workspace (decmpfs,
   // stuie — private/versionless root, publishable members) bumps its VERSION
-  // SOURCE (root when it carries a version, else the main package) and
+  // SOURCE, root when it carries a version, else the main package, and
   // writes every publishable manifest in lockstep below. Resolution fails
   // LOUD when the repo has no publishable subject at all.
   const layout = resolveNpmWorkspaceLayout(rootPath)
@@ -745,7 +745,7 @@ async function main(): Promise<void> {
     return
   }
   const { anchor, base, commits } = derivation
-  // Safety-net WARNING (never red): chore/style/test commits that touch src/
+  // Safety-net WARNING, never red: chore/style/test commits that touch src/
   // are invisible to derivation — if they carry user-facing work it needs a
   // hand-written [Unreleased] bullet or a retype, else it ships undocumented
   // (the sdk 4.0.2 incident shape).
@@ -840,7 +840,7 @@ async function main(): Promise<void> {
       return
     }
     // The hint must advance PAST the last released version — a hint naming an
-    // already-published (or lower) version would re-publish or move backward.
+    // already-published, or lower, version would re-publish or move backward.
     if (!gt(hinted, base)) {
       logger.fail(
         `Version hint ${pkg.version} names ${hinted}, which is not ahead of the ` +
@@ -936,7 +936,7 @@ async function main(): Promise<void> {
 
   // The whole release chain bumps EXACTLY ONCE. When the CHANGELOG already
   // carries the section for nextVersion and package.json already reads it,
-  // the bump landed earlier (the release pipeline's bump stage) and this run
+  // the bump landed earlier, the release pipeline's bump stage, and this run
   // is a re-entry — the CI --bump leg once re-derived the same 6.2.1 and
   // committed a DUPLICATE changelog section. No-op loudly; a section without
   // the matching manifest version is a broken half-bump and fails instead.

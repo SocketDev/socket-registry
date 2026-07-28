@@ -23,7 +23,7 @@
  *   7. bump — bump.mts writes CHANGELOG + the bump commit (LAST commit)
  *
  *   Receipts live in a state file under
- *   node_modules/.cache/fleet/socket-release-pipeline/ (shared with publish-pipeline)
+ *   node_modules/.cache/fleet/socket-release-pipeline/ shared with publish-pipeline
  *   — never the tracked tree — so a re-run resumes at the first missing/stale
  *   stage. `--dry-run` walks the stages without mutations (registry reads +
  *   tmp-dir packs allowed).
@@ -252,7 +252,7 @@ export async function runPipeline(
     const outcome = await runStage(stage, state, cli)
     const ms = Date.now() - stageStartMs
     // The ci stage may commit fixes, moving HEAD; re-read and re-key the
-    // earlier tree receipts (the committed content is what they verified).
+    // earlier tree receipts, the committed content is what they verified.
     if (stage === 'ci') {
       const newSha = await headSha()
       if (newSha !== sha) {

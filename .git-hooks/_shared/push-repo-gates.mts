@@ -59,7 +59,7 @@ export const checkSubmodules = (): number => {
 // soak-bypass entries must carry the `# published: … | removable: …` line. The
 // edit-time guard + the soak-excludes-have-dates check cover Claude edits + CI;
 // this is the push-time tier for entries that arrived via non-Claude paths.
-// File-targeted (not per-commit) — the working-tree state is what ships.
+// File-targeted, not per-commit — the working-tree state is what ships.
 export const scanSoakAnnotations = (): number => {
   const file = 'pnpm-workspace.yaml'
   if (!existsSync(file)) {
@@ -111,7 +111,7 @@ export const scanSoakAnnotations = (): number => {
 // push time, which would pass trivially without checking the pushed content.
 //
 // Degrades gracefully:
-//   - no package.json `lint` script (a repo that doesn't lint) → skip.
+//   - no package.json `lint` script, a repo that doesn't lint → skip.
 //   - the `lint` script isn't a `node <path>` invocation → skip (can't run it
 //     safely without pnpm; rely on CI).
 //   - lint script present but no oxlint config → the script self-skips.
@@ -133,9 +133,9 @@ export const scanFastChecks = (): number => {
   try {
     toplevel = normalizePath(gitLines('rev-parse', '--show-toplevel')[0] ?? '')
   } catch {
-    // bare repo / detached context — proceed (no skip).
+    // bare repo / detached context — proceed, no skip.
   }
-  // Matches `.claude` as a complete path segment anywhere in `toplevel` (start, middle, or end).
+  // Matches `.claude` as a complete path segment anywhere in `toplevel`, start, middle, or end.
   if (/(?:^|\/)\.claude(?:\/|$)/.test(toplevel)) {
     logger.info(
       'Fast lint/format check skipped — checkout is under an ignored path (.claude/); CI re-lints from a clean tree.',
@@ -222,8 +222,8 @@ const ensureDispatchTables = (): void => {
 //
 // Fails CLOSED: a checkout carrying the fleet tsconfig but no compiler cannot
 // verify the push, so it is blocked, not skipped. A repo without the fleet
-// tsconfig (a non-fleet member) has nothing to check here → skip. Returns 1 on a
-// type error (or an unverifiable checkout), 0 on pass/skip.
+// tsconfig, a non-fleet member, has nothing to check here → skip. Returns 1 on a
+// type error, or an unverifiable checkout, 0 on pass/skip.
 export const scanTypeCheck = (): number => {
   if (!existsSync('package.json') || !existsSync(TYPE_CHECK_TSCONFIG)) {
     return 0
@@ -266,7 +266,7 @@ export const scanTypeCheck = (): number => {
 // seed, which only the wheelhouse has). The rolldown bundle's static dispatch
 // table must match a fresh regen of the hooks present; a mismatch means a hook
 // was added/removed without rebuilding, or a byte-cascaded table references an
-// absent hook dir (the concurrent-cargo dangle). Caught at the push boundary so
+// absent hook dir, the concurrent-cargo dangle. Caught at the push boundary so
 // it can't reach origin/main and cascade fleet-wide. Members are NOT gated here:
 // a member's byte-cascaded dispatch can legitimately differ from a fresh regen
 // until the cascade regenerates per-tree, so blocking their push would

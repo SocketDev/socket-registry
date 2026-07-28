@@ -14,8 +14,8 @@
 // (e.g. `oxlint-plugin-loads`, `fleet-soak-exclude-parity`).
 //
 // Scope: `scripts/fleet/check/*.mts` plus `scripts/repo/check/*.mts` when the
-// repo carries one (the wheelhouse's repo-tier gates). Excludes `check.mts`
-// (the runner), this file's own name is allowlisted, and helper
+// repo carries one, the wheelhouse's repo-tier gates. Excludes `check.mts`
+// the runner, this file's own name is allowlisted, and helper
 // subdirectories (`check/paths/`) are not scanned.
 //
 // Dual-root, same shape as action-ports-are-lock-stepped: in the wheelhouse
@@ -47,11 +47,11 @@ import { isMainModule } from '../_shared/is-main-module.mts'
 const logger = getDefaultLogger()
 
 // Predicate tails that read as an assertion. A basename in assertion form ends
-// with one of these (after its subject), e.g. `paths-are-canonical`,
+// with one of these, after its subject, e.g. `paths-are-canonical`,
 // `lock-step-refs-resolve`, `soak-excludes-have-dates`.
 //   -are-<state>   dirs-ARE-segmented, paths-ARE-canonical, …-ARE-absent
 //   -is-<state>    setup-IS-prompt-less, provenance-IS-attested
-//   -has-<state>   fleet-HAS-no-wheelhouse-only-refs (singular subject)
+//   -has-<state>   fleet-HAS-no-wheelhouse-only-refs, singular subject
 //   -have-<state>  enforcers-HAVE-thorough-tests, soak-excludes-HAVE-dates
 //   -resolve(s)    citations-RESOLVE, script-paths-RESOLVE
 //   -loads         oxlint-plugin-LOADS
@@ -59,8 +59,8 @@ const logger = getDefaultLogger()
 //   -match(es)[-<object>]  headers-MATCH, tails-MATCH-naming-domain
 //   -cover(s)[-<object>]   matchers-COVER-hook-tools
 // Three alternatives anchored at end-of-string ($):
-//   alt 1: hyphen + non-capturing group (are|have|is) + hyphen + [a-z] (state initial)
-//          + [a-z0-9-]* (rest of state word) + $ — matches -are-canonical, -is-absent, …
+//   alt 1: hyphen + non-capturing group (are|have|is) + hyphen + [a-z], state initial
+//          + [a-z0-9-]* rest of state word + $ — matches -are-canonical, -is-absent, …
 //   alt 2: hyphen + non-capturing group of fixed bare verb tails + $ — matches -resolve, -loads, …
 //   alt 3: hyphen + non-capturing group (match|matches|cover|covers), with an OPTIONAL
 //          trailing object phrase (same shape as alt 1's state word) — these verbs take
@@ -114,10 +114,10 @@ export interface CheckDir {
 }
 
 export interface CheckDirInventory {
-  // Scan order: template roots first (their path is the actionable one), live
+  // Scan order: template roots first, their path is the actionable one, live
   // dirs last, so a check present in both is attributed to the template.
   readonly dirs: readonly CheckDir[]
-  // True when the repo carries a `template/base` tree (the wheelhouse).
+  // True when the repo carries a `template/base` tree, the wheelhouse.
   readonly templateSource: boolean
 }
 

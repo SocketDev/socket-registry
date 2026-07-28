@@ -34,7 +34,7 @@ const PRETTIERIGNORE_PATH = path.join(CONFIG_FLEET_DIR, '.prettierignore')
 
 export function main(): void {
   if (!existsSync(PRETTIERIGNORE_PATH)) {
-    // No fleet .prettierignore (a non-fleet repo) — nothing to emit.
+    // No fleet .prettierignore, a non-fleet repo — nothing to emit.
     return
   }
   const mirrors = collectDeclaredMirrors(resolveManifestRoot(REPO_ROOT))
