@@ -15,9 +15,9 @@ const {
   sockRegPkgName,
 } = setupNpmPackageTest(import.meta.url)
 
-// Assertions are inlined into each it() (rather than a shared helper) so they
-// live inside the test body — a standalone expect() in a module-scope helper
-// runs at collection time, not as a test assertion
+// Assertions are inlined into each it() rather than extracted into a shared
+// helper, so they live inside the test body — a standalone expect() in a
+// module-scope helper runs at collection time, not as a test assertion
 // (socket/no-vitest-standalone-expect).
 describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   describe('flattens', () => {

@@ -166,8 +166,8 @@ export async function stagePublish(
 
       // Use `pnpm stage publish` for staged publishing with OIDC tokens.
       // `--provenance` requires the GitHub Actions OIDC id-token endpoint,
-      // so it's gated on GITHUB_ACTIONS=true — local emergency publishes
-      // (run with a classic npm token) still stage without provenance.
+      // so it's gated on GITHUB_ACTIONS=true. Local emergency publishes run
+      // with a classic npm token and still stage without provenance.
       const publishArgs = [
         'stage',
         'publish',

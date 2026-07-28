@@ -396,7 +396,8 @@ class YoctoSpinner {
 
   #symbolStop(symbolType, text) {
     const symbols = getLogSymbols()
-    // Use 2 spaces to match padded narrow frames (stars get extra space to align with wide lightning)
+    // Use 2 spaces to match padded narrow frames. Stars get the extra space so
+    // they align with the wide lightning symbol.
     return this.stop(`${symbols[symbolType]}  ${text ?? this.#text}`)
   }
 

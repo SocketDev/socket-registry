@@ -17,10 +17,10 @@
  * - Exits 0 on success, 1 on any HTTP / parse / download failure.
  *
  * The sibling script under `.claude/hooks/setup-security-tools/update.mts`
- * targets a DIFFERENT file (the hook's colocated tools manifest) and has a
- * different schema. Keep the two independent — merging would require either
- * schema convergence or conditional code paths and the benefit is minimal since
- * each script only handles 2–3 tools.
+ * targets a DIFFERENT file and has a different schema. That file is the tools
+ * manifest colocated with the hook. Keep the two independent — merging would
+ * require either schema convergence or conditional code paths and the benefit
+ * is minimal since each script only handles 2–3 tools.
  */
 
 import { existsSync, readFileSync } from 'node:fs'

@@ -67,7 +67,8 @@ module.exports = !isDateParseDaysOfMonthBuggy(DateParse)
           // which are leap years.
           floor((year - 1601 + t) / 400) +
           // Account for the total number of days in all the non-leap years from 1970
-          // up to the given year. Each year adds 365 days (ignoring leap years initially).
+          // up to the given year. Each year adds 365 days here. The leap-year
+          // corrections above supply the extra days this base count omits.
           365 * (year - 1970)
         )
       }

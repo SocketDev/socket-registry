@@ -171,7 +171,8 @@ export async function downloadAndVerify(
   const releaseLock = await acquireLock(lockPath)
 
   try {
-    // Re-check after lock (another process may have completed).
+    // Re-check after acquiring the lock because another process may have
+    // completed the caching while we waited.
     if (
       existsSync(binaryPath) &&
       verifyCacheIntegrity(cachePath, expectedIntegrity)
