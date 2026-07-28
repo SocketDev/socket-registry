@@ -101,7 +101,12 @@ const USAGE = `Usage: node scripts/fleet/publish-pipeline.mts [options]
                          force a tag
   --status               print the receipt table and exit
   --reset                discard pipeline state and exit
-  --tag <dist-tag>       npm dist-tag for the staged publish (default latest)`
+  --tag <dist-tag>       npm dist-tag for the staged publish (default latest)
+  --yes                  with --approve: skip the interactive multi-select and
+                         approve every ELIGIBLE staged entry. The opt-in that
+                         makes --approve work off a terminal — the run is
+                         wrapped in a PTY so npm still opens the browser for
+                         web-OTP 2FA. Never pass --otp on the CLI.`
 
 /**
  * Publish requires a landed bump: a passing, non-dry-run `bump` receipt plus
@@ -193,6 +198,7 @@ async function main(): Promise<void> {
       reset: { default: false, type: 'boolean' },
       status: { default: false, type: 'boolean' },
       tag: { default: 'latest', type: 'string' },
+      yes: { default: false, type: 'boolean' },
     },
     allowPositionals: false,
     strict: false,
@@ -218,6 +224,7 @@ async function main(): Promise<void> {
     localPublish: !!values['local'],
     namedVersion: undefined,
     preflightAll: false,
+    yes: !!values['yes'],
   }
   const reconcileVersion =
     typeof values['reconcile'] === 'string' ? values['reconcile'] : ''

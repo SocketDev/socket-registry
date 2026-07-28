@@ -25,6 +25,7 @@ import path from 'node:path'
 import process from 'node:process'
 
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
+import { gt } from '@socketsecurity/lib-stable/versions/compare'
 
 import { deriveReleaseCommits } from '../bump.mts'
 import {
@@ -179,12 +180,21 @@ async function main(): Promise<void> {
   const topVersion = headingVersion(section)
   const hinted = versionHintFrom(version)
   if (hinted) {
-    if (topVersion !== derivation.base) {
+    // A section ABOVE the last release is a draft the upcoming bump owns: it
+    // reclaims and regenerates those (see dropUnreleasedChangelogSections in
+    // bump.mts). Failing on one is unresolvable — this check runs in preflight,
+    // BEFORE the bump that would fix it, so the only escape is hand-editing a
+    // script-owned file behind a guard bypass. Both sides read the same rule.
+    if (
+      topVersion !== derivation.base &&
+      !(topVersion && gt(topVersion, derivation.base))
+    ) {
       fail(
         `package.json carries release hint ${version} (next release: ${hinted}) ` +
-          `but the top CHANGELOG section is for ${topVersion ?? 'an unparseable heading'}. ` +
-          `The release run's bump.mts generates the ${hinted} entry — restore ` +
-          `CHANGELOG.md to its ${derivation.base} state and don't hand-edit it.`,
+          `but the top CHANGELOG section is for ${topVersion ?? 'an unparseable heading'}, ` +
+          `which is BEHIND the last release ${derivation.base}. The release run's ` +
+          `bump.mts generates the ${hinted} entry — restore CHANGELOG.md to its ` +
+          `${derivation.base} state and don't hand-edit it.`,
       )
     }
     return

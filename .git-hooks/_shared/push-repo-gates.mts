@@ -4,6 +4,8 @@
 
 import { existsSync, readFileSync } from 'node:fs'
 
+import path from 'node:path'
+
 import process from 'node:process'
 
 import { spawnSync } from '@socketsecurity/lib-stable/process/spawn/child'
@@ -176,6 +178,83 @@ export const scanFastChecks = (): number => {
     )
     logger.info(
       '  Run `pnpm run fix` to autofix, then re-push. Bypass once with ' +
+        '`git push --no-verify` (records the skip).',
+    )
+    return 1
+  }
+  return 0
+}
+
+// The canonical fleet type gate — the same whole-project check the `type` npm
+// script and CI run.
+const TYPE_CHECK_TSCONFIG = path.join('.config', 'fleet', 'tsconfig.check.json')
+const TSC_BIN = path.join('node_modules', 'typescript', 'bin', 'tsc')
+
+// Regenerate the hook dispatch table so the whole-project type gate can resolve
+// the generated `_dispatch` modules (`dispatch-table.mts` + variants), which are
+// gitignored and absent in a fresh checkout. The write lands on gitignored
+// paths, so it never dirties the tracked tree, and this runs AFTER
+// scanDispatchDrift in the push sequence so a fresh regen here cannot mask a
+// stale on-disk table. Best-effort: on a checkout without the generator (a
+// non-wheelhouse member) it is a no-op, and if the regen fails tsc reds loudly
+// on the missing module — the type gate is never silently a no-op.
+const ensureDispatchTables = (): void => {
+  const gen = path.join('scripts', 'fleet', 'gen', 'hook-dispatch.mts')
+  if (!existsSync(gen)) {
+    return
+  }
+  spawnSync(process.execPath, [gen], { stdio: 'ignore' })
+}
+
+// Fast TYPE gate — the type-check sibling of scanFastChecks. A type error is the
+// OTHER class of breakage that reaches origin/main behind CI alone: oxlint and
+// oxfmt run per-edit, but a type error only surfaces against the whole project,
+// so a push (e.g. after land-work auto-lands to local main) carrying a bad type
+// slipped straight to origin and turned CI red. This runs the canonical fleet
+// type gate — the same `tsc --noEmit -p .config/fleet/tsconfig.check.json` the
+// `type` npm script and CI run — at the push boundary.
+//
+// Unlike scanFastChecks it does NOT skip under a `.claude/` worktree path. That
+// skip exists only because the lint runner's `oxfmt .` resolves `.` to a path
+// whose `.claude/` ancestor is ignored, excluding every file; tsc runs against
+// an explicit project (`-p <tsconfig>`), so the `.`-resolution problem does not
+// apply and a worktree push must NOT escape the type gate.
+//
+// Fails CLOSED: a checkout carrying the fleet tsconfig but no compiler cannot
+// verify the push, so it is blocked, not skipped. A repo without the fleet
+// tsconfig (a non-fleet member) has nothing to check here → skip. Returns 1 on a
+// type error (or an unverifiable checkout), 0 on pass/skip.
+export const scanTypeCheck = (): number => {
+  if (!existsSync('package.json') || !existsSync(TYPE_CHECK_TSCONFIG)) {
+    return 0
+  }
+  if (!existsSync(TSC_BIN)) {
+    logger.fail('Type check cannot run — the TypeScript compiler is missing.')
+    logger.info(
+      '  What: node_modules/typescript is absent but the fleet type gate ' +
+        `(${TYPE_CHECK_TSCONFIG}) is present.\n` +
+        '  Where: the checkout you are pushing from.\n' +
+        '  Saw: no compiler; wanted: an installed toolchain to verify types.\n' +
+        '  Fix: run `pnpm install`, then re-push.',
+    )
+    return 1
+  }
+  ensureDispatchTables()
+  logger.info('Running type check…')
+  const r = spawnSync(
+    process.execPath,
+    [TSC_BIN, '--noEmit', '-p', TYPE_CHECK_TSCONFIG],
+    { stdio: 'inherit' },
+  )
+  if (r.status !== 0) {
+    logger.fail(
+      'Type check failed — fix the type error(s) above before pushing.',
+    )
+    logger.info(
+      '  What: the pushed tree does not type-check.\n' +
+        '  Where: the file(line,col) reported above.\n' +
+        '  Saw: a type error; wanted: `pnpm run type` clean (what CI verifies).\n' +
+        '  Fix: resolve the error(s), commit, then re-push. Bypass once with ' +
         '`git push --no-verify` (records the skip).',
     )
     return 1

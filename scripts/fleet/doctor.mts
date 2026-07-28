@@ -45,7 +45,7 @@
  *      default. Pairs with check/gh-default-repo-matches-origin.mts.
  *
  *   CLI: node scripts/fleet/doctor.mts [--fix] [--probe-install] [--probe-git]
- *        [--probe-secrets]
+ *        [--probe-secrets] [--await-quiescent]
  *   Exit 0 = healthy or all gaps fixed. Exit 1 = any unfixed finding.
  */
 
@@ -76,6 +76,7 @@ import {
 } from './lib/doctor/catalog-gap.mts'
 import type { DoctorFinding } from './lib/doctor/catalog-gap.mts'
 import { runGitHygieneProbes } from './doctor-git-probes.mts'
+import { readyToLand, runWorktreeProbes } from './doctor-worktree-probes.mts'
 import { diagnoseLockfileCatalogDrift } from './lib/doctor/lockfile-catalog-gap.mts'
 import {
   applyPinShadowFixes,
@@ -266,6 +267,10 @@ async function main(): Promise<void> {
   const rootOverride =
     rootFlagIndex !== -1 ? argv[rootFlagIndex + 1] : undefined
   const cwd = rootOverride ?? REPO_ROOT
+  if (!(await readyToLand(argv, cwd))) {
+    process.exitCode = 1
+    return
+  }
 
   // Read pnpm-workspace.yaml — required; fail loud if unreadable.
   const workspaceYamlPath = path.join(cwd, 'pnpm-workspace.yaml')
@@ -455,6 +460,7 @@ async function main(): Promise<void> {
   // lightweight flag; --fix also enables them since a healthy install requires
   // a healthy git state.
   allFindings.push(...runGitHygieneProbes({ cwd, doFix, doProbeGit }))
+  allFindings.push(...(await runWorktreeProbes({ cwd, doFix })))
 
   // Secret-scan probe — gated behind --probe-secrets only (spawns the
   // fleet-pinned TruffleHog + scans the git tree, slower than the pure checks,

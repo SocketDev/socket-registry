@@ -20,7 +20,7 @@
  * scripts/ dir and wire it in via a `"update": "node scripts/fleet/update.mts"`
  * package.json entry.
  */
-import { readFileSync, writeFileSync } from 'node:fs'
+import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 
@@ -34,6 +34,7 @@ import {
   TAZE_PASS_THIRD_PARTY_ARGS,
 } from './constants/taze-passes.mts'
 import { FLEET_CATALOG_YAML, PNPM_WORKSPACE_YAML, REPO_ROOT } from './paths.mts'
+import { writeThroughMirrorLock } from './_shared/mirror-lock.mts'
 import { applyStableAliasReconcile } from './lib/stable-alias.mts'
 import { collectPackumentFailures } from './lib/taze-output.mts'
 import { scanRepoForTelemetry } from './lib/telemetry-scan.mts'
@@ -297,7 +298,7 @@ async function main(): Promise<void> {
         },
         skipAi: process.env['SKIP_AI_FIX'] === '1',
         writeFile: (relPath, content) => {
-          writeFileSync(path.join(REPO_ROOT, relPath), content)
+          writeThroughMirrorLock(path.join(REPO_ROOT, relPath), content)
         },
       })
       if (outcome.ok) {

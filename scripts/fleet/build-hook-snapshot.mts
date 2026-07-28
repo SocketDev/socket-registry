@@ -59,14 +59,14 @@ const ROLLDOWN_BIN = path.join(REPO_ROOT, 'node_modules', '.bin', 'rolldown')
 const SNAPSHOT_CONFIG = path.join(
   REPO_ROOT,
   '.config',
-  'repo',
+  'fleet',
   'rolldown',
   'hook-bundle-snapshot.config.mts',
 )
 const EXCLUDED_CONFIG = path.join(
   REPO_ROOT,
   '.config',
-  'repo',
+  'fleet',
   'rolldown',
   'hook-bundle-excluded.config.mts',
 )

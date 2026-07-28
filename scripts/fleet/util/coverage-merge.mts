@@ -36,6 +36,12 @@ export interface AggregateCoverage {
   functions: string
   lines: string
   statements: string
+  // Total instrumented statements across the merged report. Zero means the
+  // report has no measurable code — the signal the runner pairs with a positive
+  // raw-v8-profile count to catch an empty v8→istanbul conversion (a false-green
+  // 0.00%) distinctly from a genuine 0%-covered project (statements present,
+  // none executed).
+  totalStatements: number
 }
 
 export interface CoverageMergeLogger {
@@ -443,6 +449,7 @@ export async function mergeCoverageFinal(config: {
     functions: pct(coveredFunctions, totalFunctions),
     lines: pct(coveredLines, totalLines),
     statements: pct(coveredStatements, totalStatements),
+    totalStatements,
   }
 
   // Persist the combined report + json-summary at the coverage-home root

@@ -38,6 +38,7 @@ import {
   scanDispatchDrift,
   scanFastChecks,
   scanSoakAnnotations,
+  scanTypeCheck,
 } from '../_shared/push-repo-gates.mts'
 import { scanSignedCommits } from '../_shared/push-signatures.mts'
 import { isSquashHistoryRepo } from '../_shared/push-squash-history.mts'
@@ -105,6 +106,14 @@ const main = async (): Promise<number> => {
   // Dispatch-table drift (wheelhouse-only) — a stale/dangling hook dispatch
   // can't reach origin/main and cascade fleet-wide.
   totalErrors += scanDispatchDrift()
+
+  // Type gate — the mandatory whole-project tsc check. A type error is the one
+  // class of breakage the fast lint/format gate above cannot catch, and the
+  // fast-land path pushes with --no-verify, so without this a bad type reaches
+  // origin/main behind CI alone. Runs AFTER the dispatch-drift check so its
+  // dispatch-table regen cannot mask a stale on-disk table, and (unlike
+  // scanFastChecks) it does not skip under a `.claude/` worktree path.
+  totalErrors += scanTypeCheck()
 
   if (totalErrors > 0) {
     logger.error('')

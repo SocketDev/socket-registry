@@ -86,8 +86,21 @@ export function lineIsCrossRepoExempt(
   if (CROSS_REPO_ALLOW_RE.test(lines[index] ?? '')) {
     return true
   }
-  // The marker on the immediately-preceding line covers the `cd && node` pair.
-  return index > 0 && CROSS_REPO_ALLOW_RE.test(lines[index - 1] ?? '')
+  // The marker on the preceding line covers the `cd && node` pair. Walk back
+  // over BLANK lines only: in prose an HTML-comment marker sits in its own
+  // markdown block, so a blank line separates it from the paragraph it marks —
+  // stopping at the first blank missed those and reported documented-on-purpose
+  // refs as rot.
+  for (let i = index - 1; i >= 0; i -= 1) {
+    const line = lines[i] ?? ''
+    if (CROSS_REPO_ALLOW_RE.test(line)) {
+      return true
+    }
+    if (line.trim() !== '') {
+      return false
+    }
+  }
+  return false
 }
 
 /**

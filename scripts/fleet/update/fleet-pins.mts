@@ -17,13 +17,14 @@
  *   fleet-catalog copy only.
  */
 
-import { existsSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 
 import { escapeRegExp } from '@socketsecurity/lib-stable/regexps/escape'
 import { gt } from '@socketsecurity/lib-stable/versions/compare'
 import { isValidVersion } from '@socketsecurity/lib-stable/versions/parse'
 
 import { parseCatalogBlock } from '../lib/workspace-yaml.mts'
+import { writeThroughMirrorLock } from '../_shared/mirror-lock.mts'
 
 /**
  * The canonical block a fleet pin lives in: a fleet-catalog block of the
@@ -315,7 +316,7 @@ export function applyFleetPinLockstep(
       text = rewriteBlockPin(text, m.blockKey, m.name, m.liveValue)
     }
     if (mirrors.length > 0) {
-      writeFileSync(file, text)
+      writeThroughMirrorLock(file, text)
     }
     if (mirrors.length > 0 || skips.length > 0) {
       results.push({ file, mirrored: mirrors, skipped: skips })
@@ -434,7 +435,7 @@ export function applyOverridePinLockstep(
     text = rewriteOverridePinLiteral(text, m.name, m.liveValue)
   }
   if (mirrors.length > 0) {
-    writeFileSync(manifestPath, text)
+    writeThroughMirrorLock(manifestPath, text)
   }
   if (mirrors.length === 0 && skips.length === 0) {
     return undefined

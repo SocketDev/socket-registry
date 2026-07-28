@@ -229,6 +229,90 @@ export function changelogHasVersionSection(
 }
 
 /**
+ * Every `## <version>` heading in `changelog`, newest first. `[Unreleased]` and
+ * any non-version heading are skipped — only real version sections are listed.
+ */
+export function changelogVersionSections(changelog: string): string[] {
+  const found: string[] = []
+  const lines = changelog.split('\n')
+  for (let i = 0, { length } = lines; i < length; i += 1) {
+    const line = lines[i]!
+    if (!line.startsWith('## ')) {
+      continue
+    }
+    // `## ` then an optional `[` (link-style heading) and optional `v`, then
+    // the captured version: three dot-separated numbers plus an optional
+    // `-prerelease` tail. Anchored, so only a heading's own version matches.
+    const version = /^##\s+\[?v?(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)/.exec(
+      line,
+    )?.[1]
+    if (version) {
+      found.push(version)
+    }
+  }
+  return found
+}
+
+/**
+ * `changelog` with the section for `version` removed (heading through the line
+ * before the next `## ` heading, or EOF). Returns the input unchanged when no
+ * such section exists.
+ */
+export function removeChangelogVersionSection(
+  changelog: string,
+  version: string,
+): string {
+  const lines = changelog.split('\n')
+  const start = lines.findIndex(line => {
+    if (!line.startsWith('## ')) {
+      return false
+    }
+    const rest = line.slice(3).trim().replace(/^\[/, '').replace(/^v/, '')
+    return (
+      rest.startsWith(version) && !/^[0-9.]/.test(rest.slice(version.length))
+    )
+  })
+  if (start === -1) {
+    return changelog
+  }
+  let end = lines.length
+  for (let i = start + 1, { length } = lines; i < length; i += 1) {
+    if (lines[i]!.startsWith('## ')) {
+      end = i
+      break
+    }
+  }
+  return [...lines.slice(0, start), ...lines.slice(end)].join('\n')
+}
+
+/**
+ * Drop every version section the release never actually shipped.
+ *
+ * A section is a DRAFT when its version is newer than the last release: it was
+ * written, then superseded before it ever published (a re-cut at a different
+ * number, a rejected staging entry, a release that stopped at approve).
+ *
+ * `isDraft` is injected so the pruning stays pure. Callers pass a
+ * base-relative predicate (`v => gt(v, base)`) rather than a tag lookup:
+ * plenty of real history predates the tagging convention, so treating every
+ * untagged section as a draft would delete shipped entries.
+ */
+export function dropUnreleasedChangelogSections(
+  changelog: string,
+  isDraft: (version: string) => boolean,
+): { dropped: string[]; text: string } {
+  const dropped: string[] = []
+  let text = changelog
+  for (const version of changelogVersionSections(changelog)) {
+    if (isDraft(version)) {
+      dropped.push(version)
+      text = removeChangelogVersionSection(text, version)
+    }
+  }
+  return { dropped, text }
+}
+
+/**
  * Insert a new CHANGELOG section above the first existing `## ` version heading
  * (after the file's intro). When the file has no version sections yet, append
  * after a trailing blank line. IDEMPOTENT per version: when the changelog
@@ -508,6 +592,56 @@ export async function applyLockstepBump(
   return writes.map(write => write.relManifestPath)
 }
 
+// Every flag `main` accepts. Kept beside the parseArgs options it mirrors so a
+// new flag is added in both places, and `unrecognizedFlags` can refuse the rest.
+export const BUMP_FLAGS: ReadonlySet<string> = new Set([
+  'dry-run',
+  'empty-changelog-entry',
+  'help',
+  'release-as',
+  'write-only',
+])
+
+export const BUMP_USAGE = `Usage: node scripts/fleet/bump.mts [options]
+
+  Derives the next version from the Conventional Commits since the last
+  release, writes package.json + CHANGELOG.md, and commits the bump.
+
+  --dry-run                    preview; writes nothing
+  --release-as <level|X.Y.Z>   major | minor | patch, or an exact version
+  --write-only                 write the files but do NOT git-commit (CI)
+  --empty-changelog-entry <s>  entry to use when no user-visible changes derive
+  --help                       print this and exit
+
+  The VERSION is the user's decision. Prefer naming the target as a
+  \`X.Y.Z-prerelease\` hint in package.json — the release tooling consumes it.`
+
+/**
+ * The `--flag` tokens in `argv` that `known` does not contain, normalized off
+ * their leading dashes and any `=value` tail. A bare `-` or `--` is ignored,
+ * and everything after a `--` separator is treated as positional.
+ */
+export function unrecognizedFlags(
+  argv: readonly string[],
+  known: ReadonlySet<string>,
+): string[] {
+  const unknown: string[] = []
+  for (let i = 0, { length } = argv; i < length; i += 1) {
+    const token = argv[i]!
+    if (token === '--') {
+      break
+    }
+    if (!token.startsWith('--') || token.length <= 2) {
+      continue
+    }
+    const name = token.slice(2).split('=')[0]!
+    if (name && !known.has(name)) {
+      unknown.push(`--${name}`)
+    }
+  }
+  return unknown
+}
+
 async function main(): Promise<void> {
   const { values } = parseArgs({
     options: {
@@ -529,9 +663,34 @@ async function main(): Promise<void> {
       // by the operator (e.g. --empty-changelog-entry "Internal maintenance"),
       // never a silent canned default.
       'empty-changelog-entry': { type: 'string' },
+      help: { default: false, type: 'boolean' },
     },
     strict: false,
   })
+  // `--help` must never mutate. It printed nothing here and, because parsing is
+  // non-strict, fell through to a REAL bump — writing package.json, rewriting
+  // the CHANGELOG, and committing a version nobody named.
+  if (values['help']) {
+    logger.log(BUMP_USAGE)
+    return
+  }
+  // Non-strict parsing keeps unknown flags from throwing, which also means a
+  // typo silently loses its meaning: `--dryrun` parses as an unknown flag and
+  // the run bumps FOR REAL. A mutating script must not guess — refuse instead.
+  const unknownFlags = unrecognizedFlags(process.argv.slice(2), BUMP_FLAGS)
+  if (unknownFlags.length) {
+    logger.fail(
+      `bump: unrecognized flag(s) ${unknownFlags.join(', ')}.\n` +
+        `  What:  this script WRITES (version + CHANGELOG + commit), so an\n` +
+        `         unrecognized flag is refused rather than ignored — a typo'd\n` +
+        `         --dry-run would otherwise perform a real bump.\n` +
+        `  Where: the bump CLI.\n` +
+        `  Saw:   ${unknownFlags.join(', ')}; wanted one of: ${[...BUMP_FLAGS].toSorted().join(', ')}.\n` +
+        `  Fix:   correct the flag, or run --help for the full list.`,
+    )
+    process.exitCode = 1
+    return
+  }
   const dryRun = !!values['dry-run']
   const releaseAs = values['release-as']
   const writeOnly = !!values['write-only']
@@ -743,7 +902,37 @@ async function main(): Promise<void> {
   // sandbox), so `new Date()` is available.
   const date = new Date().toISOString().slice(0, 10)
   const changelogPath = path.join(rootPath, 'CHANGELOG.md')
-  const existingChangelog = readFileSync(changelogPath, 'utf8')
+  let existingChangelog = readFileSync(changelogPath, 'utf8')
+
+  // Reclaim stale draft sections before deciding anything. A section for a
+  // version NEWER than the last release never shipped: it is a draft this bump
+  // owns, written then superseded before it published (a re-cut at a different
+  // number, a rejected staging entry, a release that stopped at approve).
+  //
+  // Gauged against the release BASE, not tag presence: plenty of real history
+  // predates the tagging convention, and treating every untagged section as a
+  // draft would delete shipped entries. Nothing at or below the base is ever
+  // touched.
+  //
+  // Why this matters: leaving drafts behind wedges the release.
+  // `changelog-is-commit-derived` wants the entry to carry every commit since
+  // the last tag, while a bump that finds an existing section for its target
+  // reports "already applied" and writes nothing — so the entry can never be
+  // completed and the only way out is hand-editing a script-owned file.
+  const reclaimed = dropUnreleasedChangelogSections(existingChangelog, v =>
+    gt(v, base),
+  )
+  if (reclaimed.dropped.length) {
+    logger.log(
+      `Reclaiming ${reclaimed.dropped.length} unreleased CHANGELOG draft ` +
+        `section(s) above ${base}: ${reclaimed.dropped.join(', ')}.`,
+    )
+    existingChangelog = reclaimed.text
+    // A dry-run previews the reclaimed text without touching the file.
+    if (!dryRun) {
+      writeFileSync(changelogPath, existingChangelog)
+    }
+  }
 
   // The whole release chain bumps EXACTLY ONCE. When the CHANGELOG already
   // carries the section for nextVersion and package.json already reads it,

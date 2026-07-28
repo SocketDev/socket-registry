@@ -346,6 +346,21 @@ export function buildReleaseAndDocsSteps(): CheckStep[] {
         'scripts/fleet/check/publish-workflows-are-conventionally-named.mts',
         '--quiet',
       ]),
+    // Every workflow job that runs a version-derivation leg (bump.mts,
+    // npm-publish.mts --bump, cargo-publish.mts --bump, publish-pipeline.mts)
+    // must check out with the v* tags reachable — `fetch-tags: true`, or a
+    // full-history `fetch-depth: 0`. The bump engine anchors on registry-latest
+    // PLUS the last reachable tag, so on a never-published repo the tags are the
+    // ONLY anchor and a depth-1 tagless checkout derives 0.1.0, then trips the
+    // half-applied-bump gate on historical CHANGELOG sections (decmpfs run
+    // 30226873755). Dual-root in the wheelhouse; absent workflow file is a
+    // clean no-op. STRICT (exit 1) — the invariant is one line with fleet-wide
+    // blast radius.
+    () =>
+      run('node', [
+        'scripts/fleet/check/version-derivation-jobs-have-tags.mts',
+        '--quiet',
+      ]),
     // A bot workflow that GPG-signs commits MUST use the BARE
     // socket-bot@users.noreply.github.com committer email — the UID on the
     // registered BOT_GPG_PRIVATE_KEY key. The numeric-prefixed form lands

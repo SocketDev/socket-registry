@@ -16,7 +16,7 @@
  *   `scripts/fleet/check/public-files-are-exported.mts`.
  */
 
-import { promises as fs } from 'node:fs'
+import { promises as fs, readFileSync } from 'node:fs'
 import { builtinModules } from 'node:module'
 import path from 'node:path'
 import process from 'node:process'
@@ -414,6 +414,63 @@ export function applyAliases(
 // since they have no real `node:`-prefixed form).
 export const NODE_BUILTINS: readonly string[] = builtinModules
 
+/**
+ * The block message when the running Node's MAJOR differs from the
+ * `.node-version` pin, or undefined when they agree (or the pin is
+ * unreadable — an absent pin is not a mismatch).
+ *
+ * `buildBrowserField` reads the RUNNING Node's `builtinModules`, so the
+ * generated map is a function of whoever ran the build. Node 24 still reports
+ * the legacy `_stream_*` aliases that 26 dropped, so a build off-pin writes six
+ * stub keys CI never produces — and the committed manifest then disagrees with
+ * the published tarball. Pre-approve verify catches it at the very end of a
+ * release (staged vs local pack diverge on `package.json`); this catches it at
+ * the write, which is where it is cheap to fix.
+ *
+ * Gated on MAJOR: builtins are added and removed across majors, while a patch
+ * bump on the pin is routine and must not block a local regen.
+ */
+export function nodePinMismatchMessage(
+  runningVersion: string,
+  pinnedVersion: string | undefined,
+): string | undefined {
+  if (!pinnedVersion) {
+    return undefined
+  }
+  // Numeric majors only. `.node-version` also accepts aliases (`lts/*`,
+  // `stable`) that name no comparable major — those are not a mismatch, they
+  // are simply not checkable.
+  const majorOf = (v: string): number | undefined => {
+    const match = /^v?(\d+)\./.exec(v.trim())
+    return match ? Number(match[1]) : undefined
+  }
+  const running = majorOf(runningVersion)
+  const pinned = majorOf(pinnedVersion)
+  if (running === undefined || pinned === undefined || running === pinned) {
+    return undefined
+  }
+  return (
+    'gen/package-exports: refusing to write a runtime-derived browser map off-pin.\n' +
+    `  What:  the browser field stubs the RUNNING Node's builtinModules, so it changes with the Node that runs this generator.\n` +
+    `  Where: .node-version pins ${pinnedVersion}; this process is ${runningVersion}.\n` +
+    `  Saw:   Node major ${running}; wanted major ${pinned}, the version CI builds and publishes with.\n` +
+    `  Fix:   re-run on the pin (fnm use ${pinnedVersion} / nvm use ${pinnedVersion}), then regenerate.`
+  )
+}
+
+/**
+ * The `.node-version` pin at `repoRoot`, or undefined when it is absent or
+ * unreadable — a repo without the pin file simply has nothing to check.
+ */
+export function readNodeVersionPin(repoRoot: string): string | undefined {
+  try {
+    const raw = readFileSync(path.join(repoRoot, '.node-version'), 'utf8')
+    return raw.trim() || undefined
+  } catch {
+    return undefined
+  }
+}
+
 // Build the top-level package.json `browser` field (each entry → false =
 // empty-module stub). Three name shapes from `builtinModules`:
 //   - already `node:`-prefixed (`node:sea`, `node:test`) — a node:-only module
@@ -548,6 +605,13 @@ async function runGenerator(): Promise<void> {
   // `_stream_*` stubs or `node:node:` doubles). A package needing a hand-pinned
   // browser shim should express it as an exports `browser` condition, not here.
   if (config.browser?.length) {
+    const mismatch = nodePinMismatchMessage(
+      process.version,
+      readNodeVersionPin(REPO_ROOT),
+    )
+    if (mismatch) {
+      throw new Error(mismatch)
+    }
     pkgJson['browser'] = buildBrowserField()
   }
   if (config.nodeRange) {
