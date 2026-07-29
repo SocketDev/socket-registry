@@ -12,10 +12,9 @@
  *   from both `npm view` output and the abbreviated packument.
  */
 
-import { readFile } from 'node:fs/promises'
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
+import os from 'node:os'
 import process from 'node:process'
+
 import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
 import { COLUMN_LIMIT } from '@socketsecurity/lib-stable/constants/sentinels'
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
@@ -23,10 +22,10 @@ import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 
 import {
-  collectStagedRoster,
   describeStagedTrust,
   formatStagedTrustProblem,
   isStagedTrustFailure,
+  loadStagedRoster,
   readStagedTrust,
 } from './check-trusted-packages-staged.mts'
 
@@ -34,7 +33,13 @@ import type { StagedRosterEntry } from './check-trusted-packages-staged.mts'
 
 const logger = getDefaultLogger()
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
+// The scopes this repo itself publishes, and the only ones the manifest roster
+// contributes to the run.
+const PUBLISHED_SCOPES = ['@socketoverride/', '@socketregistry/']
+
+// Registry reads run from a scratch cwd so npm never applies this repo's
+// devEngines pnpm pin to a command that only talks to the registry.
+const NPM_VIEW_CWD = os.tmpdir()
 
 const allowedMaintainers = new Set([
   'feross <feross@feross.org>',
@@ -129,12 +134,29 @@ interface CheckState {
   linePosition: number
 }
 
-async function getPackageInfo(
-  packageName: string,
-): Promise<PackageInfo | undefined> {
+/**
+ * Read a published package's maintainer / repository / provenance metadata.
+ *
+ * `npm view` runs from a scratch cwd, NOT the repo. This repo's package.json
+ * declares `devEngines.packageManager: pnpm`, and npm refuses to run any
+ * command inside it with EBADDEVENGINES — including a pure registry read that
+ * has nothing to do with the local project.
+ *
+ * A multi-field `npm view --json` answers with a single-element ARRAY, not a
+ * bare object, so the result is unwrapped before use.
+ *
+ * A failed read THROWS. The caller only reaches this for a package the
+ * packument proved is published, so "npm view produced nothing" is a broken
+ * read, never an absent package — reporting it as "not found" would be a
+ * misattributed pass/fail on a gate whose whole job is trust.
+ *
+ * @throws {Error} When the registry read fails or answers with an unusable
+ *   body.
+ */
+async function getPackageInfo(packageName: string): Promise<PackageInfo> {
+  let output: string
   try {
-    // Get the latest version specifically to ensure we get detailed info
-    const output = await runCommand('npm', [
+    output = await runCommand('npm', [
       'view',
       packageName,
       '--json',
@@ -144,39 +166,40 @@ async function getPackageInfo(
       'repository',
       'dist',
     ])
-    return JSON.parse(output) as PackageInfo
-  } catch {
-    return undefined
+  } catch (e) {
+    throw new Error(
+      [
+        `What: the registry metadata read for ${packageName} failed, so its trust setup could not be checked.`,
+        `Where: npm view ${packageName} (cwd ${NPM_VIEW_CWD})`,
+        `Saw: ${errorMessage(e)}`,
+        'Wanted: a JSON record carrying name, version, maintainers, repository, and dist.',
+        'Fix: re-run once the registry is reachable. A read that cannot complete is never reported as a package problem.',
+      ].join('\n'),
+    )
   }
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(output)
+  } catch (e) {
+    throw new Error(
+      [
+        `What: the registry metadata for ${packageName} was not JSON, so its trust setup could not be checked.`,
+        `Where: npm view ${packageName} (cwd ${NPM_VIEW_CWD})`,
+        `Saw: ${errorMessage(e)}`,
+        'Wanted: a JSON record, or a single-element array wrapping one.',
+        'Fix: re-run; if it persists, check the npm CLI version for an output-format change.',
+      ].join('\n'),
+    )
+  }
+  // A multi-field `npm view --json` wraps its record in an array.
+  return (Array.isArray(parsed) ? parsed[0] : parsed) as PackageInfo
 }
 
 // The staged-publishing roster keyed by package name — the manifest is the
 // authoritative list of what this repo publishes, and it carries the version of
 // record, so an in-flight bump is distinguishable from a package that has never
-// been published. Populated once by getStagedRoster().
+// been published. Populated once in main().
 const stagedRosterByName = new Map<string, StagedRosterEntry>()
-
-async function getStagedRoster(): Promise<StagedRosterEntry[]> {
-  const manifestPath = path.join(__dirname, '..', 'registry', 'manifest.json')
-  let manifest: unknown
-  try {
-    manifest = JSON.parse(await readFile(manifestPath, 'utf8'))
-  } catch (e) {
-    throw new Error(
-      'What: the package roster could not be read, so the trusted-package gate ' +
-        'has nothing to check.\n' +
-        `Where: ${manifestPath}\n` +
-        `Saw: ${errorMessage(e)}\n` +
-        'Wanted: a readable manifest with an `npm` array of [purl, data] rows.\n' +
-        'Fix: run `pnpm run update-manifest` to regenerate it, or restore the file from git.',
-    )
-  }
-  return collectStagedRoster(manifest).filter(
-    entry =>
-      entry.name.startsWith('@socketregistry/') ||
-      entry.name.startsWith('@socketoverride/'),
-  )
-}
 
 async function getPackagesFromScope(scope: string): Promise<string[]> {
   try {
@@ -203,6 +226,7 @@ async function runCommand(
 ): Promise<string> {
   try {
     const result = await spawn(command, commandArgs, {
+      cwd: NPM_VIEW_CWD,
       shell: process.platform === 'win32',
       stdio: 'pipe',
     })
@@ -234,20 +258,17 @@ export async function checkTrustedPackage(
     },
   )
 
-  const info = await getPackageInfo(packageName)
-
-  if (!info) {
-    // An unpublished roster entry is a pending first publish or an in-flight
-    // bump, not a trust regression — nothing is on the registry to gate.
-    if (stagedReport.verdict === 'unpublished') {
-      if (args['debug']) {
-        logger.info(describeStagedTrust(stagedReport))
-      }
-      return true
+  // An unpublished roster entry is a pending first publish or an in-flight
+  // bump, not a trust regression — nothing is on the registry to gate, and the
+  // `npm view` legs below have no record to read.
+  if (stagedReport.verdict === 'unpublished') {
+    if (args['debug']) {
+      logger.info(describeStagedTrust(stagedReport))
     }
-    logger.fail('Package not found on npm')
-    return false
+    return true
   }
+
+  const info = await getPackageInfo(packageName)
 
   const issues: string[] = []
   const successes: string[] = []
@@ -345,7 +366,7 @@ async function main(): Promise<void> {
   const packagesToCheck = new Set<string>()
 
   // Always include packages from manifest (@socketregistry/*, @socketoverride/*).
-  const roster = await getStagedRoster()
+  const roster = await loadStagedRoster({ scopes: PUBLISHED_SCOPES })
   for (let i = 0, { length } = roster; i < length; i += 1) {
     const entry = roster[i]
     if (entry) {
