@@ -64,6 +64,11 @@ catalog:
   'make-fetch-happen': 15.0.6
   'minimatch': 9.0.9
   'normalize-package-data': 8.0.0
+  # npm-high-impact 1.13.0 — wooorm's high-impact npm package lists
+  # (top dependents + top downloads); used to rank packages/npm/*
+  # overrides by ecosystem impact. Published 2026-06-08, past the
+  # 7-day soak.
+  'npm-high-impact': 1.13.0
   'npm-package-arg': 13.0.2
   'out-url': 1.2.2
   'pacote': 21.5.1

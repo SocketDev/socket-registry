@@ -142,6 +142,7 @@
     "neosanitize": "catalog:",
     "nock": "catalog:",
     "normalize-package-data": "catalog:",
+    "npm-high-impact": "catalog:",
     "npm-package-arg": "catalog:",
     "npm-run-all2": "catalog:",
     "out-url": "catalog:",
