@@ -22,9 +22,6 @@
  *   planning and payload parsing in `./configure-staged-publishing-plan.mts`.
  */
 
-import { readFile } from 'node:fs/promises'
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 import process from 'node:process'
 
 import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
@@ -32,7 +29,7 @@ import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
 import {
-  collectStagedRoster,
+  loadStagedRoster,
   readStagedTrust,
 } from './check-trusted-packages-staged.mts'
 import {
@@ -54,8 +51,6 @@ import type { StagedTrustReport } from './check-trusted-packages-staged.mts'
 
 const logger = getDefaultLogger()
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
-
 const { values: args } = parseArgs({
   options: {
     apply: { type: 'boolean', default: false },
@@ -76,9 +71,7 @@ const { values: args } = parseArgs({
 export async function loadStagedReports(
   filters: readonly string[],
 ): Promise<StagedTrustReport[]> {
-  const manifestPath = path.join(__dirname, '..', 'registry', 'manifest.json')
-  const manifest: unknown = JSON.parse(await readFile(manifestPath, 'utf8'))
-  let roster = collectStagedRoster(manifest)
+  let roster = await loadStagedRoster()
   if (filters.length) {
     roster = roster.filter(entry =>
       filters.some(f =>

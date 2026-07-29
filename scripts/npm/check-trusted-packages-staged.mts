@@ -140,6 +140,43 @@ export function collectStagedRoster(manifest: unknown): StagedRosterEntry[] {
 }
 
 /**
+ * Read `registry/manifest.json` and derive the roster, optionally narrowed to
+ * the scopes this repo publishes.
+ *
+ * An unreadable manifest THROWS. Swallowing it would silently shrink the roster
+ * to nothing and let the gate report success over an empty set — the exact
+ * false-green this module exists to avoid.
+ *
+ * @throws {Error} When the manifest cannot be read or parsed.
+ */
+export async function loadStagedRoster(options?: {
+  scopes?: readonly string[] | undefined
+}): Promise<StagedRosterEntry[]> {
+  const { scopes } = { __proto__: null, ...options } as NonNullable<
+    typeof options
+  >
+  let manifest: unknown
+  try {
+    manifest = JSON.parse(await readFile(REGISTRY_MANIFEST_PATH, 'utf8'))
+  } catch (e) {
+    throw new Error(
+      [
+        'What: the package roster could not be read, so the staged-publishing gate has nothing to check.',
+        `Where: ${REGISTRY_MANIFEST_PATH}`,
+        `Saw: ${errorMessage(e)}`,
+        'Wanted: a readable manifest with an `npm` array of [purl, data] rows.',
+        'Fix: regenerate it with `node scripts/npm/update-manifest.mts`, or restore the file from git.',
+      ].join('\n'),
+    )
+  }
+  const roster = collectStagedRoster(manifest)
+  if (!scopes?.length) {
+    return roster
+  }
+  return roster.filter(entry => scopes.some(s => entry.name.startsWith(s)))
+}
+
+/**
  * Classify one package's staged-publishing state from its slimmed full
  * packument. Pure — the network lives in `readStagedTrust`. Passing
  * `undefined` for `meta` means the registry answered 404.
