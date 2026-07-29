@@ -126,8 +126,9 @@ to the archive path the pin already encodes: the block's `sha256:` stamp is the
 hash of `https://codeload.github.com/<owner>/<repo>/tar.gz/<ref>`, so a fetch-
 and-verify of that one tarball gives the same bytes with no submodule, no clone
 state, and no per-checkout materialization. Keep submodules for the ports whose
-upstream churns (the es-shims suites that gain cases every release); use the
-verified tarball for the frozen ones (`object-assign` has not moved since 2016).
+upstream churns — the es-shims suites gain cases every release; use the
+verified tarball for the frozen ones, such as `object-assign`, which has not
+moved since 2016.
 
 The currency leg needs neither — `git ls-remote --tags` is one cheap remote read
 per upstream and is already what tells you a re-port is due.
