@@ -110,4 +110,6 @@
 
 🚨 **Headline invariants:** Node ≥24 engines floor (shipped override code still avoids ES2023+ array methods `toReversed/toSorted/toSpliced/with()` — `engines` only warns downstream, so overrides run on consumers' older Node); never type/guess SHAs in cascade — `git rev-parse origin/main` AFTER merge; never `sed`/`awk`/`perl -i` workflow YAML — use Edit; never `--` before vitest paths (runs ALL tests); coverage mandatory + `c8 ignore` reasons end with `.`; never the split `@typescript-eslint/*` packages; never swap tsgo for tsc.
 
+- 🚨 A ported `test/npm/*.test.mts` suite's provenance is the `file-fork` row in `.config/repo/lockstep.json`, never its prose header — the row, the `.gitmodules` pin, the header, and the `test/npm/package.json` spec must agree. (`scripts/repo/check/npm-port-provenance-is-current.mts`) [`npm-port-provenance`](docs/agents.md/repo/npm-port-provenance.md)
+
 Full layout / commands / build / GHA SHA-pin cascade / testing / vitest config / dependency policy / scratch-doc convention in [`docs/agents.md/repo/architecture.md`](docs/agents.md/repo/architecture.md).
