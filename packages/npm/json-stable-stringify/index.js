@@ -51,8 +51,11 @@ function sortAndStringifyWithSpace(value, space, opts) {
     if (val === null) {
       return 'null'
     }
+    // JSON.stringify has no representation for undefined, functions, or
+    // symbols. Returning undefined lets the caller omit the object key or
+    // substitute null for the array element, matching native behavior.
     if (val === undefined) {
-      return 'undefined'
+      return undefined
     }
 
     const valType = typeof val
@@ -62,6 +65,9 @@ function sortAndStringifyWithSpace(value, space, opts) {
     }
     if (valType === 'bigint' || valType === 'number' || valType === 'string') {
       return JSONStringify(val)
+    }
+    if (valType === 'function' || valType === 'symbol') {
+      return undefined
     }
 
     if (valType !== 'object') {
@@ -92,7 +98,9 @@ function sortAndStringifyWithSpace(value, space, opts) {
       let result = `[\n${childIndent}`
 
       for (let i = 0, j = 0; i < length; i++) {
-        result = `${result}${j ? joiner : ''}${stringify(val[i], String(i), childIndent, nextIndent)}`
+        const v = stringify(val[i], String(i), childIndent, nextIndent)
+        // An array element with no JSON representation serializes as null.
+        result = `${result}${j ? joiner : ''}${v === undefined ? 'null' : v}`
         j = 1
       }
 
@@ -126,23 +134,30 @@ function sortAndStringifyWithSpace(value, space, opts) {
     seen.add(val)
     const joiner = `,\n${childIndent}`
     const nextIndent = childIndent + space
-    let result = `{\n${childIndent}`
+    let body = ''
 
     for (let i = 0, j = 0; i < length; i += 1) {
       const k = keys[i]
       const v = stringify(val[k], k, childIndent, nextIndent)
 
-      // Skip undefined values
+      // Omit keys whose value has no JSON representation.
       if (v === undefined) {
         continue
       }
 
-      result = `${result}${j ? joiner : ''}${JSONStringify(k)}: ${v}`
+      body = `${body}${j ? joiner : ''}${JSONStringify(k)}: ${v}`
       j = 1
     }
 
     seen.delete(val)
-    return `${result}\n${indent}}`
+
+    // Every key was omitted, so the object renders the same as one with no
+    // own keys at all.
+    if (body === '') {
+      return opts.collapseEmpty ? '{}' : `{\n${indent}}`
+    }
+
+    return `{\n${childIndent}${body}\n${indent}}`
   }
 
   return stringify(value, '', '', space)

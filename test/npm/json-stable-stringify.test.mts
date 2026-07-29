@@ -74,6 +74,58 @@ describe(
         ).toBe('{\n  "emptyArr": [],\n  "emptyObj": {}\n}')
       })
 
+      it(`${methodName}: space omits object values with no JSON representation`, () => {
+        const obj = {
+          a: 1,
+          b: undefined,
+          c: Math.max,
+          d: Symbol.iterator,
+          e: 2,
+        }
+        const actual = jsonStableStringifyModule(obj, { space: '  ' })
+        expect(actual).toBe('{\n  "a": 1,\n  "e": 2\n}')
+        expect(actual).toBe(JSON.stringify(obj, null, '  '))
+        expect(JSON.parse(actual)).toStrictEqual({ a: 1, e: 2 })
+      })
+
+      it(`${methodName}: space serializes unrepresentable array elements as null`, () => {
+        const arr = [1, undefined, Math.max, Symbol.iterator, 2]
+        const actual = jsonStableStringifyModule(arr, { space: '  ' })
+        expect(actual).toBe(JSON.stringify(arr, null, '  '))
+        expect(JSON.parse(actual)).toStrictEqual([1, null, null, null, 2])
+      })
+
+      it(`${methodName}: space returns undefined for an unrepresentable root`, () => {
+        expect(
+          jsonStableStringifyModule(undefined, { space: '  ' }),
+        ).toBeUndefined()
+        expect(jsonStableStringifyModule(Math.max, { space: '  ' })).toBe(
+          undefined,
+        )
+      })
+
+      it(`${methodName}: space renders an all-omitted object as empty`, () => {
+        const obj = { a: { b: undefined, c: Math.max } }
+        expect(jsonStableStringifyModule(obj, { space: '  ' })).toBe(
+          '{\n  "a": {\n  }\n}',
+        )
+        expect(
+          jsonStableStringifyModule(obj, { collapseEmpty: true, space: '  ' }),
+        ).toBe(JSON.stringify(obj, null, '  '))
+      })
+
+      it(`${methodName}: omits unrepresentable values without space`, () => {
+        const obj = { a: 1, b: undefined, c: Math.max, e: 2 }
+        expect(jsonStableStringifyModule(obj)).toBe('{"a":1,"e":2}')
+        expect(jsonStableStringifyModule(obj, { cycles: true })).toBe(
+          '{"a":1,"e":2}',
+        )
+        expect(jsonStableStringifyModule([1, undefined, 2])).toBe('[1,null,2]')
+        expect(
+          jsonStableStringifyModule([1, undefined, 2], { cycles: true }),
+        ).toBe('[1,null,2]')
+      })
+
       it(
         `${methodName}: supports JSON.rawJSON`,
         { skip: !SUPPORTS_JSON_RAW_JSON || !jsonStableStringifyModule },
