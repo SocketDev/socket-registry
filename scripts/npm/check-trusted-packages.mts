@@ -4,6 +4,12 @@
  * @socketregistry/_, @socketoverride/_, and @socketsecurity/registry-stable
  *   packages by default. Use --all flag to check all Socket packages across all
  *   scopes.
+ *
+ *   Three legs run per package: maintainers, repository, and npm provenance
+ *   come off `npm view`; staged publishing comes off the FULL packument via
+ *   `./check-trusted-packages-staged.mts`, because `_npmUser.approver` — the
+ *   only registry-observable evidence of the staged approval flow — is absent
+ *   from both `npm view` output and the abbreviated packument.
  */
 
 import { readFile } from 'node:fs/promises'
@@ -15,6 +21,16 @@ import { COLUMN_LIMIT } from '@socketsecurity/lib-stable/constants/sentinels'
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
+
+import {
+  collectStagedRoster,
+  describeStagedTrust,
+  formatStagedTrustProblem,
+  isStagedTrustFailure,
+  readStagedTrust,
+} from './check-trusted-packages-staged.mts'
+
+import type { StagedRosterEntry } from './check-trusted-packages-staged.mts'
 
 const logger = getDefaultLogger()
 
@@ -78,6 +94,16 @@ if (args['help']) {
   logger.log('  - All @socketoverride/* packages')
   logger.log('  - Core Socket packages (sfw, socket, etc.)')
   logger.log('')
+  logger.log('Each package is checked for:')
+  logger.log('  - Expected maintainers and a SocketDev repository')
+  logger.log('  - npm provenance (trusted publishing)')
+  logger.log(
+    '  - Staged publishing on the version dist-tag latest points at; a package',
+  )
+  logger.log(
+    '    whose manifest version is not published yet is reported, never failed',
+  )
+  logger.log('')
   logger.log('With --all flag, adds:')
   logger.log(
     '  - Additional Socket packages (@socketsecurity/config, @socketsecurity/mcp, etc.)',
@@ -124,33 +150,32 @@ async function getPackageInfo(
   }
 }
 
-async function getPackagesFromManifest(): Promise<string[]> {
+// The staged-publishing roster keyed by package name — the manifest is the
+// authoritative list of what this repo publishes, and it carries the version of
+// record, so an in-flight bump is distinguishable from a package that has never
+// been published. Populated once by getStagedRoster().
+const stagedRosterByName = new Map<string, StagedRosterEntry>()
+
+async function getStagedRoster(): Promise<StagedRosterEntry[]> {
+  const manifestPath = path.join(__dirname, '..', 'registry', 'manifest.json')
+  let manifest: unknown
   try {
-    const manifestPath = path.join(__dirname, '..', 'registry', 'manifest.json')
-    const content = await readFile(manifestPath, 'utf8')
-    const manifest = JSON.parse(content)
-    const packages = new Set<string>()
-
-    if (manifest.npm && Array.isArray(manifest.npm)) {
-      for (const entry of manifest.npm) {
-        const [, data] = entry
-        if (data?.name) {
-          // Only include @socketregistry/* and @socketoverride/* packages
-          if (
-            data.name.startsWith('@socketregistry/') ||
-            data.name.startsWith('@socketoverride/')
-          ) {
-            packages.add(data.name)
-          }
-        }
-      }
-    }
-
-    return Array.from(packages).toSorted()
+    manifest = JSON.parse(await readFile(manifestPath, 'utf8'))
   } catch (e) {
-    logger.error('Failed to read manifest.json:', (e as Error).message)
-    return []
+    throw new Error(
+      'What: the package roster could not be read, so the trusted-package gate ' +
+        'has nothing to check.\n' +
+        `Where: ${manifestPath}\n` +
+        `Saw: ${errorMessage(e)}\n` +
+        'Wanted: a readable manifest with an `npm` array of [purl, data] rows.\n' +
+        'Fix: run `pnpm run update-manifest` to regenerate it, or restore the file from git.',
+    )
   }
+  return collectStagedRoster(manifest).filter(
+    entry =>
+      entry.name.startsWith('@socketregistry/') ||
+      entry.name.startsWith('@socketoverride/'),
+  )
 }
 
 async function getPackagesFromScope(scope: string): Promise<string[]> {
@@ -196,15 +221,42 @@ export async function checkTrustedPackage(
   packageName: string,
   state: CheckState,
 ): Promise<boolean> {
+  // The staged leg reads the FULL packument and runs first, because it is the
+  // leg that can legitimately answer "this package isn't published yet" — a
+  // state the `npm view` legs below can only report as a flat failure. A
+  // registry read that fails for any reason other than a 404 throws out of
+  // here on purpose: the caller records the package as failed, so the run can
+  // never report a package trustworthy because its fetch died.
+  const stagedReport = await readStagedTrust(
+    stagedRosterByName.get(packageName) ?? {
+      manifestVersion: undefined,
+      name: packageName,
+    },
+  )
+
   const info = await getPackageInfo(packageName)
 
   if (!info) {
+    // An unpublished roster entry is a pending first publish or an in-flight
+    // bump, not a trust regression — nothing is on the registry to gate.
+    if (stagedReport.verdict === 'unpublished') {
+      if (args['debug']) {
+        logger.info(describeStagedTrust(stagedReport))
+      }
+      return true
+    }
     logger.fail('Package not found on npm')
     return false
   }
 
   const issues: string[] = []
   const successes: string[] = []
+
+  if (isStagedTrustFailure(stagedReport)) {
+    issues.push(formatStagedTrustProblem(stagedReport))
+  } else {
+    successes.push(describeStagedTrust(stagedReport))
+  }
 
   // Check if maintainers include expected Socket accounts
   const maintainers = info.maintainers || []
@@ -293,11 +345,12 @@ async function main(): Promise<void> {
   const packagesToCheck = new Set<string>()
 
   // Always include packages from manifest (@socketregistry/*, @socketoverride/*).
-  const manifestPackages = await getPackagesFromManifest()
-  for (let i = 0, { length } = manifestPackages; i < length; i += 1) {
-    const pkg = manifestPackages[i]
-    if (pkg) {
-      packagesToCheck.add(pkg)
+  const roster = await getStagedRoster()
+  for (let i = 0, { length } = roster; i < length; i += 1) {
+    const entry = roster[i]
+    if (entry) {
+      stagedRosterByName.set(entry.name, entry)
+      packagesToCheck.add(entry.name)
     }
   }
 

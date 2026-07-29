@@ -17,7 +17,7 @@ import { safeDelete } from '@socketsecurity/lib-stable/fs/safe'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 
-import { REPO_ROOT } from '../fleet/paths.mts'
+import { REPO_CACHE_DIR, REPO_ROOT } from '../fleet/paths.mts'
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 
 const logger = getDefaultLogger()
@@ -31,12 +31,14 @@ const log = {
   warn: (msg: string) => logger.warn(msg),
 }
 
-// Tools cached under node_modules/.cache/external-tools/ (auto-gitignored).
+// Tools cached under the repo-owned segment of the root .cache store, which
+// sits outside the dependency tree so a `clean` or an `rm -rf node_modules`
+// leaves the downloaded binaries in place.
 export function getCacheDir(): string {
   if (process.env['EXTERNAL_TOOLS_CACHE']) {
     return process.env['EXTERNAL_TOOLS_CACHE']
   }
-  return path.join(REPO_ROOT, 'node_modules', '.cache', 'external-tools')
+  return path.join(REPO_CACHE_DIR, 'external-tools')
 }
 
 export function getToolCachePath(tool: string, version: string): string {
