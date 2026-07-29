@@ -345,19 +345,24 @@ function parse(buf) {
     pos = end2
     return a
   }, {})
-  const requested_versions = Array(list_len)
-  requested_versions[0] = []
-  for (let i = 1; i < list_len; i += 1) {
-    let resolutions = to_u32(buffers.resolutions.subarray())
-    let dependencies = buffers.dependencies.subarray()
-    let k = -1
-    const all_requested_versions = []
-    while ((k = resolutions.indexOf(i)) >= 0) {
-      all_requested_versions.push(dependencies.subarray(k * 26, k * 26 + 26))
-      dependencies = dependencies.subarray(k * 26 + 26)
-      resolutions = resolutions.subarray(k + 1)
+  // resolutions[k] names the package that dependency record k resolves to.
+  // One pass over the edges buckets every record by its target, instead of
+  // rescanning the whole resolutions array once per package.
+  const requested_versions = Array.from({ length: list_len }, () => [])
+  const resolution_targets = to_u32(buffers.resolutions)
+  const edge_count = Math.min(
+    resolution_targets.length,
+    Math.floor(buffers.dependencies.byteLength / 26),
+  )
+  for (let k = 0; k < edge_count; k += 1) {
+    const target = resolution_targets[k]
+    // Package 0 is the root, which carries no requested versions, and a target
+    // past the package list is unresolvable.
+    if (target > 0 && target < list_len) {
+      requested_versions[target].push(
+        buffers.dependencies.subarray(k * 26, k * 26 + 26),
+      )
     }
-    requested_versions[i] = all_requested_versions
   }
   let ResolutionTag
   ;(ResolutionTag2 => {
