@@ -6,6 +6,22 @@
 const SUPPORTS_TO_SORTED = typeof Array.prototype.toSorted === 'function'
 const SORT_METHOD = SUPPORTS_TO_SORTED ? 'toSorted' : 'sort'
 
+// Byte width of each field in the package list. The list is a struct of
+// arrays: every field is stored as `list_len` contiguous fixed-width entries,
+// so one package costs PACKAGE_STRIDE bytes across the whole region.
+const PACKAGE_FIELDS = Object.entries({
+  name: 8,
+  name_hash: 8,
+  resolution: 64,
+  dependencies: 8,
+  resolutions: 8,
+  meta: 88,
+  bin: 20,
+  scripts: 48,
+})
+
+const PACKAGE_STRIDE = PACKAGE_FIELDS.reduce((sum, entry) => sum + entry[1], 0)
+
 let localeCompareCache
 function assert(truthy, message = 'assert failed') {
   if (truthy) {
@@ -286,17 +302,15 @@ function parse(buf) {
     begin_at <= end && end_at <= end && begin_at <= end_at,
     'lockfile validation failed: invalid package list range',
   )
+  // list_len is attacker-controlled up to 2**32. Bound it against the bytes
+  // the file actually carries before allocating one object per package, so a
+  // few hundred bytes cannot demand billions of allocations.
+  assert(
+    begin_at + PACKAGE_STRIDE * list_len <= view.byteLength,
+    'lockfile validation failed: package list exceeds file size',
+  )
   pos = begin_at
-  const packages = Object.entries({
-    name: 8,
-    name_hash: 8,
-    resolution: 64,
-    dependencies: 8,
-    resolutions: 8,
-    meta: 88,
-    bin: 20,
-    scripts: 48,
-  }).reduce(
+  const packages = PACKAGE_FIELDS.reduce(
     (list, [field, len]) => {
       const data = read(len * list_len)
       for (let i = 0, { length } = list; i < length; i += 1) {
@@ -320,6 +334,12 @@ function parse(buf) {
   ].reduce((a, key) => {
     const start = u64()
     const end2 = u64()
+    // Both offsets come straight from the file. An inverted or out-of-range
+    // pair otherwise reaches read() with a negative length.
+    assert(
+      start <= end2 && end2 <= view.byteLength,
+      'lockfile validation failed: invalid buffer range',
+    )
     pos = start
     a[key] = read(end2 - start)
     pos = end2
@@ -440,6 +460,13 @@ function quote(s) {
 
 function slice(data, a, item) {
   const { 0: off, 1: length } = to_u32(a)
+  // off and length are u32s read from the lockfile. Every entry must fall
+  // inside the backing buffer, otherwise a crafted count drives an allocation
+  // the file cannot support.
+  assert(
+    (off + length) * item <= data.byteLength,
+    'lockfile validation failed: entry list exceeds buffer',
+  )
   return Array.from({ length }, (_, i) =>
     data.subarray(item * off + item * i, item * off + item * i + item),
   )
