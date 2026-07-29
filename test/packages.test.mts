@@ -259,8 +259,26 @@ for (let i = 0, { length } = ecosystems; i < length; i += 1) {
           })
         }
 
-        it('should have a "sideEffects" field of `false` in package.json', () => {
-          expect(pkgJson['sideEffects']).toBe(false)
+        it('should declare every side-effectful entry point in "sideEffects"', async () => {
+          // An auto.js installs its shim at load. A bundler is free to drop an
+          // `import 'pkg/auto'` when the package claims no side effects, which
+          // leaves the polyfill uninstalled. Listing the entry points keeps
+          // tree-shaking for the pure ones.
+          const autoPaths = files.filter(p => path.basename(p) === 'auto.js')
+          const sources = await Promise.all(
+            autoPaths.map(p => fs.readFile(path.join(pkgPath, p), UTF8)),
+          )
+          const sideEffectful = autoPaths
+            .filter((_, index) =>
+              /require\(['"]\.\/shim['"]\)\(\)/.test(sources[index]!),
+            )
+            .map(p => `./${p}`)
+            .toSorted(naturalCompare)
+          if (sideEffectful.length === 0) {
+            expect(pkgJson['sideEffects']).toBe(false)
+          } else {
+            expect(pkgJson['sideEffects']).toStrictEqual(sideEffectful)
+          }
         })
 
         it('should not need package.json fixing', () => {

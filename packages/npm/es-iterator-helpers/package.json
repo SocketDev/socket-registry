@@ -18,7 +18,24 @@
     "**/*.js",
     "*.json"
   ],
-  "sideEffects": false,
+  "sideEffects": [
+    "./auto.js",
+    "./Iterator.concat/auto.js",
+    "./Iterator.from/auto.js",
+    "./Iterator.prototype.drop/auto.js",
+    "./Iterator.prototype.every/auto.js",
+    "./Iterator.prototype.filter/auto.js",
+    "./Iterator.prototype.find/auto.js",
+    "./Iterator.prototype.flatMap/auto.js",
+    "./Iterator.prototype.forEach/auto.js",
+    "./Iterator.prototype.map/auto.js",
+    "./Iterator.prototype.reduce/auto.js",
+    "./Iterator.prototype.some/auto.js",
+    "./Iterator.prototype.take/auto.js",
+    "./Iterator.prototype.toArray/auto.js",
+    "./Iterator.zip/auto.js",
+    "./Iterator.zipKeyed/auto.js"
+  ],
   "exports": {
     ".": "./index.json",
     "./auto": {

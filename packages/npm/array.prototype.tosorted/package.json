@@ -17,7 +17,9 @@
     "*.d.ts",
     "*.js"
   ],
-  "sideEffects": false,
+  "sideEffects": [
+    "./auto.js"
+  ],
   "exports": {
     ".": {
       "types": "./index.d.ts",

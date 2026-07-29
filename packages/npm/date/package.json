@@ -18,7 +18,9 @@
     "**/*.js",
     "*.json"
   ],
-  "sideEffects": false,
+  "sideEffects": [
+    "./Date.parse/auto.js"
+  ],
   "exports": {
     ".": "./index.json",
     "./auto": {
