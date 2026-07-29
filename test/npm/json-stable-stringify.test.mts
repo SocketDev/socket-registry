@@ -3,10 +3,8 @@
  */
 import { describe, expect, it } from 'vitest'
 
-import { getEnv } from '../../scripts/constants/env.mts'
 import { setupNpmPackageTest } from '../util/npm-package-helper.mts'
 
-const ENV = getEnv()
 const { eco, pkgPath, skip, sockRegPkgName } = setupNpmPackageTest(
   import.meta.url,
 )
@@ -14,12 +12,13 @@ const { eco, pkgPath, skip, sockRegPkgName } = setupNpmPackageTest(
 describe(
   `${eco} > ${sockRegPkgName}`,
   {
-    skip: skip || ENV.CI,
+    skip,
   },
   () => {
     const pkgRequireIndexJsPath = `${pkgPath}/index.js`
-    const jsonStableStringifyModule =
-      skip || ENV.CI ? undefined : require(pkgRequireIndexJsPath)
+    const jsonStableStringifyModule = skip
+      ? undefined
+      : require(pkgRequireIndexJsPath)
 
     const rawJSON: ((_str: string) => { rawJSON: string }) | undefined = (
       JSON as unknown as {
