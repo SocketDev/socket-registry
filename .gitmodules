@@ -1,0 +1,27 @@
+# is-nan-v1.3.2 sha256:b425d8446ffa2b182f7bf77a41750db46de218443b8b1a279dab0ac4a892196f
+[submodule "upstream/es-shims-is-nan"]
+	ref = 96ed4e7bf4482c535782ced50f2eca11fce55d42
+	path = upstream/es-shims-is-nan
+	url = https://github.com/es-shims/is-nan.git
+	branch = v1.3.2
+	shallow = true
+	sparse-checkout = test/
+	verify = none
+# has-tostringtag-v1.0.2 sha256:d119bb6849b7a8dbba5cd0f95b5bea1e80a0fe83ae9bda480c58d79dd1238971
+[submodule "upstream/inspect-js-has-tostringtag"]
+	ref = 690da6a3afbddcf018aa162c42869dcf4f8375f1
+	path = upstream/inspect-js-has-tostringtag
+	url = https://github.com/inspect-js/has-tostringtag.git
+	branch = v1.0.2
+	shallow = true
+	sparse-checkout = test/
+	verify = none
+# for-each-v0.3.5 sha256:40218ff0f84a854552295eb775c241170f00a0db9b2f0deaabfd5b5530fe0834
+[submodule "upstream/Raynos-for-each"]
+	ref = 45229651ed893773058ba9ccc42af8999014409f
+	path = upstream/Raynos-for-each
+	url = https://github.com/Raynos/for-each.git
+	branch = v0.3.5
+	shallow = true
+	sparse-checkout = test/
+	verify = none

@@ -1,7 +1,67 @@
 {
   "$schema": "../fleet/lockstep.schema.json",
   "area": "socket-registry",
-  "description": "lockstep manifest for socket-registry. socket-registry is the fleet's canonical authority for shared skills, workflows, hooks, and scaffolding — it doesn't currently port from an upstream or track feature-parity against an external spec, so this manifest ships empty. Present so sync-scaffolding doesn't flag registry as missing lockstep infrastructure and so future lock-step rows (e.g. if registry ever tracks an upstream) have a home.",
-  "upstreams": {},
-  "rows": []
+  "description": "lockstep manifest for socket-registry. Each `file-fork` row named `npm-port-*` records one `test/npm/<pkg>.test.mts` conformance suite that is a 1:1 port of an upstream package's own test file, tied to that upstream's `upstream/<owner>-<repo>` reference pin. The row is the SOURCE OF TRUTH for the port's provenance; the prose `@file` header in the ported suite is checked against it by `scripts/repo/check/npm-port-provenance-is-current.mts`. Wiring the remaining overrides is documented in docs/agents.md/repo/npm-port-provenance.md.",
+  "upstreams": {
+    "es-shims-is-nan": {
+      "submodule": "upstream/es-shims-is-nan",
+      "repo": "https://github.com/es-shims/is-nan"
+    },
+    "inspect-js-has-tostringtag": {
+      "submodule": "upstream/inspect-js-has-tostringtag",
+      "repo": "https://github.com/inspect-js/has-tostringtag"
+    },
+    "Raynos-for-each": {
+      "submodule": "upstream/Raynos-for-each",
+      "repo": "https://github.com/Raynos/for-each"
+    }
+  },
+  "rows": [
+    {
+      "kind": "file-fork",
+      "id": "npm-port-is-nan",
+      "upstream": "es-shims-is-nan",
+      "criticality": 5,
+      "local": "test/npm/is-nan.test.mts",
+      "upstream_path": "test/tests.js",
+      "forked_at_sha": "96ed4e7bf4482c535782ced50f2eca11fce55d42",
+      "deviations": [
+        "swap tape's `test(name, t => …)` harness for vitest `describe`/`it`",
+        "swap `t.equal`/`t.ok` assertions for `expect(…).toBe`/`toEqual`",
+        "load the @socketregistry/is-nan override through setupNpmPackageTest instead of requiring the upstream entry point",
+        "drop upstream's shim/shimmed suites — the override ships no shim surface"
+      ],
+      "notes": "es-shims tags are ANNOTATED, so forked_at_sha is the tag object of v1.3.2, not its peeled commit. Both identify the release and both resolve for `git log`/codeload; the check compares the recorded SHA to the .gitmodules ref, never to a peeled commit."
+    },
+    {
+      "kind": "file-fork",
+      "id": "npm-port-has-tostringtag",
+      "upstream": "inspect-js-has-tostringtag",
+      "criticality": 5,
+      "local": "test/npm/has-tostringtag.test.mts",
+      "upstream_path": "test/index.js",
+      "forked_at_sha": "690da6a3afbddcf018aa162c42869dcf4f8375f1",
+      "deviations": [
+        "swap tape's `test(name, t => …)` harness for vitest `describe`/`it`",
+        "swap `t.equal`/`t.ok` assertions for `expect(…).toBe`/`toEqual`",
+        "load the @socketregistry/has-tostringtag override through setupNpmPackageTest instead of requiring the upstream entry point"
+      ],
+      "notes": "forked_at_sha here is the peeled commit of v1.0.2 — the corpus records both conventions, which is why the manifest, not the prose header, is the pin of record."
+    },
+    {
+      "kind": "file-fork",
+      "id": "npm-port-for-each",
+      "upstream": "Raynos-for-each",
+      "criticality": 5,
+      "local": "test/npm/for-each.test.mts",
+      "upstream_path": "test/test.js",
+      "forked_at_sha": "45229651ed893773058ba9ccc42af8999014409f",
+      "deviations": [
+        "swap tape's `test(name, t => …)` harness for vitest `describe`/`it`",
+        "swap `t.plan`/`t.equal` assertions for collected results plus `expect(…).toEqual`",
+        "load the @socketregistry/for-each override through setupNpmPackageTest instead of requiring the upstream entry point",
+        "add TypeScript annotations on the collected-result arrays the upstream JS leaves untyped"
+      ]
+    }
+  ]
 }
