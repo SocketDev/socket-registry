@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/**
+/*
  * @file Npm Trusted Publisher settings driver — reads and mass-applies the
  *   fleet's canonical GitHub Actions trusted-publisher config across packages
  *   by driving `https://www.npmjs.com/package/<pkg>/access` in a signed-in
@@ -28,9 +28,12 @@
  *   - The ONLY auth signal is npm's own `/-/whoami`, and the only auth failure
  *     reported is "signed out".
  *   - The launch shape is exactly that module's:
- *     `launchPersistentContext(profileDir, { channel, headless: false })` — no
- *     args array, no sandbox toggle. Playwright adds `--no-sandbox` by default;
- *     that flag banner is cosmetic and is NOT a sign-in blocker.
+ *     `launchPersistentContext(profileDir, { channel, headless,
+ *     ignoreDefaultArgs: ['--enable-automation', '--use-mock-keychain'] })` —
+ *     no args array, no sandbox toggle, and exactly those two ignored
+ *     defaults (navigator.webdriver bot signal off; a cookie store bare
+ *     Chrome can share). Playwright's no-sandbox default stays; its banner is
+ *     cosmetic and NOT a sign-in blocker.
  *   - A human-verification challenge PAUSES the run for the operator with a
  *     visible elapsed/remaining countdown and is NEVER retried blindly: a retry
  *     ladder against a bot challenge earns a rate limit, which then masquerades
