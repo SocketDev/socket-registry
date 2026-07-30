@@ -470,6 +470,9 @@ async function main(): Promise<void> {
     )
     if (!cliArgs['quiet']) {
       logger.log('Finished 🎉')
+      logger.log(
+        `Next: \`pnpm run npm:wire-port -- ${origPkgName}\` pins the upstream, adds the lockstep row, and prints the suite header to port against.`,
+      )
     }
   } catch (e) {
     logger.fail('Package override finalization encountered an error:')
