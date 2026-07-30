@@ -38,6 +38,7 @@
     "make-npm-override": "node scripts/npm/make-npm-override.mts",
     "npm:configure-staged": "node scripts/npm/configure-staged-publishing.mts",
     "npm:publish": "node scripts/fleet/publish-pipeline.mts",
+    "npm:wire-port": "node scripts/npm/wire-npm-port.mts",
     "package-npm-access": "node scripts/npm/set-npm-package-access.mts",
     "package-npm-publish": "node scripts/npm/publish-npm-packages.mts",
     "perf": "node scripts/repo/perf.mts",
