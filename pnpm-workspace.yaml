@@ -139,9 +139,12 @@ catalog:
   # version regardless of where the importing file lives. src/ +
   # test/ code uses the canonical name because vitest aliases that
   # to local src/.
-  '@socketregistry/packageurl-js-stable': 'npm:@socketregistry/packageurl-js@1.4.8'
-  '@socketsecurity/lib': 6.5.1
-  '@socketsecurity/lib-stable': 'npm:@socketsecurity/lib@6.5.1'
+  '@socketregistry/packageurl-js-stable': 'npm:@socketregistry/packageurl-js@1.5.0'
+  # Held at 6.5.0: the 6.5.1 published build compiles out the npm/meta
+  # exports (`getPackumentSlim`, `extractHttpStatus`) the staged-publish
+  # gate calls. Roll forward once a lib build restores them.
+  '@socketsecurity/lib': 6.5.0
+  '@socketsecurity/lib-stable': 'npm:@socketsecurity/lib@6.5.0'
   '@socketsecurity/registry': 2.0.5
   '@socketsecurity/registry-stable': 'npm:@socketsecurity/registry@2.0.5'
   '@socketsecurity/sdk': 4.1.2
