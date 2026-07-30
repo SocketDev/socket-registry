@@ -1,0 +1,50 @@
+# @socketregistry/data-view-byte-length
+
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/data-view-byte-length)](https://socket.dev/npm/package/@socketregistry/data-view-byte-length)
+[![CI - @socketregistry/data-view-byte-length](https://github.com/SocketDev/socket-registry/actions/workflows/ci.yml/badge.svg)](https://github.com/SocketDev/socket-registry/actions/workflows/ci.yml)
+
+[![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
+[![Follow @socket.dev on Bluesky](https://img.shields.io/badge/Follow-@socket.dev-1DA1F2?style=social&logo=bluesky)](https://bsky.app/profile/socket.dev)
+
+> A tested zero dependency drop-in replacement of [`data-view-byte-length`](https://socket.dev/npm/package/data-view-byte-length) complete with TypeScript types.
+
+## Installation
+
+### Install as a package override
+
+[`socket`](https://socket.dev/npm/package/socket)
+CLI will automagically ✨ populate
+[overrides](https://docs.npmjs.com/cli/v9/configuring-npm/package-json#overrides)
+and [resolutions](https://yarnpkg.com/configuration/manifest#resolutions)
+of your `package.json`.
+
+```sh
+pnpm install -g socket@1.1.147
+socket optimize
+```
+
+Prefer to do it yourself? Add `@socketregistry/data-view-byte-length`
+to your `package.json`.
+
+```json
+{
+  "overrides": {
+    "data-view-byte-length": "npm:@socketregistry/data-view-byte-length@^1"
+  },
+  "resolutions": {
+    "data-view-byte-length": "npm:@socketregistry/data-view-byte-length@^1"
+  }
+}
+```
+
+### Install as a plain dependency
+
+Install with your favorite package manager.
+
+```sh
+pnpm install @socketregistry/data-view-byte-length
+```
+
+## Requirements
+
+Node >= `24`

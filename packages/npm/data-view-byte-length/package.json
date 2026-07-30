@@ -1,0 +1,40 @@
+{
+  "name": "@socketregistry/data-view-byte-length",
+  "version": "1.0.0",
+  "description": "Socket.dev optimized package override for data-view-byte-length",
+  "keywords": [
+    "Socket.dev",
+    "package-overrides"
+  ],
+  "homepage": "https://github.com/SocketDev/socket-registry/tree/main/packages/npm/data-view-byte-length",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SocketDev/socket-registry.git",
+    "directory": "packages/npm/data-view-byte-length"
+  },
+  "files": [
+    "*.d.ts",
+    "*.js"
+  ],
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "socket": {
+    "categories": [
+      "cleanup"
+    ]
+  }
+}

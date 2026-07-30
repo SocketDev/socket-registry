@@ -18,6 +18,18 @@
     "inspect-js-is-data-view": {
       "submodule": "upstream/inspect-js-is-data-view",
       "repo": "https://github.com/inspect-js/is-data-view"
+    },
+    "inspect-js-data-view-buffer": {
+      "submodule": "upstream/inspect-js-data-view-buffer",
+      "repo": "https://github.com/inspect-js/data-view-buffer"
+    },
+    "inspect-js-data-view-byte-length": {
+      "submodule": "upstream/inspect-js-data-view-byte-length",
+      "repo": "https://github.com/inspect-js/data-view-byte-length"
+    },
+    "inspect-js-data-view-byte-offset": {
+      "submodule": "upstream/inspect-js-data-view-byte-offset",
+      "repo": "https://github.com/inspect-js/data-view-byte-offset"
     }
   },
   "rows": [
@@ -83,6 +95,54 @@
         "reference the typed-array constructors directly instead of via global lookup, and drop the typeof DataView guard (Node >= 24 always ships DataView)"
       ],
       "notes": "v1.0.2 is an annotated tag; forked_at_sha records its peeled commit (ccf89aec is the tag object). The check compares the recorded SHA to the .gitmodules ref."
+    },
+    {
+      "kind": "file-fork",
+      "id": "npm-port-data-view-buffer",
+      "upstream": "inspect-js-data-view-buffer",
+      "criticality": 5,
+      "local": "test/npm/data-view-buffer.test.mts",
+      "upstream_path": "test/index.js",
+      "forked_at_sha": "38603a5b40cc02824054ec549cbf4a14c96cca41",
+      "deviations": [
+        "swap tape's `test(name, t => …)` harness for vitest `describe`/`it`",
+        "swap `t.equal`/`t.ok` assertions for `expect(…).toBe`/`toEqual`",
+        "load the @socketregistry/data-view-buffer override through setupNpmPackageTest instead of requiring the upstream entry point",
+        "inline the es-value-fixtures / object-inspect helper inputs as literal values (the fixture workspace does not carry those helpers)"
+      ],
+      "notes": "v1.0.2 is an annotated tag; forked_at_sha records its peeled commit (3e1be55a is the tag object). The check compares the recorded SHA to the .gitmodules ref."
+    },
+    {
+      "kind": "file-fork",
+      "id": "npm-port-data-view-byte-length",
+      "upstream": "inspect-js-data-view-byte-length",
+      "criticality": 5,
+      "local": "test/npm/data-view-byte-length.test.mts",
+      "upstream_path": "test/index.js",
+      "forked_at_sha": "76b05f64f4ecdca09df1a5f9f40501ca903f9bd8",
+      "deviations": [
+        "swap tape's `test(name, t => …)` harness for vitest `describe`/`it`",
+        "swap `t.equal`/`t.ok` assertions for `expect(…).toBe`/`toEqual`",
+        "load the @socketregistry/data-view-byte-length override through setupNpmPackageTest instead of requiring the upstream entry point",
+        "inline the es-value-fixtures / object-inspect helper inputs as literal values (the fixture workspace does not carry those helpers)"
+      ],
+      "notes": "v1.0.2 is an annotated tag; forked_at_sha records its peeled commit (0315207e is the tag object). The check compares the recorded SHA to the .gitmodules ref."
+    },
+    {
+      "kind": "file-fork",
+      "id": "npm-port-data-view-byte-offset",
+      "upstream": "inspect-js-data-view-byte-offset",
+      "criticality": 5,
+      "local": "test/npm/data-view-byte-offset.test.mts",
+      "upstream_path": "test/index.js",
+      "forked_at_sha": "0160d9a9091666653b12dda2459c2ca0814a9af4",
+      "deviations": [
+        "swap tape's `test(name, t => …)` harness for vitest `describe`/`it`",
+        "swap `t.equal`/`t.ok` assertions for `expect(…).toBe`/`toEqual`",
+        "load the @socketregistry/data-view-byte-offset override through setupNpmPackageTest instead of requiring the upstream entry point",
+        "inline the es-value-fixtures / object-inspect helper inputs as literal values (the fixture workspace does not carry those helpers)"
+      ],
+      "notes": "v1.0.1 is an annotated tag; forked_at_sha records its peeled commit (a7ce9d9c is the tag object). The check compares the recorded SHA to the .gitmodules ref."
     }
   ]
 }

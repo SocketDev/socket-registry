@@ -3075,6 +3075,12 @@ importers:
 
   packages/npm/available-typed-arrays: {}
 
+  packages/npm/data-view-buffer: {}
+
+  packages/npm/data-view-byte-length: {}
+
+  packages/npm/data-view-byte-offset: {}
+
   packages/npm/date: {}
 
   packages/npm/deep-equal: {}
@@ -3410,6 +3416,15 @@ importers:
       available-typed-arrays:
         specifier: 1.0.7
         version: 1.0.7
+      data-view-buffer:
+        specifier: 1.0.2
+        version: 1.0.2
+      data-view-byte-length:
+        specifier: 1.0.2
+        version: 1.0.2
+      data-view-byte-offset:
+        specifier: 1.0.1
+        version: 1.0.1
       date:
         specifier: 2.0.6
         version: 2.0.6

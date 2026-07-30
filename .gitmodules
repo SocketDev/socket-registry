@@ -38,3 +38,33 @@
 	shallow = true
 	sparse-checkout = test/
 	verify = none
+# data-view-buffer-v1.0.2 sha256:b2fcc58ee92c3c04b5d81bdc17d29d9752e8b17cbdf4b2eec8abf9d1488a6d52
+[submodule "upstream/inspect-js-data-view-buffer"]
+	ref = 38603a5b40cc02824054ec549cbf4a14c96cca41
+	ignore = dirty
+	path = upstream/inspect-js-data-view-buffer
+	url = https://github.com/inspect-js/data-view-buffer.git
+	branch = v1.0.2
+	shallow = true
+	sparse-checkout = test/
+	verify = none
+# data-view-byte-length-v1.0.2 sha256:d40203dc1f7ccc29ef0e7a1f6074b1e17daa7208038f378400760341f11985ea
+[submodule "upstream/inspect-js-data-view-byte-length"]
+	ref = 76b05f64f4ecdca09df1a5f9f40501ca903f9bd8
+	ignore = dirty
+	path = upstream/inspect-js-data-view-byte-length
+	url = https://github.com/inspect-js/data-view-byte-length.git
+	branch = v1.0.2
+	shallow = true
+	sparse-checkout = test/
+	verify = none
+# data-view-byte-offset-v1.0.1 sha256:c131f96e20c10bfc01c134e7fa9ab20cad1e8bd7c704783f2362beea5859e387
+[submodule "upstream/inspect-js-data-view-byte-offset"]
+	ref = 0160d9a9091666653b12dda2459c2ca0814a9af4
+	ignore = dirty
+	path = upstream/inspect-js-data-view-byte-offset
+	url = https://github.com/inspect-js/data-view-byte-offset.git
+	branch = v1.0.1
+	shallow = true
+	sparse-checkout = test/
+	verify = none
