@@ -14,6 +14,10 @@
     "Raynos-for-each": {
       "submodule": "upstream/Raynos-for-each",
       "repo": "https://github.com/Raynos/for-each"
+    },
+    "inspect-js-is-data-view": {
+      "submodule": "upstream/inspect-js-is-data-view",
+      "repo": "https://github.com/inspect-js/is-data-view"
     }
   },
   "rows": [
@@ -62,6 +66,23 @@
         "load the @socketregistry/for-each override through setupNpmPackageTest instead of requiring the upstream entry point",
         "add TypeScript annotations on the collected-result arrays the upstream JS leaves untyped"
       ]
+    },
+    {
+      "kind": "file-fork",
+      "id": "npm-port-is-data-view",
+      "upstream": "inspect-js-is-data-view",
+      "criticality": 5,
+      "local": "test/npm/is-data-view.test.mts",
+      "upstream_path": "test/index.js",
+      "forked_at_sha": "e8a4943b72a33a075c6f9fd31f4e9e8a53e15b02",
+      "deviations": [
+        "swap tape's `test(name, t => …)` harness for vitest `describe`/`it`",
+        "swap `t.equal`/`t.ok` assertions for `expect(…).toBe`/`toEqual`",
+        "load the @socketregistry/is-data-view override through setupNpmPackageTest instead of requiring the upstream entry point",
+        "inline the es-value-fixtures / make-generator-function / make-arrow-function / object-inspect helper inputs as literal values (the fixture workspace does not carry those helpers)",
+        "reference the typed-array constructors directly instead of via global lookup, and drop the typeof DataView guard (Node >= 24 always ships DataView)"
+      ],
+      "notes": "v1.0.2 is an annotated tag; forked_at_sha records its peeled commit (ccf89aec is the tag object). The check compares the recorded SHA to the .gitmodules ref."
     }
   ]
 }

@@ -61,6 +61,7 @@
     "is-bigint": "1.1.0",
     "is-boolean-object": "https://github.com/inspect-js/is-boolean-object/archive/a17a5a3b37ef995e94161dc77568359446392cfb.tar.gz",
     "is-core-module": "2.16.2",
+    "is-data-view": "1.0.2",
     "is-date-object": "https://github.com/inspect-js/is-date-object/archive/a22f8d7d60cbddb809da08e4b47ed510b40a2dd9.tar.gz",
     "is-generator-function": "1.1.2",
     "is-map": "2.0.3",
