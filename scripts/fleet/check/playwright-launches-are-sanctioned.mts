@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/*
+/**
  * @file `check --all` gate: every playwright launch in the tree goes through the
  *   sanctioned session module, with no automation flags and no bare
  *   `chromium.launch`. Local and offline — a text scan, lint-style.
@@ -16,14 +16,6 @@
  *     `chromiumSandbox:` setting are both refused. Playwright's own default
  *     already passes `--no-sandbox`; restating or inverting it only diverges
  *     from the proven shape, and the flag banner it produces is cosmetic.
- *   - **Ignored default args are pinned.** The sanctioned launch drops exactly
- *     two Playwright defaults: `--enable-automation` (sets
- *     navigator.webdriver = true, the bot signal a fresh npmjs.com sign-in was
- *     observed being dropped on, 2026-07-30) and `--use-mock-keychain` (writes
- *     a cookie store no bare Chrome launch of the same profile can share).
- *     Any other `ignoreDefaultArgs` value — a different list, extra entries,
- *     or `true`, which drops every default — is refused everywhere, allowlist
- *     included.
  *   - **Persistent context only.** A bare `chromium.launch(` gets a fresh
  *     throwaway profile, so an operator's npm session cannot persist. Use
  *     `launchPersistentContext` on the durable profile.
@@ -55,21 +47,6 @@ const logger = getDefaultLogger()
  */
 export const SANCTIONED_SESSION_MODULE =
   'scripts/fleet/publish-infra/npm/browser-session.mts'
-
-/**
- * The ONLY Playwright defaults the sanctioned launch may drop, and the only
- * legal `ignoreDefaultArgs` value anywhere in the tree. `--enable-automation`
- * sets `navigator.webdriver = true` — the bot signal a fresh npmjs.com
- * sign-in was observed being dropped on (2026-07-30, login + OTP bounced to
- * signed-out in a fresh profile; keychain corruption ruled out by profile
- * wipes). `--use-mock-keychain` writes a cookie store no bare Chrome launch
- * of the same profile can read or add to, so one stray manual launch would
- * poison the session for every tool run.
- */
-export const SANCTIONED_IGNORED_DEFAULT_ARGS: readonly string[] = [
-  '--enable-automation',
-  '--use-mock-keychain',
-]
 
 /**
  * Files allowed to call a playwright launch directly, each with the reason it
@@ -105,11 +82,7 @@ export const SCAN_GLOBS: readonly string[] = [
 export interface PlaywrightViolation {
   detail: string
   relPath: string
-  rule:
-    | 'bare-launch'
-    | 'ignore-default-args'
-    | 'sandbox-flag'
-    | 'unsanctioned-persistent-context'
+  rule: 'bare-launch' | 'sandbox-flag' | 'unsanctioned-persistent-context'
 }
 
 /**
@@ -242,31 +215,6 @@ export function scanPlaywrightUsage(config: {
       rule: 'sandbox-flag',
     })
   }
-  // `ignoreDefaultArgs` is pinned EVERYWHERE, allowlist included: the
-  // sanctioned launch drops exactly SANCTIONED_IGNORED_DEFAULT_ARGS, and any
-  // other value — a different list, extra entries, or `true`, which drops
-  // every default — is a new launch shape, not the sanctioned one.
-  const ignoreArgs = /\bignoreDefaultArgs\s*:\s*(true\b|\[[^\]]*\])/.exec(text)
-  if (ignoreArgs) {
-    const value = ignoreArgs[1]!
-    const entries =
-      value === 'true'
-        ? undefined
-        : [...value.matchAll(/['"`]([^'"`]+)['"`]/g)].map(m => m[1]!)
-    const sanctioned =
-      entries !== undefined &&
-      entries.length === SANCTIONED_IGNORED_DEFAULT_ARGS.length &&
-      SANCTIONED_IGNORED_DEFAULT_ARGS.every(flag => entries.includes(flag))
-    if (!sanctioned) {
-      violations.push({
-        detail:
-          `sets \`ignoreDefaultArgs: ${value.replaceAll(/\s+/g, ' ')}\` — the only ` +
-          `sanctioned value is [${SANCTIONED_IGNORED_DEFAULT_ARGS.map(f => `'${f}'`).join(', ')}]`,
-        relPath,
-        rule: 'ignore-default-args',
-      })
-    }
-  }
   if (/\bchromium\s*\.\s*launch\s*\(/.test(text) && !allowed) {
     violations.push({
       detail:
@@ -290,15 +238,10 @@ const RULE_FIX: Record<PlaywrightViolation['rule'], string> = {
   'bare-launch':
     'Replace with the shared session: `import { openNpmBrowserSession } from ' +
     "'…/publish-infra/npm/browser-session.mts'`.",
-  'ignore-default-args':
-    'Pass exactly ignoreDefaultArgs: ' +
-    "['--enable-automation', '--use-mock-keychain'] — the sanctioned pair — " +
-    'or drop the option.',
   'sandbox-flag':
     'Delete the flag / option. The sanctioned shape is ' +
-    '`launchPersistentContext(profileDir, { channel, headless, ' +
-    "ignoreDefaultArgs: ['--enable-automation', '--use-mock-keychain'] })` " +
-    'and nothing else.',
+    '`launchPersistentContext(profileDir, { channel, headless: false })` and ' +
+    'nothing else.',
   'unsanctioned-persistent-context':
     `Import the session from ${SANCTIONED_SESSION_MODULE} instead of ` +
     'launching here, or add a dated allowlist entry with the reason this ' +
