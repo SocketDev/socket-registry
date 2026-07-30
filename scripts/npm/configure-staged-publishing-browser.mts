@@ -304,8 +304,10 @@ export async function applyStagedPublishing(
   }
 
   if (stageOnly) {
+    // "npm" followed directly by "publish" — the stage control reads
+    // "Allow npm stage publish", so it cannot match this.
     const directControl = page
-      .getByRole('checkbox', { name: /^\s*npm publish\s*$/i })
+      .getByRole('checkbox', { name: /npm\s+publish/i })
       .first()
     if (
       (await directControl.count()) > 0 &&
@@ -315,15 +317,20 @@ export async function applyStagedPublishing(
     }
   }
 
+  // Scope the save to the form holding the checkbox. The settings page renders
+  // a separate "Package access" section with its own save, so a page-wide
+  // lookup can submit the wrong form.
   const save = page
-    .getByRole('button', { name: /update package settings/i })
+    .locator('form')
+    .filter({ has: stageControl })
+    .getByRole('button', { name: /save changes/i })
     .first()
   if ((await save.count()) === 0) {
     throw new Error(
       [
         `What: the save button was not found, so ${target.name}'s change was not submitted.`,
         `Where: ${target.settingsUrl}`,
-        'Saw: no button whose accessible name matches "Update Package Settings".',
+        'Saw: no button named "Save changes" inside the form holding the allowed-actions checkboxes.',
         "Wanted: the trusted-publisher form's save button.",
         'Fix: open the URL above and confirm the form renders; if npm has renamed the button, update the accessible-name matcher in this script.',
       ].join('\n'),
@@ -331,6 +338,26 @@ export async function applyStagedPublishing(
   }
   await save.click()
   await page.waitForLoadState('networkidle').catch(() => {})
+
+  // Re-read the saved state rather than trusting the click. A form that
+  // rejected validation, or a save the session was no longer authorized for,
+  // leaves the page looking unchanged — reporting success from the click alone
+  // is how an unconfigured package reads as done.
+  await page.reload({ waitUntil: 'domcontentloaded' })
+  const persisted = page
+    .getByRole('checkbox', { name: /stage\s*publish/i })
+    .first()
+  if ((await persisted.count()) === 0 || !(await persisted.isChecked())) {
+    throw new Error(
+      [
+        `What: ${target.name} still reports "${STAGE_PUBLISH_ACTION}" as unset after saving.`,
+        `Where: ${target.settingsUrl}`,
+        'Saw: the control unchecked on a re-read following the save.',
+        'Wanted: the control checked, confirming the form persisted.',
+        'Fix: open the URL above and save once by hand. A required field left blank — publisher, organization, repository, or workflow filename — blocks the save without changing the checkbox.',
+      ].join('\n'),
+    )
+  }
 }
 
 /**
