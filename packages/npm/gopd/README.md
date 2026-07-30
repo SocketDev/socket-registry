@@ -19,7 +19,8 @@ and [resolutions](https://yarnpkg.com/configuration/manifest#resolutions)
 of your `package.json`.
 
 ```sh
-pnpm dlx socket optimize
+pnpm install -g socket
+socket optimize
 ```
 
 Prefer to do it yourself? Add `@socketregistry/gopd`
