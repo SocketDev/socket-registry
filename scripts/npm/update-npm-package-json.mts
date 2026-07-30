@@ -78,6 +78,7 @@ async function main(): Promise<void> {
           }
         }
       }
+      const curatedSideEffects = editablePkgJson.content.sideEffects
       editablePkgJson.update(
         createPackageJson(
           editablePkgJson.content.name ?? sockRegPkgName,
@@ -94,6 +95,11 @@ async function main(): Promise<void> {
           },
         ),
       )
+      if (Array.isArray(curatedSideEffects)) {
+        // createPackageJson booleanizes sideEffects; an array is a curated
+        // per-file side-effect list (auto entry points) and must survive.
+        editablePkgJson.update({ sideEffects: curatedSideEffects })
+      }
       await editablePkgJson.save()
     }),
   )
