@@ -38,6 +38,10 @@
     "ljharb-stop-iteration-iterator": {
       "submodule": "upstream/ljharb-stop-iteration-iterator",
       "repo": "https://github.com/ljharb/stop-iteration-iterator"
+    },
+    "inspect-js-is-async-function": {
+      "submodule": "upstream/inspect-js-is-async-function",
+      "repo": "https://github.com/inspect-js/is-async-function"
     }
   },
   "rows": [
@@ -183,6 +187,23 @@
         "drop the legacy StopIteration-support branch (SpiderMonkey-legacy only; upstream skips it on modern engines too)"
       ],
       "notes": "v1.1.0 is an annotated tag; forked_at_sha records its peeled commit (ab7bba3d is the tag object). The check compares the recorded SHA to the .gitmodules ref."
+    },
+    {
+      "kind": "file-fork",
+      "id": "npm-port-is-async-function",
+      "upstream": "inspect-js-is-async-function",
+      "criticality": 5,
+      "local": "test/npm/is-async-function.test.mts",
+      "upstream_path": "test/index.js",
+      "forked_at_sha": "287a194ca6f5d484ae3c29819c4b0ec876fe0eca",
+      "deviations": [
+        "swap tape's `test(name, t => …)` harness for vitest `describe`/`it`",
+        "swap `t.equal`/`t.ok` assertions for `expect(…).toBe`/`toEqual`",
+        "load the @socketregistry/is-async-function override through setupNpmPackageTest instead of requiring the upstream entry point",
+        "inline the make-async-function / make-generator-function helper inputs as literal values (the fixture workspace does not carry those helpers)",
+        "drop the window.alert branch (browser-only) and the has-tostringtag guard (always true on Node >= 24)"
+      ],
+      "notes": "v2.1.1 is an annotated tag; forked_at_sha records its peeled commit (4652befc is the tag object). The check compares the recorded SHA to the .gitmodules ref."
     }
   ]
 }

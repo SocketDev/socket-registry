@@ -3517,6 +3517,9 @@ importers:
       is-array-buffer:
         specifier: 3.0.5
         version: 3.0.5
+      is-async-function:
+        specifier: 2.1.1
+        version: 2.1.1
       is-bigint:
         specifier: 1.1.0
         version: 1.1.0

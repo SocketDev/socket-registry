@@ -61,6 +61,7 @@
     "internal-slot": "1.1.0",
     "is-arguments": "1.2.0",
     "is-array-buffer": "3.0.5",
+    "is-async-function": "2.1.1",
     "is-bigint": "1.1.0",
     "is-boolean-object": "https://github.com/inspect-js/is-boolean-object/archive/a17a5a3b37ef995e94161dc77568359446392cfb.tar.gz",
     "is-core-module": "2.16.2",

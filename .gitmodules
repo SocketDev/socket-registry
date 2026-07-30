@@ -88,3 +88,13 @@
 	shallow = true
 	sparse-checkout = test/
 	verify = none
+# is-async-function-v2.1.1 sha256:aabce409325265fe8fc6e2ec13a53d52c4f1ebdebc3a30b6f55e920fc7668b08
+[submodule "upstream/inspect-js-is-async-function"]
+	ref = 287a194ca6f5d484ae3c29819c4b0ec876fe0eca
+	ignore = dirty
+	path = upstream/inspect-js-is-async-function
+	url = https://github.com/inspect-js/is-async-function.git
+	branch = v2.1.1
+	shallow = true
+	sparse-checkout = test/
+	verify = none
