@@ -29,7 +29,7 @@ and [resolutions](https://yarnpkg.com/configuration/manifest#resolutions)
 of your `package.json`.
 
 ```sh
-pnpm install -g socket
+pnpm install -g socket@1.1.147
 socket optimize
 ```
 
