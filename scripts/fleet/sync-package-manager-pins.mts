@@ -34,7 +34,7 @@ import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { spawnSync } from '@socketsecurity/lib-stable/process/spawn/child'
 
 import { buildOxfmtArgs } from './_shared/format-scope.mts'
-import { REPO_ROOT } from './paths.mts'
+import { nodeModulesBinPath, REPO_ROOT } from './paths.mts'
 import { isMainModule } from './_shared/is-main-module.mts'
 
 const logger = getDefaultLogger()
@@ -343,10 +343,14 @@ function main(): number {
   // end of enumeration order, which oxfmt's alphabetical package.json sort
   // then flags as a format violation on the very next `pnpm run format:check`.
   // Reformat here so the write already matches what the format gate expects.
-  const formatResult = spawnSync('pnpm', buildOxfmtArgs({ files: [pkgPath] }), {
-    shell: process.platform === 'win32',
-    stdio: 'inherit',
-  })
+  const formatResult = spawnSync(
+    nodeModulesBinPath('oxfmt'),
+    buildOxfmtArgs({ files: [pkgPath] }),
+    {
+      shell: process.platform === 'win32',
+      stdio: 'inherit',
+    },
+  )
   if (formatResult.status !== 0) {
     logger.warn(
       `[sync-package-manager-pins] oxfmt reformat of package.json exited ${String(formatResult.status)} — run \`pnpm run format\` manually.`,

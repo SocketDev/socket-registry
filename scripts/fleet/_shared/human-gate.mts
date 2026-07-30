@@ -4,14 +4,12 @@
  *   authorization phrase, a staged-publish approve. Improvised asks made the
  *   operator re-parse a novel prompt every time; this module fixes the shape
  *   so every gate reads identically:
- *
- *     🖐  HUMAN GATE — <name> [i/N]
- *       Need: <what is blocked and why, one sentence>
- *       Mind: <the active guard/tool restriction that shaped the lanes>
- *       A) You: <the exact command or phrase the human runs or types>
- *       B) Me: <what to say so the agent drives the SAME command>
- *       Then: <what the flow resumes once the gate clears>
- *
+ *   🖐  HUMAN GATE — <name> [i/N]
+ *   Need: <what is blocked and why, one sentence>
+ *   Mind: <the active guard/tool restriction that shaped the lanes>
+ *   A) You: <the exact command or phrase the human runs or types>
+ *   B) Me: <what to say so the agent drives the SAME command>
+ *   Then: <what the flow resumes once the gate clears>
  *   Both lanes are ALWAYS printed. When no agent lane exists (authorization
  *   phrases count only when a human types them in a user turn), lane B says
  *   so honestly instead of vanishing — the operator should never wonder
@@ -23,13 +21,21 @@
  *   re-writing the prose; a mirror test asserts the shape.
  */
 
-/** A single human-only decision point in an otherwise scripted flow. */
+/**
+ * A single human-only decision point in an otherwise scripted flow.
+ */
 export interface HumanGate {
-  /** Short scannable label, e.g. `npm auth`, `push grant`. */
+  /**
+   * Short scannable label, e.g. `npm auth`, `push grant`.
+   */
   name: string
-  /** What is blocked and why — one sentence. */
+  /**
+   * What is blocked and why — one sentence.
+   */
   need: string
-  /** Lane A: the exact command/phrase the human runs or types themselves. */
+  /**
+   * Lane A: the exact command/phrase the human runs or types themselves.
+   */
   humanLane: string
   /**
    * Lane B: what the human says to have the agent drive it (the agent opens
@@ -37,7 +43,9 @@ export interface HumanGate {
    * `agentLaneUnavailable` must say why.
    */
   agentLane?: string | undefined
-  /** Honest reason lane B is absent — printed in its place, never omitted. */
+  /**
+   * Honest reason lane B is absent — printed in its place, never omitted.
+   */
   agentLaneUnavailable?: string | undefined
   /**
    * The active guard or restriction that shapes the lanes (devEngines veto,
@@ -45,7 +53,9 @@ export interface HumanGate {
    * the operator never picks a lane a guard would block.
    */
   mind?: string | undefined
-  /** What resumes once the gate clears — the cost of ignoring it. */
+  /**
+   * What resumes once the gate clears — the cost of ignoring it.
+   */
   resumes: string
 }
 
@@ -84,7 +94,9 @@ export function formatHumanGate(
   return lines
 }
 
-/** Render a queue of gates, numbered in the order they must clear. */
+/**
+ * Render a queue of gates, numbered in the order they must clear.
+ */
 export function formatHumanGateQueue(gates: HumanGate[]): string[] {
   const lines: string[] = []
   for (let i = 0, { length } = gates; i < length; i += 1) {

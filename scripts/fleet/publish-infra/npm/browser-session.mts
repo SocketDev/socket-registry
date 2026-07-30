@@ -17,9 +17,9 @@
  *     browser tool, so an operator signed in for the publish gate is signed in
  *     everywhere. A second per-tool profile means a second sign-in.
  *   - ONE launch shape: `launchPersistentContext(profileDir, { channel,
- *     headless, ignoreDefaultArgs: ['--enable-automation',
- *     '--use-mock-keychain'] })` and NOTHING else. No `args` array, no sandbox
- *     toggle, and exactly those two ignored Playwright defaults:
+ *     chromiumSandbox: true, headless, ignoreDefaultArgs:
+ *     ['--enable-automation', '--use-mock-keychain'] })` and NOTHING else. No
+ *     `args` array, and exactly those two ignored Playwright defaults:
  *     `--enable-automation` sets `navigator.webdriver = true` — the standard
  *     bot signal — and with it a fresh-profile npmjs.com login + OTP was
  *     observed (2026-07-30) bouncing straight back to the signed-out landing
@@ -27,9 +27,11 @@
  *     out by profile wipes). `--use-mock-keychain` writes a cookie store a
  *     bare Chrome launch of the same profile can neither read nor add to, so
  *     one stray manual launch would poison the session for every tool run.
- *     Playwright's no-sandbox default stays; its banner is cosmetic and NOT a
- *     sign-in blocker, so forcing the sandbox only diverges from the shape
- *     known to work.
+ *     `chromiumSandbox: true` is REQUIRED, not optional: Playwright defaults
+ *     the sandbox OFF and injects `--no-sandbox` itself, and current Chrome
+ *     refuses that flag outright (observed 2026-07-30 — the window opens and
+ *     the session is unusable). Sandbox ON is the only launch real Chrome
+ *     accepts.
  *   - SINGLE instance. A second Chrome on the same profile forces an ephemeral
  *     session, so a held profile is refused by name rather than silently
  *     producing a session that cannot persist.
@@ -388,12 +390,17 @@ export async function openNpmBrowserSession(
   const channel = process.env['SOCKET_BROWSER_CHANNEL'] || 'chrome'
   const doLaunch =
     launch ??
-    // The sanctioned shape: channel + headedness + the two ignored defaults
-    // below, nothing else. No args array, no sandbox toggle. See the file
+    // The sanctioned shape: channel + sandbox ON + headedness + the two
+    // ignored defaults below, nothing else. No args array. See the file
     // header.
     (cfg =>
       chromium.launchPersistentContext(cfg.profileDir, {
         channel,
+        // REQUIRED. Playwright defaults the sandbox OFF and injects
+        // --no-sandbox itself; current Chrome refuses that flag outright
+        // (observed 2026-07-30), leaving the window open but the session
+        // unusable. Sandbox ON is the only launch real Chrome accepts.
+        chromiumSandbox: true,
         headless: cfg.headless,
         // Drop two Playwright defaults that break a REAL npm session.
         // --enable-automation sets navigator.webdriver = true, the standard

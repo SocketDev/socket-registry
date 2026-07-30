@@ -28,12 +28,12 @@
  *   - The ONLY auth signal is npm's own `/-/whoami`, and the only auth failure
  *     reported is "signed out".
  *   - The launch shape is exactly that module's:
- *     `launchPersistentContext(profileDir, { channel, headless,
- *     ignoreDefaultArgs: ['--enable-automation', '--use-mock-keychain'] })` —
- *     no args array, no sandbox toggle, and exactly those two ignored
- *     defaults (navigator.webdriver bot signal off; a cookie store bare
- *     Chrome can share). Playwright's no-sandbox default stays; its banner is
- *     cosmetic and NOT a sign-in blocker.
+ *     `launchPersistentContext(profileDir, { channel, chromiumSandbox: true,
+ *     headless, ignoreDefaultArgs: ['--enable-automation',
+ *     '--use-mock-keychain'] })` — no args array, sandbox ON (playwright
+ *     defaults it off and injects --no-sandbox, which current Chrome refuses
+ *     outright), and exactly those two ignored defaults (navigator.webdriver
+ *     bot signal off; a cookie store bare Chrome can share).
  *   - A human-verification challenge PAUSES the run for the operator with a
  *     visible elapsed/remaining countdown and is NEVER retried blindly: a retry
  *     ladder against a bot challenge earns a rate limit, which then masquerades

@@ -11,11 +11,13 @@
  *   demonstrably works (ported from socket-registry's proven configurator).
  *   The rules:
  *
- *   - **No sandbox or automation flags.** An `args:` array carrying
+ *   - **No sandbox-disabling or automation flags.** An `args:` array carrying
  *     `--no-sandbox` (or `--disable-*` automation flags) and any
- *     `chromiumSandbox:` setting are both refused. Playwright's own default
- *     already passes `--no-sandbox`; restating or inverting it only diverges
- *     from the proven shape, and the flag banner it produces is cosmetic.
+ *     `chromiumSandbox:` value other than `true` are refused. Playwright
+ *     defaults the sandbox OFF and injects `--no-sandbox` itself — a flag
+ *     current Chrome refuses outright (observed 2026-07-30: the window opens
+ *     and the session is unusable) — so `chromiumSandbox: true` is required
+ *     in the sanctioned launch, not merely permitted.
  *   - **Ignored default args are pinned.** The sanctioned launch drops exactly
  *     two Playwright defaults: `--enable-automation` (sets
  *     navigator.webdriver = true, the bot signal a fresh npmjs.com sign-in was
@@ -217,14 +219,19 @@ export function scanPlaywrightUsage(config: {
   const text = stripComments(cfg.text)
   const allowed = allowlistEntryFor(relPath, cfg.allowlist ?? LAUNCH_ALLOWLIST)
   const violations: PlaywrightViolation[] = []
-  // Sandbox and automation flags are refused EVERYWHERE, allowlist included:
-  // the allowlist covers where a launch may live, never what flags it may
-  // pass.
-  if (/\bchromiumSandbox\s*:/.test(text)) {
+  // Sandbox-DISABLING flags are refused EVERYWHERE, allowlist included: the
+  // allowlist covers where a launch may live, never what flags it may pass.
+  // `chromiumSandbox: true` is the one sanctioned setting — REQUIRED in the
+  // canonical launch, because Playwright defaults the sandbox OFF and injects
+  // `--no-sandbox` itself, a flag current Chrome refuses outright (observed
+  // 2026-07-30: window opens, session unusable). Only the disabling form
+  // (`false`) diverges from the shape real Chrome accepts.
+  if (/\bchromiumSandbox\s*:(?!\s*true\b)/.test(text)) {
     violations.push({
       detail:
-        'sets `chromiumSandbox` — playwright already defaults the sandbox off, ' +
-        'and forcing it diverges from the proven launch shape',
+        'sets `chromiumSandbox` to something other than `true` — playwright ' +
+        'defaults the sandbox off and injects --no-sandbox, which current ' +
+        'Chrome refuses; `chromiumSandbox: true` is the only accepted form',
       relPath,
       rule: 'sandbox-flag',
     })

@@ -37,10 +37,23 @@ All wheelhouse-only. The cascaded trees (`.claude/hooks/fleet`,
 
 ## Enforcement (code-is-law)
 
-- **Runner**: `prefer-vitest-guard` — tests are vitest, not `node:test`.
+- **Runner**: `prefer-vitest-guard` — tests are vitest, not `node:test`. Blocks
+  a raw `node --test` on a src/repo test or a bare vitest binary call, and
+  steers to `pnpm test [<file>]`.
+- **No double-dash before the test path**: `no-vitest-double-dash-guard`
+  blocks a vitest invocation with a `--` separator before the file path. The
+  pnpm/npm args-separator swallows it, so vitest silently runs the WHOLE
+  suite instead of the one file named.
+- **No `node:test` under `scripts/`**: `no-test-in-scripts-guard` blocks a
+  `node:test` suite living under `scripts/`. It never runs in CI, so move it
+  to a vitest suite under `test/`.
+- **`package.json` test scripts defer to a wrapper**: `test-script-defers-guard`
+  blocks a `package.json` test script that invokes a raw test-runner binary
+  directly instead of a `.mts` wrapper; the hook/lint-rule/script/git-hook
+  tier's own runner scripts are exempt.
 - **No test in a cascaded tree**: `cascaded-fleet-trees-have-no-tests` (in
-  `check --all`) + the edit-time guard fail loud if a `*.test.*` appears under
-  any cascaded tree — absolute, no exceptions. Put it under `test/repo/`.
+  `check --all`) plus the edit-time guard fail loud if a `*.test.*` appears
+  under any cascaded tree, absolute, no exceptions. Put it under `test/repo/`.
 - **No test in the cascade manifest**: `scripts/repo/sync-scaffolding/manifest/files.mts` lists no `*.test.*`
-  file — its `test/fleet/**` entries are helpers + setup only — so the cascade
+  file. Its `test/fleet/**` entries are helpers + setup only, so the cascade
   never carries a wheelhouse test to a member.
