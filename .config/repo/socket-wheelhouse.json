@@ -8,5 +8,17 @@
   "build": {
     "from": "npm-registry",
     "type": "js"
+  },
+  "release": {
+    "provenanceOrphanBaseline": [
+      {
+        "id": "@socketsecurity/registry@2.0.2",
+        "reason": "Attested commit 478873d5 has no v2.0.2 or bare 2.0.2 tag on origin at all. Frozen history — adding a tag means a human confirming the attested tree against the published bytes."
+      },
+      {
+        "id": "@socketsecurity/registry@2.0.1",
+        "reason": "Attested commit 5bf88a0b has no v2.0.1 or bare 2.0.1 tag on origin at all. Same frozen-history shape as 2.0.2."
+      }
+    ]
   }
 }
