@@ -68,3 +68,13 @@
 	shallow = true
 	sparse-checkout = test/
 	verify = none
+# own-keys-v1.0.2 sha256:5ff0dc9e98444218fa6a454895536d8fc038e74a6dd2059710f61e7e905c742d
+[submodule "upstream/ljharb-own-keys"]
+	ref = 20620ebfd195d384d85fc134e29cc4916297a92f
+	ignore = dirty
+	path = upstream/ljharb-own-keys
+	url = https://github.com/ljharb/own-keys.git
+	branch = v1.0.2
+	shallow = true
+	sparse-checkout = test/
+	verify = none

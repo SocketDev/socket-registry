@@ -97,6 +97,7 @@
     "object.groupby": "1.0.3",
     "object.hasown": "1.1.4",
     "object.values": "1.2.1",
+    "own-keys": "1.0.2",
     "path-parse": "https://github.com/jbgutierrez/path-parse/archive/f7e258ddf7c6ec87a0236c75247fc6fd21ee7bd9.tar.gz",
     "promise.allsettled": "1.0.7",
     "promise.any": "2.0.6",

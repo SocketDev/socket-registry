@@ -30,6 +30,10 @@
     "inspect-js-data-view-byte-offset": {
       "submodule": "upstream/inspect-js-data-view-byte-offset",
       "repo": "https://github.com/inspect-js/data-view-byte-offset"
+    },
+    "ljharb-own-keys": {
+      "submodule": "upstream/ljharb-own-keys",
+      "repo": "https://github.com/ljharb/own-keys"
     }
   },
   "rows": [
@@ -143,6 +147,22 @@
         "inline the es-value-fixtures / object-inspect helper inputs as literal values (the fixture workspace does not carry those helpers)"
       ],
       "notes": "v1.0.1 is an annotated tag; forked_at_sha records its peeled commit (a7ce9d9c is the tag object). The check compares the recorded SHA to the .gitmodules ref."
+    },
+    {
+      "kind": "file-fork",
+      "id": "npm-port-own-keys",
+      "upstream": "ljharb-own-keys",
+      "criticality": 5,
+      "local": "test/npm/own-keys.test.mts",
+      "upstream_path": "test/index.js",
+      "forked_at_sha": "20620ebfd195d384d85fc134e29cc4916297a92f",
+      "deviations": [
+        "swap tape's `test(name, t => …)` harness for vitest `describe`/`it`",
+        "swap `t.equal`/`t.ok` assertions for `expect(…).toBe`/`toEqual`",
+        "load the @socketregistry/own-keys override through setupNpmPackageTest instead of requiring the upstream entry point",
+        "drop the has-symbols/has-property-descriptors feature guards (always true on Node >= 24)"
+      ],
+      "notes": "v1.0.2 is an annotated tag; forked_at_sha records its peeled commit (320a20eb is the tag object). The check compares the recorded SHA to the .gitmodules ref."
     }
   ]
 }

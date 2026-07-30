@@ -3097,6 +3097,8 @@ importers:
 
   packages/npm/es-set-tostringtag: {}
 
+  packages/npm/es-to-primitive: {}
+
   packages/npm/es6-object-assign: {}
 
   packages/npm/es6-symbol: {}
@@ -3138,6 +3140,8 @@ importers:
   packages/npm/is-arguments: {}
 
   packages/npm/is-array-buffer: {}
+
+  packages/npm/is-async-function: {}
 
   packages/npm/is-bigint: {}
 
@@ -3213,6 +3217,8 @@ importers:
 
   packages/npm/object.values: {}
 
+  packages/npm/own-keys: {}
+
   packages/npm/path-parse: {}
 
   packages/npm/promise.allsettled: {}
@@ -3238,6 +3244,8 @@ importers:
   packages/npm/set-function-length: {}
 
   packages/npm/side-channel: {}
+
+  packages/npm/stop-iteration-iterator: {}
 
   packages/npm/string.fromcodepoint: {}
 
@@ -3617,6 +3625,9 @@ importers:
       object.values:
         specifier: 1.2.1
         version: 1.2.1
+      own-keys:
+        specifier: 1.0.2
+        version: 1.0.2
       path-parse:
         specifier: https://github.com/jbgutierrez/path-parse/archive/f7e258ddf7c6ec87a0236c75247fc6fd21ee7bd9.tar.gz
         version: https://github.com/jbgutierrez/path-parse/archive/f7e258ddf7c6ec87a0236c75247fc6fd21ee7bd9.tar.gz
@@ -6879,8 +6890,8 @@ packages:
   outvariant@1.4.3:
     resolution: {integrity: sha512-+Sl2UErvtsoajRDKCE5/dBz4DIvHXQQnAxtQTF04OJxY0+DyZXSo5P5Bb7XYWOh81syohlYL24hbDwxedPUJCA==}
 
-  own-keys@1.0.1:
-    resolution: {integrity: sha512-qFOyK5PjiWZd+QQIh+1jhdb9LpxTF0qs7Pm8o5QHYZ0M3vKqSqzsZaEB6oWlxZ+q2sJBMI/Ktgd2N5ZwQoRHfg==}
+  own-keys@1.0.2:
+    resolution: {integrity: sha512-19YVAg7T+WTrxggPukVq7DjTv6+PJ867TmhCvBsYwmbFCsZd344rq2Ld1p0wo8f8Qrrhgp82c6FJRqdXWtSEhg==}
     engines: {node: '>= 0.4'}
 
   oxfmt@0.60.0:
@@ -9761,7 +9772,7 @@ snapshots:
       object-inspect: 1.13.4
       object-keys: 1.1.1
       object.assign: 4.1.7
-      own-keys: 1.0.1
+      own-keys: 1.0.2
       regexp.prototype.flags: 1.5.4
       safe-array-concat: 1.1.4
       safe-push-apply: 1.0.0
@@ -11145,8 +11156,9 @@ snapshots:
 
   outvariant@1.4.3: {}
 
-  own-keys@1.0.1:
+  own-keys@1.0.2:
     dependencies:
+      call-bound: 1.0.4
       get-intrinsic: 1.3.0
       object-keys: 1.1.1
       safe-push-apply: 1.0.0
@@ -11461,7 +11473,7 @@ snapshots:
       define-properties: 1.2.1
       es-set-tostringtag: '@socketregistry/es-set-tostringtag@1.0.10'
       globalthis: 1.0.4
-      own-keys: 1.0.1
+      own-keys: 1.0.2
 
   regexp.prototype.flags@1.5.4:
     dependencies:
