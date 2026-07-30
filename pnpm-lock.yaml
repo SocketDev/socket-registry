@@ -3667,6 +3667,9 @@ importers:
       side-channel:
         specifier: npm:@socketregistry/side-channel@1.0.10
         version: '@socketregistry/side-channel@1.0.10'
+      stop-iteration-iterator:
+        specifier: 1.1.0
+        version: 1.1.0
       string.fromcodepoint:
         specifier: 1.0.3
         version: 1.0.3

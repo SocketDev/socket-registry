@@ -34,6 +34,10 @@
     "ljharb-own-keys": {
       "submodule": "upstream/ljharb-own-keys",
       "repo": "https://github.com/ljharb/own-keys"
+    },
+    "ljharb-stop-iteration-iterator": {
+      "submodule": "upstream/ljharb-stop-iteration-iterator",
+      "repo": "https://github.com/ljharb/stop-iteration-iterator"
     }
   },
   "rows": [
@@ -163,6 +167,22 @@
         "drop the has-symbols/has-property-descriptors feature guards (always true on Node >= 24)"
       ],
       "notes": "v1.0.2 is an annotated tag; forked_at_sha records its peeled commit (320a20eb is the tag object). The check compares the recorded SHA to the .gitmodules ref."
+    },
+    {
+      "kind": "file-fork",
+      "id": "npm-port-stop-iteration-iterator",
+      "upstream": "ljharb-stop-iteration-iterator",
+      "criticality": 5,
+      "local": "test/npm/stop-iteration-iterator.test.mts",
+      "upstream_path": "test/index.js",
+      "forked_at_sha": "8bd657987cf89d59ac9909a01a1a24b17e6171be",
+      "deviations": [
+        "swap tape's `test(name, t => …)` harness for vitest `describe`/`it`",
+        "swap `t.equal`/`t.ok` assertions for `expect(…).toBe`/`toEqual`",
+        "load the @socketregistry/stop-iteration-iterator override through setupNpmPackageTest instead of requiring the upstream entry point",
+        "drop the legacy StopIteration-support branch (SpiderMonkey-legacy only; upstream skips it on modern engines too)"
+      ],
+      "notes": "v1.1.0 is an annotated tag; forked_at_sha records its peeled commit (ab7bba3d is the tag object). The check compares the recorded SHA to the .gitmodules ref."
     }
   ]
 }

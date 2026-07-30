@@ -1,0 +1,50 @@
+# @socketregistry/stop-iteration-iterator
+
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@socketregistry/stop-iteration-iterator)](https://socket.dev/npm/package/@socketregistry/stop-iteration-iterator)
+[![CI - @socketregistry/stop-iteration-iterator](https://github.com/SocketDev/socket-registry/actions/workflows/ci.yml/badge.svg)](https://github.com/SocketDev/socket-registry/actions/workflows/ci.yml)
+
+[![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
+[![Follow @socket.dev on Bluesky](https://img.shields.io/badge/Follow-@socket.dev-1DA1F2?style=social&logo=bluesky)](https://bsky.app/profile/socket.dev)
+
+> A tested zero dependency drop-in replacement of [`stop-iteration-iterator`](https://socket.dev/npm/package/stop-iteration-iterator) complete with TypeScript types.
+
+## Installation
+
+### Install as a package override
+
+[`socket`](https://socket.dev/npm/package/socket)
+CLI will automagically ✨ populate
+[overrides](https://docs.npmjs.com/cli/v9/configuring-npm/package-json#overrides)
+and [resolutions](https://yarnpkg.com/configuration/manifest#resolutions)
+of your `package.json`.
+
+```sh
+pnpm install -g socket@1.1.147
+socket optimize
+```
+
+Prefer to do it yourself? Add `@socketregistry/stop-iteration-iterator`
+to your `package.json`.
+
+```json
+{
+  "overrides": {
+    "stop-iteration-iterator": "npm:@socketregistry/stop-iteration-iterator@^1"
+  },
+  "resolutions": {
+    "stop-iteration-iterator": "npm:@socketregistry/stop-iteration-iterator@^1"
+  }
+}
+```
+
+### Install as a plain dependency
+
+Install with your favorite package manager.
+
+```sh
+pnpm install @socketregistry/stop-iteration-iterator
+```
+
+## Requirements
+
+Node >= `24`

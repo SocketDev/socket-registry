@@ -111,6 +111,7 @@
     "safer-buffer": "https://github.com/ChALkeR/safer-buffer/archive/e8ac214944eda30e1e6c6b7d7e7f6a21cf7dce7c.tar.gz",
     "set-function-length": "https://github.com/ljharb/set-function-length/archive/2290d3ea1635b3875dc0c7072ecea0bcbf82dad5.tar.gz",
     "side-channel": "1.1.1",
+    "stop-iteration-iterator": "1.1.0",
     "string.fromcodepoint": "1.0.3",
     "string.prototype.at": "1.0.6",
     "string.prototype.codepointat": "1.0.1",
