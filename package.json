@@ -24,7 +24,7 @@
     "check": "node scripts/fleet/check.mts",
     "check-trusted": "node scripts/npm/check-trusted-packages.mts",
     "check:paths": "node scripts/fleet/check/paths-are-canonical.mts",
-    "clean": "node -e \"require('node:fs').rmSync('node_modules/.cache', { recursive: true, force: true })\"",
+    "clean": "node scripts/fleet/clean.mts",
     "cover": "node scripts/fleet/cover.mts",
     "fix": "node scripts/fleet/fix.mts",
     "format": "node scripts/fleet/format.mts",
