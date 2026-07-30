@@ -1,4 +1,4 @@
-/**
+/*
  * @file THE sanctioned npm browser session for every fleet tool that drives
  *   npmjs.com — one durable profile, one launch shape, one sign-in contract.
  *   Ported from socket-registry's proven configurator
@@ -16,16 +16,31 @@
  *   - ONE durable profile ({@link DEFAULT_PROFILE_DIR}) shared by every npm
  *     browser tool, so an operator signed in for the publish gate is signed in
  *     everywhere. A second per-tool profile means a second sign-in.
- *   - ONE launch shape: `launchPersistentContext(profileDir, { channel, headless:
- *     false })` and NOTHING else. No `args` array, no `chromiumSandbox` toggle,
- *     no automation flags. Playwright adds `--no-sandbox` by default; that
- *     banner is cosmetic and is NOT a sign-in blocker, so forcing the sandbox
- *     only diverges from the shape known to work.
+ *   - ONE launch shape: `launchPersistentContext(profileDir, { channel,
+ *     headless, ignoreDefaultArgs: ['--enable-automation',
+ *     '--use-mock-keychain'] })` and NOTHING else. No `args` array, no sandbox
+ *     toggle, and exactly those two ignored Playwright defaults:
+ *     `--enable-automation` sets `navigator.webdriver = true` — the standard
+ *     bot signal — and with it a fresh-profile npmjs.com login + OTP was
+ *     observed (2026-07-30) bouncing straight back to the signed-out landing
+ *     page, the session dropped live by the site (keychain corruption ruled
+ *     out by profile wipes). `--use-mock-keychain` writes a cookie store a
+ *     bare Chrome launch of the same profile can neither read nor add to, so
+ *     one stray manual launch would poison the session for every tool run.
+ *     Playwright's no-sandbox default stays; its banner is cosmetic and NOT a
+ *     sign-in blocker, so forcing the sandbox only diverges from the shape
+ *     known to work.
  *   - SINGLE instance. A second Chrome on the same profile forces an ephemeral
  *     session, so a held profile is refused by name rather than silently
  *     producing a session that cannot persist.
- *   - The only auth signal is npm's own `/-/whoami`; the only auth failure
- *     reported is "signed out".
+ *   - The only auth signal is npm's own `/-/whoami` on the WEBSITE origin,
+ *     and the BODY decides — never the HTTP status. www.npmjs.com removed
+ *     the route (observed 2026-07-30): it answers 404 whose spiferack
+ *     envelope still carries the session — `user.name` a string when signed
+ *     in, `user: null` when signed out. Requiring a 200 reads every live
+ *     session as signed out until the sign-in timeout, which presents as
+ *     "login does not persist". The only auth failure reported is "signed
+ *     out".
  *   - A human-verification challenge is PAUSED for the operator with a visible
  *     elapsed/remaining countdown, NEVER retried on a backoff ladder: a blind
  *     retry against a bot challenge earns a rate limit, which then masquerades
@@ -118,20 +133,31 @@ export async function fetchInPage(
 }
 
 /**
- * The signed-in npm username via `/-/whoami`, or '' when the session is
- * signed out. The ONLY auth signal any consumer reads.
+ * The signed-in npm username via the website origin's `/-/whoami`, or ''
+ * when the session is signed out. The ONLY auth signal any consumer reads.
+ * The BODY decides, never the status: www.npmjs.com removed the route
+ * (observed 2026-07-30) and answers HTTP 404 whose spiferack envelope still
+ * carries the session — `{"message":"Route not found!","user":{"name":…}}`
+ * signed in, `"user":null` signed out. The registry-style
+ * `{"username":…}` shape is still accepted in case the route ever serves
+ * again, with no status requirement either. A destroyed execution context
+ * (status 0) has an empty body and reads as signed out, which callers
+ * already treat as retryable.
  */
 export async function resolveNpmUser(page: Page): Promise<string> {
-  const { body, status } = await fetchInPage(
+  const { body } = await fetchInPage(
     page,
     `${NPM_ORIGIN}/-/whoami`,
     'application/json',
   )
-  if (status !== 200) {
-    return ''
-  }
   try {
-    const parsed = JSON.parse(body) as { username?: unknown | undefined }
+    const parsed = JSON.parse(body) as {
+      user?: { name?: unknown | undefined } | null | undefined
+      username?: unknown | undefined
+    }
+    if (typeof parsed.user?.name === 'string') {
+      return parsed.user.name
+    }
     return typeof parsed.username === 'string' ? parsed.username : ''
   } catch {
     return ''
@@ -362,12 +388,23 @@ export async function openNpmBrowserSession(
   const channel = process.env['SOCKET_BROWSER_CHANNEL'] || 'chrome'
   const doLaunch =
     launch ??
-    // The sanctioned shape: channel + headedness, nothing else. No args
-    // array, no sandbox toggle. See the file header.
+    // The sanctioned shape: channel + headedness + the two ignored defaults
+    // below, nothing else. No args array, no sandbox toggle. See the file
+    // header.
     (cfg =>
       chromium.launchPersistentContext(cfg.profileDir, {
         channel,
         headless: cfg.headless,
+        // Drop two Playwright defaults that break a REAL npm session.
+        // --enable-automation sets navigator.webdriver = true, the standard
+        // bot signal; with it, a fresh-profile npmjs.com login + OTP bounced
+        // straight back to the signed-out landing page — the session dropped
+        // live by the site (observed 2026-07-30; keychain corruption ruled
+        // out by profile wipes). --use-mock-keychain writes a cookie store a
+        // bare Chrome launch of the same profile can neither read nor add
+        // to, so one stray manual launch would poison the session for every
+        // tool run.
+        ignoreDefaultArgs: ['--enable-automation', '--use-mock-keychain'],
       }))
   const context = await doLaunch({ headless, profileDir })
   try {

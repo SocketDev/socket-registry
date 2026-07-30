@@ -102,10 +102,13 @@ export function formatHumanGateQueue(gates: HumanGate[]): string[] {
  * that survives each context (pnpm's web-OAuth login when available, npm
  * behind a PTY otherwise) — so there is never a mid-flight "that won't work,
  * do this instead". Only the runner differs: the operator's terminal, or the
- * agent through the PTY wrapper.
+ * agent through the PTY wrapper. The command is cd-anchored to a repo that
+ * HAS the router: a bare relative path runs against whatever cwd the
+ * operator's shell or the `!` in-session input happens to be in, and dies
+ * MODULE_NOT_FOUND anywhere else.
  */
-export function npmAuthGate(resumes: string): HumanGate {
-  const command = 'node scripts/fleet/npm-web-auth.mts login'
+export function npmAuthGate(repoPath: string, resumes: string): HumanGate {
+  const command = `cd ${repoPath} && node scripts/fleet/npm-web-auth.mts login`
   return {
     agentLane:
       `say "log me in" and I run \`${command}\` through its PTY — ` +

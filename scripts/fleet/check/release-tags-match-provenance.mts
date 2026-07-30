@@ -86,7 +86,9 @@ const PROVENANCE_URI_REF_RE = /@(refs\/[^@]+)$/
  * orphan assertion above already catches the case where the in-run bump
  * actually broke the tag/provenance correspondence.
  */
-const TAG_REF_MODE: 'report' | 'strict' = 'report'
+export type TagRefMode = 'report' | 'strict'
+
+export const TAG_REF_MODE: TagRefMode = 'report'
 
 /**
  * A git tag resolved to the commit it ultimately points at.
@@ -306,17 +308,20 @@ export function summarizeProvenanceVerdicts(
 
 /**
  * True when the audit may print a success line: at least one version was
- * actually verified and nothing failed OR went unread. Pure.
+ * actually verified and nothing failed OR went unread. `mode` defaults to the
+ * shipped {@link TAG_REF_MODE} and is a parameter so the strict arm — the
+ * ratchet for a tag-triggered release — is exercised by tests today. Pure.
  */
 export function provenanceAuditPassed(
   summary: ProvenanceAuditSummary,
+  mode: TagRefMode = TAG_REF_MODE,
 ): boolean {
   return (
     summary.matched > 0 &&
     summary.orphaned === 0 &&
     summary.unprovenanced === 0 &&
     summary.unreadable === 0 &&
-    (TAG_REF_MODE === 'report' || summary.branchRefs === 0)
+    (mode === 'report' || summary.branchRefs === 0)
   )
 }
 
@@ -327,11 +332,12 @@ export function provenanceAuditPassed(
  */
 export function provenanceAuditFailed(
   summary: ProvenanceAuditSummary,
+  mode: TagRefMode = TAG_REF_MODE,
 ): boolean {
   return (
     summary.orphaned > 0 ||
     summary.unprovenanced > 0 ||
-    (TAG_REF_MODE === 'strict' && summary.branchRefs > 0)
+    (mode === 'strict' && summary.branchRefs > 0)
   )
 }
 
