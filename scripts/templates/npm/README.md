@@ -29,7 +29,7 @@ and [resolutions](https://yarnpkg.com/configuration/manifest#resolutions)
 of your `package.json`.
 
 ```sh
-npx socket optimize # socket-lint: allow npx
+pnpm dlx socket optimize
 ```
 
 Prefer to do it yourself? Add `<%= it.name %>`

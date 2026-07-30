@@ -23,7 +23,7 @@ and [resolutions](https://yarnpkg.com/configuration/manifest#resolutions)
 of your `package.json`.
 
 ```sh
-npx socket optimize
+pnpm dlx socket optimize
 ```
 
 Prefer to do it yourself? Add `@socketregistry/json-stable-stringify`
