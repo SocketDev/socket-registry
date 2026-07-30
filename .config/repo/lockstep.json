@@ -42,6 +42,10 @@
     "inspect-js-is-async-function": {
       "submodule": "upstream/inspect-js-is-async-function",
       "repo": "https://github.com/inspect-js/is-async-function"
+    },
+    "ljharb-es-to-primitive": {
+      "submodule": "upstream/ljharb-es-to-primitive",
+      "repo": "https://github.com/ljharb/es-to-primitive"
     }
   },
   "rows": [
@@ -204,6 +208,23 @@
         "drop the window.alert branch (browser-only) and the has-tostringtag guard (always true on Node >= 24)"
       ],
       "notes": "v2.1.1 is an annotated tag; forked_at_sha records its peeled commit (4652befc is the tag object). The check compares the recorded SHA to the .gitmodules ref."
+    },
+    {
+      "kind": "file-fork",
+      "id": "npm-port-es-to-primitive",
+      "upstream": "ljharb-es-to-primitive",
+      "criticality": 5,
+      "local": "test/npm/es-to-primitive.test.mts",
+      "upstream_path": "test/index.js",
+      "forked_at_sha": "f33dccb3a8950f4abc67f43bec81f776da9cdf13",
+      "deviations": [
+        "swap tape's `test(name, t => …)` harness for vitest `describe`/`it`",
+        "swap `t.equal`/`t.ok` assertions for `expect(…).toBe`/`toEqual`",
+        "load the @socketregistry/es-to-primitive override through setupNpmPackageTest instead of requiring the upstream entry point",
+        "consolidate upstream test/index.js + test/es5.js + test/es2015.js into one suite (test/es6.js duplicates es2015; its coverage is the index identity assertions)",
+        "inline the es-value-fixtures / object-is / function.prototype.name / object-inspect helper inputs as literal values (the fixture workspace does not carry those helpers)"
+      ],
+      "notes": "v1.3.4 is an annotated tag; forked_at_sha records its peeled commit (0655a2a9 is the tag object). The check compares the recorded SHA to the .gitmodules ref."
     }
   ]
 }

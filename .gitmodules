@@ -98,3 +98,13 @@
 	shallow = true
 	sparse-checkout = test/
 	verify = none
+# es-to-primitive-v1.3.4 sha256:dba0f3304e156858963aae1aa6f5031237840c22e058674ed142572da24b9c10
+[submodule "upstream/ljharb-es-to-primitive"]
+	ref = f33dccb3a8950f4abc67f43bec81f776da9cdf13
+	ignore = dirty
+	path = upstream/ljharb-es-to-primitive
+	url = https://github.com/ljharb/es-to-primitive.git
+	branch = v1.3.4
+	shallow = true
+	sparse-checkout = test/
+	verify = none

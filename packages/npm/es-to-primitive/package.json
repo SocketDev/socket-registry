@@ -1,0 +1,52 @@
+{
+  "name": "@socketregistry/es-to-primitive",
+  "version": "1.0.0",
+  "description": "Socket.dev optimized package override for es-to-primitive",
+  "keywords": [
+    "Socket.dev",
+    "package-overrides"
+  ],
+  "homepage": "https://github.com/SocketDev/socket-registry/tree/main/packages/npm/es-to-primitive",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SocketDev/socket-registry.git",
+    "directory": "packages/npm/es-to-primitive"
+  },
+  "files": [
+    "*.d.ts",
+    "*.js"
+  ],
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
+    "./es5": {
+      "types": "./es5.d.ts",
+      "default": "./es5.js"
+    },
+    "./es6": {
+      "types": "./es6.d.ts",
+      "default": "./es6.js"
+    },
+    "./es2015": {
+      "types": "./es2015.d.ts",
+      "default": "./es2015.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "socket": {
+    "categories": [
+      "cleanup"
+    ]
+  }
+}
