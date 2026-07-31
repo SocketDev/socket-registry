@@ -36,7 +36,7 @@ function getCliArgs() {
  * are skipped during pre-commit hooks to speed up commits. They can be forced
  * to run with --force flag or in CI environments.
  */
-function isPackageTestingSkipped(_eco: string, _packageName: string) {
+function isPackageTestingSkipped() {
   // In pre-commit hooks, skip package tests unless forced.
   if (process.env['PRE_COMMIT'] === 'true') {
     const args = getCliArgs()

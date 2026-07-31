@@ -119,7 +119,7 @@ export function setupNpmPackageTest(
   const opts = { __proto__: null, ...options } as SetupNpmPackageTestOptions
   const sockRegPkgName = opts.package ?? path.basename(filename, '.test.mts')
   const eco = NPM
-  const skip = isPackageTestingSkipped(eco, sockRegPkgName)
+  const skip = isPackageTestingSkipped()
   const pkgPath = path.join(NPM_PACKAGES_PATH, sockRegPkgName)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let module: any = SKIPPED_MODULE_STUB
