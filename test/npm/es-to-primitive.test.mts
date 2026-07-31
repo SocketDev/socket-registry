@@ -36,7 +36,19 @@ const uncoercibleFnObject = {
 }
 const toStringOnlyObject = { toString: () => 7, valueOf: () => ({}) }
 const valueOfOnlyObject = { toString: () => ({}), valueOf: () => 4 }
-const primitives = [null, undefined, true, false, 0, -0, 42, NaN, Infinity, '', 'abc']
+const primitives = [
+  null,
+  undefined,
+  true,
+  false,
+  0,
+  -0,
+  42,
+  NaN,
+  Infinity,
+  '',
+  'abc',
+]
 
 describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   describe('default export', () => {

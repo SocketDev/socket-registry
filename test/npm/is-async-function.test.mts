@@ -47,7 +47,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
   it('returns false for non-async function with faked toString', () => {
     const func = function () {}
-    func.toString = () => 'async function () { return "TOTALLY REAL I SWEAR!"; }'
+    func.toString = () =>
+      'async function () { return "TOTALLY REAL I SWEAR!"; }'
     expect(String(func)).not.toBe(Function.prototype.toString.apply(func))
     expect(isAsyncFunction(func)).toBe(false)
   })
