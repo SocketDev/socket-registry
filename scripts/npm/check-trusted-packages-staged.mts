@@ -23,7 +23,10 @@ import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
-import { getPackumentSlim } from '@socketsecurity/lib/npm/meta'
+import {
+  extractHttpStatus,
+  getPackumentSlim,
+} from '@socketsecurity/lib/npm/meta'
 
 import { REPO_ROOT } from '../fleet/paths.mts'
 
@@ -264,25 +267,6 @@ export function classifyStagedTrust(
  *
  * @throws {Error} When the registry read fails with anything other than a 404.
  */
-/**
- * The HTTP status carried by a packument-fetch error, or undefined. Local
- * because @socketsecurity/lib 6.5.1 compiles its `extractHttpStatus` export
- * out of the published build.
- */
-export function httpStatusOf(e: unknown): number | undefined {
-  if (!e || typeof e !== 'object') {
-    return undefined
-  }
-  const err = e as { status?: unknown; statusCode?: unknown }
-  if (typeof err.status === 'number') {
-    return err.status
-  }
-  if (typeof err.statusCode === 'number') {
-    return err.statusCode
-  }
-  return undefined
-}
-
 export async function readStagedTrust(
   entry: StagedRosterEntry,
   options?: GetPackumentSlimOptions | undefined,
@@ -296,7 +280,7 @@ export async function readStagedTrust(
       variant: 'full',
     } as GetPackumentSlimOptions)
   } catch (e) {
-    if (httpStatusOf(e) === 404) {
+    if (extractHttpStatus(e) === 404) {
       return classifyStagedTrust(name, { manifestVersion, meta: undefined })
     }
     throw e
