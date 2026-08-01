@@ -302,6 +302,8 @@
     "**/test/fleet/publish-infra-placeholder.test.mts",
     "</fleet>",
     "#fleet-canonical-end",
+    "<repo>",
+    "</repo>",
     "**/external",
     "**/packages/build-infra/lib/release-checksums/consumer.mts",
     "**/packages/build-infra/lib/release-checksums/core.mts",
