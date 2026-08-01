@@ -47,7 +47,7 @@ import {
   changelogHasVersionSection,
   insertChangelogSection,
   replaceVersion,
-} from '../fleet/bump.mts'
+} from '../fleet/bump/changelog-sections.mts'
 import {
   bumpLevelFor,
   changelogHeading,

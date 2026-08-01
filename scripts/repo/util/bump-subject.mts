@@ -11,7 +11,7 @@ import path from 'node:path'
 
 import { gt } from '@socketsecurity/lib-stable/versions/compare'
 
-import { changelogHasVersionSection } from '../../fleet/bump.mts'
+import { changelogHasVersionSection } from '../../fleet/bump/changelog-sections.mts'
 import { parseConventionalCommits } from '../../fleet/lib/changelog.mts'
 import {
   deriveReleaseCommits as deriveAnchoredReleaseCommits,
