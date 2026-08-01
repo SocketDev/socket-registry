@@ -296,7 +296,7 @@ Work handed to a subagent, or done in a delegated session, meets the same bar as
 
 ## Variant analysis: don't close a High/Critical finding alone
 
-Closing out a High- or Critical-severity finding (a security scan result, a review comment, a bug report) covers the one instance in front of you. The same bug shape often repeats elsewhere in the repo: the same unsafe pattern copy-pasted into a sibling function, the same missing check in a parallel code path. Before marking the finding closed, search the repo for the same shape and fix every instance you find, not only the reported one.
+A High- or Critical-severity finding reaches you as a security scan result, a review comment, or a bug report. Closing it out covers the one instance in front of you. The same bug shape often repeats elsewhere in the repo: the same unsafe pattern copy-pasted into a sibling function, the same missing check in a parallel code path. Before marking the finding closed, search the repo for the same shape and fix every instance you find, not only the reported one.
 
 Four hooks reinforce different slices of this discipline:
 

@@ -158,7 +158,7 @@ catalog:
   # published: 2026-05-07 (26 days, past 7-day soak)
   'comptime': 0.1.0
   'html5parser': 3.0.0
-  'magic-string': 1.0.0
+  'magic-string': 1.1.0
   'markdownlint-cli2': 0.23.1
   'mdast-util-from-markdown': 2.0.3
   'micromark': 4.0.2
@@ -178,7 +178,7 @@ catalog:
   # playwright-core — headless Chromium driver for the seeing-rendered-output
   # skill (render a page / unpacked MV3 extension popup to PNG). Fleet-canonical
   # catalog dep; source of truth is template/pnpm-workspace.fleet.yaml.
-  'playwright-core': 1.61.1
+  'playwright-core': 1.62.0
   # Direct bundler pin for repos that run rolldown as their build
   # (socket-packageurl-js, socket-webext, the trusted-publisher
   # extension, and the in-progress esbuild→rolldown migrations).
@@ -285,14 +285,10 @@ minimumReleaseAgeExclude:
   # future publish); exact-pinned so a future version re-soaks.
   # obug + verkit — new dev-only transitives of taze 19.16.0 (same owner
   # directive); exact-pinned so future versions re-soak.
-  # published: 2026-07-24 | removable: 2026-07-31
-  - '@shadscan/cli@0.2.0'
   # js-yaml 5.2.2 — HIGH security fix, GHSA-pm4m-ph32-ghv5; the overrides
   # entry below forces it past markdownlint-cli2's 5.2.1 pin. Soak bypassed
   # per the high-severity security exception; exact-pinned so a future
   # version re-soaks.
-  # published: 2026-07-23 | removable: 2026-07-30
-  - 'js-yaml@5.2.2'
 
 blockExoticSubdeps: true
 

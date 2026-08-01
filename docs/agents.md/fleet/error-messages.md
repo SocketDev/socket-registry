@@ -165,4 +165,4 @@ Before shipping a message, cross out any word that, if removed, leaves the infor
 
 ## Enforcement
 
-`.claude/hooks/fleet/error-message-quality-nudge/` is a Stop hook that scans code the assistant wrote in the last turn for a low-quality `throw new Error(...)` / `throw new RangeError(...)` whose whole message is a single vague word or short phrase with no field, no value, and no rule (the trivial-vague case: `"invalid"`, `"failed"`). Non-blocking; it flags the pattern so the message can be rewritten with the four ingredients above before the turn ends.
+`.claude/hooks/fleet/error-message-quality-nudge/` is a Stop hook that scans code the assistant wrote in the last turn for a low-quality `throw new Error(...)` / `throw new RangeError(...)` whose whole message is a single vague word or short phrase with no field, no value, and no rule. The trivial-vague case is a message that reads only `"invalid"` or `"failed"`. Non-blocking; it flags the pattern so the message can be rewritten with the four ingredients above before the turn ends.

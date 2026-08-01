@@ -64,7 +64,7 @@ const NO_SANDBOX_LITERAL_RE = /['"`]--no-sandbox['"`]/
 // `true`. Sandbox ON is the sanctioned form — Playwright defaults it OFF and
 // injects --no-sandbox, a flag current Chrome refuses outright — so only the
 // disabling/dynamic forms are blocked.
-const CHROMIUM_SANDBOX_RE = /\bchromiumSandbox\s*(?::(?!\s*true\b)|(?!\s*:))/
+const CHROMIUM_SANDBOX_RE = /\bchromiumSandbox\s*(?:(?!\s*:)|:(?!\s*true\b))/
 // require-regex-comment: `chromium.launch` followed by an open paren —
 // `chromium.launchPersistentContext(` does NOT match (the next char is `P`).
 const BARE_LAUNCH_RE = /\bchromium\.launch\s*\(/

@@ -20,9 +20,10 @@
 // guard can never drift. This module adds only the user-global framing + its
 // own block message.
 //
-// Bypass (unified — both guards fire on a primary switch, so both honor the
-// SAME phrases): `Allow branch switch` (the canonical shared phrase) OR
-// `Allow primary-branch bypass`, typed by the human in a genuine user turn.
+// Bypass is unified: both guards fire on a primary switch, so both honor the
+// SAME phrases. `Allow branch switch` is the canonical shared phrase, and
+// `Allow primary-branch bypass` also clears them. Either must be typed by the
+// human in a genuine user turn.
 //
 // Fails OPEN on any parse / git error.
 

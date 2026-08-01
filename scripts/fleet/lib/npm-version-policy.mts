@@ -1,4 +1,4 @@
-/**
+/*
  * @file The fleet's ONE answer to "which published version may a pin move to?".
  *   Every automation that advances an npm pin — the sync-scaffolding catalog
  *   fixer, the catalog-drift bump, any future planner — routes its choice
@@ -91,7 +91,7 @@ export interface NpmUpgradeDecision {
  * Inputs to the pure decision. `today` is the ISO `YYYY-MM-DD` the caller
  * stamped once, so soak math is deterministic and testable.
  */
-export interface ChooseNpmUpgradeCandidateOptions {
+export interface ChooseNpmUpgradeCandidateConfig {
   readonly currentVersion: string
   readonly metadata?: NpmPackageVersionMetadata | undefined
   readonly soakDays?: number | undefined
@@ -161,7 +161,7 @@ function byAscendingVersion(a: string, b: string): number {
  * `verified: true`, even when nothing qualifies.
  */
 export function chooseNpmUpgradeCandidate(
-  config: ChooseNpmUpgradeCandidateOptions,
+  config: ChooseNpmUpgradeCandidateConfig,
 ): NpmUpgradeDecision {
   const {
     currentVersion,
@@ -169,7 +169,7 @@ export function chooseNpmUpgradeCandidate(
     soakDays = SOAK_DAYS,
     soakExempt = false,
     today,
-  } = { __proto__: null, ...config } as ChooseNpmUpgradeCandidateOptions
+  } = { __proto__: null, ...config } as ChooseNpmUpgradeCandidateConfig
   if (!metadata) {
     return {
       candidate: undefined,

@@ -126,7 +126,7 @@ Blocked by `anti-prose-guard` on doc writes; flagged by
 
 | Layer | What |
 | --- | --- |
-| `anti-prose-guard` | Blocks doc/CHANGELOG/README writes with AI tells (the framing-word ban from Anti-patterns above included) |
+| `anti-prose-guard` | Blocks doc/CHANGELOG/README writes with AI tells, including the framing-word ban from Anti-patterns above |
 | `convo-prose-nudge` | Nudges `gh pr/issue` body commands with AI scaffolding |
 | `changelog-entry-shape-nudge` | Nudges a `CHANGELOG.md` entry bullet that links no detail into a `docs/agents.md/` topic doc |
 | `no-description-aside-guard` | Blocks a package manifest `description` field ending in a listy parenthetical aside |

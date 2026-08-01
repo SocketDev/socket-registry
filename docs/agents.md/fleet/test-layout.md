@@ -35,6 +35,41 @@ All wheelhouse-only. The cascaded trees (`.claude/hooks/fleet`,
 - Tests import the source under a relative path; a hook / lint-rule test that
   targets a cascaded dir-mirror source reads it under `template/base/**`.
 
+## What to assert
+
+Three rules about the CONTENT of an assertion. Each one exists because breaking
+it produced a false failure that cost real triage time.
+
+- **Assert the outcome, not the prose.** A guard's contract is its exit code
+  (`0` allow / `2` block) and the state it changed. Matching a specific
+  sentence out of its output couples the test to wording that is edited for
+  clarity all the time, so a pure copy-edit fails a suite while the behavior is
+  unchanged. Assert the code; if you must prove WHICH rule fired, assert the
+  stable machine-readable part — the guard slug, an exit code, a structured
+  field — never a human sentence. Never assert a bypass phrase: an
+  authorization phrase in a committed file trips
+  `authorization-phrase-emission-guard`.
+
+- **Never re-implement the thing you are testing.** A test that rebuilds the
+  logic in the spec file and then asserts the rebuild matches proves only that
+  the copy agrees with itself. It passes while the real function is broken and
+  fails when the real function is fixed. Import the source and drive it. When
+  the real function is hard to reach because it does I/O, inject a seam and
+  fake the I/O — do not fake the LOGIC.
+
+- **Never scan source text as a test.** Grepping a file for a pattern
+  (`assert.match(readFileSync(src), /someCall/)`) asserts that code LOOKS a
+  certain way, not that it WORKS. It goes green on a call that is present but
+  unreachable, and red on an equivalent refactor. Execute the behavior instead.
+
+A stale assertion of the first kind is a defect in the TEST, not licence to
+change the source: read the source, decide which side is actually right, and say
+which one you changed. Two examples from one session — a test demanded
+`writeFileSync`'s positional `'utf8'` after the source moved to a helper that
+relies on Node's string default, and another demanded a block where a newly
+landed feature-branch squash mode deliberately allows a fresh commit. Both were
+correct source, stale test.
+
 ## Enforcement (code-is-law)
 
 - **Runner**: `prefer-vitest-guard` — tests are vitest, not `node:test`. Blocks

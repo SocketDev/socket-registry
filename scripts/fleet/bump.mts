@@ -39,7 +39,7 @@
  *   [--release-as <level>] [--write-only]
  */
 
-import { appendFileSync, readFileSync, writeFileSync } from 'node:fs'
+import { appendFileSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 
@@ -88,6 +88,7 @@ import type {
 import type { BumpLevel, ConventionalCommit } from './lib/changelog.mts'
 import type { ReleaseDerivation, ReleaseLane } from './lib/release-anchor.mts'
 import { isMainModule } from './_shared/is-main-module.mts'
+import { writeThroughMirrorLock } from './_shared/mirror-lock.mts'
 
 const logger = getDefaultLogger()
 const rootPath = REPO_ROOT
@@ -595,7 +596,7 @@ export async function applyLockstepBump(
   }
   const writes = planLockstepManifestWrites(inputs, nextVersion)
   for (const write of writes) {
-    writeFileSync(
+    writeThroughMirrorLock(
       path.join(layout.rootPath, write.relManifestPath),
       write.updated,
     )
@@ -1035,7 +1036,7 @@ async function main(): Promise<void> {
     existingChangelog = reclaimed.text
     // A dry-run previews the reclaimed text without touching the file.
     if (!dryRun) {
-      writeFileSync(changelogPath, existingChangelog)
+      writeThroughMirrorLock(changelogPath, existingChangelog)
     }
   }
 
@@ -1072,7 +1073,7 @@ async function main(): Promise<void> {
         }
         finalized = written
       } else {
-        writeFileSync(
+        writeThroughMirrorLock(
           path.join(rootPath, 'package.json'),
           replaceVersion(pkgRaw, nextVersion),
         )
@@ -1203,13 +1204,16 @@ async function main(): Promise<void> {
     }
     bumpedManifests = written
   } else {
-    writeFileSync(
+    writeThroughMirrorLock(
       path.join(rootPath, 'package.json'),
       replaceVersion(pkgRaw, nextVersion),
     )
     bumpedManifests = ['package.json']
   }
-  writeFileSync(changelogPath, insertChangelogSection(baseChangelog, section))
+  writeThroughMirrorLock(
+    changelogPath,
+    insertChangelogSection(baseChangelog, section),
+  )
 
   if (writeOnly) {
     logger.success(

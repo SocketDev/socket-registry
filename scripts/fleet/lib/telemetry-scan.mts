@@ -72,10 +72,19 @@ export const TELEMETRY_SDKS: readonly RegExp[] = [
 // this map to quiet a red gate is the anti-pattern it exists to stop.
 export const REVIEWED_TELEMETRY: Readonly<Record<string, string>> = {
   __proto__: null,
-  // No telemetry SDK is currently tolerated in the tree. A telemetry SDK that
-  // shows up here, via a dependency update or a newly-pulled tool, FAILS the
-  // scan until it is reviewed and re-added with its justification. (PostHog was
-  // dropped with @rely-ai/caliber — the only SDK that had pulled it in.)
+  // Transitive via langgraph-api in the skillspector security tool's uv.lock.
+  // Held inert by OTEL_SDK_DISABLED=true in FLEET_ENV — set on every fleet
+  // surface (dev shell-rc, CI workflow env, spawned AI agents) and asserted by
+  // check/telemetry-env-is-disabled.mts — so the OTLP exporter in the closure
+  // cannot export. The chokepoint is the fleet env, not a per-tool wrapper,
+  // because skillspector is run externally (the fleet installs, doesn't launch
+  // it), and the env is the surface the fleet owns for every such run.
+  'opentelemetry-exporter-otlp-proto-common':
+    'skillspector→langgraph-api; inert via OTEL_SDK_DISABLED in FLEET_ENV.',
+  'opentelemetry-exporter-otlp-proto-http':
+    'skillspector→langgraph-api; inert via OTEL_SDK_DISABLED in FLEET_ENV.',
+  'opentelemetry-sdk':
+    'skillspector→langgraph-api; inert via OTEL_SDK_DISABLED in FLEET_ENV.',
 } as unknown as Record<string, string>
 
 export function matchesTelemetrySdk(name: string): boolean {

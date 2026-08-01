@@ -142,6 +142,35 @@ Agents must not publish locally (`npm publish`, `pnpm stage publish`,
 step remains `publish-pipeline.mts --approve`: the 2FA promote, then the
 tag + immutable GH release cut LAST behind registry liveness.
 
+## A version bump NEVER travels through a pull request
+
+The bump commit lands **directly on the default branch**. Locally that is what
+the release pipeline's bump stage already does; in CI the release App commits
+the bumped `package.json` + `CHANGELOG.md` through the GitHub git-objects API
+and then fast-forwards the default branch to that exact commit
+(`promoteReleaseBranch` in `scripts/fleet/publish-infra/release-branch.mts`).
+
+Opening a PR for the bump is a defect, not a workflow. A PR needs branch
+protection to be satisfied before anything merges, so the bump sits behind
+review requirements, status checks, and an auto-merge queue that a
+freshly-created branch cannot satisfy — `enablePullRequestAutoMerge` fails with
+`Pull request Branch does not have required protected branch rules`, the run
+dies, and the publish never happens. The version is already decided by the
+committed hint and the content is machine-generated, so there is nothing for a
+reviewer to approve.
+
+`no-version-bump-pr-guard` blocks the shape at the source. It refuses any
+command that opens a PR whose head branch is bump-shaped
+(`npm-publish-v1.2.3`, `release-v1.2.3`, `bump-1.2.3`, anything carrying
+`version-bump`) or whose title is bump-shaped (`chore: bump version to 1.2.3`,
+`chore(release): 1.2.3`, any `bump version` phrasing) — `gh pr create` in every
+flag spelling, `gh api …/pulls`, and a raw REST `POST /repos/*/pulls`. A normal
+feature PR (`feat/foo`, `fix: thing`) is untouched. Bypass with
+`Allow version-bump-pr bypass`.
+
+The release App holds `contents: write` and is on the default branch's
+push-bypass allowlist, so the fast-forward needs no PR and no human hand-land.
+
 ## The bump base is the last PUBLISHED version, never the manifest
 
 `bump.mts` (and the cargo bump) compute the next version from `resolveBumpBase`

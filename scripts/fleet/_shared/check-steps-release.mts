@@ -480,6 +480,18 @@ export function buildReleaseAndDocsSteps(): CheckStep[] {
         'scripts/fleet/check/publish-workflows-are-conventionally-named.mts',
         '--quiet',
       ]),
+    // Publish workflows are STAGED, FAIL-CLOSED, and MARKERS-FIRST: literal
+    // npm-family publish lines must be `pnpm stage publish` (the per-package
+    // trusted-publisher grants allow stage-only), continue-on-error is
+    // forbidden in a publishing workflow, and an in-file v<version> tag /
+    // GitHub release is cut BEFORE the first upload so provenance binds real
+    // markers. A stage rejected after the markers BURNS the version — the
+    // next release is a patch bump, never a reuse. Strict.
+    () =>
+      run('node', [
+        'scripts/fleet/check/publish-workflows-are-staged-fail-closed.mts',
+        '--quiet',
+      ]),
     // Every workflow job that runs a version-derivation leg (bump.mts,
     // npm-publish.mts --bump, cargo-publish.mts --bump, publish-pipeline.mts)
     // must check out with the v* tags reachable — `fetch-tags: true`, or a

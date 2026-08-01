@@ -65,9 +65,12 @@ matches (`vitest` `passWithNoTests`, `rg -l`, `xargs -r`), the failure is
 invisible: the command "succeeds" having done nothing. Pass a list through
 one of the forms zsh actually splits: command substitution
 (`vitest run $(cat /tmp/list)`), forced splitting (`vitest run ${=files}`),
-or a pipe into `xargs`. `.claude/hooks/fleet/zsh-word-split-nudge/` nudges
-(never blocks) when a Bash command both builds a list-shaped variable and
-later expands it unquoted as a standalone argument.
+or a pipe into `xargs`. `.claude/hooks/fleet/zsh-word-split-guard/` BLOCKS when
+a Bash command both builds a list-shaped variable and later expands it unquoted
+as a standalone argument; bypass with `Allow zsh-word-split bypass`. It blocks
+rather than advises because an EMPTY list drops the argument entirely, so the
+tool falls back to its default input — `rg -c pat $files` with `files` unset
+scans the whole tree and answers confidently about the wrong thing.
 
 ## ripgrep: `-r` never clusters
 

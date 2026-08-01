@@ -21,10 +21,10 @@
 //     the `-` shorthand still moves HEAD)
 //
 // What it ALLOWS, not branch ops:
-//   - `git checkout -- <file>` / `git checkout .` (file restore)
-//   - switching TO the default branch (the sanctioned restore state)
-//   - any of the above inside a LINKED worktree (the sanctioned place for
-//     branch work) or a SUBMODULE (a separate repository)
+//   - a file restore: `git checkout -- <file>` / `git checkout .`
+//   - switching TO the default branch, which is the sanctioned restore state
+//   - any of the above inside a LINKED worktree, the sanctioned place for
+//     branch work, or inside a SUBMODULE, which is a separate repository
 //   - `git checkout`/`switch` with no branch argument
 //
 // Bypass (unified with no-primary-branch-switch — both guards fire on a primary

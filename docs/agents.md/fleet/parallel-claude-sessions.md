@@ -35,7 +35,7 @@ The `BASE` lookup resolves the remote's default branch. Usually `main`, but lega
 
 After `git worktree remove`, the branch lives in the primary repo's `.git/refs/heads/`. Push it from there if you still need it.
 
-Two hooks make the worktree requirement structural rather than advisory. `primary-checkout-branch-guard` (PreToolUse) blocks `git checkout -b|-B`/`git switch -c|-C`/`git switch <branch>`/`git checkout <branch>` run in the primary checkout. `primary-checkout-on-default-stop-guard` (Stop) catches the same drift after the fact by reading the actual on-disk branch at turn-end and blocking if the primary isn't on its default (this catches a checkout run inside a script or Makefile target, which slips past the PreToolUse hook). Both are primary-checkout-only: a linked worktree is the sanctioned home for feature branches and neither hook touches it. Bypass: `Allow off-default bypass`.
+Two hooks make the worktree requirement structural rather than advisory. `primary-checkout-branch-guard` (PreToolUse) blocks `git checkout -b|-B`/`git switch -c|-C`/`git switch <branch>`/`git checkout <branch>` run in the primary checkout. `primary-checkout-on-default-stop-guard` (Stop) catches the same drift after the fact by reading the actual on-disk branch at turn-end and blocking if the primary isn't on its default. Reading the branch at turn-end catches a checkout run inside a script or Makefile target, which slips past the PreToolUse hook. Both are primary-checkout-only: a linked worktree is the sanctioned home for feature branches and neither hook touches it. Bypass: `Allow off-default bypass`.
 
 ## Required for staging AND commits: surgical, smallest explicit set
 

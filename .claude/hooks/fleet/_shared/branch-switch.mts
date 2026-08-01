@@ -1,25 +1,23 @@
-/**
+/*
  * @file Shared branch-switch detection + primary-checkout classification for
  *   the two branch-switch guards:
  *
  *   - `primary-checkout-branch-guard` — per-repo (fleet dispatcher) enforcer.
  *   - `no-primary-branch-switch` — its user-global sibling, wired through the
- *     wheelhouse dispatcher so it fires from EVERY repo session.
- *
- *   Both block a `git checkout/switch <branch>` / `-b` / `-c` (and the `-`
- *   previous-branch shorthand) whose effective working tree is the PRIMARY
- *   checkout — never a linked worktree or a submodule — because moving HEAD in a
- *   primary checkout yanks the tree out from under a parallel session. The
- *   detection, classification, effective-directory resolution, the sanctioned
- *   restore-to-default carve-out, and the shared bypass all live here ONCE so
- *   the two guards can never drift.
- *
- *   Unified bypass (see `branchSwitchBypassAllowed`): because BOTH guards fire
- *   on a primary branch-switch, a phrase only one honored would leave the
- *   switch un-bypassable — the other guard would still block. So a single
- *   shared check honors either `Allow branch switch` (the canonical shared
- *   phrase) or `Allow primary-branch bypass` (primary-checkout-branch-guard's
- *   historical phrase), human-turn only, and both guards defer to it.
+ *     wheelhouse dispatcher so it fires from EVERY repo session. Both block a
+ *     `git checkout/switch <branch>` / `-b` / `-c` (and the `-` previous-branch
+ *     shorthand) whose effective working tree is the PRIMARY checkout — never a
+ *     linked worktree or a submodule — because moving HEAD in a primary
+ *     checkout yanks the tree out from under a parallel session. The detection,
+ *     classification, effective-directory resolution, the sanctioned
+ *     restore-to-default carve-out, and the shared bypass all live here ONCE so
+ *     the two guards can never drift. Unified bypass (see
+ *     `branchSwitchBypassAllowed`): because BOTH guards fire on a primary
+ *     branch-switch, a phrase only one honored would leave the switch
+ *     un-bypassable — the other guard would still block. So a single shared
+ *     check honors either phrase, human-turn only, and both guards defer to it.
+ *     `Allow branch switch` is the canonical shared phrase, and `Allow
+ *     primary-branch bypass` is primary-checkout-branch-guard's own.
  */
 
 import path from 'node:path'
@@ -203,8 +201,8 @@ export interface BranchOp {
 /**
  * The first `git checkout`/`switch` segment of `command` that MOVES HEAD, with
  * its `-C` target and the ref it moves to — or undefined when the command runs
- * no branch op. Sees through `&&` chains / quoting / `$(…)` substitution via the
- * shared shell parser (commandsFor), so a literal "git checkout" in a grep
+ * no branch op. Sees through `&&` chains / quoting / `$(…)` substitution via
+ * the shared shell parser (commandsFor), so a literal "git checkout" in a grep
  * string never false-fires.
  */
 export function firstBranchOp(command: string): BranchOp | undefined {
@@ -234,7 +232,7 @@ export interface PrimaryBranchOp {
 /**
  * The branch op in `command` that BOTH guards act on: one that moves HEAD in a
  * PRIMARY checkout and is NOT the sanctioned restore-to-default. Returns the op
- * + its effective directory, or undefined when there is no branch op, the
+ * \+ its effective directory, or undefined when there is no branch op, the
  * target is a linked worktree / submodule / non-repo, or it is a switch TO the
  * default branch (always safe — the sanctioned state that
  * primary-checkout-on-default-stop-guard REQUIRES; blocking it would deadlock

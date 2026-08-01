@@ -62,6 +62,10 @@ export function repoSlug(value: string): string | undefined {
   if (!trimmed) {
     return undefined
   }
+  // Pull `owner/repo` off a GitHub remote in either spelling: `github.com/`
+  // for an https URL or `github.com:` for the SSH form. Group 1 is the owner,
+  // group 2 the repo name, matched lazily so an optional trailing `.git` and
+  // an optional trailing slash are stripped rather than captured.
   const gh = /github\.com[:/]+([^/]+)\/([^/]+?)(?:\.git)?\/?$/i.exec(trimmed)
   if (gh) {
     return `${gh[1]}/${gh[2]}`.toLowerCase()

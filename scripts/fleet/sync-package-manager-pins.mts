@@ -25,7 +25,7 @@
  *     --check     warn on a behind pin, exit non-zero only on real drift
  */
 
-import { readFileSync, writeFileSync } from 'node:fs'
+import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 
@@ -36,6 +36,7 @@ import { spawnSync } from '@socketsecurity/lib-stable/process/spawn/child'
 import { buildOxfmtArgs } from './_shared/format-scope.mts'
 import { nodeModulesBinPath, REPO_ROOT } from './paths.mts'
 import { isMainModule } from './_shared/is-main-module.mts'
+import { writeThroughMirrorLock } from './_shared/mirror-lock.mts'
 
 const logger = getDefaultLogger()
 
@@ -337,7 +338,7 @@ function main(): number {
     process.exitCode = 1
     return 1
   }
-  writeFileSync(pkgPath, `${JSON.stringify(pkg, null, 2)}\n`, 'utf8')
+  writeThroughMirrorLock(pkgPath, `${JSON.stringify(pkg, null, 2)}\n`)
   // Re-run the fleet formatter over the freshly-written file: inserting a new
   // top-level key (devEngines) via plain object assignment appends it at the
   // end of enumeration order, which oxfmt's alphabetical package.json sort

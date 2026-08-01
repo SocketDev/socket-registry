@@ -107,7 +107,7 @@ When a file you edited reads differently on a later turn than you left it, the r
 
 ## Verify before you claim
 
-Never assert "tests pass", "the build succeeds", "X is fixed", or "verified" without a tool call this session that ran or read the thing being claimed. A claim with no backing command is a guess wearing a verdict's clothes. Enforced by `.claude/hooks/fleet/stop-claim-verify-nudge/`, which scans the last turn for a self-claim of success and checks whether a matching tool call (`vitest`/`pnpm test`, `pnpm build`, `tsgo`/`tsc`, `oxlint`/`pnpm run lint`) ran this session; a claim inside a code fence (an example, a quoted plan) is ignored. This is the mirror of `verify-state-before-acting` — that rule covers not starting blind, this one covers not finishing on a guess.
+Never assert "tests pass", "the build succeeds", "X is fixed", or "verified" without a tool call this session that ran or read the thing being claimed. A claim with no backing command is a guess wearing a verdict's clothes. Enforced by `.claude/hooks/fleet/stop-claim-verify-nudge/`, which scans the last turn for a self-claim of success and checks whether a matching tool call (`vitest`/`pnpm test`, `pnpm build`, `tsgo`/`tsc`, `oxlint`/`pnpm run lint`) ran this session; a claim inside a code fence is ignored, because a fence holds an example or a quoted plan rather than a real assertion. This is the mirror of `verify-state-before-acting` — that rule covers not starting blind, this one covers not finishing on a guess.
 
 ## Hand off with a literal command
 

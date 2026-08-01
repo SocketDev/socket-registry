@@ -69,4 +69,4 @@ untracked, dirty file.)
 
 ## Enforcement
 
-No automated hook or lint rule catches a stray write into the tracked tree today — that would need filesystem-write instrumentation (a VFS shim or an `fs` wrapper) this fleet doesn't have. The `socket/prefer-repo-root-dot-cache` oxlint rule catches the narrower "store lives under `node_modules/`" mistake at edit time. The rest of this rule is a design-review discipline: when adding a new state store, name it in "Known state stores" above and pick one of the two homes.
+No automated hook or lint rule catches a stray write into the tracked tree today — that would need filesystem-write instrumentation this fleet doesn't have, meaning a VFS shim or an `fs` wrapper. The `socket/prefer-repo-root-dot-cache` oxlint rule catches the narrower "store lives under `node_modules/`" mistake at edit time. The rest of this rule is a design-review discipline: when adding a new state store, name it in "Known state stores" above and pick one of the two homes.

@@ -51,6 +51,7 @@
  *     launch rules across the tree, so a new tool cannot re-derive its own.
  */
 
+import { safeDelete } from '@socketsecurity/lib-stable/fs/safe'
 import { existsSync } from 'node:fs'
 import { promises as fs } from 'node:fs'
 import os from 'node:os'
@@ -305,6 +306,63 @@ export async function waitForNpmSignIn(
 }
 
 /**
+ * The pid a Chrome SingletonLock symlink encodes, or undefined when the
+ * target has no readable `<host>-<pid>` shape. Pure; exported for tests.
+ */
+export function parseSingletonLockPid(target: string): number | undefined {
+  const match = /-(\d+)$/.exec(target)
+  if (!match) {
+    return undefined
+  }
+  const pid = Number(match[1])
+  return Number.isSafeInteger(pid) && pid > 0 ? pid : undefined
+}
+
+// Chrome's three per-profile singleton artifacts. A SIGTERM'd or crashed
+// Chrome leaves them behind, and the next launch then prints "Opening in
+// existing browser session" and exits — a phantom holder that burned ~30
+// minutes of launch bounces (2026-07-31). When the lock's pid is dead, the
+// files are trash, not a tenant.
+const SINGLETON_ARTIFACTS = [
+  'SingletonLock',
+  'SingletonSocket',
+  'SingletonCookie',
+]
+
+/**
+ * Remove stale singleton artifacts when NO live process holds the lock:
+ * reads the SingletonLock symlink's `<host>-<pid>` target, probes the pid,
+ * and clears all three artifacts if it is dead or unparseable. A live pid
+ * leaves everything in place for {@link profileInUseRefusal} to refuse
+ * honestly. Returns true when a stale set was cleared.
+ */
+export async function clearStaleSingletons(
+  profileDir: string,
+): Promise<boolean> {
+  const lockPath = path.join(profileDir, SINGLETON_LOCK)
+  let target: string
+  try {
+    target = await fs.readlink(lockPath)
+  } catch {
+    return false
+  }
+  const pid = parseSingletonLockPid(target)
+  if (pid !== undefined) {
+    try {
+      process.kill(pid, 0)
+      return false
+    } catch {
+      // Dead pid — the lock is stale; fall through to the cleanup.
+    }
+  }
+  for (let i = 0, { length } = SINGLETON_ARTIFACTS; i < length; i += 1) {
+    // eslint-disable-next-line no-await-in-loop -- three tiny unlinks, sequential by choice.
+    await safeDelete(path.join(profileDir, SINGLETON_ARTIFACTS[i]!))
+  }
+  return true
+}
+
+/**
  * The refusal for a profile another Chrome already holds, or undefined when
  * the profile is free to use. A second instance on one profile forces an
  * EPHEMERAL session — the sign-in appears to succeed and then evaporates — so
@@ -375,6 +433,15 @@ export async function openNpmBrowserSession(
   // never touches a real profile, and the operator's own Chrome must not make
   // the suite fail.
   if (!launch) {
+    // Heal a crashed holder first: a SIGTERM'd Chrome leaves its Singleton
+    // artifacts behind, and launching against them prints "Opening in
+    // existing browser session" and exits. Only a DEAD lock pid is cleaned;
+    // a live one falls through to the refusal below.
+    if (await clearStaleSingletons(profileDir)) {
+      logger.log(
+        'cleared stale Chrome singleton artifacts (their holder is dead) — proceeding.',
+      )
+    }
     const refusal = profileInUseRefusal({
       lockHeld: existsSync(path.join(profileDir, SINGLETON_LOCK)),
       profileDir,
