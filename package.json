@@ -63,7 +63,6 @@
     "sync-package-manager-pins": "node scripts/fleet/sync-package-manager-pins.mts",
     "sync-fleet": "node scripts/repo/bootstrap/fleet.mjs",
     "doctor": "node scripts/fleet/doctor.mts",
-    "gen:llms-txt": "node scripts/fleet/gen/llms-txt.mts --no-ai",
     "setup:brew": "node scripts/fleet/setup/brew.mts",
     "setup:go": "node scripts/fleet/setup/go.mts",
     "setup:python": "node scripts/fleet/setup/python.mts",
