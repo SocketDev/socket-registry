@@ -1,38 +1,37 @@
 /**
- * @file The npm publish actions for the publish workflow: staged publishing
- *   (`pnpm stage publish`) with exponential-backoff retry, a
- *   concurrency-bounded fan-out over a package list, and a batched `pnpm stage
- *   approve` loop that refreshes the 2FA OTP as it walks hundreds of staged
- *   packages. Split out of publish-npm-packages.mts so that orchestrator stays
- *   under the file-size soft cap. Mirrors the shape of the fleet-canonical
- *   `scripts/fleet/publish.mts` staged flow: CI uploads via OIDC (`--staged`),
- *   a human promotes via 2FA (`--approve`). This monorepo publishes hundreds of
- *   packages per wave, so the approve step batches `pnpm stage approve` calls
- *   under one OTP and re-prompts before the ~30s TOTP window can expire
- *   mid-batch, instead of the canonical script's one-shot multi-select (built
- *   for a single package).
+ * @file The npm publish ORCHESTRATION for the publish workflow: staged
+ *   publishing with exponential-backoff retry, a concurrency-bounded fan-out
+ *   over a package list, and a batched `pnpm stage approve` loop that refreshes
+ *   the 2FA OTP as it walks hundreds of staged packages. Split out of
+ *   publish-npm-packages.mts so that orchestrator stays under the file-size
+ *   soft cap.
+ *   The upload itself is NOT here. Every package's bytes go up through the one
+ *   fleet-owned invocation, `uploadNpmPackage` in
+ *   `scripts/fleet/publish-infra/npm/publish-command.mts`, which owns the argv,
+ *   the provenance decision, and the trusted-publishing auth posture. What this
+ *   file owns is the part that is genuinely per-repo: publish order, retry
+ *   policy, and how an approve batch refreshes its OTP.
+ *   Same staged shape as the fleet-canonical `scripts/fleet/publish.mts`: CI
+ *   uploads via OIDC (`--staged`), a human promotes via 2FA (`--approve`). This
+ *   monorepo publishes hundreds of packages per wave, so the approve step
+ *   batches `pnpm stage approve` calls under one OTP and re-prompts before the
+ *   ~30s TOTP window can expire mid-batch. The canonical script instead offers
+ *   a one-shot multi-select, which is built for a single package.
  */
-
-import process from 'node:process'
 
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { joinAnd } from '@socketsecurity/lib-stable/arrays/join'
 import { isPlainObject as isObjectObject } from '@socketsecurity/lib-stable/objects/predicates'
 import { pEach } from '@socketsecurity/lib-stable/promises/iterate'
-import { isSpawnError } from '@socketsecurity/lib-stable/process/spawn/errors'
-import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 import { pluralize } from '@socketsecurity/lib-stable/words/pluralize'
 import { password } from '@socketsecurity/lib/stdio/prompts'
 
-import { WIN32 } from '../constants/node.mts'
 import { ROOT_PATH } from '../constants/paths.mts'
 import { extractNpmError } from '../repo/util/errors.mts'
-import {
-  extractFirstJson,
-  isAlreadyPublished,
-  runCapture,
-  runInherit,
-} from '../fleet/publish-shared.mts'
+import { uploadNpmPackage } from '../fleet/publish-infra/npm/publish-command.mts'
+import { listStagedPackages } from '../fleet/publish-infra/npm/shared.mts'
+import type { StageListEntry } from '../fleet/publish-infra/npm/shared.mts'
+import { isAlreadyPublished, runInherit } from '../fleet/publish-shared.mts'
 
 const logger = getDefaultLogger()
 
@@ -43,12 +42,6 @@ const logger = getDefaultLogger()
 // -package batch invites a code going stale mid-batch on a slow network.
 const OTP_BATCH_SIZE = 25
 const OTP_BATCH_WINDOW_MS = 25_000
-
-interface StageListEntry {
-  name?: string | undefined
-  version?: string | undefined
-  stageId?: string | undefined
-}
 
 /**
  * A package entry as produced by the publish orchestrator: printable name,
@@ -147,104 +140,60 @@ export async function stagePublish(
   }
 
   // Retry flow:
-  // 1. Attempt to stage via `pnpm stage publish` (OIDC trusted publishing).
+  // 1. Upload through `uploadNpmPackage`, the one fleet-owned npm upload. It
+  //    builds the `pnpm stage publish` argv, decides provenance, and asserts
+  //    the trusted-publishing auth posture on both sides of the spawn.
   // 2. On success, exit immediately.
-  // 3. On error, check if package already exists (cannot publish over) - if so, exit.
-  // 4. On other errors, retry with exponential backoff: 1s, 2s, 4s delays.
-  // 5. After maxRetries exhausted, add to fails list and log final error.
-  let lastError: unknown
+  // 3. On a posture refusal, stop without retrying: either nothing was
+  //    uploaded because a long-lived token would have masked OIDC, or the
+  //    upload reported a failed OIDC exchange and exited 0 anyway. Retrying
+  //    repeats the same wrong identity.
+  // 4. If the version is already public (cannot publish over), exit.
+  // 5. On other failures, retry with exponential backoff: 1s, 2s, 4s delays.
+  // 6. After maxRetries exhausted, add to fails list and log final error.
+  let lastOutput = ''
   for (let attempt = 0; attempt < maxRetries; attempt += 1) {
-    try {
-      if (attempt > 0) {
-        const delay = retryDelay * 2 ** (attempt - 1)
-        logger.log(
-          `${pkg.printName}: Retry attempt ${attempt + 1}/${maxRetries} after ${delay}ms`,
-        )
+    if (attempt > 0) {
+      const delay = retryDelay * 2 ** (attempt - 1)
+      logger.log(
+        `${pkg.printName}: Retry attempt ${attempt + 1}/${maxRetries} after ${delay}ms`,
+      )
+      await new Promise(resolve => setTimeout(resolve, delay))
+    }
 
-        await new Promise(resolve => setTimeout(resolve, delay))
-      }
-
-      // Use `pnpm stage publish` for staged publishing with OIDC tokens.
-      // `--provenance` requires the GitHub Actions OIDC id-token endpoint,
-      // so it's gated on GITHUB_ACTIONS=true. Local emergency publishes run
-      // with a classic npm token and still stage without provenance.
-      const publishArgs = [
-        'stage',
-        'publish',
-        '--access',
-        'public',
-        '--tag',
-        pkg.tag ?? 'latest',
-        '--no-git-checks',
-        '--ignore-scripts',
-      ]
-      if (process.env['GITHUB_ACTIONS'] === 'true') {
-        publishArgs.push('--provenance')
-      }
-      const result = await spawn('pnpm', publishArgs, {
-        cwd: pkg.path,
-        env: {
-          ...process.env,
-          // Don't set NODE_AUTH_TOKEN for trusted publishing - uses OIDC.
-        },
-        shell: WIN32,
-      })
-      if (result.stdout) {
-        logger.log(result.stdout)
-      }
+    const result = await uploadNpmPackage({
+      cwd: pkg.path,
+      mode: 'staged',
+      tag: pkg.tag ?? 'latest',
+    })
+    if (!result.postureOk) {
+      state.fails.push(pkg.printName)
+      logger.fail(
+        `${pkg.printName}: npm auth posture refused the upload; not retrying.`,
+      )
+      return
+    }
+    if (result.code === 0) {
       // Success - exit retry loop.
       return
-    } catch (e) {
-      lastError = e
-      const stderr = isSpawnError(e) ? String(e.stderr) : ''
-      // Don't retry if package already exists.
-      if (stderr.includes('cannot publish over')) {
-        return
-      }
-      // Log the error but continue retrying.
-      if (stderr && attempt < maxRetries - 1) {
-        logger.warn(`${pkg.printName}: Publish attempt ${attempt + 1} failed`)
-      }
+    }
+    lastOutput = result.output
+    // Don't retry if package already exists.
+    if (lastOutput.includes('cannot publish over')) {
+      return
+    }
+    // Log the error but continue retrying.
+    if (lastOutput && attempt < maxRetries - 1) {
+      logger.warn(`${pkg.printName}: Publish attempt ${attempt + 1} failed`)
     }
   }
 
   // All retries exhausted.
   state.fails.push(pkg.printName)
-  const stderr = isSpawnError(lastError) ? String(lastError.stderr) : ''
-  if (stderr) {
+  if (lastOutput) {
     logger.log('')
-    logger.log(extractNpmError(stderr))
+    logger.log(extractNpmError(lastOutput))
     logger.log('')
-  }
-}
-
-/**
- * Resolve all currently-staged packages by parsing `pnpm stage list --json`.
- * The output's first balanced JSON object is the keyed map `<name>@<version>` →
- * entry; we flatten the values and drop entries without a stageId (defensive).
- */
-async function listStagedPackages(cwd: string): Promise<StageListEntry[]> {
-  const { stdout } = await runCapture('pnpm', ['stage', 'list', '--json'], cwd)
-  const json = extractFirstJson(stdout)
-  if (!json) {
-    return []
-  }
-  try {
-    const parsed = JSON.parse(json) as Record<
-      string,
-      StageListEntry | undefined
-    >
-    const result: StageListEntry[] = []
-    const entries = Object.values(parsed)
-    for (let i = 0, { length } = entries; i < length; i += 1) {
-      const entry = entries[i]!
-      if (entry?.stageId) {
-        result.push(entry)
-      }
-    }
-    return result
-  } catch {
-    return []
   }
 }
 
@@ -290,7 +239,7 @@ export async function approveStagedPackages(
     throw new TypeError('A state object is required')
   }
 
-  const staged = await listStagedPackages(cwd)
+  const staged = await listStagedPackages()
   if (!staged.length) {
     logger.log('No packages currently staged for approval.')
     return
