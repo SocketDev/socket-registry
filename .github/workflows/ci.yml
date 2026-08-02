@@ -32,6 +32,7 @@ env:
   DO_NOT_TRACK: '1'
   LINT_MARKDOWN: '1'
   NO_UPDATE_NOTIFIER: '1'
+  OTEL_SDK_DISABLED: 'true'
 
 jobs:
   # First step of every job is an inline git-fetch bootstrap (no third-party
