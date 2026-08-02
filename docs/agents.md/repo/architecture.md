@@ -43,6 +43,12 @@ Minimum **Node 24.0.0**.
 - Matrix: Node 22 and 24, cross-platform (Linux + macOS + Windows where applicable).
 - CI-script naming: `lint-ci`, `test-ci`, `type-ci`. No watch or fix modes in CI.
 
+## Workflow YAML and SHA pins
+
+🚨 **Never type or guess a SHA.** A workflow pin is a full 40-char commit SHA read from the repository after the change has landed: run `git rev-parse origin/main` once the merge is in, and paste what it prints. A SHA typed from memory or copied from a pre-merge branch points at a commit the workflow will never resolve, and the failure surfaces as a confusing "workflow not found" in every downstream repo at once.
+
+🚨 **Never edit a workflow YAML with `sed`, `awk`, or `perl -i`.** Use the Edit tool. A stream editor matches text, not YAML structure, so a pattern written for one `uses:` line silently rewrites every other line that happens to match — including the comment that records which version a SHA pins.
+
 ## Testing
 
 Directory layout:

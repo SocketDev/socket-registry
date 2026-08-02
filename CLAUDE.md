@@ -105,6 +105,7 @@
 - 🚨 npm-family auth (npm/pnpm/yarn publish/login) uses BROWSER auth (`--auth-type=web`); NEVER pass or suggest `--otp=<code>`. [`token-hygiene`](docs/agents.md/fleet/token-hygiene.md)
 - 🚨 Verify state before acting: read a resource's published state before any create/claim/publish (`npm view` / `gh release view`). (`.claude/hooks/fleet/verify-before-publish-guard/`) [`verify-state-before-acting`](docs/agents.md/fleet/verify-state-before-acting.md)
 - 🚨 Publish through the pipeline, never locally: no `npm|pnpm publish` / `pnpm stage publish` / `cargo publish` / direct `npm-publish.mts` runs. [`version-bumps`](docs/agents.md/fleet/version-bumps.md)
+- 🚨 ONE npm upload invocation fleet-wide (`publish-infra/npm/publish-command.mts`); no npm token ever reaches CI, `direct` is only ever a LOCAL `0.0.0` name reservation, and a `Skipped OIDC` run that exits 0 still fails. (`scripts/fleet/check/publish-entrypoints-are-fleet-composed.mts`) [`trusted-publishing-posture`](docs/agents.md/fleet/trusted-publishing-posture.md)
 - 🚨 Validate what SHIPS, not the source tree: the packed tarball's bytes (closed entry allowlist, regular files only, no `..`/backslash entries, bin exec bits) plus a leak scan of packed AND decompressed bytes. [`artifact-hygiene`](docs/agents.md/fleet/artifact-hygiene.md)
 - 🚨 GitHub CLI tokens: keychain only (`gh auth status` must report `(keyring)`); `workflow` scope off by default; 8-hour token age cap. [`gh-token-hygiene`](docs/agents.md/fleet/gh-token-hygiene.md)
 - 🚨 Commits on `main`/`master` must be signed. [`commit-signing`](docs/agents.md/fleet/commit-signing.md) [`git-config-write-guard`](docs/agents.md/fleet/git-config-write-guard.md) [`security-stack`](docs/agents.md/fleet/security-stack.md)
@@ -119,9 +120,13 @@
 
 ## 🏗️ Registry-Specific
 
-🚨 **Headline invariants:** Node ≥24 engines floor (shipped override code still avoids ES2023+ array methods `toReversed/toSorted/toSpliced/with()` — `engines` only warns downstream, so overrides run on consumers' older Node); never type/guess SHAs in cascade — `git rev-parse origin/main` AFTER merge; never `sed`/`awk`/`perl -i` workflow YAML — use Edit; never `--` before vitest paths (runs ALL tests); coverage mandatory + `c8 ignore` reasons end with `.`; never the split `@typescript-eslint/*` packages; never swap tsgo for tsc.
+Layout, commands, build, testing, vitest config, dependency policy, and the scratch-doc convention live in [`architecture`](docs/agents.md/repo/architecture.md).
 
-- 🚨 A ported `test/npm/*.test.mts` suite's provenance is the `file-fork` row in `.config/repo/lockstep.json`, never its prose header — the row, the `.gitmodules` pin, the header, and the `test/npm/package.json` spec must agree. (`scripts/repo/check/npm-port-provenance-is-current.mts`) [`npm-port-provenance`](docs/agents.md/repo/npm-port-provenance.md)
-- Override impact = rank × cut, and a cut % without its surviving gateways lies — plumbing packages form cliques that leaf-pruning cannot reach; record the root set or two runs are incomparable. (`scripts/npm/survey-override-deps.mts`) [`override-impact-analysis`](docs/agents.md/repo/override-impact-analysis.md)
-
-Full layout / commands / build / GHA SHA-pin cascade / testing / vitest config / dependency policy / scratch-doc convention in [`docs/agents.md/repo/architecture.md`](docs/agents.md/repo/architecture.md).
+- 🚨 Node ≥24 engines floor, yet shipped override code still avoids ES2023+ array methods (`toReversed`/`toSorted`/`toSpliced`/`with()`). [`architecture`](docs/agents.md/repo/architecture.md)
+- 🚨 Never type or guess a SHA in a cascade — read it with `git rev-parse origin/main` AFTER the merge lands. [`architecture`](docs/agents.md/repo/architecture.md)
+- 🚨 Never `sed`/`awk`/`perl -i` a workflow YAML — edit it with the Edit tool. [`architecture`](docs/agents.md/repo/architecture.md)
+- 🚨 Never put `--` before a vitest path; it runs ALL tests instead of the file you named. [`architecture`](docs/agents.md/repo/architecture.md)
+- 🚨 Coverage is mandatory and never decreases; every `c8 ignore` reason ends with a period. [`architecture`](docs/agents.md/repo/architecture.md)
+- 🚨 Never the split `@typescript-eslint/*` packages, and never swap tsgo for stock `tsc`. [`architecture`](docs/agents.md/repo/architecture.md)
+- 🚨 A ported `test/npm/*.test.mts` suite's provenance is its `file-fork` row in `lockstep.json`, never its prose header. [`npm-port-provenance`](docs/agents.md/repo/npm-port-provenance.md)
+- Override impact is rank × cut; a cut % without its gateways lies. (`scripts/npm/survey-override-deps.mts`) [`override-impact-analysis`](docs/agents.md/repo/override-impact-analysis.md)
