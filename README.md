@@ -9,7 +9,7 @@
 
 Optimized package overrides for [Socket Optimize](https://socket.dev/features/optimize).
 
-<img src="./assets/socket-optimize-hero.png" height="272px" width="576px" alt="npx socket optimize">
+<img src="https://raw.githubusercontent.com/SocketDev/socket-registry/HEAD/assets/socket-optimize-hero.png" height="272px" width="576px" alt="socket optimize">
 
 `@socketregistry` is the monorepo behind [Socket Optimize](https://socket.dev/features/optimize) — a curated set of drop-in npm package replacements that reduce dependencies, modernize APIs, improve performance, and patch known CVEs without breaking compatibility. Every override passes the original package's own test suite, ships with TypeScript types, and stays MIT-compatible. The registry exists so `socket optimize` has something authoritative to swap in.
 
@@ -59,7 +59,7 @@ All overrides in this registry:
 - Work seamlessly with CommonJS and ESM
 - Retain original licenses and are MIT compatible
 - Include
-  <a href="https://www.typescriptlang.org/"><img src="./assets/ts.svg" height="20px" title="This package contains built-in TypeScript declarations" alt="TypeScript icon, indicating that this package has built-in type declarations"></a>
+  <a href="https://www.typescriptlang.org/"><img src="https://raw.githubusercontent.com/SocketDev/socket-registry/HEAD/assets/ts.svg" height="20px" title="This package contains built-in TypeScript declarations" alt="TypeScript icon, indicating that this package has built-in type declarations"></a>
   TypeScript definitions
 - Support current and [LTS](https://nodejs.org/en/about/previous-releases) Node versions
 
