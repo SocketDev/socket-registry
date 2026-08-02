@@ -2625,6 +2625,12 @@ importers:
         specifier: 'catalog:'
         version: 26.1.1
 
+  .claude/hooks/fleet/squash-freeze-boundary-guard:
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 26.1.1
+
   .claude/hooks/fleet/squash-history-nudge:
     dependencies:
       '@socketsecurity/lib-stable':
