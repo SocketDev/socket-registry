@@ -31,7 +31,7 @@ allowBuilds:
 pmOnFail: warn
 
 catalog:
-  '@shadscan/cli': 0.2.0
+  '@shadscan/cli': 0.5.0
   '@ultrathink/acorn.rs.wasm': 0.1.1
   'brace-expansion': 5.0.7
   'browserslist': 4.28.6
