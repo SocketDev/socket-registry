@@ -138,6 +138,13 @@ export async function addNpmManifestData(
         fetchFailures?.add(data.package)
         return
       }
+      // A 0.0.0 publish is a name reservation, not a usable override — the
+      // manifest advertises replacements, so a placeholder stays out of it
+      // until a real release ships.
+      if (nmPkgJson.version === '0.0.0') {
+        spinner?.warn(`${nmPkgId}: 0.0.0 placeholder — skipping manifest entry`)
+        return
+      }
       // Socket-maintained overrides take engines from the published
       // package.json; third-party extensions keep the manifest's engines.
       // (Inlined from the retired isBlessedPackageName helper.)
@@ -214,6 +221,13 @@ export async function addNpmManifestData(
         return
       }
       const version = sockPkgManifest.version
+      // A 0.0.0 publish is a name reservation, not a usable override — the
+      // manifest advertises replacements, so a placeholder stays out of it
+      // until a real release ships.
+      if (version === '0.0.0') {
+        spinner?.warn(`${name}: 0.0.0 placeholder — skipping manifest entry`)
+        return
+      }
 
       const interop = ['cjs']
       const isEsm = pkgJson.type === 'module'
