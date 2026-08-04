@@ -40,7 +40,11 @@ jobs:
   # `./.github/actions/fleet/checkout` composite, since nothing is checked out
   # yet for GitHub to resolve `./.github/actions/*` from. It shallow-fetches the
   # workspace so those composites resolve; setup-and-install then re-runs the
-  # checkout composite at its deeper default and runs the zizmor Actions audit.
+  # checkout composite — full history (fetch-depth 0) in the check job, since
+  # the commit-history checks it runs (AI-attribution, release-boundary) read
+  # the default branch's history and refuse a shallow clone rather than
+  # false-green; the test matrix stays at the default depth and runs the
+  # zizmor Actions audit.
   check:
     name: 🔎 Check
     runs-on: ubuntu-latest
