@@ -37,6 +37,7 @@ import process from 'node:process'
 import { parseArgs } from 'node:util'
 
 import { REPO_ROOT } from '../paths.mts'
+import { isMainModule } from '../_shared/is-main-module.mts'
 import {
   isAllowlisted,
   loadAllowlist,
@@ -171,9 +172,11 @@ const main = (): number => {
   return 1
 }
 
-try {
-  process.exitCode = main()
-} catch (e) {
-  logger.error(`Path-hygiene gate crashed: ${e}`)
-  process.exitCode = 2
+if (isMainModule(import.meta.url)) {
+  try {
+    process.exitCode = main()
+  } catch (e) {
+    logger.error(`Path-hygiene gate crashed: ${e}`)
+    process.exitCode = 2
+  }
 }

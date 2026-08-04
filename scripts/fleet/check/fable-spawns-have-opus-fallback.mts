@@ -56,6 +56,7 @@ import {
   stringLiteral,
 } from './ai-spawns-have-paired-effort.mts'
 import { REPO_ROOT } from '../paths.mts'
+import { isMainModule } from '../_shared/is-main-module.mts'
 
 const logger = getDefaultLogger()
 
@@ -338,11 +339,13 @@ async function main(): Promise<void> {
   logger.success('All Fable spawns have refusal-fallback wiring.')
 }
 
-void (async () => {
-  await main()
-})().catch((err: unknown) => {
-  logger.error(
-    `fable-spawns-have-opus-fallback: unexpected error — ${errorMessage(err)}`,
-  )
-  process.exitCode = 1
-})
+if (isMainModule(import.meta.url)) {
+  void (async () => {
+    await main()
+  })().catch((err: unknown) => {
+    logger.error(
+      `fable-spawns-have-opus-fallback: unexpected error — ${errorMessage(err)}`,
+    )
+    process.exitCode = 1
+  })
+}

@@ -38,6 +38,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { parseArgs } from 'node:util'
 import { REPO_ROOT } from '../paths.mts'
+import { isMainModule } from '../_shared/is-main-module.mts'
 
 // The config is repo-owned: prefer the `.config/repo/` location, fall back to
 // the legacy top-level `.config/` path during the migration soak.
@@ -331,4 +332,6 @@ function main(): void {
   }
 }
 
-main()
+if (isMainModule(import.meta.url)) {
+  main()
+}

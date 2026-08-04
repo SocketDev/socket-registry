@@ -78,7 +78,16 @@ runs:
         FETCH_REF="${CHECKOUT_REF:-${TRIGGER_REF}}"
         # fetch-depth 0 = full history + tags; >0 = shallow, tag-free (CI speed).
         if [ "${CHECKOUT_FETCH_DEPTH}" = "0" ]; then
-          FETCH_ARGS=(--prune --tags origin "${FETCH_REF}")
+          # Full history also fetches every branch's tracking ref: the
+          # commit-history checks resolve the DEFAULT branch, and a detached
+          # FETCH_HEAD-only workspace carries no origin/<branch> to resolve.
+          FETCH_ARGS=(--prune --tags origin "${FETCH_REF}" '+refs/heads/*:refs/remotes/origin/*')
+          # A job's first-step bootstrap fetches --depth 1, and a plain fetch
+          # never widens an existing shallow boundary — full history on an
+          # already-shallow workspace needs an explicit --unshallow.
+          if [ "$(git rev-parse --is-shallow-repository 2>/dev/null)" = "true" ]; then
+            FETCH_ARGS=(--unshallow "${FETCH_ARGS[@]}")
+          fi
         else
           FETCH_ARGS=(--no-tags --prune --depth "${CHECKOUT_FETCH_DEPTH}" origin "${FETCH_REF}")
         fi
@@ -90,6 +99,23 @@ runs:
           git fetch "${FETCH_ARGS[@]}"
         fi
         git checkout -q --detach FETCH_HEAD
+        # Record which branch is the default. A full-history workspace serves
+        # the commit-history checks, and their default-branch resolution reads
+        # origin/HEAD first; `remote add` never writes it (only clone does).
+        # `set-head --auto` queries the remote, so it needs the same
+        # non-persisting auth header the fetch carries — anonymous, it fails
+        # on a private repository and leaves origin/HEAD unset. A failure
+        # prints rather than dying: only the commit-history checks consume
+        # origin/HEAD, and they fail loud with their own What/Where/Fix.
+        if [ "${CHECKOUT_FETCH_DEPTH}" = "0" ]; then
+          if [ -n "${GITHUB_TOKEN}" ]; then
+            git -c "http.${SERVER_URL}/.extraheader=AUTHORIZATION: basic ${AUTH_B64:-}" remote set-head origin --auto \
+              || echo "::warning::set-head failed — origin/HEAD unset"
+          else
+            git remote set-head origin --auto \
+              || echo "::warning::set-head failed — origin/HEAD unset"
+          fi
+        fi
 
     - name: Install zizmor
       # Auto-skip in matrix cells: zizmor has its own per-platform

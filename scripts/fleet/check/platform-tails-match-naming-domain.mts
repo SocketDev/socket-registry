@@ -53,6 +53,7 @@ import {
   tripletEngineFields,
 } from '../util/pack-app-triplets.mts'
 import { REPO_ROOT } from '../paths.mts'
+import { isMainModule } from '../_shared/is-main-module.mts'
 
 const logger = getDefaultLogger()
 
@@ -443,9 +444,11 @@ function main(): void {
   process.exitCode = runCheck(REPO_ROOT)
 }
 
-try {
-  main()
-} catch (e) {
-  logger.error(e)
-  process.exitCode = 1
+if (isMainModule(import.meta.url)) {
+  try {
+    main()
+  } catch (e) {
+    logger.error(e)
+    process.exitCode = 1
+  }
 }

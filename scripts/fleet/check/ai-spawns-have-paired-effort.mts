@@ -62,6 +62,7 @@ import {
   ladderRowForModel,
 } from '../lib/known-models.mts'
 import { REPO_ROOT } from '../paths.mts'
+import { isMainModule } from '../_shared/is-main-module.mts'
 
 const logger = getDefaultLogger()
 
@@ -445,7 +446,11 @@ async function main(): Promise<void> {
   logger.success('Every model-pinning AI spawn pairs a reasoning effort.')
 }
 
-main().catch((e: unknown) => {
-  logger.error(`check-ai-spawns-have-paired-effort failed: ${errorMessage(e)}`)
-  process.exitCode = 1
-})
+if (isMainModule(import.meta.url)) {
+  main().catch((e: unknown) => {
+    logger.error(
+      `check-ai-spawns-have-paired-effort failed: ${errorMessage(e)}`,
+    )
+    process.exitCode = 1
+  })
+}

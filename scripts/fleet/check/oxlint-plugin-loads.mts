@@ -39,6 +39,7 @@ import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
 import { assertPluginLoads } from '../lib/oxlint-plugin-loads.mts'
 import { REPO_ROOT } from '../paths.mts'
+import { isMainModule } from '../_shared/is-main-module.mts'
 
 const logger = getDefaultLogger()
 
@@ -83,7 +84,9 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch((e: unknown) => {
-  logger.error(`check-oxlint-plugin-loads failed: ${errorMessage(e)}`)
-  process.exitCode = 1
-})
+if (isMainModule(import.meta.url)) {
+  main().catch((e: unknown) => {
+    logger.error(`check-oxlint-plugin-loads failed: ${errorMessage(e)}`)
+    process.exitCode = 1
+  })
+}

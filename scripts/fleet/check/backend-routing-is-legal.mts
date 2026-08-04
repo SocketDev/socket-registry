@@ -34,6 +34,7 @@ import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { globSync } from '@socketsecurity/lib-stable/globs/match'
 
 import { REPO_ROOT } from '../paths.mts'
+import { isMainModule } from '../_shared/is-main-module.mts'
 
 const logger = getDefaultLogger()
 
@@ -149,4 +150,6 @@ function main(): void {
   }
 }
 
-main()
+if (isMainModule(import.meta.url)) {
+  main()
+}

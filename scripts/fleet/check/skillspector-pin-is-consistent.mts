@@ -25,6 +25,7 @@ import process from 'node:process'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
 import { REPO_ROOT } from '../paths.mts'
+import { isMainModule } from '../_shared/is-main-module.mts'
 
 const logger = getDefaultLogger()
 
@@ -181,4 +182,6 @@ function main(): number {
   return 0
 }
 
-process.exitCode = main()
+if (isMainModule(import.meta.url)) {
+  process.exitCode = main()
+}

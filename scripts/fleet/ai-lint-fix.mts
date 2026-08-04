@@ -27,7 +27,11 @@
  *   workspace trust, broken launcher, tool-policy mismatch, silent exits
  *   are classified (./ai-lint-fix/health.mts), and two consecutive ones abort
  *   the remaining files — each spawn would fail identically and a long
- *   residue would otherwise burn a 5-minute timeout per file. The four
+ *   residue would otherwise burn a 5-minute timeout per file. A spawn that
+ *   exits 0 with findings to fix but leaves its target file byte-identical is
+ *   a NO-OP FAILURE (a `claude --print` session blocked from editing still
+ *   exits 0): two consecutive no-ops abort the batch with the captured spawn
+ *   argv + output, and any no-op fails the run's final verdict. The four
  *   lockdown flags per
  *   CLAUDE.md "Programmatic Claude calls":
  *   - tools / allowedTools / disallowedTools / permissionMode. Cost / safety:
@@ -57,7 +61,14 @@ import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
 import { runClaudeFix } from './ai-lint-fix/claude.mts'
-import { classifyAiFailure, probeAiCli } from './ai-lint-fix/health.mts'
+import {
+  buildNoOpAbortMessage,
+  classifyAiFailure,
+  createNoOpTracker,
+  fileDigest,
+  NO_OP_ABORT_THRESHOLD,
+  probeAiCli,
+} from './ai-lint-fix/health.mts'
 import { bucketRulesFor, runOdaiLintFix } from './ai-lint-fix/odai-fix.mts'
 import { runLintJson } from './ai-lint-fix/oxlint-json.mts'
 import { bucketFindings, buildPrompt } from './ai-lint-fix/prompt.mts'
@@ -205,11 +216,18 @@ export async function main(): Promise<void> {
 
   let totalEdits = 0
   let totalErrors = 0
+  let totalNoOps = 0
   // Consecutive classified environmental failures (workspace trust, broken
   // launcher, tool-policy, silent exits). Two in a row means every remaining
   // spawn fails identically — abort instead of burning a 5-minute timeout
   // per remaining file. File-specific failures reset the streak.
   let envFailureStreak = 0
+  // Consecutive completed-but-zero-diff spawns. A spawn that exits 0 with
+  // findings to fix but leaves its target byte-identical is a NO-OP FAILURE,
+  // not a success — the incident shape is a repo hook denying every Edit
+  // while `claude --print` still exits 0. Two in a row abort the batch with
+  // the captured spawn output; a real edit resets the streak.
+  const noOpTracker = createNoOpTracker()
   // Per-file progress counter. A long residue, dozens of files, emits one
   // `[i/N]` line per file so the run never reads as "nothing happening" — a
   // long-running step must surface incremental progress as it goes, not only
@@ -235,15 +253,41 @@ export async function main(): Promise<void> {
       `AI-fix [${fileIndex}/${fileCount}] ${rel} (${findings.length} findings, ${tier}/${effort})…`,
     )
     const prompt = buildPrompt(filePath, findings)
-    const { exitCode, stderr, stdout } = await runClaudeFix(
+    const beforeDigest = fileDigest(filePath)
+    const { argv, exitCode, stderr, stdout } = await runClaudeFix(
       prompt,
       cwd,
       model,
       effort,
     )
     if (exitCode === 0) {
-      totalEdits += findings.length
-      envFailureStreak = 0
+      const afterDigest = fileDigest(filePath)
+      if (afterDigest !== beforeDigest) {
+        totalEdits += findings.length
+        envFailureStreak = 0
+        noOpTracker.recordEdit()
+        continue
+      }
+      // Completed with findings and a zero diff: a no-op failure, never a
+      // success — count it and abort loud on a streak.
+      totalNoOps += 1
+      const streak = noOpTracker.recordNoOp({
+        argv,
+        exitCode,
+        file: rel,
+        findings: findings.length,
+        stderr,
+        stdout,
+      })
+      logger.warn(
+        `AI-fix no-op for ${rel}: spawn completed (exit 0) but the file is unchanged.`,
+      )
+      if (streak >= NO_OP_ABORT_THRESHOLD) {
+        const remaining = fileCount - fileIndex
+        logger.error(buildNoOpAbortMessage(noOpTracker.receipts(), remaining))
+        process.exitCode = 1
+        return
+      }
       continue
     }
     totalErrors++
@@ -278,6 +322,15 @@ export async function main(): Promise<void> {
   if (totalErrors > 0) {
     logger.warn(
       `AI-fix finished with ${totalErrors} subprocess errors. ${afterCount}/${beforeCount} findings remain. Re-run \`pnpm run lint\` to see what survived.`,
+    )
+    process.exitCode = 1
+    return
+  }
+  // A batch that reached the end with any no-op spawn never reports as a
+  // completed pass — the findings it "handled" are all still there.
+  if (totalNoOps > 0) {
+    logger.warn(
+      `AI-fix finished with ${totalNoOps} no-op spawn(s) — completed spawns that changed nothing. ${afterCount}/${beforeCount} findings remain. Read the no-op warnings above for the captured spawn output.`,
     )
     process.exitCode = 1
     return

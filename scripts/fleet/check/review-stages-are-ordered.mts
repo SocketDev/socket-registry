@@ -23,6 +23,7 @@ import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { joinAnd } from '@socketsecurity/lib-stable/arrays/join'
 
 import { REPO_ROOT } from '../paths.mts'
+import { isMainModule } from '../_shared/is-main-module.mts'
 
 const logger = getDefaultLogger()
 
@@ -116,4 +117,6 @@ function main(): void {
   process.exitCode = 1
 }
 
-main()
+if (isMainModule(import.meta.url)) {
+  main()
+}

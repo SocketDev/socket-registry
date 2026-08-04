@@ -50,6 +50,7 @@ import {
   gateWriteDest,
   parseNonMemberOverride,
 } from './_shared/fleet-membership.mts'
+import { isMainModule } from './_shared/is-main-module.mts'
 import {
   withMirrorLockLiftedSync,
   writeThroughMirrorLock,
@@ -429,12 +430,14 @@ export async function main(): Promise<number> {
   }
 }
 
-main().then(
-  code => {
-    process.exitCode = code
-  },
-  (e: unknown) => {
-    logger.error(e)
-    process.exitCode = 1
-  },
-)
+if (isMainModule(import.meta.url)) {
+  main().then(
+    code => {
+      process.exitCode = code
+    },
+    (e: unknown) => {
+      logger.error(e)
+      process.exitCode = 1
+    },
+  )
+}

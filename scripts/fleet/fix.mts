@@ -151,9 +151,25 @@ export function shouldRunHeavyFixLegs(argv: readonly string[]): boolean {
   return resolveExplicitFiles(argv).length === 0
 }
 
+// Printed for -h/--help BEFORE any lock is taken, so the options stay
+// readable while another fixer holds the repo.
+export const FIX_USAGE = `Usage: pnpm run fix [--all | --staged] [<file> ...]
+
+Scope:
+  (none)      modified files (a clean tree fixes nothing; pass --all)
+  --all       the whole tree, plus the heavy legs (security scans, ai-lint-fix)
+  --staged    staged files only
+  <file> ...  exactly these files, lint/format autofix only
+
+Mutating runs hold the repo-scoped fixer lock; one fixer per tree at a time.`
+
 export async function main(
   argv: string[] = process.argv.slice(2),
 ): Promise<void> {
+  if (argv.includes('-h') || argv.includes('--help')) {
+    logger.log(FIX_USAGE)
+    return
+  }
   // Clean-scope early exit: scoped (non---all) runs with nothing in scope
   // skip the whole fixer chain. The release-pipeline preflight and repeated
   // interactive `pnpm run fix` calls hit this path constantly.

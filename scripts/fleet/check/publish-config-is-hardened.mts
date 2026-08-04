@@ -48,6 +48,7 @@ import { normalizePath } from '@socketsecurity/lib-stable/paths/normalize'
 
 import { NPM_REGISTRY } from '../constants/npm-registry.mts'
 import { REPO_ROOT } from '../paths.mts'
+import { isMainModule } from '../_shared/is-main-module.mts'
 import { findWorkspacePackages } from './package-files-are-allowlisted.mts'
 
 const logger = getDefaultLogger()
@@ -376,9 +377,11 @@ function main(): void {
   process.exitCode = runCheck(repoRoot)
 }
 
-try {
-  main()
-} catch (e) {
-  logger.error(e)
-  process.exitCode = 1
+if (isMainModule(import.meta.url)) {
+  try {
+    main()
+  } catch (e) {
+    logger.error(e)
+    process.exitCode = 1
+  }
 }

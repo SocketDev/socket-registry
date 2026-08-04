@@ -26,6 +26,7 @@ import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
 import { KNOWN_MODELS, TIER_ALIASES } from '../lib/known-models.mts'
 import { REPO_ROOT } from '../paths.mts'
+import { isMainModule } from '../_shared/is-main-module.mts'
 
 const logger = getDefaultLogger()
 const skillsDir = path.join(REPO_ROOT, '.claude', 'skills', 'fleet')
@@ -117,7 +118,9 @@ async function main(): Promise<void> {
   logger.success('Every mutating fleet skill declares a canonical model: tier.')
 }
 
-main().catch((e: unknown) => {
-  logger.error(`check-mutating-skills-have-model failed: ${errorMessage(e)}`)
-  process.exitCode = 1
-})
+if (isMainModule(import.meta.url)) {
+  main().catch((e: unknown) => {
+    logger.error(`check-mutating-skills-have-model failed: ${errorMessage(e)}`)
+    process.exitCode = 1
+  })
+}

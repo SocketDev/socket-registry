@@ -27,6 +27,7 @@ import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
 import { REPO_ROOT } from '../paths.mts'
+import { isMainModule } from '../_shared/is-main-module.mts'
 
 const logger = getDefaultLogger()
 
@@ -123,7 +124,11 @@ async function main(): Promise<void> {
   logger.success('workflow fleet-script invocations all name their scope.')
 }
 
-main().catch((e: unknown) => {
-  logger.error(`workflow-scripts-are-explicit-scope failed: ${errorMessage(e)}`)
-  process.exitCode = 1
-})
+if (isMainModule(import.meta.url)) {
+  main().catch((e: unknown) => {
+    logger.error(
+      `workflow-scripts-are-explicit-scope failed: ${errorMessage(e)}`,
+    )
+    process.exitCode = 1
+  })
+}

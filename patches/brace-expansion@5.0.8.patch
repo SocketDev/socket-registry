@@ -1,0 +1,28 @@
+diff --git a/dist/commonjs/index.js b/dist/commonjs/index.js
+index be9df86be09c7655787a65c55ae6da01858894c3..4e102bb4e0ba33ccbb9192c2a2852b2794d49403 100644
+--- a/dist/commonjs/index.js
++++ b/dist/commonjs/index.js
+@@ -260,4 +260,8 @@ function expand_(str, max, maxLength, isTop) {
+     }
+     return acc;
+ }
++// Interop: 5.0.7 dropped the CJS default export; minimatch@9's compiled
++// __importDefault call reads `.default` (the __esModule flag skips the
++// namespace fallback), so restore it pointing at expand.
++exports.default = expand;
+ //# sourceMappingURL=index.js.map
+\ No newline at end of file
+diff --git a/dist/esm/index.js b/dist/esm/index.js
+index 6dc0392fc0feedb811e63d70a30be2736af17a3a..d4e8e326e341c23a0ccf48b1c9f317a4740fa0d6 100644
+--- a/dist/esm/index.js
++++ b/dist/esm/index.js
+@@ -256,4 +256,9 @@ function expand_(str, max, maxLength, isTop) {
+     }
+     return acc;
+ }
++// Interop: the ESM build ships named exports only, mirroring the CJS half
++// this patch already fixes. A default import (the shape the fleet CI cache
++// action resolves through the `import` condition) otherwise throws
++// "does not provide an export named 'default'" and kills the job at setup.
++export default expand;
+ //# sourceMappingURL=index.js.map

@@ -177,7 +177,7 @@ const SUPPORTED_SRI_RE = /^sha(?:256|384|512)-[A-Za-z0-9+/]+={0,2}$/
  * sha256-only decoder threw on anything but sha256, stranding sfw at whatever
  * stale build was last installed and, with it, a proxy CA the client no longer
  * trusts — `tlsv1 alert unknown ca`). Single-source-of-truth schema:
- * socket-btm/scripts/fleet/build-infra/lib/external-tools-schema.json.
+ * scripts/fleet/build-infra/lib/external-tools-schema.json.
  */
 export function assertIntegrity(integrity: string): string {
   if (!SUPPORTED_SRI_RE.test(integrity)) {

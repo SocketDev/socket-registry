@@ -102,6 +102,21 @@ export function firstPartyImports(
     if (/^(?:export|import)\s+type\b/.test(m[0])) {
       continue
     }
+    // A `vi.mock(import('…'))` target is a MOCKED COLLABORATOR, replaced by
+    // the test rather than exercised by it, so it is not a unit under test
+    // either. Counting it made any test that mocks its dependencies read as
+    // multi-source, and the advice was to split it into files that would
+    // assert nothing. The bare-string form, `vi.mock('…')`, never matched this
+    // regex at all, so honoring only the import() form was inconsistent too.
+    // Bounded lookback: the call token sits immediately before the match.
+    if (
+      m[2] !== undefined &&
+      /\bvi\s*\.\s*(?:doMock|doUnmock|mock|unmock)\s*\(\s*$/.test(
+        content.slice(Math.max(0, m.index - 40), m.index),
+      )
+    ) {
+      continue
+    }
     const spec = m[1] ?? m[2]
     if (!spec || !spec.startsWith('.')) {
       continue

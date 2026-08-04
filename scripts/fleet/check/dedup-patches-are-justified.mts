@@ -22,6 +22,8 @@ import process from 'node:process'
 
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
+import { isMainModule } from '../_shared/is-main-module.mts'
+
 const logger = getDefaultLogger()
 const WORKSPACE = 'pnpm-workspace.yaml'
 const LOCKFILE = 'pnpm-lock.yaml'
@@ -115,4 +117,6 @@ function main(): void {
   logger.log('All pnpm patch entries are justified.')
 }
 
-main()
+if (isMainModule(import.meta.url)) {
+  main()
+}

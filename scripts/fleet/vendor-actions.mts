@@ -75,11 +75,11 @@ export const VENDORED_ACTIONS: readonly string[] = [
 // `upstream/*` submodule names this script does NOT own, and must never prune.
 // Everything else under `upstream/` is an action pin it generates, so anything
 // outside the vendored union is a retired action whose block should go.
-// Empty today: every block in the fleet's `.gitmodules` is an action pin. The
-// anticipated first entries are the copyleft tests-only slices from
-// `_shared/copyleft-upstreams.mts`, which a different provisioning path writes
-// and whose slugs will never appear in the union.
-export const UNMANAGED_UPSTREAMS: readonly string[] = []
+// Library upstream references (pinned via `gen/gitmodules-hash --set` for a
+// port or a soaking dependency) belong here, as do the copyleft tests-only
+// slices from `_shared/copyleft-upstreams.mts`, which a different
+// provisioning path writes.
+export const UNMANAGED_UPSTREAMS: readonly string[] = ['upstream/chapter-tgz']
 
 const GITMODULES = path.join(REPO_ROOT, '.gitmodules')
 

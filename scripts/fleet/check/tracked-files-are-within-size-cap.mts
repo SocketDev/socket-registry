@@ -18,6 +18,7 @@ import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { spawnSync } from '@socketsecurity/lib-stable/process/spawn/child'
 
 import { REPO_ROOT } from '../paths.mts'
+import { isMainModule } from '../_shared/is-main-module.mts'
 
 const logger = getDefaultLogger()
 
@@ -257,7 +258,9 @@ async function main(): Promise<void> {
   process.exitCode = 1
 }
 
-main().catch((error: unknown) => {
-  logger.fail('file-size check failed:', error)
-  process.exitCode = 1
-})
+if (isMainModule(import.meta.url)) {
+  main().catch((error: unknown) => {
+    logger.fail('file-size check failed:', error)
+    process.exitCode = 1
+  })
+}
