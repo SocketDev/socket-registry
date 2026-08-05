@@ -247,7 +247,10 @@ function isLiveConnection(
   if (!record.config || typeof record.config !== 'object') {
     return false
   }
-  return record.deleted === undefined || record.deleted === null
+  // Any falsy `deleted` is live, matching the fleet's own connections parser in
+  // `trusted-publisher-parse.mts`. Two readers disagreeing on which rows count
+  // is how one of them plans a create over a publisher the other can see.
+  return !record.deleted
 }
 
 function nonEmptyString(value: unknown): string | undefined {
