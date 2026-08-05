@@ -17,6 +17,7 @@ import {
   decideStagedConfigurationState,
   findUnmappedPermissionTokens,
   formatMissingPackumentEvidence,
+  grantTokensForAction,
   hasPackumentEvidence,
   isWriteState,
   permitsStagedPublish,
@@ -29,6 +30,8 @@ import {
   TARGET_REPOSITORY_NAME,
   TARGET_WORKFLOW_FILENAME,
 } from '../../../scripts/npm/configure-staged-publishing-plan.mts'
+
+import { normalizePayloadKey } from '../../../scripts/npm/configure-staged-publishing-payload.mts'
 
 import type { StagedTrustReport } from '../../../scripts/npm/check-trusted-packages-staged.mts'
 
@@ -87,6 +90,56 @@ describe('permission tokens', () => {
     expect(resolvePermissionAction('stage-publish')).toBe('npm stage publish')
     expect(resolvePermissionAction('publishStaged')).toBe('npm stage publish')
     expect(resolvePermissionAction('publish')).toBe('npm publish')
+  })
+
+  test('npm’s own createPackage token reads as the direct-publish grant', () => {
+    // `createPackage` is the spelling npm's trust API and `npm trust` CLI use
+    // for a direct publish. Without it, a live connection carrying that grant
+    // maps to nothing, the action set comes back staged-only, and the package
+    // reads as already narrowed while it can still publish without approval.
+    expect(resolvePermissionAction('createPackage')).toBe('npm publish')
+    const reading = readTrustedPublisherState(
+      payloadWithConnection({
+        permissions: ['createPackage', 'createStagedPackage'],
+      }),
+    )
+    expect([...reading.actions!].toSorted()).toEqual([
+      'npm publish',
+      'npm stage publish',
+    ])
+    expect(decideStagedConfigurationState(reading)).toBe('narrow')
+  })
+
+  test('every spelling of one action is offered to the control resolver', () => {
+    // The form can identify a grant by a control's VALUE rather than by a field
+    // name, so the resolver needs the same vocabulary the payload reader has.
+    // Some spellings arrive already normalized, which is fine: the resolver
+    // compares tokens with the same letters-and-digits normalization, so
+    // `createpackage` matches a control carrying `createPackage`.
+    const direct = grantTokensForAction('npm publish')
+    for (const token of [
+      'npm publish',
+      'createPackage',
+      'createPackageVersion',
+      'publish',
+    ]) {
+      expect(direct.map(normalizePayloadKey)).toContain(
+        normalizePayloadKey(token),
+      )
+    }
+    const staged = grantTokensForAction('npm stage publish')
+    for (const token of [
+      'npm stage publish',
+      'createStagedPackage',
+      'stagePublish',
+    ]) {
+      expect(staged.map(normalizePayloadKey)).toContain(
+        normalizePayloadKey(token),
+      )
+    }
+    expect(direct.map(normalizePayloadKey)).not.toContain(
+      normalizePayloadKey('createStagedPackage'),
+    )
   })
 
   test('a grant nothing recognizes stays unmapped rather than being guessed at', () => {

@@ -34,6 +34,13 @@
  *   pnpm run npm:configure-staged --apply
  *   pnpm run npm:configure-staged --package date
  *   pnpm run npm:configure-staged --apply --limit 1
+ *   pnpm run npm:configure-staged --dump-form @socketregistry/abab
+ *   The two dump lanes are how a page whose shape changed gets re-derived
+ *   without writing anything. `--dump-payload` prints the access payload's key
+ *   tree, which is where the trusted-publisher DATA lives; `--dump-form` opens
+ *   the form and prints its redacted control STRUCTURE, which is where the
+ *   write is actually driven. A grant control that stops being a checkbox is
+ *   invisible to the first and obvious in the second.
  *   Browser I/O lives in `./configure-staged-publishing-browser.mts`; the
  *   in-place form write in `./configure-staged-publishing-write.mts`; pure
  *   planning in `./configure-staged-publishing-plan.mts`; the binding target
@@ -62,6 +69,7 @@ import {
   describePayloadKeyTree,
   findPayloadKeyPaths,
 } from './configure-staged-publishing-dump.mts'
+import { dumpFormStructure } from './configure-staged-publishing-form-dump.mts'
 import {
   buildPackageAccessUrl,
   countConnectionPermissionTokens,
@@ -92,6 +100,7 @@ const FAILURE_HOLD_MS = 30 * MILLISECONDS_PER_SECOND
 const { values: args } = parseArgs({
   options: {
     apply: { type: 'boolean', default: false },
+    'dump-form': { type: 'string', multiple: true },
     'dump-payload': { type: 'string', multiple: true },
     help: { type: 'boolean', default: false },
     limit: { type: 'string' },
@@ -275,6 +284,21 @@ function printHelp(): void {
   )
   logger.log('                   printed. Writes nothing.')
   logger.log(
+    '  --dump-form <pkg>     Open that package trusted-publisher form, print its',
+  )
+  logger.log(
+    '                   redacted DOM structure and what the writer would do with',
+  )
+  logger.log(
+    '                   each grant control, and exit. Repeatable; one browser',
+  )
+  logger.log(
+    '                   session covers every package. Opens the form and nothing',
+  )
+  logger.log(
+    '                   else — no field is filled and nothing is saved.',
+  )
+  logger.log(
     `  --profile-dir    Chrome profile holding the signed-in npm session. Default:`,
   )
   logger.log(`                   ${DEFAULT_PROFILE_DIR}`)
@@ -291,6 +315,14 @@ export async function main(): Promise<void> {
   const dumpPayload = (args['dump-payload'] as string[] | undefined) ?? []
   if (dumpPayload.length) {
     await dumpAccessPayload(dumpPayload, {
+      profileDir: (args['profile-dir'] as string | undefined) || undefined,
+    })
+    return
+  }
+
+  const dumpForm = (args['dump-form'] as string[] | undefined) ?? []
+  if (dumpForm.length) {
+    await dumpFormStructure(dumpForm, {
       profileDir: (args['profile-dir'] as string | undefined) || undefined,
     })
     return

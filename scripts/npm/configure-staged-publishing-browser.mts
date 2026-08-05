@@ -428,6 +428,7 @@ export async function applyStagedPublishing(
       const probe = await fetchJsonInPage(page, target.settingsUrl)
       return JSON.parse(probe.body)
     },
+    url: target.settingsUrl,
     verifyPollMs: cfg.verifyPollMs,
     verifyTimeoutMs: cfg.verifyTimeoutMs,
   })

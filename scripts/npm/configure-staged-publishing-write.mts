@@ -31,12 +31,26 @@ import type { Page } from 'playwright-core'
 import { ensureFormOpen } from '../fleet/publish-infra/npm/trusted-publisher-page.mts'
 
 import type { TrustedPublisherDesired } from '../fleet/publish-infra/npm/trusted-publisher-plan.mts'
+import { formatUnresolvedActionControl } from './configure-staged-publishing-controls-report.mts'
+import {
+  collectActionControlCandidates,
+  resolveActionControlPlan,
+} from './configure-staged-publishing-controls.mts'
+import {
+  collectFormDomSnapshot,
+  FORM_CONTROL_SELECTOR,
+} from './configure-staged-publishing-form-probe.mts'
 import {
   bindingMatchesTarget,
+  DIRECT_PUBLISH_ACTION,
+  grantTokensForAction,
   permitsDirectPublish,
   permitsStagedPublish,
   readTrustedPublisherState,
+  STAGE_PUBLISH_ACTION,
 } from './configure-staged-publishing-plan.mts'
+
+import type { ActionControlPlan } from './configure-staged-publishing-controls.mts'
 
 const logger = getDefaultLogger()
 
@@ -72,60 +86,109 @@ export async function fillPublisherField(
 }
 
 /**
- * Set one allowed-action checkbox.
+ * Set one allowed-action grant, whatever shape npm renders its control in.
  *
- * The name-only locator is not enough: npm renders some packages' state as a
- * HIDDEN input carrying the same name, and `setChecked` on one of those throws
- * "Not a checkbox or radio button". A hidden input that already encodes the
- * wanted state is a no-op; one that encodes the opposite is a page-shape change
- * worth failing on, because it means the control this run needs to flip is not
- * rendered at all.
+ * A single locator is not enough and never was. npm renders some packages'
+ * state as a HIDDEN input carrying the field name, and `setChecked` on one of
+ * those throws "Not a checkbox or radio button" — which is how a live sweep
+ * stopped on `@socketregistry/abab` with a hidden `allowPublish` encoding "on"
+ * and no checkbox beside it. So the control is RESOLVED rather than assumed:
+ * {@link resolveActionControlPlan} walks a captured inventory of the form's
+ * controls in a fixed priority order and returns what to drive, and this
+ * function only performs it.
  *
- * @throws {Error} When only a hidden input exists and it encodes the opposite
- *   of the wanted state.
+ * Returns the plan it performed, so a caller can log which rung answered — on a
+ * form nobody documents, knowing the page rendered a `role="switch"` rather
+ * than a checkbox is the finding.
+ *
+ * @throws {Error} When no rung matches, with every candidate control the
+ *   capture found named in the failure block.
  */
-export async function setPublisherCheckbox(
+export async function setPublisherActionControl(
   page: Page,
-  config: { checked: boolean; label: RegExp; name: string },
-): Promise<void> {
+  config: {
+    action: string
+    checked: boolean
+    label: RegExp
+    name: string
+    packageName: string
+    url: string
+  },
+): Promise<ActionControlPlan> {
   const cfg = { __proto__: null, ...config } as typeof config
-  const realBox = page
-    .locator(`input[type="checkbox"][name="${cfg.name}"]`)
-    .first()
-  if ((await realBox.count()) > 0) {
-    await realBox.setChecked(cfg.checked, { timeout: FIELD_TIMEOUT_MS })
-    return
+  const request = {
+    actionTokens: grantTokensForAction(cfg.action),
+    checked: cfg.checked,
+    label: cfg.label,
+    name: cfg.name,
   }
-  const hidden = page
-    .locator(`input[type="hidden"][name="${cfg.name}"]`)
-    .first()
-  if ((await hidden.count()) > 0) {
-    const value = (await hidden.getAttribute('value')) ?? ''
-    const encodesChecked = value === 'on' || value === 'true'
-    if (encodesChecked === cfg.checked) {
-      return
-    }
+  const snapshot = await collectFormDomSnapshot(page)
+  const candidates = collectActionControlCandidates(snapshot)
+  const plan = resolveActionControlPlan(candidates, request)
+  if (plan.how === 'unresolved') {
     throw new Error(
-      `the ${cfg.name} control is a hidden input encoding ${JSON.stringify(value)} ` +
-        `and no checkbox is rendered to flip it to ${cfg.checked} — the page ` +
-        'shape changed; re-derive the form contract before writing.',
+      formatUnresolvedActionControl({
+        action: cfg.action,
+        candidates,
+        packageName: cfg.packageName,
+        reason: plan.reason,
+        request,
+        url: cfg.url,
+      }),
     )
   }
-  await page
-    .getByLabel(cfg.label)
-    .first()
-    .setChecked(cfg.checked, { timeout: FIELD_TIMEOUT_MS })
+  if (plan.how === 'noop') {
+    logger.substep(
+      `${cfg.packageName}: "${cfg.action}" already reads as ${cfg.checked} — ${plan.reason}.`,
+    )
+    return plan
+  }
+  const control = page.locator(FORM_CONTROL_SELECTOR).nth(plan.index)
+  if (plan.how === 'checkbox') {
+    await control.setChecked(cfg.checked, {
+      force: plan.force,
+      timeout: FIELD_TIMEOUT_MS,
+    })
+  } else if (plan.how === 'radio') {
+    await control.check({ force: plan.force, timeout: FIELD_TIMEOUT_MS })
+  } else if (plan.how === 'select') {
+    await control.selectOption(plan.option, { timeout: FIELD_TIMEOUT_MS })
+  } else {
+    // An ARIA toggle has no state of its own for playwright to set, so the
+    // click is the only lever — and a click that changes nothing is a silent
+    // failure, which is why the control is asked again afterwards.
+    const before = await control.getAttribute('aria-checked')
+    await control.click({ timeout: FIELD_TIMEOUT_MS })
+    const after = await control.getAttribute('aria-checked')
+    if (before === after) {
+      throw new Error(
+        [
+          `What: ${cfg.packageName}'s "${cfg.action}" toggle did not change state, so the form still carries the old grant.`,
+          `Where: ${cfg.url}`,
+          `Saw: the ${plan.via}-matched role toggle still reports aria-checked=${JSON.stringify(after ?? '')} after the click.`,
+          `Wanted: aria-checked to report ${cfg.checked}.`,
+          'Fix: open the page and click that control by hand to see what it does. If it needs a keypress or a nested element clicked, add that shape to the ladder in scripts/npm/configure-staged-publishing-controls.mts.',
+        ].join('\n'),
+      )
+    }
+  }
+  logger.substep(
+    `${cfg.packageName}: "${cfg.action}" set to ${cfg.checked} via a ${plan.how} control matched by ${plan.via}.`,
+  )
+  return plan
 }
 
 /**
  * Fill the WHOLE trusted-publisher form from `desired`. Always every field, so
- * a half-done earlier pass never survives as a residue, and the direct-publish
- * checkbox is set explicitly rather than left at whatever npm rendered.
+ * a half-done earlier pass never survives as a residue, and both action grants
+ * are set explicitly rather than left at whatever npm rendered.
  */
 export async function fillTrustedPublisherForm(
   page: Page,
   desired: TrustedPublisherDesired,
+  context: { packageName: string; url: string },
 ): Promise<void> {
+  const ctx = { __proto__: null, ...context } as typeof context
   await fillPublisherField(page, {
     label: /organization|user|owner/i,
     name: 'repositoryOwner',
@@ -146,15 +209,28 @@ export async function fillTrustedPublisherForm(
     name: 'githubEnvironmentName',
     value: desired.environmentName,
   })
-  await setPublisherCheckbox(page, {
-    checked: desired.allowNpmPublish,
-    label: /allow npm publish/i,
-    name: 'allowPublish',
-  })
-  await setPublisherCheckbox(page, {
+  // GRANTS ARE ADDED BEFORE THEY ARE CLEARED, and that order is a requirement
+  // rather than a preference. npm's Allowed actions field is required and its
+  // own help text says "At least one must be selected" — its CLI refuses a
+  // trust write with neither flag, and the registry answers a permissionless
+  // body with a 400. Clearing "npm publish" first on a package that only has
+  // that grant walks the form through the empty state npm rejects; adding the
+  // staged grant first means the form is never empty at any point.
+  await setPublisherActionControl(page, {
+    action: STAGE_PUBLISH_ACTION,
     checked: desired.allowNpmStagePublish,
     label: /allow npm stage publish/i,
     name: 'allowStagePublish',
+    packageName: ctx.packageName,
+    url: ctx.url,
+  })
+  await setPublisherActionControl(page, {
+    action: DIRECT_PUBLISH_ACTION,
+    checked: desired.allowNpmPublish,
+    label: /allow npm publish/i,
+    name: 'allowPublish',
+    packageName: ctx.packageName,
+    url: ctx.url,
   })
 }
 
@@ -228,6 +304,7 @@ export async function saveTrustedPublisherInPlace(
     label: string
     pause: () => Promise<void>
     readPayload: () => Promise<unknown>
+    url: string
     verifyPollMs?: number | undefined
     verifyTimeoutMs?: number | undefined
   },
@@ -247,7 +324,10 @@ export async function saveTrustedPublisherInPlace(
       // handled — asking the page a question here is what let a pause reload
       // the form out from under the fill.
       // eslint-disable-next-line no-await-in-loop -- serial: one live form at a time.
-      await fillTrustedPublisherForm(page, cfg.desired)
+      await fillTrustedPublisherForm(page, cfg.desired, {
+        packageName: cfg.label,
+        url: cfg.url,
+      })
       // eslint-disable-next-line no-await-in-loop -- serial: one live form at a time.
       await clickPublisherSave(page)
       opened = true

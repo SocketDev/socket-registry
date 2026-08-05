@@ -111,6 +111,13 @@ export function normalizePayloadKey(key: string): string {
 // under a name this table does not know reads as already narrowed and gets
 // skipped instead of narrowed.
 const NORMALIZED_PERMISSION_ACTIONS: Readonly<Record<string, string>> = {
+  // `createPackage` is the spelling npm's own trust API and CLI use for the
+  // direct-publish grant — `npm trust` maps `createPackage` to `publish` and
+  // `createStagedPackage` to `stage publish`. It is listed FIRST among the
+  // direct-publish spellings because a package whose live connection carries it
+  // reads as having no direct grant at all without this entry, which is exactly
+  // the silent skip this table exists to prevent.
+  createpackage: DIRECT_PUBLISH_ACTION,
   createpackageversion: DIRECT_PUBLISH_ACTION,
   createstagedpackage: STAGE_PUBLISH_ACTION,
   npmpublish: DIRECT_PUBLISH_ACTION,
@@ -134,6 +141,33 @@ export function resolvePermissionAction(token: string): string | undefined {
     return exact
   }
   return NORMALIZED_PERMISSION_ACTIONS[normalizePayloadKey(token)]
+}
+
+/**
+ * Every token that names one rendered action, from both tables.
+ *
+ * The form's own control can identify a grant by its VALUE rather than by a
+ * field name — a permission chip carrying `createStagedPackage`, say — so the
+ * control resolver needs the same token vocabulary the payload reader has. One
+ * derivation from the two tables keeps them from drifting into two answers.
+ */
+export function grantTokensForAction(action: string): string[] {
+  const tokens = new Set<string>([action])
+  const exact = Object.entries(OIDC_PERMISSION_ACTIONS)
+  for (let i = 0, { length } = exact; i < length; i += 1) {
+    const [token, mapped] = exact[i]!
+    if (mapped === action) {
+      tokens.add(token)
+    }
+  }
+  const normalized = Object.entries(NORMALIZED_PERMISSION_ACTIONS)
+  for (let i = 0, { length } = normalized; i < length; i += 1) {
+    const [token, mapped] = normalized[i]!
+    if (mapped === action) {
+      tokens.add(token)
+    }
+  }
+  return [...tokens]
 }
 
 /**
