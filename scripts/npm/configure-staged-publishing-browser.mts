@@ -22,13 +22,23 @@
  *   So the wait polls until the page is authenticated AND settled on the access
  *   URL, and it never navigates while the operator holds the window — a `goto`
  *   mid-wait would wipe a half-typed one-time password.
- *   The WRITE is not hand-rolled here. `create`, `rebind`, and `configure` all
- *   fill the same GitHub Actions trusted-publisher form, so all three delegate
- *   to the fleet's `driveVerifiedSave` — the observed-working driver that opens
- *   the form whatever shape the page renders it in, fills the whole field set
- *   from the desired binding, saves inside the challenge rhythm, and treats the
- *   RE-READ as the arbiter of success rather than the click. A partial write
- *   therefore reports its mismatched fields instead of reading as done.
+ *   NOTHING here navigates after that first `goto`, and that is the module's
+ *   load-bearing invariant rather than a nicety. The fleet's shared
+ *   `pauseForChallenge` reloads the page on every fresh pause, and the fleet's
+ *   `driveVerifiedSave` re-navigates on every attempt; together they produced a
+ *   loop on a live run where the reload closed the trusted-publisher form it
+ *   had just opened, and the rapid reload traffic PROVOKED the very Cloudflare
+ *   challenges it was pausing for. So the pause here is
+ *   {@link pauseForOperatorInPlace} — the fleet's operator UX, its gate block,
+ *   its desktop ping and its budget, with the `goto` removed — and the write
+ *   goes through `./configure-staged-publishing-write.mts`, which opens the
+ *   form once and treats an in-place RE-READ as the arbiter of success rather
+ *   than the click.
+ *   During a REAL challenge or two-factor step-up the Socket shield is injected
+ *   into the page as an operator-attention cue. It is best-effort garnish:
+ *   `pointer-events: none` so it can never swallow the verify click, wrapped in
+ *   try/catch so a page that refuses evaluation cannot break the wait, and
+ *   removed the moment readiness clears.
  */
 
 import { MILLISECONDS_PER_SECOND } from '@socketsecurity/lib-stable/constants/time'
@@ -42,34 +52,151 @@ import {
   DEFAULT_PROFILE_DIR,
   openNpmBrowserSession,
   optIntoChallengeCooldown,
-  pauseForChallenge,
 } from '../fleet/publish-infra/npm/browser-session.mts'
 
 export { DEFAULT_PROFILE_DIR }
-import { CHALLENGE_PROGRESS_INTERVAL_MS } from '../fleet/publish-infra/npm/challenge-gate.mts'
-import { driveVerifiedSave } from '../fleet/publish-infra/npm/trusted-publisher-page.mts'
+import {
+  CHALLENGE_PROGRESS_INTERVAL_MS,
+  tickChallengeGate,
+} from '../fleet/publish-infra/npm/challenge-gate.mts'
 
 import type { TrustedPublisherDesired } from '../fleet/publish-infra/npm/trusted-publisher-plan.mts'
 import {
+  buildOperatorOverlayHtml,
   classifyAccessPageReadiness,
   formatBindingWriteFailure,
+  formatMissingPackumentEvidence,
   formatOperatorWait,
   formatOperatorWaitTimeout,
   formatUnreadableSettings,
+  hasPackumentEvidence,
+  OPERATOR_OVERLAY_ELEMENT_ID,
   OPERATOR_POLL_MS,
+  shouldShowOperatorOverlay,
   TARGET_ENVIRONMENT_NAME,
   TARGET_REPOSITORY_NAME,
   TARGET_REPOSITORY_OWNER,
   TARGET_WORKFLOW_FILENAME,
   WAIT_FOR_OPERATOR_MS,
 } from './configure-staged-publishing-plan.mts'
+import { saveTrustedPublisherInPlace } from './configure-staged-publishing-write.mts'
 
+import type { AccessPageReadiness } from './configure-staged-publishing-session.mts'
 import type {
   StagedConfigurationState,
   StagedConfigurationTarget,
 } from './configure-staged-publishing-plan.mts'
 
 const logger = getDefaultLogger()
+
+/**
+ * The operator wait a caller can substitute. One tick: announce if this is a
+ * fresh pause, keep the cooldown opt-in ticked, sleep. Injected rather than
+ * imported at the call site so the wait loop's no-navigation invariant is
+ * testable with a fake page and no gate files.
+ */
+export type OperatorPause = (config: {
+  budgetMs: number
+  elapsedMs: number
+  label: string
+  pollMs: number
+  url: string
+}) => Promise<void>
+
+/**
+ * Show the Socket shield over the page while a person is needed.
+ *
+ * Idempotent: the element is looked up first, so a poll loop calling this every
+ * tick injects once and then does nothing. Entirely best-effort — every failure
+ * is swallowed, because a page that refuses evaluation is a page the run should
+ * keep waiting on, not one it should abandon over a missing decoration.
+ */
+export async function showOperatorOverlay(page: Page): Promise<void> {
+  try {
+    await page.evaluate(
+      ([elementId, html]) => {
+        if (document.getElementById(elementId!)) {
+          return
+        }
+        const host = document.createElement('div')
+        host.innerHTML = html!
+        const node = host.firstElementChild
+        if (node) {
+          document.body.append(node)
+        }
+      },
+      [OPERATOR_OVERLAY_ELEMENT_ID, buildOperatorOverlayHtml()] as const,
+    )
+  } catch {}
+}
+
+/**
+ * Take the shield back down. Called whenever readiness is not a state a person
+ * clears, so a navigation that dropped the overlay and a challenge that cleared
+ * both end the same way.
+ */
+export async function removeOperatorOverlay(page: Page): Promise<void> {
+  try {
+    await page.evaluate(elementId => {
+      document.getElementById(elementId)?.remove()
+    }, OPERATOR_OVERLAY_ELEMENT_ID)
+  } catch {}
+}
+
+/**
+ * Keep the overlay in sync with one readiness reading — injected during a real
+ * challenge or step-up, removed otherwise.
+ */
+export async function syncOperatorOverlay(
+  page: Page,
+  readiness: AccessPageReadiness,
+): Promise<void> {
+  if (shouldShowOperatorOverlay(readiness)) {
+    await showOperatorOverlay(page)
+    return
+  }
+  await removeOperatorOverlay(page)
+}
+
+/**
+ * One tick of the operator pause, WITHOUT the fleet pause's reload.
+ *
+ * The fleet's `pauseForChallenge` is otherwise exactly what is wanted here — it
+ * owns the 🖐 gate block, the desktop ping, the cross-call pause tracker, the
+ * progress cadence and the budget — but on a fresh pause it re-navigates to the
+ * URL. That reload closed the trusted-publisher form mid-write on a live run,
+ * and the resulting reload loop is itself the traffic shape npm's bot
+ * management answers with a challenge. So this composes the same
+ * {@link tickChallengeGate} the fleet pause is built on and simply does not
+ * navigate: the window is brought forward instead, which gets the operator's
+ * attention without touching the page's state.
+ *
+ * @throws {Error} When the challenge outlasts its budget.
+ */
+export async function pauseForOperatorInPlace(config: {
+  budgetMs: number
+  elapsedMs: number
+  label: string
+  page: Page
+  pollMs: number
+  url: string
+}): Promise<void> {
+  const cfg = { __proto__: null, ...config } as typeof config
+  const tick = await tickChallengeGate(cfg.page, {
+    budgetMs: cfg.budgetMs,
+    fallbackElapsedMs: cfg.elapsedMs,
+    pkg: cfg.label,
+    url: cfg.url,
+  })
+  if (tick.expiredMessage !== undefined) {
+    throw new Error(tick.expiredMessage)
+  }
+  if (tick.freshPause) {
+    await cfg.page.bringToFront().catch(() => {})
+  }
+  await optIntoChallengeCooldown(cfg.page)
+  await sleep(cfg.pollMs)
+}
 
 // How long each poll gives the page to go quiet before its payload is read.
 // Bounded and fail-soft: npm keeps background requests running, so a page that
