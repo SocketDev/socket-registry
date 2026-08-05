@@ -1,0 +1,139 @@
+name: 📦 npm publish packages
+
+# Repo-owned (NOT cascaded): socket-registry publishes a FAMILY — the
+# `@socketregistry/*` override packages plus the registry package itself —
+# rather than the single subject `npm-publish.yml` handles. The family stager
+# is `scripts/npm/publish-npm-packages.mts`, and this workflow is the only
+# place it uploads from.
+#
+# Why a workflow at all: the fleet allows exactly ONE npm upload invocation,
+# `scripts/fleet/publish-infra/npm/publish-command.mts`, and it must run where
+# the trusted-publishing identity lives — a GitHub Actions job with
+# `id-token: write` inside the `npm-publish` environment. A local upload has no
+# OIDC token, so it either fails or falls back to a long-lived token. The
+# stager's local lane therefore only DISPATCHES this workflow.
+#
+# ORDER RULE: this workflow only STAGES. Nothing is public until a human runs
+# the local promote (`pnpm run package-npm-publish --approve`), which lists the
+# staged packages and approves them under 2FA.
+#
+# Default flow: manual dispatch, DRY-RUN unless `publish: true`.
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Publish for real (false = dry-run, the default).'
+        type: boolean
+        default: false
+      dist-tag:
+        description: 'npm dist-tag to stage under.'
+        type: string
+        default: 'latest'
+      only:
+        description: >-
+          Optional package-name filter. Comma-separated; each entry matches a
+          package by its full npm name or its unscoped directory name. Empty
+          stages every needs-publish package.
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    # npm's trusted-publisher config pins this GitHub environment name; the
+    # OIDC token exchange 404s if the job runs outside it.
+    environment: npm-publish
+    permissions:
+      contents: read
+      # npm provenance / trusted publishing mints its OIDC token here.
+      id-token: write
+    env:
+      # Socket Firewall + CLI auth for the sfw-wrapped setup + pnpm install —
+      # sfw and socket-cli read SOCKET_API_KEY from the org-wide secret.
+      SOCKET_API_KEY: ${{ secrets.SOCKET_API_TOKEN_FOR_CLI_AND_SFW }}
+    steps:
+      # First step can't call the local ./.github/actions/fleet/checkout
+      # composite (nothing checked out yet), so the workspace is bootstrapped
+      # with the inline git-fetch shape and setup-and-install re-checks-out at
+      # its own deeper default.
+      - name: Bootstrap checkout
+        shell: bash
+        env:
+          # Route context through env (no ${{ }} in the shell body —
+          # zizmor expression-injection). Token authorizes the fetch inline and
+          # is never persisted to .git/config.
+          GITHUB_TOKEN: ${{ github.token }}
+          SERVER_URL: ${{ github.server_url }}
+          REPOSITORY: ${{ github.repository }}
+          TRIGGER_REF: ${{ github.ref }}
+        run: |
+          set -euo pipefail
+          git init -q
+          git config --local advice.detachedHead false
+          git remote remove origin 2>/dev/null || true
+          git remote add origin "${SERVER_URL}/${REPOSITORY}"
+          FETCH_ARGS=(--prune --depth 1 origin "${TRIGGER_REF}")
+          if [ -n "${GITHUB_TOKEN}" ]; then
+            AUTH_B64="$(printf 'x-access-token:%s' "${GITHUB_TOKEN}" | base64 | tr -d '\n')"
+            git -c "http.${SERVER_URL}/.extraheader=AUTHORIZATION: basic ${AUTH_B64}" fetch --tags "${FETCH_ARGS[@]}"
+          else
+            git fetch --tags "${FETCH_ARGS[@]}"
+          fi
+          git checkout -q --detach FETCH_HEAD
+
+      # `latest` is what an untagged install resolves to, so only the
+      # consumable release line may move it. Read from the manifest rather than
+      # hard-coded so one file states the law for the whole fleet.
+      - name: Guard the latest dist-tag to the consumable release line
+        if: ${{ inputs.publish == true && inputs.dist-tag == 'latest' }}
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          REF: ${{ github.ref }}
+        run: |
+          LATEST_BRANCH="$(node -e '
+            const fs = require("node:fs")
+            const p = ".config/repo/socket-wheelhouse.json"
+            let branch = ""
+            try {
+              branch = JSON.parse(fs.readFileSync(p, "utf8"))?.release?.latestDistTagBranch ?? ""
+            } catch {}
+            process.stdout.write(String(branch))
+          ')"
+          if [ -z "$LATEST_BRANCH" ]; then
+            LATEST_BRANCH="$DEFAULT_BRANCH"
+          fi
+          if [ "$REF" != "refs/heads/$LATEST_BRANCH" ]; then
+            echo "::error::Refusing to stage dist-tag 'latest' from $REF." >&2
+            echo "::error::Where: this dispatch, against the '$LATEST_BRANCH' consumable release line." >&2
+            echo "::error::Saw vs wanted: 'latest' requested off refs/heads/$LATEST_BRANCH; 'latest' is what an untagged install resolves to, so only the consumable line may move it." >&2
+            echo "::error::Fix: re-dispatch from $LATEST_BRANCH, or pick a prerelease dist-tag (next, beta, canary, rc). To change which branch owns 'latest', set release.latestDistTagBranch in .config/repo/socket-wheelhouse.json." >&2
+            exit 1
+          fi
+          echo "dist-tag 'latest' is allowed from $REF (consumable line: $LATEST_BRANCH)."
+
+      - name: Setup + install
+        uses: ./.github/actions/fleet/setup-and-install
+        with:
+          # Thin members download the wheelhouse release bundle during
+          # `pnpm install`, and the mint is what authorizes that download.
+          payload-token-client-id: ${{ vars.SOCKET_PAYLOAD_CLIENT_ID }}
+          payload-token-private-key: ${{ secrets.SOCKET_PAYLOAD_APP_PRIVATE_KEY }}
+
+      # Build dist/ before staging — the stager imports the registry package's
+      # own built output, and `files` ships dist/, so the tarballs need it.
+      - name: Build
+        run: pnpm run build
+
+      # The stager takes its CI lane automatically (CI is set by Actions):
+      # enumerate every needs-publish package, stage each through the one
+      # fleet-owned npm upload, collect per-package failures, exit 1 if any.
+      # Nothing is public until the local `--approve` promote runs.
+      - name: Stage packages
+        env:
+          DIST_TAG: ${{ inputs.dist-tag }}
+          ONLY: ${{ inputs.only }}
+        run: node scripts/npm/publish-npm-packages.mts --force-publish --dist-tag "$DIST_TAG" ${ONLY:+--only "$ONLY"} ${{ inputs.publish != true && '--dry-run' || '' }}
