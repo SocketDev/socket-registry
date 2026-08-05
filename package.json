@@ -74,10 +74,10 @@
     "mcp:reset": "node scripts/fleet/mcp-reset.mts",
     "setup:sfw-ca": "node scripts/fleet/setup/sfw-ca.mts",
     "get-green": "node scripts/fleet/get-green.mts",
-    "weekly-update:ci": "gh workflow run weekly-update.lock.yml"
+    "weekly-update:ci": "gh workflow run weekly-update.lock.yml",
+    "prune:backups": "node scripts/fleet/backup-branches.mts prune"
   },
   "devDependencies": {
-    "@actions/cache": "catalog:",
     "@babel/core": "catalog:",
     "@babel/generator": "catalog:",
     "@babel/parser": "catalog:",
@@ -169,6 +169,7 @@
     "taze": "catalog:",
     "trash": "catalog:",
     "type-coverage": "catalog:",
+    "typebox": "catalog:",
     "typescript": "catalog:",
     "update-browserslist-db": "catalog:",
     "validate-npm-package-name": "catalog:",
@@ -203,7 +204,7 @@
   },
   "engines": {
     "node": ">=24",
-    "npm": ">=12.0.1",
+    "npm": ">=12.0.2",
     "pnpm": ">=11.0.5"
   },
   "allowScripts": {
