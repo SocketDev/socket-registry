@@ -17,17 +17,24 @@ import { getChangedFiles } from '@socketsecurity/lib-stable/git/changed'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { fetchPackageManifest } from '@socketsecurity/lib-stable/packages/manifest'
 import { readPackageJsonSync } from '@socketsecurity/lib-stable/packages/read'
-import { getReleaseTag } from '@socketsecurity/lib-stable/packages/specs'
 import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 import { pluralize } from '@socketsecurity/lib-stable/words/pluralize'
-// oxlint-disable-next-line socket/prefer-stable-external-semver -- @socketsecurity/lib-stable has no ./external/semver export at the pinned version; semver is a devDependency (scripts/tests only, not bundled).
-import semver from 'semver'
 
 import { WIN32 } from '../constants/node.mts'
 import { LATEST } from '../constants/packages.mts'
 import { NPM_PACKAGES_PATH, REGISTRY_PKG_PATH } from '../constants/paths.mts'
 import { getNpmPackageNames } from '../constants/testing.mts'
 import { checkoutCommit, getCommitSha } from './publish-npm-packages-git.mts'
+import type {
+  PublishFailure,
+  PublishState,
+} from './publish-npm-packages-failures.mts'
+import {
+  matchesOnlyFilter,
+  parseOnlyFilter,
+  resolveDistTag,
+  resolveNeedsPublish,
+} from './publish-npm-packages-needs.mts'
 import { publishPackages } from './publish-npm-packages-publish.mts'
 
 import type { NpmManifest } from '../repo/util/manifest-types.mts'
@@ -49,9 +56,26 @@ export interface PackageData extends PackageDataInput {
 }
 
 export interface PublishAtCommitOptions {
+  /**
+   * The dist-tag every release-versioned package stages under. A prerelease
+   * version still resolves its own identifier — `1.0.0-beta.2` stages under
+   * `beta` no matter what this says.
+   */
+  distTag?: string | undefined
   dryRun?: boolean | undefined
   forceRegistry?: boolean | undefined
+  /**
+   * Comma-separated package filter, matched against the full npm name or the
+   * unscoped directory name. Empty stages every needs-publish package.
+   */
+  only?: string | undefined
   skipNpmPackages?: boolean | undefined
+}
+
+export interface PublishAtCommitResult {
+  fails: string[]
+  failures: PublishFailure[]
+  skipped: string[]
 }
 
 /**
@@ -81,12 +105,15 @@ export function packageData(data: PackageDataInput): PackageData {
 export async function publishAtCommit(
   sha: string,
   options?: PublishAtCommitOptions | undefined,
-) {
+): Promise<PublishAtCommitResult> {
   const {
+    distTag = LATEST,
     dryRun = false,
     forceRegistry = false,
+    only,
     skipNpmPackages = false,
   } = { __proto__: null, ...options } as PublishAtCommitOptions
+  const onlyFilter = parseOnlyFilter(only)
   const headSha = await getCommitSha('HEAD')
   const isHead = sha === headSha
   logger.log('')
@@ -104,6 +131,7 @@ export async function publishAtCommit(
   }
 
   const fails: string[] = []
+  const failures: PublishFailure[] = []
   const skipped: string[] = []
   // Registry package comes last - publish after all other packages.
   const registryPkgJson = requirePackageJson(REGISTRY_PKG_PATH)
@@ -111,6 +139,12 @@ export async function publishAtCommit(
     name: registryPkgJson.name,
     path: REGISTRY_PKG_PATH,
     printName: registryPkgJson.name,
+    // The registry package publishes under the dispatched dist-tag unless its
+    // own version names a prerelease identifier.
+    tag:
+      resolveDistTag(registryPkgJson.version) === LATEST
+        ? distTag
+        : resolveDistTag(registryPkgJson.version),
   })
 
   const npmPackages = skipNpmPackages
@@ -118,18 +152,31 @@ export async function publishAtCommit(
     : getNpmPackageNames().map(sockRegPkgName => {
         const pkgPath = path.join(NPM_PACKAGES_PATH, sockRegPkgName)
         const pkgJson = requirePackageJson(pkgPath)
+        const resolved = resolveDistTag(pkgJson.version)
         return packageData({
           name: pkgJson.name,
           path: pkgPath,
           printName: pkgJson.name,
-          tag: getReleaseTag(pkgJson.version),
+          tag: resolved === LATEST ? distTag : resolved,
         })
       })
 
-  const allPackages = [...npmPackages, registryPackage]
+  const allPackages = [...npmPackages, registryPackage].filter(pkg =>
+    matchesOnlyFilter(onlyFilter, pkg.name, pkg.printName),
+  )
+  if (onlyFilter.size) {
+    logger.log(
+      `Filtered to ${allPackages.length} ${pluralize('package', { count: allPackages.length })} by --only ${only}`,
+    )
+  }
 
   // Filter packages to only publish those with bumped versions.
   const packagesToPublish = []
+  // A package npm still holds at the 0.0.0 name-reservation placeholder is
+  // shipping for the FIRST time. It is listed on its own line at the end: nine
+  // of them once sat unnoticed because every "is it on npm?" check answered
+  // yes and every version comparison was made against an empty dist-tag.
+  const firstPublishes: string[] = []
 
   for (let i = 0, { length } = allPackages; i < length; i += 1) {
     const pkg = allPackages[i]!
@@ -145,32 +192,37 @@ export async function publishAtCommit(
       continue
     }
 
-    // Fetch the latest version from npm registry.
+    // Fetch the version npm resolves for this package's dist-tag.
     const manifest = (await fetchPackageManifest(
       `${pkgJson.name}@${pkg.tag}`,
     )) as NpmManifest | undefined
 
-    if (!manifest) {
-      // Package doesn't exist on npm yet, publish it.
+    const verdict = resolveNeedsPublish({
+      localVersion,
+      name: pkg.printName,
+      remoteVersion: manifest?.version,
+    })
+    if (verdict.needsPublish) {
       packagesToPublish.push(pkg)
-      logger.log(`${pkg.printName}: New package (${localVersion})`)
-      continue
-    }
-
-    const remoteVersion = manifest.version
-
-    // Compare versions - only publish if local is greater than remote.
-    if (semver.gt(localVersion, remoteVersion)) {
-      packagesToPublish.push(pkg)
-      logger.log(`${pkg.printName}: ${remoteVersion} → ${localVersion}`)
+      logger.log(verdict.summary)
+      if (verdict.reason === 'placeholder') {
+        firstPublishes.push(pkg.printName)
+      }
     } else {
       skipped.push(pkg.printName)
     }
   }
 
+  if (firstPublishes.length) {
+    logger.log('')
+    logger.warn(
+      `${firstPublishes.length} ${pluralize('package', { count: firstPublishes.length })} still hold the 0.0.0 placeholder on npm and publish for the first time here: ${joinAnd(firstPublishes)}`,
+    )
+  }
+
   if (!packagesToPublish.length) {
     logger.log('No packages to publish at this commit')
-    return { fails, skipped }
+    return { fails, failures, skipped }
   }
 
   logger.log('')
@@ -187,13 +239,13 @@ export async function publishAtCommit(
     pkg => pkg.name !== registryPackage.name,
   )
 
+  // ONE state object for the whole commit: a fresh `{ fails, skipped }` per
+  // call would drop the per-package failure detail recorded into it.
+  const state: PublishState = { fails, failures, skipped }
+
   // Publish non-registry packages first.
   if (otherPackagesToPublish.length > 0) {
-    await publishPackages(
-      otherPackagesToPublish,
-      { fails, skipped },
-      { dryRun },
-    )
+    await publishPackages(otherPackagesToPublish, state, { dryRun })
   }
 
   // Update manifest.json with latest published versions before publishing registry.
@@ -235,11 +287,7 @@ export async function publishAtCommit(
     }
 
     // Publish registry package last.
-    await publishPackages(
-      [registryPkgToPublish],
-      { fails, skipped },
-      { dryRun },
-    )
+    await publishPackages([registryPkgToPublish], state, { dryRun })
   }
 
   if (fails.length) {
@@ -255,5 +303,5 @@ export async function publishAtCommit(
     )
   }
 
-  return { fails, skipped }
+  return { fails, failures, skipped }
 }

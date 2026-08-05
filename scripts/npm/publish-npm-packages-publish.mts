@@ -17,6 +17,8 @@
  *   batches `pnpm stage approve` calls under one OTP and re-prompts before the
  *   ~30s TOTP window can expire mid-batch. The canonical script instead offers
  *   a one-shot multi-select, which is built for a single package.
+ *   Failure recording, formatting, and the exit code live one file over, in
+ *   publish-npm-packages-failures.mts.
  */
 
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
@@ -26,7 +28,13 @@ import { pEach } from '@socketsecurity/lib-stable/promises/iterate'
 import { pluralize } from '@socketsecurity/lib-stable/words/pluralize'
 import { password } from '@socketsecurity/lib/stdio/prompts'
 
+import { LATEST } from '../constants/packages.mts'
 import { ROOT_PATH } from '../constants/paths.mts'
+import {
+  formatPublishFailure,
+  recordPublishFailure,
+} from './publish-npm-packages-failures.mts'
+import type { PublishState } from './publish-npm-packages-failures.mts'
 import { extractNpmError } from '../repo/util/errors.mts'
 import { uploadNpmPackage } from '../fleet/publish-infra/npm/publish-command.mts'
 import { listStagedPackages } from '../fleet/publish-infra/npm/shared.mts'
@@ -52,15 +60,6 @@ interface PublishPackageEntry {
   path: string
   printName: string
   tag?: string | undefined
-}
-
-/**
- * Shared mutable accumulator threaded through the publish/approve flow so
- * concurrent packages can report failures without a return value.
- */
-interface PublishState {
-  fails: string[]
-  skipped?: string[] | undefined
 }
 
 interface StagePublishOptions {
@@ -132,10 +131,14 @@ export async function stagePublish(
     throw new TypeError('A state object is required')
   }
 
+  // `||`, not `??`: an EMPTY tag is the failure mode this guards. npm rejects
+  // `--tag ''` with `Tag must be a non-empty string`, and the tag arrived empty
+  // for every package until the resolver in -needs.mts replaced a
+  // `getReleaseTag(version)` call that always returned ''.
+  const tag = pkg.tag || LATEST
+
   if (dryRun) {
-    logger.log(
-      `[dry-run] would stage publish ${pkg.printName} (tag=${pkg.tag})`,
-    )
+    logger.log(`[dry-run] would stage publish ${pkg.printName} (tag=${tag})`)
     return
   }
 
@@ -164,10 +167,18 @@ export async function stagePublish(
     const result = await uploadNpmPackage({
       cwd: pkg.path,
       mode: 'staged',
-      tag: pkg.tag ?? 'latest',
+      tag,
     })
     if (!result.postureOk) {
-      state.fails.push(pkg.printName)
+      recordPublishFailure(state, {
+        message: formatPublishFailure({
+          detail: `the npm auth posture refused the upload${result.ran ? ' after it ran' : ' before it ran'}; wanted a clean trusted-publishing exchange. ${extractNpmError(result.output) || 'No registry output was captured.'}`,
+          printName: pkg.printName,
+          reason: 'posture',
+        }),
+        printName: pkg.printName,
+        reason: 'posture',
+      })
       logger.fail(
         `${pkg.printName}: npm auth posture refused the upload; not retrying.`,
       )
@@ -189,7 +200,15 @@ export async function stagePublish(
   }
 
   // All retries exhausted.
-  state.fails.push(pkg.printName)
+  recordPublishFailure(state, {
+    message: formatPublishFailure({
+      detail: `${maxRetries} upload ${pluralize('attempt', { count: maxRetries })} failed under tag "${tag}"; wanted one exit-0 upload. ${extractNpmError(lastOutput) || 'No registry output was captured.'}`,
+      printName: pkg.printName,
+      reason: 'upload',
+    }),
+    printName: pkg.printName,
+    reason: 'upload',
+  })
   if (lastOutput) {
     logger.log('')
     logger.log(extractNpmError(lastOutput))
@@ -313,12 +332,21 @@ export async function approveStagedPackages(
     } else {
       const printName = `${entry.name}@${entry.version}`
       approveFails.push(printName)
+      recordPublishFailure(state, {
+        message: formatPublishFailure({
+          detail: `\`pnpm stage approve ${entry.stageId}\` exited ${code}; wanted 0. A wrong or expired 2FA code and a package whose staged entry was already promoted both land here.`,
+          name: entry.name,
+          printName,
+          reason: 'approve',
+        }),
+        printName,
+        reason: 'approve',
+      })
       logger.warn(`${printName}: Approve attempt failed (exit ${code})`)
     }
   }
 
   if (approveFails.length) {
-    state.fails.push(...approveFails)
     const msg = `Unable to approve ${approveFails.length} staged ${pluralize('package', { count: approveFails.length })}:`
     logger.warn(`${msg} ${joinAnd(approveFails)}`)
   }
