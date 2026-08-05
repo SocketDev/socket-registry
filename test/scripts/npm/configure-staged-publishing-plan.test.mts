@@ -20,11 +20,9 @@ import {
   diffTargetBinding,
   DRY_RUN_PLAN_STATE,
   formatBindingWriteFailure,
-  formatChallengeTimeout,
-  formatChallengeWait,
   formatStagedPlanLine,
   formatUnreadableSettings,
-  isSignInRedirect,
+  isOperatorSignInUrl,
   permitsStagedPublish,
   planStagedConfiguration,
   readAllowedActions,
@@ -79,7 +77,7 @@ function reportOf(
   }
 }
 
-describe('buildPackageAccessUrl / isSignInRedirect', () => {
+describe('buildPackageAccessUrl / isOperatorSignInUrl', () => {
   test('builds the package settings URL', () => {
     expect(buildPackageAccessUrl('@socketregistry/date')).toBe(
       'https://www.npmjs.com/package/@socketregistry/date/access',
@@ -88,12 +86,12 @@ describe('buildPackageAccessUrl / isSignInRedirect', () => {
 
   test('recognizes npm’s sign-in redirect', () => {
     expect(
-      isSignInRedirect(
+      isOperatorSignInUrl(
         'https://www.npmjs.com/login?next=%2Fpackage%2F%40socketregistry%2Fdate%2Faccess',
       ),
     ).toBe(true)
     expect(
-      isSignInRedirect(
+      isOperatorSignInUrl(
         'https://www.npmjs.com/package/@socketregistry/date/access',
       ),
     ).toBe(false)
@@ -273,31 +271,6 @@ describe('classifyStagedFetch', () => {
 })
 
 describe('operator-facing messages', () => {
-  test('the challenge wait line reports elapsed and remaining time', () => {
-    const line = formatChallengeWait({
-      budgetMs: 600_000,
-      elapsedMs: 30_000,
-      url: 'https://www.npmjs.com/package/@socketregistry/date/access',
-    })
-    expect(line).toContain('30s elapsed')
-    expect(line).toContain('570s before this run gives up')
-    expect(line).toContain('resumes on its own')
-  })
-
-  test('the challenge timeout block says nothing was changed', () => {
-    const block = formatChallengeTimeout({
-      budgetMs: 600_000,
-      url: 'https://www.npmjs.com/package/@socketregistry/date/access',
-    })
-    const lines = block.split('\n')
-    expect(lines[0]).toMatch(/^What: /)
-    expect(lines[1]).toMatch(/^Where: /)
-    expect(lines[2]).toMatch(/^Saw: /)
-    expect(lines[3]).toMatch(/^Wanted: /)
-    expect(lines[4]).toMatch(/^Fix: /)
-    expect(block).toContain('Nothing was changed')
-  })
-
   test('a dry-run plan entry names the state, the unknown current binding, and the target', () => {
     const [target] = planStagedConfiguration([
       reportOf('@socketregistry/own-keys', 'not-staged', '0.0.0'),

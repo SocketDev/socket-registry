@@ -37,8 +37,10 @@
 import process from 'node:process'
 
 import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
+import { MILLISECONDS_PER_SECOND } from '@socketsecurity/lib-stable/constants/time'
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
+import { sleep } from '@socketsecurity/lib-stable/promises/timers'
 
 import {
   loadStagedRoster,
@@ -66,6 +68,11 @@ import {
 import type { StagedTrustReport } from './check-trusted-packages-staged.mts'
 
 const logger = getDefaultLogger()
+
+// How long the window stays open after a failure so the operator can read the
+// page that produced it. Closing the instant the loop ends left nothing to look
+// at: the window blinked shut on the same tick the failure printed.
+const FAILURE_HOLD_MS = 30 * MILLISECONDS_PER_SECOND
 
 const { values: args } = parseArgs({
   options: {
@@ -207,20 +214,27 @@ export async function main(): Promise<void> {
     return
   }
 
+  // ONE window and ONE page for the whole run: every package navigates the same
+  // page and nothing closes until the run ends. A per-package browser would ask
+  // the operator to clear a challenge again for each name.
   const session = await openNpmSettingsSession({
     profileDir: (args['profile-dir'] as string | undefined) || undefined,
   })
-  logger.success(`Signed in to npm as ${session.user}.`)
+  logger.success(
+    `Signed in to npm as ${session.user}. Each package waits for its access page to render before anything is read, so finish any sign-in or one-time password in the Chrome window when asked.`,
+  )
 
   const configured: string[] = []
   const skipped: string[] = []
   const failed: string[] = []
+  const failedUrls: string[] = []
   try {
     for (let i = 0, { length } = slice; i < length; i += 1) {
       const target = slice[i]!
       try {
         // Read the current binding BEFORE writing, so a package that is already
-        // correct is skipped rather than re-submitted.
+        // correct is skipped rather than re-submitted. The read waits out any
+        // sign-in, one-time password, or challenge first.
         // eslint-disable-next-line no-await-in-loop -- one browser page, one package at a time.
         const payload = await readSettingsPayload(session.page, target)
         const reading = readTrustedPublisherState(payload)
@@ -239,7 +253,7 @@ export async function main(): Promise<void> {
           throw new Error(
             formatUnreadableSettings(
               target,
-              'the settings payload carried neither a trusted-publisher connections list nor an "Allowed actions" block.',
+              'on an authenticated access page that had settled on that URL, the settings payload carried neither a trusted-publisher connections list nor an "Allowed actions" block.',
             ),
           )
         }
@@ -252,9 +266,21 @@ export async function main(): Promise<void> {
       } catch (e) {
         logger.error(errorMessage(e))
         failed.push(target.name)
+        failedUrls.push(target.settingsUrl)
       }
     }
   } finally {
+    // Hold the window on a failure instead of tearing it down on the same tick
+    // the error printed, so the operator can read the page that failed.
+    if (failedUrls.length) {
+      logger.warn(
+        `Holding the Chrome window open for ${FAILURE_HOLD_MS / MILLISECONDS_PER_SECOND}s so you can read the page(s) that failed:`,
+      )
+      for (let i = 0, { length } = failedUrls; i < length; i += 1) {
+        logger.log(`  ${failedUrls[i]}`)
+      }
+      await sleep(FAILURE_HOLD_MS)
+    }
     await session.close()
   }
 

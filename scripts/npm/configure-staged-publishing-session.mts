@@ -1,0 +1,287 @@
+/**
+ * @file Pure session readiness for the staged-publishing configurator — no
+ *   playwright, no network, so every state the run pauses on is unit-testable
+ *   without a browser.
+ *   This exists because a signed-in session is not the same thing as a
+ *   READABLE access page. `/-/whoami` answered `socket-bot` while npmjs was
+ *   still serving the sign-in / one-time-password interstitial for
+ *   `/package/<name>/access`, and that interstitial comes back through the
+ *   spiferack fetch as HTTP 200 JSON — valid JSON, no Cloudflare markup, no
+ *   HTML. The binding reader then found neither a connections list nor an
+ *   "Allowed actions" block in it and reported the package `unreadable`
+ *   (observed 2026-08-05 on `@socketregistry/abab`), which is a hard failure
+ *   for a page the operator had simply not finished signing into yet.
+ *   The fix is to classify the page the payload came FROM, not just the
+ *   payload: the final URL after redirects, the visible window URL, and the
+ *   sign-in markers all get a say, and `ready` is the only state that permits
+ *   a payload read. Everything else either pauses for the operator
+ *   (`challenge`, `sign-in`, `unsettled`) or fails loud (`auth`, `error`).
+ */
+
+import {
+  MILLISECONDS_PER_MINUTE,
+  MILLISECONDS_PER_SECOND,
+} from '@socketsecurity/lib-stable/constants/time'
+
+import {
+  classifyStagedFetch,
+  isCloudflareChallenge,
+} from '../fleet/publish-infra/npm/staged-browser-parse.mts'
+
+/**
+ * The ONE budget for every state a person has to clear in the browser window:
+ * a Cloudflare challenge, a sign-in, a one-time password. Sized for an
+ * unhurried human — finding the authenticator app, mistyping the code once,
+ * and trying again — not for a machine. The run polls inside this budget and
+ * writes nothing until the access page itself renders.
+ */
+export const WAIT_FOR_OPERATOR_MS = 10 * MILLISECONDS_PER_MINUTE
+
+/**
+ * How often the wait re-probes the page. Slow on purpose: the probe is a
+ * same-origin fetch, and hammering npm while a bot challenge is outstanding
+ * earns a rate limit.
+ */
+export const OPERATOR_POLL_MS = 5 * MILLISECONDS_PER_SECOND
+
+/**
+ * What a probe of the package access page found.
+ *
+ * - `ready` — an authenticated, settled access page. The ONLY state whose payload
+ *   may be read, and therefore the only state from which a package can be
+ *   reported `unreadable`.
+ * - `sign-in` — npm's own login / verification / one-time-password interstitial.
+ *   The operator clears it in the window; the run waits.
+ * - `challenge` — a Cloudflare human-verification interstitial. Same pause,
+ *   driven through the fleet's shared anti-bot rhythm.
+ * - `unsettled` — a 200 that did not end on the access page, or a destroyed
+ *   execution context from a mid-navigation race. Not yet an answer.
+ * - `auth` — npm refused the session outright (401/403 with no sign-in page).
+ * - `error` — a real HTTP failure.
+ */
+export type AccessPageReadiness =
+  | 'auth'
+  | 'challenge'
+  | 'error'
+  | 'ready'
+  | 'sign-in'
+  | 'unsettled'
+
+/**
+ * One probe of the access page: the body, the status, the URL the fetch
+ * finally landed on after redirects, and the URL the visible window is
+ * showing. The two URLs are read separately because they disagree exactly
+ * when this matters — the window can sit on the one-time-password page while
+ * a background fetch answers 200.
+ */
+export interface AccessPageProbe {
+  body?: string | undefined
+  fetchUrl?: string | undefined
+  pageUrl?: string | undefined
+  status: number
+}
+
+// The package access page, the only URL a payload may be read from.
+const ACCESS_PAGE_URL_PATTERN = /\/package\/[^?#]+\/access(?:[?#]|$)/i
+
+// URLs npm parks a half-authenticated session on. `otp` and `challenge` are
+// matched as whole words rather than substrings, and never against the access
+// page itself, so a package whose NAME carries one of those words cannot read
+// as an interstitial.
+const SIGN_IN_URL_PATTERNS: readonly RegExp[] = [
+  /\/login(?:[/?#]|$)/i,
+  /\/logout(?:[/?#]|$)/i,
+  /\/verify(?:[/?#]|$)/i,
+  /\/sign-?(?:in|up)(?:[/?#]|$)/i,
+  /\/two-factor(?:[/?#]|$)/i,
+  /\botp\b/i,
+  /\bchallenge\b/i,
+]
+
+// Controls only a login / one-time-password form renders. Deliberately narrow:
+// the access page carries a "Require two-factor authentication" publishing
+// option, so any two-factor WORDING would match the very page being waited for.
+const SIGN_IN_FORM_MARKERS: readonly RegExp[] = [
+  /<form[^>]*action="[^"]*\/login/i,
+  /name="password"/i,
+  /name="otp(?:[cC]ode)?"/i,
+  /id="npm-otp"/i,
+]
+
+// Content only a signed-in access page carries. Its presence settles a marker
+// that would otherwise read as a sign-in page.
+const ACCESS_PAGE_MARKERS: readonly RegExp[] = [
+  /\\?"oidcConnections\\?"/,
+  /Trusted [Pp]ublish(?:er|ing)/,
+  /publishingAccess/,
+  /Publishing access/i,
+]
+
+function matchesAny(value: string, patterns: readonly RegExp[]): boolean {
+  for (let i = 0, { length } = patterns; i < length; i += 1) {
+    if (patterns[i]!.test(value)) {
+      return true
+    }
+  }
+  return false
+}
+
+/**
+ * Whether a URL is a package access page.
+ */
+export function isAccessPageUrl(url: string | undefined): boolean {
+  return !!url && ACCESS_PAGE_URL_PATTERN.test(url)
+}
+
+/**
+ * Whether a landed URL is one only a PERSON can move off: npm's sign-in
+ * redirect, its verification / one-time-password step, or a challenge page.
+ * The driver hands the window to the operator rather than scripting a login,
+ * so no credential or one-time password ever enters this process.
+ *
+ * The access page is never a sign-in URL, whatever its package name spells.
+ */
+export function isOperatorSignInUrl(url: string | undefined): boolean {
+  if (!url || isAccessPageUrl(url)) {
+    return false
+  }
+  return matchesAny(url, SIGN_IN_URL_PATTERNS)
+}
+
+/**
+ * Whether a signed-in access page's own content is present in `body`.
+ */
+export function hasAccessPageMarkers(body: string): boolean {
+  return !!body && matchesAny(body, ACCESS_PAGE_MARKERS)
+}
+
+/**
+ * Whether `body` is npm's sign-in / one-time-password page rather than the
+ * access page. `"user": null` is the spiferack envelope's signed-out marker,
+ * and `Sign in to npm` is the login page's own copy; both are ignored when the
+ * body also carries access-page content, since a settled page settles them.
+ */
+export function hasSignInMarkers(body: string): boolean {
+  if (!body || hasAccessPageMarkers(body)) {
+    return false
+  }
+  return (
+    matchesAny(body, SIGN_IN_FORM_MARKERS) ||
+    /\\?"user\\?"\s*:\s*null/.test(body) ||
+    /sign in to npm/i.test(body)
+  )
+}
+
+/**
+ * Classify one probe of the access page.
+ *
+ * Order matters. A sign-in URL wins over everything: npm answers the
+ * interstitial with HTTP 200 JSON, so status and body shape alone read it as a
+ * perfectly good response — the misread that reported a package `unreadable`
+ * while the operator was still typing a one-time password. A destroyed
+ * execution context (status 0) is a mid-navigation race, so it is unsettled
+ * rather than an error. `ready` requires all of it: no interstitial, a real
+ * 200, and a fetch that ended on the access page.
+ */
+export function classifyAccessPageReadiness(
+  probe: AccessPageProbe,
+): AccessPageReadiness {
+  const cfg = { __proto__: null, ...probe } as AccessPageProbe
+  const body = cfg.body ?? ''
+  if (isOperatorSignInUrl(cfg.fetchUrl) || isOperatorSignInUrl(cfg.pageUrl)) {
+    return 'sign-in'
+  }
+  if (cfg.status === 0) {
+    return 'unsettled'
+  }
+  if (isCloudflareChallenge(body)) {
+    return 'challenge'
+  }
+  // Before the HTML check below: npm can server-render its login page AT the
+  // access URL, and a bare "HTML where JSON was expected" reading would file
+  // that under Cloudflare rather than under the sign-in the operator has to
+  // finish.
+  if (hasSignInMarkers(body)) {
+    return 'sign-in'
+  }
+  const fetched = classifyStagedFetch({ body, status: cfg.status })
+  if (fetched === 'challenge') {
+    return 'challenge'
+  }
+  if (fetched === 'auth') {
+    return 'auth'
+  }
+  if (fetched === 'error') {
+    return 'error'
+  }
+  return isAccessPageUrl(cfg.fetchUrl ?? cfg.pageUrl) ? 'ready' : 'unsettled'
+}
+
+/**
+ * Whether a readiness state is one the OPERATOR clears in the browser window,
+ * as opposed to one the run fails on.
+ */
+export function isOperatorClearableReadiness(
+  readiness: AccessPageReadiness,
+): boolean {
+  return (
+    readiness === 'challenge' ||
+    readiness === 'sign-in' ||
+    readiness === 'unsettled'
+  )
+}
+
+// What the operator is being waited on for, per state.
+function describeWaitReason(readiness: AccessPageReadiness): string {
+  if (readiness === 'sign-in') {
+    return 'npm is serving its sign-in / one-time-password page instead of the access page'
+  }
+  if (readiness === 'challenge') {
+    return 'npm is serving a human-verification challenge'
+  }
+  return 'npm has not settled on the access page yet'
+}
+
+/**
+ * The one line the run prints while it waits for the operator. Kept pure so
+ * the wait's observability is testable without a clock or a browser.
+ */
+export function formatOperatorWait(config: {
+  budgetMs: number
+  elapsedMs: number
+  readiness: AccessPageReadiness
+  url: string
+}): string {
+  const cfg = { __proto__: null, ...config } as typeof config
+  const elapsed = Math.round(cfg.elapsedMs / MILLISECONDS_PER_SECOND)
+  const remaining = Math.max(
+    0,
+    Math.round((cfg.budgetMs - cfg.elapsedMs) / MILLISECONDS_PER_SECOND),
+  )
+  return (
+    `Waiting for you at ${cfg.url} — ${describeWaitReason(cfg.readiness)}. ` +
+    `${elapsed}s elapsed, ${remaining}s before this run gives up. ` +
+    'Finish sign-in, including the one-time password, in the open Chrome window; ' +
+    'the run resumes on its own and nothing is written until it does.'
+  )
+}
+
+/**
+ * Failure block for an operator wait that outlasted its budget, in What /
+ * Where / Saw vs wanted / Fix order.
+ */
+export function formatOperatorWaitTimeout(config: {
+  budgetMs: number
+  readiness: AccessPageReadiness
+  url: string
+}): string {
+  const cfg = { __proto__: null, ...config } as typeof config
+  const seconds = Math.round(cfg.budgetMs / MILLISECONDS_PER_SECOND)
+  return [
+    'What: the access page never became readable, so the run stopped rather than reading a page nobody had signed into.',
+    `Where: ${cfg.url}`,
+    `Saw: after ${seconds}s of waiting, ${describeWaitReason(cfg.readiness)}.`,
+    'Wanted: the signed-in access page, settled on that URL, carrying the trusted-publisher block.',
+    'Fix: finish sign-in and any one-time password in the Chrome window, then re-run. Nothing was written, so a re-run is safe.',
+  ].join('\n')
+}

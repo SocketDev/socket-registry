@@ -11,8 +11,10 @@
  *   page at all, so it reports every target under {@link DRY_RUN_PLAN_STATE};
  *   the write lane reads each package's real binding and narrows to `rebind`,
  *   `configure`, or `skip` from there. Binding reading and the state decision
- *   live in `./configure-staged-publishing-binding.mts` and are re-exported
- *   here so callers have one import surface.
+ *   live in `./configure-staged-publishing-binding.mts`, and the access-page
+ *   readiness the read lane waits on lives in
+ *   `./configure-staged-publishing-session.mts`; both are re-exported here so
+ *   callers have one import surface.
  */
 
 import {
@@ -35,6 +37,18 @@ import {
   TARGET_REPOSITORY_OWNER,
   TARGET_WORKFLOW_FILENAME,
 } from './configure-staged-publishing-binding.mts'
+import {
+  classifyAccessPageReadiness,
+  formatOperatorWait,
+  formatOperatorWaitTimeout,
+  hasAccessPageMarkers,
+  hasSignInMarkers,
+  isAccessPageUrl,
+  isOperatorClearableReadiness,
+  isOperatorSignInUrl,
+  OPERATOR_POLL_MS,
+  WAIT_FOR_OPERATOR_MS,
+} from './configure-staged-publishing-session.mts'
 
 import type { StagedFetchState } from '../fleet/publish-infra/npm/staged-browser-parse.mts'
 import type { StagedTrustReport } from './check-trusted-packages-staged.mts'
@@ -44,16 +58,29 @@ import type {
   TrustedPublisherBlockState,
   TrustedPublisherReading,
 } from './configure-staged-publishing-binding.mts'
+import type {
+  AccessPageProbe,
+  AccessPageReadiness,
+} from './configure-staged-publishing-session.mts'
 
 export {
   bindingMatchesTarget,
+  classifyAccessPageReadiness,
   classifyStagedFetch,
   decideStagedConfigurationState,
   describeBinding,
   diffTargetBinding,
   DRY_RUN_PLAN_STATE,
+  formatOperatorWait,
+  formatOperatorWaitTimeout,
+  hasAccessPageMarkers,
+  hasSignInMarkers,
+  isAccessPageUrl,
   isCloudflareChallenge,
+  isOperatorClearableReadiness,
+  isOperatorSignInUrl,
   looksLikeHtmlBody,
+  OPERATOR_POLL_MS,
   permitsStagedPublish,
   readAllowedActions,
   readTrustedPublisherState,
@@ -62,8 +89,11 @@ export {
   TARGET_REPOSITORY_NAME,
   TARGET_REPOSITORY_OWNER,
   TARGET_WORKFLOW_FILENAME,
+  WAIT_FOR_OPERATOR_MS,
 }
 export type {
+  AccessPageProbe,
+  AccessPageReadiness,
   StagedConfigurationState,
   StagedFetchState,
   TrustedPublisherBinding,
@@ -92,15 +122,6 @@ export const DIRECT_PUBLISH_ACTION = 'npm publish'
  */
 export function buildPackageAccessUrl(packageName: string): string {
   return `${NPM_ORIGIN}/package/${packageName}/access`
-}
-
-/**
- * True when a landed URL is npm's sign-in redirect. The driver hands the
- * window to the operator rather than scripting a login, so credentials and 2FA
- * never enter this process.
- */
-export function isSignInRedirect(url: string): boolean {
-  return /\/login(?:\?|$)/.test(url)
 }
 
 /**
@@ -178,7 +199,7 @@ export function formatUnreadableSettings(
     `Where: ${target.settingsUrl}`,
     `Saw: ${detail}`,
     'Wanted: a settings payload carrying the trusted-publisher connections list, or an "Allowed actions" block.',
-    'Fix: open the URL above in the signed-in Chrome window and confirm the access page renders. A package with NO trusted publisher is not this error — that reads as `create` and the run configures it. This block means the payload was not the access page at all, so the key names may have changed; re-derive them before writing.',
+    'Fix: open the URL above in the signed-in Chrome window and confirm the access page renders. A package with NO trusted publisher is not this error — that reads as `create` and the run configures it. Nor is a half-finished sign-in: the run waits for the window to settle on the access page before reading anything, so a login or one-time-password interstitial can never land here. This block means the payload WAS the settled access page and the key names have changed; re-derive them before writing.',
   ].join('\n')
 }
 
@@ -203,40 +224,5 @@ export function formatBindingWriteFailure(config: {
     `Saw: after the ${cfg.state} save, ${saw}.`,
     `Wanted: ${describeBinding(TARGET_BINDING)}, with "${STAGE_PUBLISH_ACTION}" allowed.`,
     'Fix: open the URL above and set those fields by hand. The row may be PARTIALLY saved, so check every field, not just the ones named above.',
-  ].join('\n')
-}
-
-/**
- * Human-readable progress line for a paused Cloudflare challenge. Kept pure so
- * the wait's observability is testable without a clock or a browser.
- */
-export function formatChallengeWait(config: {
-  budgetMs: number
-  elapsedMs: number
-  url: string
-}): string {
-  const cfg = { __proto__: null, ...config } as typeof config
-  const elapsed = Math.round(cfg.elapsedMs / 1000)
-  const remaining = Math.max(
-    0,
-    Math.round((cfg.budgetMs - cfg.elapsedMs) / 1000),
-  )
-  return `Waiting on human verification at ${cfg.url} — ${elapsed}s elapsed, ${remaining}s before this run gives up. Solve the challenge in the Chrome window; the run resumes on its own.`
-}
-
-/**
- * Failure block for a challenge that outlasted its budget.
- */
-export function formatChallengeTimeout(config: {
-  budgetMs: number
-  url: string
-}): string {
-  const cfg = { __proto__: null, ...config } as typeof config
-  return [
-    'What: npm kept serving a human-verification challenge, so the run stopped rather than retrying into a rate limit.',
-    `Where: ${cfg.url}`,
-    `Saw: the challenge was still unsolved after ${Math.round(cfg.budgetMs / 1000)}s of waiting.`,
-    'Wanted: the challenge cleared in the Chrome window so the signed-in session can read the page.',
-    'Fix: solve the "Just a moment…" check in the Chrome window, then re-run. Nothing was changed, so a re-run is safe.',
   ].join('\n')
 }
