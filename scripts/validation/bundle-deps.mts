@@ -52,8 +52,9 @@ export async function extractBundledPackages(
   // `node_modules/` (+ optional `.pnpm/`), the alternation captures one of:
   // (a) a pnpm-flattened scoped dir `@scope+pkg`, (b) a scoped pkg `@scope/pkg`,
   // or (c) a plain unscoped pkg. Global.
+  // socket-lint: allow uncommented-regex
   const nodeModulesPattern =
-    /node_modules\/(?:\.pnpm\/)?(@[^/]+\+[^@/]+|@[^/]+\/[^/]+|[^/@]+)/g // socket-lint: allow uncommented-regex
+    /node_modules\/(?:\.pnpm\/)?(@[^/]+\+[^@/]+|@[^/]+\/[^/]+|[^/@]+)/g
 
   let match = nodeModulesPattern.exec(content)
   while (match !== null) {

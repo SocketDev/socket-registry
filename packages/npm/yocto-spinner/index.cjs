@@ -13,8 +13,8 @@ function formatColor(open, close) {
   if (!hasColorSupport()) {
     return input => input
   }
-  const openCode = `[${open}m`
-  const closeCode = `[${close}m`
+  const openCode = `\u001B[${open}m`
+  const closeCode = `\u001B[${close}m`
   return input => {
     const string = `${input}`
     let index = string.indexOf(closeCode)

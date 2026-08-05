@@ -103,7 +103,8 @@ const FAILURE_PATTERNS: Record<string, FailurePatternDef> = {
     // Match the ESLint "Failed to load plugin '<name>' declared in '<config>'"
     // error: (1) the plugin name, (2) the config path — quotes are ' or ".
     pattern:
-      /Failed to load plugin ['"]([^'"]+)['"] declared in ['"]([^'"]+)['"]/, // socket-lint: allow uncommented-regex
+      // socket-lint: allow uncommented-regex
+      /Failed to load plugin ['"]([^'"]+)['"] declared in ['"]([^'"]+)['"]/,
     category: 'ESLint Configuration',
     severity: 'error',
     extract: match => ({ plugin: match[1] ?? '', config: match[2] ?? '' }),
