@@ -1,47 +1,50 @@
 /**
  * @file Detect package changes and bump versions for npm release.
+ *   Two states count as "needs publishing" and both are listed LOUDLY: a
+ *   package whose shipped bytes changed, and a package npm still holds at the
+ *   `0.0.0` name-reservation placeholder. The second one used to vanish — the
+ *   manifest lookup asked for an EMPTY dist-tag, resolved nothing, and the
+ *   check returned early — which is how nine packages sat at `0.0.0` on npm
+ *   with `1.0.0` ready on disk while this script reported nothing and exited 0.
  */
 
-import crypto from 'node:crypto'
-import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { getAbortSignal } from '@socketsecurity/lib-stable/process/abort'
-import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
-import {
-  readPackageJson,
-  readPackageJsonSync,
-} from '@socketsecurity/lib-stable/packages/read'
+import { readPackageJson } from '@socketsecurity/lib-stable/packages/read'
+import { readPackageJsonSync } from '@socketsecurity/lib-stable/packages/read'
 import type { EditablePackageJsonInstance } from '@socketsecurity/lib-stable/packages/edit'
-import { getReleaseTag } from '@socketsecurity/lib-stable/packages/specs'
-import { extractPackage } from '@socketsecurity/lib-stable/packages/tarball'
 import { pEach } from '@socketsecurity/lib-stable/promises/iterate'
 import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 import { getDefaultSpinner } from '@socketsecurity/lib-stable/spinner/default'
 import type { SpinnerInstance } from '@socketsecurity/lib-stable/spinner/types'
 import { withSpinner } from '@socketsecurity/lib-stable/spinner/with'
-import { minimatch } from 'minimatch'
 // oxlint-disable-next-line socket/prefer-stable-external-semver -- @socketsecurity/lib-stable has no ./external/semver export at the pinned version; semver is a devDependency (scripts/tests only, not bundled).
 import semver from 'semver'
-import { LATEST, SOCKET_REGISTRY_PACKAGE_NAME } from '../constants/packages.mts'
+import { LATEST } from '../constants/packages.mts'
 import {
   NPM_PACKAGES_PATH,
-  PACKAGE_JSON,
   REGISTRY_PKG_PATH,
   ROOT_PATH,
   SOCKET_REGISTRY_SCOPE,
 } from '../constants/paths.mts'
 import { getNpmPackageNames } from '../constants/testing.mts'
-import { logSectionHeader } from '../repo/util/logging.mts'
+import { isMainModule } from '../fleet/_shared/is-main-module.mts'
+import { runMain } from '../fleet/_shared/run-main.mts'
+import type { ScriptMeta } from '../fleet/_shared/run-main.mts'
+import {
+  getLocalPackageFileHashes,
+  getRemotePackageFileHashes,
+} from './release-npm-packages-hashes.mts'
+import {
+  isPlaceholderNpmVersion,
+  resolveDistTag,
+} from './publish-npm-packages-needs.mts'
+import { reportReleaseState } from './release-npm-packages-report.mts'
 import { fetchPackageManifest } from '@socketsecurity/lib-stable/packages/manifest'
-import { isPlainObject as isObjectObject } from '@socketsecurity/lib-stable/objects/predicates'
-import { readFileUtf8 } from '@socketsecurity/lib-stable/fs/read-file'
-import { toSortedObject } from '@socketsecurity/lib-stable/objects/sort'
 import type { NpmManifest as PackageManifest } from '../repo/util/manifest-types.mts'
-
-const logger = getDefaultLogger()
 
 export interface PackageDataInput {
   manifest?: PackageManifest | undefined
@@ -61,6 +64,19 @@ export interface BumpState {
   bumped: PkgData[]
   changed: PkgData[]
   changes: string[]
+  /**
+   * Packages npm still holds at the `0.0.0` placeholder while a real version
+   * waits on disk. Tracked apart from `bumped` because there is nothing to
+   * bump — the local version is already right, it has simply never shipped —
+   * and because this is the state that went unreported.
+   */
+  placeholders: PkgData[]
+  /**
+   * Packages whose state could not be determined at all: npm returned no
+   * manifest for the name. Nothing can be staged for these until the lookup
+   * works, so they make the run exit non-zero.
+   */
+  unresolved: PkgData[]
   warnings: string[]
 }
 
@@ -74,7 +90,14 @@ export interface MaybeBumpPackageOptions {
 }
 
 function createEmptyBumpState(): BumpState {
-  return { bumped: [], changed: [], changes: [], warnings: [] }
+  return {
+    bumped: [],
+    changed: [],
+    changes: [],
+    placeholders: [],
+    unresolved: [],
+    warnings: [],
+  }
 }
 
 function settledOrDefault<T>(
@@ -83,28 +106,6 @@ function settledOrDefault<T>(
 ): T {
   return result?.status === 'fulfilled' ? result.value : fallback
 }
-
-function logGroupedMessages(
-  header: string,
-  emoji: string,
-  messages: string[],
-): void {
-  if (!messages.length) {
-    return
-  }
-  logger.log('')
-  logSectionHeader(header, { emoji })
-  for (let i = 0, { length } = messages; i < length; i += 1) {
-    logger.log(messages[i])
-  }
-}
-
-const registryPkg = packageData({
-  name: SOCKET_REGISTRY_PACKAGE_NAME,
-  path: REGISTRY_PKG_PATH,
-})
-
-const EXTRACT_PACKAGE_TMP_PREFIX = 'release-npm-'
 
 function memoize<T>(create: () => T): () => T {
   let cached: T | undefined
@@ -118,149 +119,6 @@ function memoize<T>(create: () => T): () => T {
 
 const getCachedAbortSignal = memoize(getAbortSignal)
 const getCachedDefaultSpinner = memoize(getDefaultSpinner)
-
-function sha256Hex(content: string): string {
-  return crypto.createHash('sha256').update(content, 'utf8').digest('hex')
-}
-
-function parsePackageJsonContent(
-  content: string,
-  filePath: string,
-): Record<string, unknown> {
-  try {
-    return JSON.parse(content)
-  } catch (e) {
-    throw new Error(`Failed to parse package.json at ${filePath}`, {
-      cause: e,
-    })
-  }
-}
-
-// Hash only the fields that affect what npm publishes (never the version).
-function hashRelevantPackageJson(pkgJson: Record<string, unknown>): string {
-  const exportsValue = pkgJson['exports']
-  const relevantData = {
-    dependencies: toSortedObject(
-      (pkgJson['dependencies'] as Record<string, string>) ?? {},
-    ),
-    exports: isObjectObject(exportsValue)
-      ? toSortedObject(exportsValue as Record<string, unknown>)
-      : (exportsValue ?? undefined),
-    files: pkgJson['files'] ?? undefined,
-    sideEffects: pkgJson['sideEffects'] ?? undefined,
-    engines: pkgJson['engines'] ?? undefined,
-  }
-  return sha256Hex(JSON.stringify(relevantData))
-}
-
-// Recursively walk `rootDir`, hashing every file `visitFile` accepts.
-// `shouldRecurse` gates descent into a directory by its path relative to
-// `rootDir`; `visitFile` returns the file's hash, or undefined to skip it.
-async function collectFileHashes(
-  rootDir: string,
-  shouldRecurse: (relativePath: string) => boolean,
-  visitFile: (
-    fullPath: string,
-    relativePath: string,
-  ) => Promise<string | undefined>,
-): Promise<Record<string, string>> {
-  const fileHashes: Record<string, string> = {}
-  async function walk(dir: string): Promise<void> {
-    const entries = await fs.readdir(dir, { withFileTypes: true })
-    for (let i = 0, { length } = entries; i < length; i += 1) {
-      const entry = entries[i]
-      if (!entry) {
-        continue
-      }
-      const fullPath = path.join(dir, entry.name)
-      const relativePath = path.relative(rootDir, fullPath)
-      if (entry.isDirectory()) {
-        if (shouldRecurse(relativePath)) {
-          await walk(fullPath)
-        }
-      } else if (entry.isFile()) {
-        const hash = await visitFile(fullPath, relativePath)
-        if (hash !== undefined) {
-          fileHashes[relativePath] = hash
-        }
-      }
-    }
-  }
-  await walk(rootDir)
-  return fileHashes
-}
-
-export async function getLocalPackageFileHashes(
-  packagePath: string,
-): Promise<Record<string, string>> {
-  const pkgJsonPath = path.join(packagePath, PACKAGE_JSON)
-  const pkgJsonContent = await readFileUtf8(pkgJsonPath)
-  const pkgJson = parsePackageJsonContent(pkgJsonContent, pkgJsonPath)
-  const filesPatterns: string[] = (pkgJson['files'] as string[]) ?? []
-
-  const fileHashes = await collectFileHashes(
-    packagePath,
-    // Always recurse for patterns with ** or when we're at root level.
-    relativePath =>
-      relativePath === '' ||
-      filesPatterns.some(
-        pattern =>
-          pattern.includes('**') || pattern.startsWith(`${relativePath}/`),
-      ),
-    async (fullPath, relativePath) => {
-      const entryName = path.basename(fullPath)
-      if (entryName === PACKAGE_JSON) {
-        return undefined
-      }
-      // npm auto-includes LICENSE/README with any case/extension at root.
-      const isRootAutoIncluded =
-        relativePath === entryName && isNpmAutoIncluded(entryName)
-      const matchesPattern = filesPatterns.some(pattern => {
-        // Handle patterns like **/LICENSE{.original,}
-        if (pattern.includes('**')) {
-          const fileName = path.basename(relativePath)
-          const filePattern = pattern.replace('**/', '')
-          return (
-            minimatch(fileName, filePattern) || minimatch(relativePath, pattern)
-          )
-        }
-        return minimatch(relativePath, pattern)
-      })
-      return isRootAutoIncluded || matchesPattern
-        ? sha256Hex(await readFileUtf8(fullPath))
-        : undefined
-    },
-  )
-
-  fileHashes[PACKAGE_JSON] = hashRelevantPackageJson(pkgJson)
-  return toSortedObject(fileHashes)
-}
-
-export async function getRemotePackageFileHashes(
-  spec: string,
-): Promise<Record<string, string>> {
-  let fileHashes: Record<string, string> = {}
-  await extractPackage(
-    spec,
-    { tmpPrefix: EXTRACT_PACKAGE_TMP_PREFIX },
-    async tmpDir => {
-      fileHashes = await collectFileHashes(
-        tmpDir,
-        () => true,
-        async fullPath => {
-          const content = await readFileUtf8(fullPath)
-          // For package.json, hash only relevant fields (not version).
-          return path.basename(fullPath) === PACKAGE_JSON
-            ? hashRelevantPackageJson(
-                parsePackageJsonContent(content, fullPath),
-              )
-            : sha256Hex(content)
-        },
-      )
-    },
-  )
-  return toSortedObject(fileHashes)
-}
 
 export async function hasGitChanges(packagePath: string): Promise<boolean> {
   try {
@@ -333,12 +191,6 @@ export async function hasPackageChanged(
   return changed
 }
 
-export function isNpmAutoIncluded(fileName: string): boolean {
-  const upperName = fileName.toUpperCase()
-  // NPM automatically includes LICENSE and README files with any case and extension.
-  return upperName.startsWith('LICENSE') || upperName.startsWith('README')
-}
-
 export async function maybeBumpPackage(
   pkg: PkgData,
   options: MaybeBumpPackageOptions,
@@ -358,10 +210,39 @@ export async function maybeBumpPackage(
     | PackageManifest
     | undefined
   if (!manifest) {
+    // A silent `return` here is what hid nine unpublished packages. npm having
+    // no manifest for the name means either the name is unclaimed (a first
+    // publish) or the dist-tag does not resolve — both are things a release
+    // run must SAY, and neither is "nothing to do".
+    state.unresolved.push(pkg)
+    state.warnings.push(
+      `${pkg.printName}: npm resolved no manifest for ${pkg.name}@${pkg.tag}. Either the name is unpublished or the dist-tag does not exist.`,
+    )
+    spinner?.log(`?${pkg.name}@${pkg.tag} (npm resolved nothing)`)
     return
   }
   pkg.manifest = manifest
   pkg.version = manifest.version
+
+  // A name npm still holds at the 0.0.0 reservation placeholder has a
+  // resolvable `latest` and a published record, so every "is it on npm?" check
+  // answers yes while nothing real has ever shipped. The local version being
+  // higher is the whole signal, and it is reported without a bump: the version
+  // on disk is already the one to publish.
+  const localPkgJson = readPackageJsonSync(pkg.path)
+  const onDiskVersion = localPkgJson?.version
+  if (
+    isPlaceholderNpmVersion(manifest.version) &&
+    onDiskVersion &&
+    !isPlaceholderNpmVersion(onDiskVersion)
+  ) {
+    pkg.version = onDiskVersion
+    state.placeholders.push(pkg)
+    spinner?.log(
+      `!${pkg.name}@${onDiskVersion} (npm holds the 0.0.0 placeholder — never published)`,
+    )
+    return
+  }
 
   // Fast path: Check git for uncommitted changes first.
   const hasGitChange = await hasGitChanges(pkg.path)
@@ -426,7 +307,25 @@ export function packageData(data: PackageDataInput): PkgData {
   })
 }
 
-async function main(): Promise<void> {
+async function main(): Promise<number> {
+  const release = process.argv.includes('--release')
+  const registryPkgJson = readPackageJsonSync(REGISTRY_PKG_PATH)
+  if (!registryPkgJson?.name || !registryPkgJson.version) {
+    throw new Error(
+      `The registry package.json is missing name/version.\n` +
+        `  Where: ${REGISTRY_PKG_PATH}.\n` +
+        `  Saw vs wanted: an unreadable or incomplete manifest; wanted both "name" and "version".\n` +
+        `  Fix: repair registry/package.json, then re-run.`,
+    )
+  }
+  // Derived from disk, never a constant: a hardcoded registry name drifted once
+  // and silently turned the branches that compared against it into dead code.
+  const registryPkg = packageData({
+    name: registryPkgJson.name,
+    path: REGISTRY_PKG_PATH,
+    tag: resolveDistTag(registryPkgJson.version),
+  })
+
   const npmPackages = Array.from(getNpmPackageNames(), sockRegPkgName => {
     const pkgPath = path.join(NPM_PACKAGES_PATH, sockRegPkgName)
     const pkgJson = readPackageJsonSync(pkgPath)
@@ -440,7 +339,10 @@ async function main(): Promise<void> {
       name: `${SOCKET_REGISTRY_SCOPE}/${sockRegPkgName}`,
       path: pkgPath,
       printName: sockRegPkgName,
-      tag: getReleaseTag(pkgVersion),
+      // resolveDistTag, not getReleaseTag: getReleaseTag parses a SPEC, so a
+      // bare version made it return '' and every lookup below asked npm for an
+      // empty dist-tag, which resolves nothing.
+      tag: resolveDistTag(pkgVersion),
     })
   })
 
@@ -470,12 +372,17 @@ async function main(): Promise<void> {
     spinner: getCachedDefaultSpinner(),
   })
 
-  if (getCachedAbortSignal().aborted || !state.bumped.length) {
-    return
+  if (getCachedAbortSignal().aborted) {
+    return 0
   }
 
-  logGroupedMessages('Warnings', '⚠️', state.warnings)
-  logGroupedMessages('Changes', 'ℹ', state.changes)
+  const exitCode = reportReleaseState(state, { release })
+
+  // Only a CHANGED package needs its manifest and package.json rewritten; a
+  // placeholder package's local files are already the ones to publish.
+  if (!state.bumped.length) {
+    return exitCode
+  }
 
   await withSpinner({
     message: 'Updating manifest and package.json files…',
@@ -491,9 +398,24 @@ async function main(): Promise<void> {
     },
     spinner: getCachedDefaultSpinner(),
   })
+
+  return exitCode
 }
 
-main().catch((e: unknown) => {
-  logger.error(e)
-  process.exitCode = 1
-})
+const SCRIPT_META: ScriptMeta = {
+  describe:
+    'reports which socket-registry packages need publishing and bumps the ones whose shipped bytes changed',
+  help: `Usage: node scripts/npm/release-npm-packages.mts [options]
+
+  Compares each package's shipped bytes against what npm has, bumps the ones
+  that changed, and lists the ones npm still holds at the 0.0.0 placeholder.
+  It never uploads: stage via npm-publish-packages.yml afterwards.
+
+  --release   a release is expected — exit 1 when nothing can be staged`,
+}
+
+/* c8 ignore start - entrypoint guard; exercised via subprocess */
+if (isMainModule(import.meta.url)) {
+  runMain(main, SCRIPT_META)
+}
+/* c8 ignore stop */
