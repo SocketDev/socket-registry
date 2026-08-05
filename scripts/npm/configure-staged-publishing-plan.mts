@@ -29,8 +29,6 @@ import {
   diffTargetBinding,
   DRY_RUN_PLAN_STATE,
   permitsStagedPublish,
-  readAllowedActions,
-  readTrustedPublisherState,
   TARGET_BINDING,
   TARGET_ENVIRONMENT_NAME,
   TARGET_REPOSITORY_NAME,
@@ -38,11 +36,18 @@ import {
   TARGET_WORKFLOW_FILENAME,
 } from './configure-staged-publishing-binding.mts'
 import {
+  countConnectionPermissionTokens,
+  isTwoFactorEscalationPayload,
+  readAllowedActions,
+  readTrustedPublisherState,
+} from './configure-staged-publishing-payload.mts'
+import {
   classifyAccessPageReadiness,
   formatOperatorWait,
   formatOperatorWaitTimeout,
   hasAccessPageMarkers,
   hasSignInMarkers,
+  hasTwoFactorEscalationMarkers,
   isAccessPageUrl,
   isOperatorClearableReadiness,
   isOperatorSignInUrl,
@@ -52,12 +57,12 @@ import {
 
 import type { StagedFetchState } from '../fleet/publish-infra/npm/staged-browser-parse.mts'
 import type { StagedTrustReport } from './check-trusted-packages-staged.mts'
+import type { StagedConfigurationState } from './configure-staged-publishing-binding.mts'
 import type {
-  StagedConfigurationState,
   TrustedPublisherBinding,
   TrustedPublisherBlockState,
   TrustedPublisherReading,
-} from './configure-staged-publishing-binding.mts'
+} from './configure-staged-publishing-payload.mts'
 import type {
   AccessPageProbe,
   AccessPageReadiness,
@@ -67,6 +72,7 @@ export {
   bindingMatchesTarget,
   classifyAccessPageReadiness,
   classifyStagedFetch,
+  countConnectionPermissionTokens,
   decideStagedConfigurationState,
   describeBinding,
   diffTargetBinding,
@@ -75,10 +81,12 @@ export {
   formatOperatorWaitTimeout,
   hasAccessPageMarkers,
   hasSignInMarkers,
+  hasTwoFactorEscalationMarkers,
   isAccessPageUrl,
   isCloudflareChallenge,
   isOperatorClearableReadiness,
   isOperatorSignInUrl,
+  isTwoFactorEscalationPayload,
   looksLikeHtmlBody,
   OPERATOR_POLL_MS,
   permitsStagedPublish,
@@ -187,6 +195,23 @@ export function formatStagedPlanLine(config: {
 }
 
 /**
+ * What an unreadable payload actually was, phrased for the `Saw:` line.
+ *
+ * The two causes need opposite responses, and telling them apart is the whole
+ * point: a two-factor step-up is cleared by entering a code and re-running,
+ * while a genuinely unrecognized payload means npm's key names moved and the
+ * reader has to be re-derived (`--dump-payload`) before anything is written.
+ * Reporting the first as the second is how "npm changed the payload shape"
+ * became the working theory for a page that only wanted an authenticator code.
+ */
+export function describeUnreadableCause(payload: unknown): string {
+  if (isTwoFactorEscalationPayload(payload)) {
+    return 'npm answered with its two-factor step-up payload instead of the access page. The session IS signed in; npm wants a fresh authenticator code before it will serve this page.'
+  }
+  return 'on an authenticated access page that had settled on that URL, the settings payload carried neither a trusted-publisher connections list nor an "Allowed actions" block.'
+}
+
+/**
  * Failure block for a package whose settings payload could not be read, in
  * What / Where / Saw vs wanted / Fix order.
  */
@@ -199,7 +224,7 @@ export function formatUnreadableSettings(
     `Where: ${target.settingsUrl}`,
     `Saw: ${detail}`,
     'Wanted: a settings payload carrying the trusted-publisher connections list, or an "Allowed actions" block.',
-    'Fix: open the URL above in the signed-in Chrome window and confirm the access page renders. A package with NO trusted publisher is not this error — that reads as `create` and the run configures it. Nor is a half-finished sign-in: the run waits for the window to settle on the access page before reading anything, so a login or one-time-password interstitial can never land here. This block means the payload WAS the settled access page and the key names have changed; re-derive them before writing.',
+    'Fix: open the URL above in the signed-in Chrome window and confirm the access page renders. A package with NO trusted publisher is not this error — that reads as `create` and the run configures it. Nor is a half-finished sign-in or a two-factor step-up: the run waits out both before reading anything. If the Saw line names the step-up, enter the authenticator code in the Chrome window and re-run. Otherwise the payload WAS the settled access page and the key names have changed — re-derive them with `--dump-payload <package>` before writing.',
   ].join('\n')
 }
 

@@ -15,7 +15,23 @@
  *   payload: the final URL after redirects, the visible window URL, and the
  *   sign-in markers all get a say, and `ready` is the only state that permits
  *   a payload read. Everything else either pauses for the operator
- *   (`challenge`, `sign-in`, `unsettled`) or fails loud (`auth`, `error`).
+ *   (`challenge`, `sign-in`, `two-factor`, `unsettled`) or fails loud (`auth`,
+ *   `error`).
+ *   `two-factor` is the second half of the same lesson, and it hid behind the
+ *   first. Once the sign-in wait was working, `@socketregistry/abab` STILL read
+ *   as `unreadable` on what looked like a settled access page, and the payload
+ *   carried neither `oidcConnections` nor an allowed-actions block — which read
+ *   as "npm changed the payload shape". Dumping the payload's key tree
+ *   (`--dump-payload`, 2026-08-05) showed it was never the access page at all:
+ *   npm answers the access URL with its two-factor STEP-UP payload
+ *   (`escalateType`, `hasTotp`, `disable2faPasswordOption`,
+ *   `publicKeyCredentialRequestOptions`, `originalUrl` pointing back at the
+ *   access path) as HTTP 200 JSON, at the access URL, for a session that is
+ *   fully signed in. Every signed-out heuristic misses it precisely because the
+ *   session is NOT signed out: `user.name` is populated, no login form renders,
+ *   and the landed URL is the access page. So the escalation gets its own
+ *   marker set and its own operator pause, and the connections keys were never
+ *   the problem.
  */
 
 import {
@@ -54,6 +70,12 @@ export const OPERATOR_POLL_MS = 5 * MILLISECONDS_PER_SECOND
  *   The operator clears it in the window; the run waits.
  * - `challenge` — a Cloudflare human-verification interstitial. Same pause,
  *   driven through the fleet's shared anti-bot rhythm.
+ * - `two-factor` — npm's two-factor STEP-UP for an already signed-in session: the
+ *   account is authenticated, but this page needs a fresh authenticator code
+ *   before npm will serve it. Distinct from `sign-in` because the operator
+ *   instruction is different — there is nothing to log into, only a code to
+ *   enter — and because reading its payload as settings data is what made a
+ *   package report `unreadable`.
  * - `unsettled` — a 200 that did not end on the access page, or a destroyed
  *   execution context from a mid-navigation race. Not yet an answer.
  * - `auth` — npm refused the session outright (401/403 with no sign-in page).
@@ -65,6 +87,7 @@ export type AccessPageReadiness =
   | 'error'
   | 'ready'
   | 'sign-in'
+  | 'two-factor'
   | 'unsettled'
 
 /**
@@ -106,6 +129,23 @@ const SIGN_IN_FORM_MARKERS: readonly RegExp[] = [
   /name="password"/i,
   /name="otp(?:[cC]ode)?"/i,
   /id="npm-otp"/i,
+]
+
+// Keys only npm's two-factor STEP-UP payload carries. Anchored on KEY NAMES,
+// never on markup or copy: the step-up arrives as JSON from the `x-spiferack`
+// fetch, so there is no markup to anchor on, and npm's own key names are the
+// stabler contract anyway.
+//
+// Quotes may be escaped (\") when the JSON sits embedded inside an HTML page's
+// string, which is how the same payload arrives through the server-rendered
+// route. `escalateType` and `disable2faPasswordOption` are unique to the
+// step-up; `publicKeyCredentialRequestOptions` and `hasWebAuthnDevices` are its
+// WebAuthn arm, present (as `null`/`false`) even on a TOTP-only account.
+const TWO_FACTOR_ESCALATION_MARKERS: readonly RegExp[] = [
+  /\\?"escalateType\\?"\s*:/,
+  /\\?"disable2faPasswordOption\\?"\s*:/,
+  /\\?"publicKeyCredentialRequestOptions\\?"\s*:/,
+  /\\?"hasWebAuthnDevices\\?"\s*:/,
 ]
 
 // Content only a signed-in access page carries. Its presence settles a marker
@@ -156,6 +196,22 @@ export function hasAccessPageMarkers(body: string): boolean {
 }
 
 /**
+ * Whether `body` is npm's two-factor STEP-UP payload rather than the page that
+ * was asked for.
+ *
+ * This is the misread that cost a diagnosis. npm serves the step-up AT the
+ * requested URL, as HTTP 200 JSON, to a session that is fully signed in — so
+ * the landed URL says "access page", the status says "fine", and the envelope's
+ * `user` is populated, which is exactly what every signed-out heuristic looks
+ * for the absence of. Only the step-up's own keys tell them apart, and reading
+ * it as settings data reports a configured package as having no
+ * trusted-publisher block at all.
+ */
+export function hasTwoFactorEscalationMarkers(body: string): boolean {
+  return !!body && matchesAny(body, TWO_FACTOR_ESCALATION_MARKERS)
+}
+
+/**
  * Whether `body` is npm's sign-in / one-time-password page rather than the
  * access page. `"user": null` is the spiferack envelope's signed-out marker,
  * and `Sign in to npm` is the login page's own copy; both are ignored when the
@@ -197,6 +253,13 @@ export function classifyAccessPageReadiness(
   if (isCloudflareChallenge(body)) {
     return 'challenge'
   }
+  // Before every other body check, and before the `ready` return at the bottom.
+  // The step-up is served AT the access URL, as a 200, to a signed-in session,
+  // so nothing else here can catch it — and if it reaches the payload reader it
+  // reports a configured package as having no trusted-publisher block.
+  if (hasTwoFactorEscalationMarkers(body)) {
+    return 'two-factor'
+  }
   // Before the HTML check below: npm can server-render its login page AT the
   // access URL, and a bare "HTML where JSON was expected" reading would file
   // that under Cloudflare rather than under the sign-in the operator has to
@@ -227,6 +290,7 @@ export function isOperatorClearableReadiness(
   return (
     readiness === 'challenge' ||
     readiness === 'sign-in' ||
+    readiness === 'two-factor' ||
     readiness === 'unsettled'
   )
 }
@@ -235,6 +299,9 @@ export function isOperatorClearableReadiness(
 function describeWaitReason(readiness: AccessPageReadiness): string {
   if (readiness === 'sign-in') {
     return 'npm is serving its sign-in / one-time-password page instead of the access page'
+  }
+  if (readiness === 'two-factor') {
+    return 'the session is signed in, but npm wants a fresh two-factor code before it will serve this page'
   }
   if (readiness === 'challenge') {
     return 'npm is serving a human-verification challenge'

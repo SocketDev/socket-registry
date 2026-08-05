@@ -53,8 +53,15 @@ import {
   readSettingsPayload,
 } from './configure-staged-publishing-browser.mts'
 import {
+  describePayloadKeyTree,
+  findPayloadKeyPaths,
+} from './configure-staged-publishing-dump.mts'
+import {
+  buildPackageAccessUrl,
+  countConnectionPermissionTokens,
   decideStagedConfigurationState,
   describeBinding,
+  describeUnreadableCause,
   DIRECT_PUBLISH_ACTION,
   DRY_RUN_PLAN_STATE,
   formatStagedPlanLine,
@@ -66,6 +73,7 @@ import {
 } from './configure-staged-publishing-plan.mts'
 
 import type { StagedTrustReport } from './check-trusted-packages-staged.mts'
+import type { StagedConfigurationTarget } from './configure-staged-publishing-plan.mts'
 
 const logger = getDefaultLogger()
 
@@ -77,6 +85,7 @@ const FAILURE_HOLD_MS = 30 * MILLISECONDS_PER_SECOND
 const { values: args } = parseArgs({
   options: {
     apply: { type: 'boolean', default: false },
+    'dump-payload': { type: 'string', multiple: true },
     help: { type: 'boolean', default: false },
     limit: { type: 'string' },
     package: { type: 'string', multiple: true },
@@ -123,6 +132,92 @@ export function resolveConfigureLimit(
     : targetCount
 }
 
+// The key names a trusted-publisher block has ever gone by, in any nesting.
+// Used only to point at where the block MOVED to, never to read a value.
+const PUBLISHER_KEY_PATTERN =
+  /oidc|trusted|publisher|connection|permission|action|workflow|repositor|environment|stage/i
+
+/**
+ * Print each package's access payload as a KEY TREE — key names, array lengths,
+ * value types — and nothing else, then the reader's verdict for it. This is the
+ * lane for re-deriving npm's payload contract when a read stops making sense:
+ * it goes through the same session and the same wait machinery the write lane
+ * uses, and writes nothing at all.
+ *
+ * No string value is ever printed. The payload carries the page CSRF token, the
+ * signed-in account's email, and every maintainer's name, so a raw dump of it
+ * would leak credentials into a terminal and into a transcript. Permission
+ * tokens are reported by COUNT for the same reason — an unmapped token shows up
+ * as a number, which is enough to know the action map needs an entry.
+ *
+ * ONE session covers every package: a per-package window would ask the operator
+ * to clear the two-factor step-up again for each name.
+ *
+ * @throws {Error} When the operator wait outlasts its budget, when the session
+ *   is signed out, or when a settled access page's payload is not JSON.
+ */
+export async function dumpAccessPayload(
+  packageNames: readonly string[],
+  options?: { profileDir?: string | undefined } | undefined,
+): Promise<void> {
+  const opts = { __proto__: null, ...options } as NonNullable<typeof options>
+  const session = await openNpmSettingsSession({
+    profileDir: opts.profileDir || undefined,
+  })
+  try {
+    logger.success(
+      `Signed in to npm as ${session.user}. Reading ${packageNames.length} package(s), read-only. Finish any sign-in, two-factor code, or challenge in the Chrome window when asked.`,
+    )
+    for (let i = 0, { length } = packageNames; i < length; i += 1) {
+      const target: StagedConfigurationTarget = {
+        latestVersion: undefined,
+        name: packageNames[i]!,
+        settingsUrl: buildPackageAccessUrl(packageNames[i]!),
+      }
+      // eslint-disable-next-line no-await-in-loop -- one browser page, one package at a time.
+      const payload = await readSettingsPayload(session.page, target)
+      logger.log('')
+      logger.log(`Key tree for ${target.name} (no string values are printed):`)
+      const tree = describePayloadKeyTree(payload)
+      for (let j = 0, treeLength = tree.length; j < treeLength; j += 1) {
+        logger.log(tree[j]!)
+      }
+      logger.log('')
+      logger.log('Publisher-shaped key paths:')
+      const paths = findPayloadKeyPaths(payload, PUBLISHER_KEY_PATTERN)
+      if (!paths.length) {
+        logger.log('  (none — the payload carries no publisher-shaped key)')
+      }
+      for (let j = 0, pathsLength = paths.length; j < pathsLength; j += 1) {
+        logger.log(`  ${paths[j]!}`)
+      }
+      logger.log('')
+      const reading = readTrustedPublisherState(payload)
+      const state = decideStagedConfigurationState(reading)
+      logger.log(
+        formatStagedPlanLine({ binding: reading.binding, state, target }),
+      )
+      logger.log(
+        `  block:   ${reading.blockState}` +
+          `\n  actions: ${reading.actions ? `[${[...reading.actions].join(', ')}]` : '(unknown)'}`,
+      )
+      const tokens = countConnectionPermissionTokens(payload)
+      if (tokens !== undefined) {
+        logger.log(
+          `  grants:  ${tokens} permission token(s) on the live connection, ` +
+            `${reading.actions?.size ?? 0} mapped to an action` +
+            `${tokens > (reading.actions?.size ?? 0) ? ' — an unmapped token means OIDC_PERMISSION_ACTIONS needs an entry' : ''}`,
+        )
+      }
+      if (reading.blockState === 'unreadable') {
+        logger.warn(describeUnreadableCause(payload))
+      }
+    }
+  } finally {
+    await session.close()
+  }
+}
+
 function printHelp(): void {
   logger.log('')
   logger.log(
@@ -146,6 +241,19 @@ function printHelp(): void {
   )
   logger.log('  --limit <n>      Configure at most n packages this run.')
   logger.log(
+    '  --dump-payload <pkg>  Print that package access payload key tree, its',
+  )
+  logger.log(
+    '                   read-only classification, and exit. Repeatable; one',
+  )
+  logger.log(
+    '                   browser session covers every package. Key names, array',
+  )
+  logger.log(
+    '                   lengths, and value types only — no string value is ever',
+  )
+  logger.log('                   printed. Writes nothing.')
+  logger.log(
     '  --stage-only     Also clear "npm publish", forcing every publish through the',
   )
   logger.log(
@@ -163,6 +271,14 @@ function printHelp(): void {
 export async function main(): Promise<void> {
   if (args['help']) {
     printHelp()
+    return
+  }
+
+  const dumpPayload = (args['dump-payload'] as string[] | undefined) ?? []
+  if (dumpPayload.length) {
+    await dumpAccessPayload(dumpPayload, {
+      profileDir: (args['profile-dir'] as string | undefined) || undefined,
+    })
     return
   }
 
@@ -251,10 +367,7 @@ export async function main(): Promise<void> {
         }
         if (state === 'unreadable') {
           throw new Error(
-            formatUnreadableSettings(
-              target,
-              'on an authenticated access page that had settled on that URL, the settings payload carried neither a trusted-publisher connections list nor an "Allowed actions" block.',
-            ),
+            formatUnreadableSettings(target, describeUnreadableCause(payload)),
           )
         }
         // eslint-disable-next-line no-await-in-loop -- one browser page, one package at a time.

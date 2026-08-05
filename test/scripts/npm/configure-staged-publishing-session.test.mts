@@ -18,6 +18,7 @@ import {
   formatOperatorWaitTimeout,
   hasAccessPageMarkers,
   hasSignInMarkers,
+  hasTwoFactorEscalationMarkers,
   isAccessPageUrl,
   isOperatorClearableReadiness,
   isOperatorSignInUrl,
@@ -294,5 +295,94 @@ describe('operator-facing messages', () => {
     expect(block).toContain(ACCESS_URL)
     expect(block).toContain('600s')
     expect(block).toContain('Nothing was written')
+  })
+})
+
+describe('two-factor step-up at the access URL', () => {
+  // The shape npm actually answered `/package/@socketregistry/abab/access`
+  // with on 2026-08-05 while a step-up was outstanding: a 200, at the access
+  // URL, for a session whose `user` is fully populated. Keys real (from the
+  // `--dump-payload` key tree), values invented.
+  const ESCALATION_BODY = `{
+    "action": "challenge",
+    "csrftoken": "invented-csrf-token",
+    "disable2faPasswordOption": false,
+    "errorCount": 0,
+    "escalateType": "totp",
+    "hasTotp": true,
+    "hasWebAuthnDevices": false,
+    "originalUrl": "/package/@socketregistry/abab/access",
+    "publicKeyCredentialRequestOptions": null,
+    "stagedPublishingEnabled": true,
+    "user": { "name": "invented-user" }
+  }`
+
+  test('the step-up payload is recognized by its own keys', () => {
+    expect(hasTwoFactorEscalationMarkers(ESCALATION_BODY)).toBe(true)
+    expect(hasTwoFactorEscalationMarkers(ACCESS_PAYLOAD)).toBe(false)
+    expect(hasTwoFactorEscalationMarkers('')).toBe(false)
+  })
+
+  test('each step-up key alone is enough, escaped quotes included', () => {
+    for (const key of [
+      'escalateType',
+      'disable2faPasswordOption',
+      'publicKeyCredentialRequestOptions',
+      'hasWebAuthnDevices',
+    ]) {
+      expect(hasTwoFactorEscalationMarkers(`{"${key}": null}`)).toBe(true)
+      expect(hasTwoFactorEscalationMarkers(`{\\"${key}\\": null}`)).toBe(true)
+    }
+  })
+
+  // The misread this whole state exists for: a 200, on the access URL, with a
+  // signed-in user. Every other signal says `ready`, and reading the payload
+  // then reports a configured package as having no trusted-publisher block.
+  test('a 200 step-up on the access URL reads as two-factor, never ready', () => {
+    expect(
+      classifyAccessPageReadiness({
+        body: ESCALATION_BODY,
+        fetchUrl: ACCESS_URL,
+        pageUrl: ACCESS_URL,
+        status: 200,
+      }),
+    ).toBe('two-factor')
+  })
+
+  test('the step-up wins over an access-page marker in the same body', () => {
+    expect(
+      classifyAccessPageReadiness({
+        body: `{"escalateType":"totp","oidcConnections":[]}`,
+        fetchUrl: ACCESS_URL,
+        pageUrl: ACCESS_URL,
+        status: 200,
+      }),
+    ).toBe('two-factor')
+  })
+
+  test('a real access payload still reads as ready', () => {
+    expect(
+      classifyAccessPageReadiness({
+        body: ACCESS_PAYLOAD,
+        fetchUrl: ACCESS_URL,
+        pageUrl: ACCESS_URL,
+        status: 200,
+      }),
+    ).toBe('ready')
+  })
+
+  test('the operator clears a step-up, so the run pauses rather than failing', () => {
+    expect(isOperatorClearableReadiness('two-factor')).toBe(true)
+  })
+
+  test('the wait line tells the operator a code is wanted, not a login', () => {
+    const line = formatOperatorWait({
+      budgetMs: 600_000,
+      elapsedMs: 0,
+      readiness: 'two-factor',
+      url: ACCESS_URL,
+    })
+    expect(line).toContain('signed in')
+    expect(line).toContain('two-factor code')
   })
 })

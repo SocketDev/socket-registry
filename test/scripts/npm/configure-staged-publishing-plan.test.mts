@@ -17,12 +17,14 @@ import {
   buildPackageAccessUrl,
   classifyStagedFetch,
   decideStagedConfigurationState,
+  describeUnreadableCause,
   diffTargetBinding,
   DRY_RUN_PLAN_STATE,
   formatBindingWriteFailure,
   formatStagedPlanLine,
   formatUnreadableSettings,
   isOperatorSignInUrl,
+  isTwoFactorEscalationPayload,
   permitsStagedPublish,
   planStagedConfiguration,
   readAllowedActions,
@@ -344,5 +346,128 @@ describe('operator-facing messages', () => {
     expect(lines[2]).toMatch(/^Saw: /)
     expect(lines[3]).toMatch(/^Wanted: /)
     expect(lines[4]).toMatch(/^Fix: /)
+  })
+})
+
+describe('re-derived payload key paths', () => {
+  // The connection npm serves today, under the key it serves it with.
+  const connectionOf = (config: Record<string, unknown>) => ({
+    config,
+    permissions: ['createStagedPackage'],
+  })
+  const TODAY_CONFIG = {
+    environment_name: 'npm-publish',
+    repository_name: 'socket-registry',
+    repository_owner: 'SocketDev',
+    workflow: 'npm-publish-packages.yml',
+  }
+
+  test('the observed key path still reads a correct binding as skip', () => {
+    const reading = readTrustedPublisherState({
+      oidcConnections: [connectionOf(TODAY_CONFIG)],
+    })
+    expect(reading.blockState).toBe('present')
+    expect(reading.binding?.workflowFilename).toBe(TARGET_WORKFLOW_FILENAME)
+    expect(decideStagedConfigurationState(reading)).toBe('skip')
+  })
+
+  // A renamed outer key must not turn a configured package into a planned
+  // create — that would write a second publisher over a live row.
+  test.each([
+    'trustedPublishers',
+    'trusted_publisher_connections',
+    'oidcPublishers',
+  ])('a connections list under %s reads the same binding', key => {
+    const reading = readTrustedPublisherState({
+      [key]: [connectionOf(TODAY_CONFIG)],
+    })
+    expect(reading.blockState).toBe('present')
+    expect(decideStagedConfigurationState(reading)).toBe('skip')
+  })
+
+  // A renamed INNER key must degrade to the other spelling, not to an
+  // all-(unset) binding that reads as a total mismatch and drives a rebind.
+  test('camelCase config keys read the same binding as the snake_case ones', () => {
+    const reading = readTrustedPublisherState({
+      oidcConnections: [
+        connectionOf({
+          environmentName: 'npm-publish',
+          repositoryName: 'socket-registry',
+          repositoryOwner: 'SocketDev',
+          workflowFilename: 'npm-publish-packages.yml',
+        }),
+      ],
+    })
+    expect(reading.binding).toEqual({
+      environmentName: TARGET_ENVIRONMENT_NAME,
+      repositoryName: 'socket-registry',
+      repositoryOwner: 'SocketDev',
+      workflowFilename: TARGET_WORKFLOW_FILENAME,
+    })
+    expect(decideStagedConfigurationState(reading)).toBe('skip')
+  })
+
+  test('the observed spelling wins when a payload carries both', () => {
+    const reading = readTrustedPublisherState({
+      oidcConnections: [
+        connectionOf({
+          ...TODAY_CONFIG,
+          workflowFilename: 'npm-publish.yml',
+        }),
+      ],
+    })
+    expect(reading.binding?.workflowFilename).toBe(TARGET_WORKFLOW_FILENAME)
+  })
+
+  test('a connections list with no live row is still create, not unreadable', () => {
+    const reading = readTrustedPublisherState({ oidcConnections: [] })
+    expect(reading.blockState).toBe('absent')
+    expect(decideStagedConfigurationState(reading)).toBe('create')
+  })
+})
+
+describe('two-factor step-up reaching the reader', () => {
+  // The payload npm answered the access URL with on 2026-08-05. Keys real,
+  // values invented.
+  const ESCALATION_PAYLOAD: unknown = JSON.parse(`{
+    "action": "challenge",
+    "csrftoken": "invented-csrf-token",
+    "disable2faPasswordOption": false,
+    "errorCount": 0,
+    "escalateType": "totp",
+    "hasTotp": true,
+    "hasWebAuthnDevices": false,
+    "originalUrl": "/package/@socketregistry/abab/access",
+    "publicKeyCredentialRequestOptions": null,
+    "stagedPublishingEnabled": true,
+    "user": { "name": "invented-user" }
+  }`)
+
+  test('it is recognized as the step-up it is', () => {
+    expect(isTwoFactorEscalationPayload(ESCALATION_PAYLOAD)).toBe(true)
+    expect(isTwoFactorEscalationPayload({ oidcConnections: [] })).toBe(false)
+    expect(isTwoFactorEscalationPayload(JSON.parse('null'))).toBe(false)
+    expect(isTwoFactorEscalationPayload(undefined)).toBe(false)
+    expect(isTwoFactorEscalationPayload([])).toBe(false)
+  })
+
+  // Recognizing it must not soften the verdict: a step-up says nothing about
+  // the package, so a write must never be planned off one.
+  test('it stays unreadable and never reads as create', () => {
+    const reading = readTrustedPublisherState(ESCALATION_PAYLOAD)
+    expect(reading.blockState).toBe('unreadable')
+    expect(decideStagedConfigurationState(reading)).toBe('unreadable')
+  })
+
+  test('the Saw line names the code, not a renamed key', () => {
+    const cause = describeUnreadableCause(ESCALATION_PAYLOAD)
+    expect(cause).toContain('two-factor step-up')
+    expect(cause).toContain('authenticator code')
+    expect(cause).not.toContain('neither a trusted-publisher')
+  })
+
+  test('a genuinely unrecognized payload still points at re-derivation', () => {
+    const cause = describeUnreadableCause({ somethingElse: true })
+    expect(cause).toContain('neither a trusted-publisher connections list')
   })
 })
