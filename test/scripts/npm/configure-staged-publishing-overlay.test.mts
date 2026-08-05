@@ -1,10 +1,11 @@
 /**
  * @file Tests for the operator-attention overlay. The GUARD is what matters
- *   here — inject only during a real challenge or two-factor step-up — because
- *   an overlay that shows up during ordinary waiting trains the operator to
- *   ignore the one moment it exists for. The markup is asserted only where it
- *   is load-bearing: it must never be able to swallow the click on the verify
- *   checkbox, and it must not need a network request to render.
+ *   here — inject only during a real challenge — because an overlay that
+ *   shows up during ordinary waiting trains the operator to ignore the one
+ *   moment it exists for. The markup is asserted only where it is
+ *   load-bearing: it must never be able to swallow the click on the verify
+ *   checkbox, the checkbox must ride ABOVE the page dim, and it must not need
+ *   a network request to render.
  */
 
 import { describe, expect, test } from 'vitest'
@@ -20,14 +21,16 @@ import {
 } from '../../../scripts/npm/configure-staged-publishing-overlay.mts'
 
 describe('shouldShowOperatorOverlay', () => {
-  test('only a real challenge or step-up earns the shield', () => {
+  test('only a real challenge earns the shield', () => {
     expect(shouldShowOperatorOverlay('challenge')).toBe(true)
-    expect(shouldShowOperatorOverlay('two-factor')).toBe(true)
   })
 
   test('ordinary waiting does not', () => {
-    // `sign-in` is excluded on purpose: someone typing a password is already
-    // looking at the window. `unsettled` is the run's own patience.
+    // `two-factor` is excluded on purpose: someone typing an OTP is already
+    // looking at the window, and "solve the check above" is the wrong
+    // sentence over that form (observed 2026-08-05). `sign-in` for the same
+    // mid-way reason. `unsettled` is the run's own patience.
+    expect(shouldShowOperatorOverlay('two-factor')).toBe(false)
     expect(shouldShowOperatorOverlay('sign-in')).toBe(false)
     expect(shouldShowOperatorOverlay('unsettled')).toBe(false)
     expect(shouldShowOperatorOverlay('ready')).toBe(false)
@@ -49,6 +52,32 @@ describe('buildOperatorOverlayCss', () => {
 
   test('it sits in the lower band, clear of the centered challenge widget', () => {
     expect(buildOperatorOverlayCss()).toContain('bottom:6vh')
+  })
+
+  test('the page dims, and the challenge widget rides above the dim', () => {
+    // The backdrop recedes the page a touch, so the ONE bright element is the
+    // checkbox the caption points at — the widget's z-index must be exactly
+    // one above the overlay root, and the root one below max.
+    const css = buildOperatorOverlayCss()
+    expect(css).toContain('socket-operator-overlay-backdrop')
+    expect(css).toContain('z-index:2147483646')
+    expect(css).toContain('iframe[src*="challenges.cloudflare.com"]')
+    expect(css).toContain('z-index:2147483647!important')
+  })
+
+  test('the drift is slow and the bolt glows, both compositor-only', () => {
+    const css = buildOperatorOverlayCss()
+    expect(css).toContain('socket-operator-overlay-drift 3.6s')
+    expect(css).toContain('translateY(-8px)')
+    expect(css).toContain('socket-operator-overlay-glow')
+    expect(css).toContain('drop-shadow')
+  })
+
+  test('reduced motion stills the drift and the glow', () => {
+    const css = buildOperatorOverlayCss()
+    const reduced = css.slice(css.indexOf('prefers-reduced-motion'))
+    expect(reduced).toContain('animation:none')
+    expect(reduced).toContain('socket-operator-overlay-bolt')
   })
 })
 
