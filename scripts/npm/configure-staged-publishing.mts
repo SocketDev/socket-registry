@@ -4,32 +4,38 @@
  *   trusted-publisher form lives behind the signed-in web UI at
  *   `/package/<name>/access`, so this drives system Chrome through
  *   playwright-core.
- *   Four per-package states come out of reading that page. `create` is a
+ *   Five per-package states come out of reading that page. `create` is a
  *   package with no trusted publisher at all — the state that made every
  *   `@socketregistry/*` staging upload 401 the first time
  *   `.github/workflows/npm-publish-packages.yml` ran, because npm answers the
  *   OIDC token exchange with a 404 when no publisher matches the claim.
  *   `rebind` is a publisher pointing somewhere else, most often at the
  *   single-subject `npm-publish.yml` rather than the family stager. `configure`
- *   is a correct binding missing the staged-publish action. `skip` is a package
- *   already correct, which is what makes a re-run a no-op.
+ *   is a correct binding missing the staged-publish action. `narrow` is a
+ *   correct binding that permits the staged publish AND still permits a direct
+ *   one. `skip` is a package already correct, which is what makes a re-run a
+ *   no-op.
+ *   STAGE-ONLY IS THE TARGET, not a flag. Once a package's initial `0.0.0`
+ *   placeholder exists there is nothing left that needs to publish directly,
+ *   and leaving the direct grant beside the staged one means a release can
+ *   still reach consumers with no approval step — so `--apply` clears "npm
+ *   publish" and a package carrying both grants reads as `narrow` rather than
+ *   `skip`. The clear is gated on the registry having answered for the package:
+ *   every package in the plan has at least the placeholder, and a name the
+ *   packument read came back empty for is bound but never narrowed.
  *   Dry run is the DEFAULT; `--apply` opts into writing. A dry run reads no
  *   page, so it reports every target as `create` and names the target binding;
  *   `--apply` reads each package first and narrows the state from what npm
  *   actually reports. The target list comes from
  *   `./check-trusted-packages-staged.mts` rather than a hardcoded array, so a
  *   package that gets configured drops out of the plan on the next run.
- *   `--stage-only` additionally clears "npm publish". It is OFF by default:
- *   clearing it forces every publish through the approval queue, which breaks a
- *   pipeline still publishing directly. Adding the staged action is additive
- *   and safe; removing the direct one is a release-pipeline decision.
  *   Usage:
  *   pnpm run npm:configure-staged                  # plan only, writes nothing
  *   pnpm run npm:configure-staged --apply
  *   pnpm run npm:configure-staged --package date
  *   pnpm run npm:configure-staged --apply --limit 1
- *   pnpm run npm:configure-staged --apply --stage-only
- *   Browser I/O lives in `./configure-staged-publishing-browser.mts`; pure
+ *   Browser I/O lives in `./configure-staged-publishing-browser.mts`; the
+ *   in-place form write in `./configure-staged-publishing-write.mts`; pure
  *   planning in `./configure-staged-publishing-plan.mts`; the binding target
  *   and the state decision in `./configure-staged-publishing-binding.mts`.
  */
@@ -64,6 +70,7 @@ import {
   describeUnreadableCause,
   DIRECT_PUBLISH_ACTION,
   DRY_RUN_PLAN_STATE,
+  findUnmappedPermissionTokens,
   formatStagedPlanLine,
   formatUnreadableSettings,
   planStagedConfiguration,
@@ -90,7 +97,6 @@ const { values: args } = parseArgs({
     limit: { type: 'string' },
     package: { type: 'string', multiple: true },
     'profile-dir': { type: 'string' },
-    'stage-only': { type: 'boolean', default: false },
   },
   strict: false,
 })
@@ -172,6 +178,9 @@ export async function dumpAccessPayload(
       const target: StagedConfigurationTarget = {
         latestVersion: undefined,
         name: packageNames[i]!,
+        // The dump lane never writes, so it needs no registry evidence; zero is
+        // the honest value for a read it did not perform.
+        publishedVersionCount: 0,
         settingsUrl: buildPackageAccessUrl(packageNames[i]!),
       }
       // eslint-disable-next-line no-await-in-loop -- one browser page, one package at a time.
@@ -195,18 +204,26 @@ export async function dumpAccessPayload(
       const reading = readTrustedPublisherState(payload)
       const state = decideStagedConfigurationState(reading)
       logger.log(
-        formatStagedPlanLine({ binding: reading.binding, state, target }),
+        formatStagedPlanLine({
+          actions: reading.actions,
+          binding: reading.binding,
+          state,
+          target,
+        }),
       )
-      logger.log(
-        `  block:   ${reading.blockState}` +
-          `\n  actions: ${reading.actions ? `[${[...reading.actions].join(', ')}]` : '(unknown)'}`,
-      )
+      logger.log(`  block:   ${reading.blockState}`)
       const tokens = countConnectionPermissionTokens(payload)
       if (tokens !== undefined) {
+        // Tokens are reported by COUNT and LENGTH, never by value, for the same
+        // reason the key tree redacts strings. A length is enough to identify
+        // which grant is missing from the action table without printing the
+        // payload into a terminal or a transcript.
+        const unmapped = findUnmappedPermissionTokens(payload) ?? []
+        const lengths = unmapped.map(token => `len=${token.length}`).join(', ')
         logger.log(
-          `  grants:  ${tokens} permission token(s) on the live connection, ` +
-            `${reading.actions?.size ?? 0} mapped to an action` +
-            `${tokens > (reading.actions?.size ?? 0) ? ' — an unmapped token means OIDC_PERMISSION_ACTIONS needs an entry' : ''}`,
+          `  tokens:  ${tokens} permission token(s) on the live connection, ` +
+            `${tokens - unmapped.length} recognized` +
+            `${unmapped.length ? ` — ${unmapped.length} unmapped (${lengths}); add each to the action table before writing` : ''}`,
         )
       }
       if (reading.blockState === 'unreadable') {
@@ -225,13 +242,17 @@ function printHelp(): void {
   )
   logger.log('')
   logger.log(
-    `Binds each package to ${describeBinding(TARGET_BINDING)}, allowing "${STAGE_PUBLISH_ACTION}".`,
+    `Binds each package to ${describeBinding(TARGET_BINDING)}, allowing "${STAGE_PUBLISH_ACTION}"` +
+      ` and clearing "${DIRECT_PUBLISH_ACTION}".`,
   )
   logger.log(
     'Per-package states: create (no trusted publisher), rebind (bound elsewhere),',
   )
   logger.log(
-    '  configure (bound right, staged action missing), skip (already correct).',
+    '  configure (bound right, staged action missing), narrow (bound right and',
+  )
+  logger.log(
+    `  staged, but "${DIRECT_PUBLISH_ACTION}" still allowed), skip (already correct).`,
   )
   logger.log('')
   logger.log('Options:')
@@ -253,13 +274,6 @@ function printHelp(): void {
     '                   lengths, and value types only — no string value is ever',
   )
   logger.log('                   printed. Writes nothing.')
-  logger.log(
-    '  --stage-only     Also clear "npm publish", forcing every publish through the',
-  )
-  logger.log(
-    '                   approval queue. Off by default: clearing it breaks a pipeline',
-  )
-  logger.log('                   that still publishes directly.')
   logger.log(
     `  --profile-dir    Chrome profile holding the signed-in npm session. Default:`,
   )
@@ -283,7 +297,6 @@ export async function main(): Promise<void> {
   }
 
   const apply = args['apply'] === true
-  const stageOnly = args['stage-only'] === true
 
   logger.log(
     'Reading the staged-publishing state of every package in the manifest and the packages/npm tree…',
@@ -321,11 +334,10 @@ export async function main(): Promise<void> {
 
   if (!apply) {
     logger.log(
-      `Dry run: would bind ${slice.length} package(s) to ${describeBinding(TARGET_BINDING)} ` +
-        `and allow "${STAGE_PUBLISH_ACTION}"` +
-        `${stageOnly ? `, clearing "${DIRECT_PUBLISH_ACTION}"` : ''}. ` +
+      `Dry run: would bind ${slice.length} package(s) to ${describeBinding(TARGET_BINDING)}, ` +
+        `allow "${STAGE_PUBLISH_ACTION}" and clear "${DIRECT_PUBLISH_ACTION}". ` +
         `No page was read, so every package above reads as "${DRY_RUN_PLAN_STATE}"; ` +
-        '--apply reads each one first and narrows to rebind, configure, or skip.',
+        '--apply reads each one first and narrows to rebind, configure, narrow, or skip.',
     )
     return
   }
@@ -356,11 +368,16 @@ export async function main(): Promise<void> {
         const reading = readTrustedPublisherState(payload)
         const state = decideStagedConfigurationState(reading)
         logger.log(
-          formatStagedPlanLine({ binding: reading.binding, state, target }),
+          formatStagedPlanLine({
+            actions: reading.actions,
+            binding: reading.binding,
+            state,
+            target,
+          }),
         )
         if (state === 'skip') {
           logger.log(
-            `${target.name}: already bound to the target and permits a staged publish; skipping.`,
+            `${target.name}: already bound to the target, permits a staged publish, and no longer permits a direct one; skipping.`,
           )
           skipped.push(target.name)
           continue
@@ -370,10 +387,13 @@ export async function main(): Promise<void> {
             formatUnreadableSettings(target, describeUnreadableCause(payload)),
           )
         }
+        // The page is already sitting on this package's settled access page, so
+        // the write drives the form where it stands. No navigation: a reload
+        // here closes the form it is about to fill.
         // eslint-disable-next-line no-await-in-loop -- one browser page, one package at a time.
-        await applyStagedPublishing(session.page, target, { state, stageOnly })
+        await applyStagedPublishing(session.page, target, { state })
         logger.success(
-          `${target.name}: ${state} done — bound to ${describeBinding(TARGET_BINDING)} with "${STAGE_PUBLISH_ACTION}" allowed.`,
+          `${target.name}: ${state} done — bound to ${describeBinding(TARGET_BINDING)} with "${STAGE_PUBLISH_ACTION}" allowed and "${DIRECT_PUBLISH_ACTION}" cleared.`,
         )
         configured.push(target.name)
       } catch (e) {

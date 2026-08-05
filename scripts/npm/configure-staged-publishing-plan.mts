@@ -10,11 +10,13 @@
  *   package that gets configured drops out on the next run. A dry run reads no
  *   page at all, so it reports every target under {@link DRY_RUN_PLAN_STATE};
  *   the write lane reads each package's real binding and narrows to `rebind`,
- *   `configure`, or `skip` from there. Binding reading and the state decision
- *   live in `./configure-staged-publishing-binding.mts`, and the access-page
- *   readiness the read lane waits on lives in
- *   `./configure-staged-publishing-session.mts`; both are re-exported here so
- *   callers have one import surface.
+ *   `configure`, `narrow`, or `skip` from there. Binding reading and the state
+ *   decision live in `./configure-staged-publishing-binding.mts`, the page
+ *   markers in `./configure-staged-publishing-markers.mts`, the operator
+ *   overlay in `./configure-staged-publishing-overlay.mts`, and the access-page
+ *   readiness the read lane waits on in
+ *   `./configure-staged-publishing-session.mts`; all four are re-exported here
+ *   so callers have one import surface.
  */
 
 import {
@@ -25,10 +27,14 @@ import {
 import {
   bindingMatchesTarget,
   decideStagedConfigurationState,
+  describeAllowedActions,
   describeBinding,
   diffTargetBinding,
   DRY_RUN_PLAN_STATE,
+  isWriteState,
+  permitsDirectPublish,
   permitsStagedPublish,
+  TARGET_ALLOWED_ACTIONS,
   TARGET_BINDING,
   TARGET_ENVIRONMENT_NAME,
   TARGET_REPOSITORY_NAME,
@@ -36,10 +42,30 @@ import {
   TARGET_WORKFLOW_FILENAME,
 } from './configure-staged-publishing-binding.mts'
 import {
+  hasHumanVerificationMarkers,
+  hasSettingsPayloadMarkers,
+  normalizeChallengeText,
+  stripDismissableBanners,
+} from './configure-staged-publishing-markers.mts'
+import {
+  buildOperatorOverlayCss,
+  buildOperatorOverlayHtml,
+  buildOperatorOverlayInjectionScript,
+  buildOperatorOverlayRemovalScript,
+  OPERATOR_OVERLAY_CAPTION,
+  OPERATOR_OVERLAY_ELEMENT_ID,
+  shouldShowOperatorOverlay,
+} from './configure-staged-publishing-overlay.mts'
+import {
   countConnectionPermissionTokens,
+  DIRECT_PUBLISH_ACTION,
+  findUnmappedPermissionTokens,
   isTwoFactorEscalationPayload,
   readAllowedActions,
+  readConnectionPermissionTokens,
   readTrustedPublisherState,
+  resolvePermissionAction,
+  STAGE_PUBLISH_ACTION,
 } from './configure-staged-publishing-payload.mts'
 import {
   classifyAccessPageReadiness,
@@ -70,16 +96,25 @@ import type {
 
 export {
   bindingMatchesTarget,
+  buildOperatorOverlayCss,
+  buildOperatorOverlayHtml,
+  buildOperatorOverlayInjectionScript,
+  buildOperatorOverlayRemovalScript,
   classifyAccessPageReadiness,
   classifyStagedFetch,
   countConnectionPermissionTokens,
   decideStagedConfigurationState,
+  describeAllowedActions,
   describeBinding,
   diffTargetBinding,
+  DIRECT_PUBLISH_ACTION,
   DRY_RUN_PLAN_STATE,
+  findUnmappedPermissionTokens,
   formatOperatorWait,
   formatOperatorWaitTimeout,
   hasAccessPageMarkers,
+  hasHumanVerificationMarkers,
+  hasSettingsPayloadMarkers,
   hasSignInMarkers,
   hasTwoFactorEscalationMarkers,
   isAccessPageUrl,
@@ -87,11 +122,22 @@ export {
   isOperatorClearableReadiness,
   isOperatorSignInUrl,
   isTwoFactorEscalationPayload,
+  isWriteState,
   looksLikeHtmlBody,
+  normalizeChallengeText,
+  OPERATOR_OVERLAY_CAPTION,
+  OPERATOR_OVERLAY_ELEMENT_ID,
   OPERATOR_POLL_MS,
+  permitsDirectPublish,
   permitsStagedPublish,
   readAllowedActions,
+  readConnectionPermissionTokens,
   readTrustedPublisherState,
+  resolvePermissionAction,
+  shouldShowOperatorOverlay,
+  STAGE_PUBLISH_ACTION,
+  stripDismissableBanners,
+  TARGET_ALLOWED_ACTIONS,
   TARGET_BINDING,
   TARGET_ENVIRONMENT_NAME,
   TARGET_REPOSITORY_NAME,
@@ -110,17 +156,6 @@ export type {
 }
 
 export const NPM_ORIGIN = 'https://www.npmjs.com'
-
-/**
- * The action token npm uses for a staged publish in the trusted publisher's
- * "Allowed actions" control.
- */
-export const STAGE_PUBLISH_ACTION = 'npm stage publish'
-
-/**
- * The action token for a direct, unapproved publish.
- */
-export const DIRECT_PUBLISH_ACTION = 'npm publish'
 
 /**
  * Package settings URL — the page carrying the trusted-publisher block. npm
@@ -142,7 +177,47 @@ export interface StagedConfigurationTarget {
    */
   latestVersion: string | undefined
   name: string
+  /**
+   * How many versions the registry reported for this name. Carried through
+   * because clearing the direct-publish grant is gated on it: the run only
+   * narrows a package the registry actually answered for, so a packument read
+   * that came back empty can never drive a permission being taken away.
+   */
+  publishedVersionCount: number
   settingsUrl: string
+}
+
+/**
+ * Whether `target` has the registry evidence the run requires before it clears
+ * a package's direct-publish grant.
+ *
+ * At least one published version — the `0.0.0` name-reservation placeholder
+ * counts, and every package in this plan has one, since the plan is built from
+ * `not-staged` verdicts and those are only reachable for a name the registry
+ * answered for. The check is here anyway because the cost of getting it wrong
+ * is one-sided: taking a grant away from a package whose packument never
+ * loaded is a permission removed on no evidence at all.
+ */
+export function hasPackumentEvidence(
+  target: StagedConfigurationTarget,
+): boolean {
+  return target.publishedVersionCount > 0
+}
+
+/**
+ * Failure block for a narrow the run refused to perform, in What / Where / Saw
+ * vs wanted / Fix order.
+ */
+export function formatMissingPackumentEvidence(
+  target: StagedConfigurationTarget,
+): string {
+  return [
+    `What: ${target.name}'s direct-publish grant was left alone, because nothing proved the package exists on the registry.`,
+    `Where: ${target.settingsUrl}`,
+    'Saw: the registry reported no published versions for this name, not even a 0.0.0 placeholder.',
+    'Wanted: at least one published version, so a permission is only ever taken away from a package the registry answered for.',
+    'Fix: confirm the name resolves (`npm view <package>`), then re-run. If the read failed for a network reason the re-run clears it; if the package really is unpublished it has nothing to narrow.',
+  ].join('\n')
 }
 
 /**
@@ -164,6 +239,7 @@ export function planStagedConfiguration(
     targets.push({
       latestVersion: report.latestVersion,
       name: report.name,
+      publishedVersionCount: report.publishedVersionCount,
       settingsUrl: buildPackageAccessUrl(report.name),
     })
   }
@@ -171,11 +247,19 @@ export function planStagedConfiguration(
 }
 
 /**
- * Render one package's plan entry: its state, the binding npm reports today,
- * the binding it must end up with, and the page an operator would open to check
- * by hand. `binding` is omitted on a dry run, which reads no page.
+ * Render one package's plan entry: its state, the binding and permissions npm
+ * reports today, the binding and permissions it must end up with, and the page
+ * an operator would open to check by hand. `binding` and `actions` are omitted
+ * on a dry run, which reads no page.
+ *
+ * The permission pair is printed on every line, not only for `narrow`. A
+ * package whose ONLY defect is the extra direct-publish grant otherwise looks
+ * identical to a correct one — same binding, same workflow, same environment —
+ * and the two grant lines side by side are the only thing that shows the
+ * difference at a glance.
  */
 export function formatStagedPlanLine(config: {
+  actions?: ReadonlySet<string> | undefined
   binding?: TrustedPublisherBinding | undefined
   state: StagedConfigurationState
   target: StagedConfigurationTarget
@@ -190,6 +274,8 @@ export function formatStagedPlanLine(config: {
     `  state:   ${cfg.state}`,
     `  current: ${describeBinding(cfg.binding)}`,
     `  target:  ${describeBinding(TARGET_BINDING)}`,
+    `  grants:  ${describeAllowedActions(cfg.actions)}`,
+    `  wanted:  ${TARGET_ALLOWED_ACTIONS.join(', ')}`,
     `  page:    ${target.settingsUrl}`,
   ].join('\n')
 }
@@ -247,7 +333,7 @@ export function formatBindingWriteFailure(config: {
     `What: ${cfg.target.name}'s trusted publisher did not reach the target binding, so its staged publish will still be refused.`,
     `Where: ${cfg.target.settingsUrl}`,
     `Saw: after the ${cfg.state} save, ${saw}.`,
-    `Wanted: ${describeBinding(TARGET_BINDING)}, with "${STAGE_PUBLISH_ACTION}" allowed.`,
+    `Wanted: ${describeBinding(TARGET_BINDING)}, with "${STAGE_PUBLISH_ACTION}" allowed and "${DIRECT_PUBLISH_ACTION}" cleared.`,
     'Fix: open the URL above and set those fields by hand. The row may be PARTIALLY saved, so check every field, not just the ones named above.',
   ].join('\n')
 }

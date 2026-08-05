@@ -74,6 +74,9 @@ import {
   WAIT_FOR_OPERATOR_MS,
 } from './configure-staged-publishing-plan.mts'
 import {
+  closeStrayBlankPages,
+  dismissSiteNotifications,
+  isPolledPageOnTarget,
   pauseForOperatorInPlace,
   removeOperatorOverlay,
   syncOperatorOverlay,
@@ -202,15 +205,34 @@ export async function waitForAccessPage(
     await settleAccessPage(page)
     // eslint-disable-next-line no-await-in-loop -- serial poll: one live page at a time.
     const probe = await fetchJsonInPage(page, target.settingsUrl)
+    const livePageUrl = page.url()
+    // The page being polled must be the one holding this package's access URL.
+    // A session juggling tabs would otherwise classify some OTHER page's body
+    // as this package's settings — and act on the answer.
+    if (!isPolledPageOnTarget(livePageUrl, target.settingsUrl)) {
+      throw new Error(
+        formatUnreadableSettings(
+          target,
+          `the driven page is sitting on ${livePageUrl} instead of this package's access page, so its body is not this package's settings.`,
+        ),
+      )
+    }
     const readiness = classifyAccessPageReadiness({
       body: probe.body,
       fetchUrl: probe.fetchUrl,
-      pageUrl: page.url(),
+      pageUrl: livePageUrl,
       status: probe.status,
     })
     // eslint-disable-next-line no-await-in-loop -- serial: the overlay tracks each reading in turn.
     await syncOperatorOverlay(page, readiness)
     if (readiness === 'ready') {
+      // Cosmetic only, and only once the page is already settled: npm's
+      // notice banners clutter the operator's view and can sit over the form.
+      // Dismissing them is never a readiness signal — the payload already
+      // decided that above — and a banner that refuses to close changes
+      // nothing.
+      // eslint-disable-next-line no-await-in-loop -- one-shot on the way out of the wait.
+      await dismissSiteNotifications(page)
       return probe
     }
     if (readiness === 'auth') {
@@ -444,5 +466,22 @@ export async function openNpmSettingsSession(
     ...options,
   } as NonNullable<typeof options>
   const session = await openNpmBrowserSession({ profileDir })
-  return { close: session.close, page: session.page, user: session.user }
+  // ONE page for the whole run. A persistent-context launch hands back an
+  // initial blank page; leaving it open shows the operator a spare tab with
+  // Chrome's automation infobar on it, and leaves the session juggling pages a
+  // wait loop could poll by mistake.
+  const closed = await closeStrayBlankPages(session.page)
+  if (closed) {
+    logger.log(
+      `Closed ${closed} stray blank tab(s) — the run drives one page for every package.`,
+    )
+  }
+  return {
+    close: async () => {
+      await closeStrayBlankPages(session.page)
+      await session.close()
+    },
+    page: session.page,
+    user: session.user,
+  }
 }
