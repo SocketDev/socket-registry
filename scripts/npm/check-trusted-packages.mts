@@ -195,10 +195,11 @@ async function getPackageInfo(packageName: string): Promise<PackageInfo> {
   return (Array.isArray(parsed) ? parsed[0] : parsed) as PackageInfo
 }
 
-// The staged-publishing roster keyed by package name — the manifest is the
-// authoritative list of what this repo publishes, and it carries the version of
-// record, so an in-flight bump is distinguishable from a package that has never
-// been published. Populated once in main().
+// The staged-publishing roster keyed by package name — `registry/manifest.json`
+// unioned with the `packages/npm/*` tree, so a `0.0.0` placeholder the manifest
+// omits still carries a version of record and an in-flight bump stays
+// distinguishable from a package that has never been published. Populated once
+// in main().
 const stagedRosterByName = new Map<string, StagedRosterEntry>()
 
 async function getPackagesFromScope(scope: string): Promise<string[]> {

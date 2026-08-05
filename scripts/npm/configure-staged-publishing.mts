@@ -122,6 +122,16 @@ function printHelp(): void {
     'Usage: node scripts/npm/configure-staged-publishing.mts [options]',
   )
   logger.log('')
+  logger.log(
+    `Binds each package to ${describeBinding(TARGET_BINDING)}, allowing "${STAGE_PUBLISH_ACTION}".`,
+  )
+  logger.log(
+    'Per-package states: create (no trusted publisher), rebind (bound elsewhere),',
+  )
+  logger.log(
+    '  configure (bound right, staged action missing), skip (already correct).',
+  )
+  logger.log('')
   logger.log('Options:')
   logger.log('  --apply          Write the change. Omitted, this is a dry run.')
   logger.log(
@@ -153,7 +163,7 @@ export async function main(): Promise<void> {
   const stageOnly = args['stage-only'] === true
 
   logger.log(
-    'Reading the staged-publishing state of every package in the manifest…',
+    'Reading the staged-publishing state of every package in the manifest and the packages/npm tree…',
   )
   const reports = await loadStagedReports(
     (args['package'] as string[] | undefined) ?? [],
