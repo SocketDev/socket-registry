@@ -31,30 +31,37 @@
  *   therefore reports its mismatched fields instead of reading as done.
  */
 
+import { MILLISECONDS_PER_SECOND } from '@socketsecurity/lib-stable/constants/time'
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
+import { sleep } from '@socketsecurity/lib-stable/promises/timers'
 
 import type { Page } from 'playwright-core'
 
 import {
   DEFAULT_PROFILE_DIR,
   openNpmBrowserSession,
+  optIntoChallengeCooldown,
+  pauseForChallenge,
 } from '../fleet/publish-infra/npm/browser-session.mts'
 
 export { DEFAULT_PROFILE_DIR }
+import { CHALLENGE_PROGRESS_INTERVAL_MS } from '../fleet/publish-infra/npm/challenge-gate.mts'
 import { driveVerifiedSave } from '../fleet/publish-infra/npm/trusted-publisher-page.mts'
 
 import type { TrustedPublisherDesired } from '../fleet/publish-infra/npm/trusted-publisher-plan.mts'
 import {
-  classifyStagedFetch,
+  classifyAccessPageReadiness,
   formatBindingWriteFailure,
-  formatChallengeTimeout,
-  formatChallengeWait,
+  formatOperatorWait,
+  formatOperatorWaitTimeout,
   formatUnreadableSettings,
+  OPERATOR_POLL_MS,
   TARGET_ENVIRONMENT_NAME,
   TARGET_REPOSITORY_NAME,
   TARGET_REPOSITORY_OWNER,
   TARGET_WORKFLOW_FILENAME,
+  WAIT_FOR_OPERATOR_MS,
 } from './configure-staged-publishing-plan.mts'
 
 import type {
@@ -64,29 +71,35 @@ import type {
 
 const logger = getDefaultLogger()
 
-// A human-verification challenge is solved by a person, so the budget is
-// generous and the poll is slow. This is a pause, not a retry ladder.
-export const CHALLENGE_BUDGET_MS = 10 * 60_000
-const CHALLENGE_POLL_MS = 5000
+// How long each poll gives the page to go quiet before its payload is read.
+// Bounded and fail-soft: npm keeps background requests running, so a page that
+// never reaches network idle must not stall the wait — the landed URL and the
+// payload itself are the real gate.
+const SETTLE_TIMEOUT_MS = 5 * MILLISECONDS_PER_SECOND
 
-// The npm challenge page's per-IP cooldown opt-in. Ticking it lets a batch of
-// trust operations ride one approval. Fail-soft — never load-bearing.
-const COOLDOWN_OPTIN_SELECTOR = 'input[name="didOptForCooldown"]'
-
-function sleep(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms))
+/**
+ * One probe of the access page, as read through the browser.
+ */
+export interface SettingsProbe {
+  body: string
+  fetchUrl: string
+  status: number
 }
 
 /**
  * Run a same-origin fetch in the page's MAIN world. The page's own cookies
  * authenticate it, so no credential is read, copied, or logged by this process.
- * A destroyed execution context from a mid-navigation race yields status 0,
- * which callers treat as retryable rather than fatal.
+ * The URL the fetch FINALLY landed on is returned alongside the body, because
+ * that is the only thing that separates the access page from npm's sign-in
+ * interstitial — npm serves the interstitial as HTTP 200 JSON, so status and
+ * body shape alone cannot tell them apart. A destroyed execution context from a
+ * mid-navigation race yields status 0, which callers treat as retryable rather
+ * than fatal.
  */
 export async function fetchJsonInPage(
   page: Page,
   url: string,
-): Promise<{ body: string; status: number }> {
+): Promise<SettingsProbe> {
   try {
     return await page.evaluate(async fetchUrl => {
       // oxlint-disable-next-line socket/no-fetch-prefer-http-request -- runs in the npm page's MAIN world via page.evaluate; the lib httpRequest is unavailable there and only the page's cookies authenticate this request.
@@ -96,101 +109,166 @@ export async function fetchJsonInPage(
         headers: { accept: 'application/json', 'x-spiferack': '1' },
         method: 'GET',
       })
-      return { body: await r.text(), status: r.status }
+      return { body: await r.text(), fetchUrl: r.url, status: r.status }
     }, url)
   } catch {
-    return { body: '', status: 0 }
+    return { body: '', fetchUrl: '', status: 0 }
   }
 }
 
-async function optIntoChallengeCooldown(page: Page): Promise<void> {
-  try {
-    const box = page.locator(COOLDOWN_OPTIN_SELECTOR).first()
-    if ((await box.count()) > 0 && !(await box.isChecked())) {
-      await box.check({ timeout: 2000 })
-      logger.log(
-        'Ticked the npm challenge-cooldown opt-in — trust operations skip re-challenge for 5 minutes.',
-      )
-    }
-  } catch {}
+// Give the page a bounded chance to reach network idle. Fail-soft by design:
+// a timeout here means "still busy", not "broken", and the caller re-probes.
+async function settleAccessPage(page: Page): Promise<void> {
+  await page
+    .waitForLoadState('networkidle', { timeout: SETTLE_TIMEOUT_MS })
+    .catch(() => {})
 }
 
 /**
- * Read a package's settings payload, pausing for the operator whenever npm
- * answers with a human-verification challenge. The run resumes the moment the
- * challenge clears; nothing is retried blindly, so a challenge never escalates
- * into a rate limit.
+ * Wait until one package's access page is authenticated AND settled, then hand
+ * back the probe that proved it.
  *
- * @throws {Error} When the challenge outlasts its budget, when the session is
- *   signed out, or when npm answers with a non-200 that isn't a challenge.
+ * This is the gate every read passes before a single byte of payload is
+ * interpreted. `/-/whoami` reporting a username is not enough: npm can answer
+ * it while still serving the sign-in / one-time-password interstitial for the
+ * access page, and that interstitial arrives as HTTP 200 JSON. Classifying the
+ * PAGE — the URL the fetch landed on, the URL the window shows, the sign-in
+ * markers — is what keeps a half-finished login from being read as a settings
+ * payload and reported `unreadable`.
+ *
+ * A Cloudflare challenge pauses through the fleet's shared anti-bot rhythm
+ * ({@link pauseForChallenge}), which owns the 🖐 gate block, the desktop ping,
+ * the cooldown opt-in, and the budget. A sign-in / one-time-password page
+ * pauses here instead, and pointedly does NOT navigate: the operator owns that
+ * window, and navigating mid-wait would discard a partly entered one-time
+ * password. Only the first attempt navigates.
+ *
+ * @throws {Error} When the wait outlasts {@link WAIT_FOR_OPERATOR_MS}, when the
+ *   session is signed out, or when npm answers with a real HTTP error.
  */
-export async function readSettingsPayload(
+export async function waitForAccessPage(
   page: Page,
   target: StagedConfigurationTarget,
-): Promise<unknown> {
+  options?: { budgetMs?: number | undefined; pollMs?: number | undefined },
+): Promise<SettingsProbe> {
+  const opts = { __proto__: null, ...options } as NonNullable<typeof options>
+  const budgetMs = opts.budgetMs ?? WAIT_FOR_OPERATOR_MS
+  const pollMs = opts.pollMs ?? OPERATOR_POLL_MS
   const started = Date.now()
+  let navigated = false
   let announced = false
+  let challengeAnnounced = false
+  let lastProgressMs = 0
   for (;;) {
-    // eslint-disable-next-line no-await-in-loop -- serial poll: one live page, one challenge at a time.
-    const result = await fetchJsonInPage(page, target.settingsUrl)
-    const state = classifyStagedFetch(result)
-    if (state === 'ok') {
-      try {
-        return JSON.parse(result.body)
-      } catch (e) {
-        throw new Error(
-          formatUnreadableSettings(
-            target,
-            `the settings response was not JSON: ${errorMessage(e)}.`,
-          ),
-        )
-      }
+    if (!navigated) {
+      navigated = true
+      // eslint-disable-next-line no-await-in-loop -- one-shot: the only navigation this wait performs.
+      await page
+        .goto(target.settingsUrl, { waitUntil: 'domcontentloaded' })
+        .catch(() => {})
     }
-    if (state === 'auth') {
+    // eslint-disable-next-line no-await-in-loop -- serial poll: one live page at a time.
+    await settleAccessPage(page)
+    // eslint-disable-next-line no-await-in-loop -- serial poll: one live page at a time.
+    const probe = await fetchJsonInPage(page, target.settingsUrl)
+    const readiness = classifyAccessPageReadiness({
+      body: probe.body,
+      fetchUrl: probe.fetchUrl,
+      pageUrl: page.url(),
+      status: probe.status,
+    })
+    if (readiness === 'ready') {
+      return probe
+    }
+    if (readiness === 'auth') {
       throw new Error(
         formatUnreadableSettings(
           target,
-          `npm answered HTTP ${result.status} — the session is signed out or lacks access to this package.`,
+          `npm answered HTTP ${probe.status} — the session is signed out or lacks access to this package.`,
         ),
       )
     }
-    if (state === 'error') {
+    if (readiness === 'error') {
       throw new Error(
-        formatUnreadableSettings(target, `npm answered HTTP ${result.status}.`),
+        formatUnreadableSettings(target, `npm answered HTTP ${probe.status}.`),
       )
     }
     const elapsedMs = Date.now() - started
-    if (elapsedMs >= CHALLENGE_BUDGET_MS) {
+    if (elapsedMs >= budgetMs) {
       throw new Error(
-        formatChallengeTimeout({
-          budgetMs: CHALLENGE_BUDGET_MS,
+        formatOperatorWaitTimeout({
+          budgetMs,
+          readiness,
           url: target.settingsUrl,
         }),
       )
     }
+    if (readiness === 'challenge') {
+      // eslint-disable-next-line no-await-in-loop -- serial pause while the operator solves the challenge.
+      await pauseForChallenge(page, {
+        announced: challengeAnnounced,
+        budgetMs,
+        elapsedMs,
+        label: target.name,
+        pollMs,
+        url: target.settingsUrl,
+      })
+      challengeAnnounced = true
+      continue
+    }
+    // Sign-in, one-time password, or a page that has not landed on the access
+    // URL yet. Announce once, then keep the operator posted on the same cadence
+    // the challenge gate uses, so a long wait stays visible without becoming a
+    // wall of text.
+    const line = formatOperatorWait({
+      budgetMs,
+      elapsedMs,
+      readiness,
+      url: target.settingsUrl,
+    })
     if (!announced) {
-      logger.warn(
-        `Human verification interjected on ${target.name}. This run is PAUSED — solve it in the Chrome window.`,
-      )
-      // eslint-disable-next-line no-await-in-loop -- one-shot, inside the serial poll.
-      await page
-        .goto(target.settingsUrl, { waitUntil: 'domcontentloaded' })
-        .catch(() => {})
+      announced = true
+      lastProgressMs = elapsedMs
+      logger.warn(line)
       // eslint-disable-next-line no-await-in-loop -- one-shot, inside the serial poll.
       await page.bringToFront().catch(() => {})
-      announced = true
+    } else if (elapsedMs - lastProgressMs >= CHALLENGE_PROGRESS_INTERVAL_MS) {
+      lastProgressMs = elapsedMs
+      logger.log(line)
     }
-    // eslint-disable-next-line no-await-in-loop -- serial poll while the operator solves the challenge.
+    // eslint-disable-next-line no-await-in-loop -- serial poll while the operator finishes signing in.
     await optIntoChallengeCooldown(page)
-    logger.log(
-      formatChallengeWait({
-        budgetMs: CHALLENGE_BUDGET_MS,
-        elapsedMs,
-        url: target.settingsUrl,
-      }),
+    // eslint-disable-next-line no-await-in-loop -- serial poll interval; a person is at the keyboard.
+    await sleep(pollMs)
+  }
+}
+
+/**
+ * Read a package's settings payload off an authenticated, settled access page.
+ * The wait in {@link waitForAccessPage} is what makes the result trustworthy:
+ * by the time this parses anything, the window is signed in and sitting on the
+ * access URL, so a payload that still carries no trusted-publisher block is a
+ * genuine page-shape change rather than an interstitial.
+ *
+ * @throws {Error} When the operator wait outlasts its budget, when the session
+ *   is signed out, when npm answers with a real HTTP error, or when the settled
+ *   access page's payload is not JSON.
+ */
+export async function readSettingsPayload(
+  page: Page,
+  target: StagedConfigurationTarget,
+  options?: { budgetMs?: number | undefined; pollMs?: number | undefined },
+): Promise<unknown> {
+  const probe = await waitForAccessPage(page, target, options)
+  try {
+    return JSON.parse(probe.body)
+  } catch (e) {
+    throw new Error(
+      formatUnreadableSettings(
+        target,
+        `the settings response was not JSON: ${errorMessage(e)}.`,
+      ),
     )
-    // eslint-disable-next-line no-await-in-loop -- serial poll interval; a human is solving the check.
-    await sleep(CHALLENGE_POLL_MS)
   }
 }
 
