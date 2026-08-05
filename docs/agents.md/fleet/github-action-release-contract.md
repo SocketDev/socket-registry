@@ -34,16 +34,24 @@ point at it.
   moves them is removed but the tags are left behind, every workflow in the
   wild still pinning `@v1` is silently frozen on whatever release the alias last
   pointed at — permanently, and with no error anywhere.
-- **Deleting the aliases is a sanctioned end state.** Moving consumers to commit
-  SHAs (with a `# vX.Y.Z` comment) or to immutable version tags is the more
-  secure posture, and `github-action-aliases-are-not-frozen.mts` skips clean
-  when a repo carries no aliases at all. What it will not accept is the
-  half-finished migration: alias present, automation gone.
-- **Moving an alias is a force-push to a tag.** GitHub's own mover
-  (`actions/checkout`'s `update-main-version.yml`) is a `workflow_dispatch` that
-  runs `git tag -f <major> <target>` then `git push origin <major> --force`,
-  and doubles as the rollback tool — the same dispatch pointed at an older
-  target walks the alias back.
+- **Tag protection decides which fix is available, and it rules out deletion.**
+  `fleet-tag-protection` matches `refs/tags/v*` on every member with a
+  `deletion` rule and a `non_fast_forward` rule. So deleting an alias needs a
+  ruleset exemption, while moving one to a DESCENDANT commit is a fast-forward
+  ref update that the `non_fast_forward` rule does not bar. Lead with the
+  forward move; it is the operation a member can actually perform.
+- **Deleting the aliases is still the better end state, and it comes last.**
+  Consumers pinning a commit SHA (with a `# vX.Y.Z` comment) or an immutable
+  version tag beat any floating alias, and
+  `github-action-aliases-are-not-frozen.mts` skips clean when a repo carries no
+  aliases at all. Reaching that state means taking the exemption deliberately,
+  once the repo is otherwise clean — not as the first move on a red gate.
+- **A forward move needs no force.** GitHub's own mover
+  (`actions/checkout`'s `update-main-version.yml`) is a `workflow_dispatch`
+  running `git tag -f <major> <target>` then `git push origin <major> --force`,
+  which doubles as a rollback tool. The `--force` is what a BACKWARD move needs;
+  under tag protection it is also what a backward move gets rejected for, so
+  rollback is the case that requires the exemption.
 
 ## Enforcement
 

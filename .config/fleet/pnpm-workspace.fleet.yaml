@@ -23,12 +23,12 @@ catalog:
   'dtu-github-actions': 0.17.1
   '@shadscan/cli': 0.7.0
   '@sinclair/typebox': 0.34.52
-  '@socketregistry/packageurl-js': 1.5.0
-  '@socketsecurity/lib': 6.5.2
+  '@socketregistry/packageurl-js': 1.5.1
+  '@socketsecurity/lib': 6.5.3
   '@socketsecurity/registry': 2.0.5
   '@socketsecurity/sdk': 4.1.3
-  '@socketregistry/packageurl-js-stable': 'npm:@socketregistry/packageurl-js@1.5.0'
-  '@socketsecurity/lib-stable': 'npm:@socketsecurity/lib@6.5.2'
+  '@socketregistry/packageurl-js-stable': 'npm:@socketregistry/packageurl-js@1.5.1'
+  '@socketsecurity/lib-stable': 'npm:@socketsecurity/lib@6.5.3'
   '@socketsecurity/registry-stable': 'npm:@socketsecurity/registry@2.0.5'
   '@socketsecurity/sdk-stable': 'npm:@socketsecurity/sdk@4.1.3'
   '@types/mdast': 4.0.4
@@ -69,6 +69,16 @@ catalog:
   'markdownlint-cli2': 0.23.2
   'mdast-util-from-markdown': 2.0.3
   'micromark': 4.0.2
+  # minimatch — pinned so the default-export patch has a version to ride, and
+  # so the `minimatch@>=3` override has one target. v10's ESM build ships named
+  # exports only; the patch restores the default on both builds. Members had
+  # drifted across 3.1.5, 9.0.9, and 10.2.5 at the same time.
+  #
+  # patchedDependencies keys on this value, so moving it without regenerating
+  # the patch names a file that is not there and every `pnpm install` in the
+  # repo dies ENOENT. A bump lands the regenerated
+  # patches/minimatch@<version>.patch in the SAME change.
+  'minimatch': 10.2.6
   'neosanitize': 0.3.0
   # Pinned back 15.0.0 -> 14.0.16 on 2026-07-27: 15.0.0 ships
   # @mswjs/interceptors 0.39.8, whose fetch bypass path clones an
@@ -102,7 +112,7 @@ catalog:
   'regjsparser': 0.13.2
   'semver': 7.8.5
   'shell-quote': 1.10.0
-  'taze': 19.16.0
+  'taze': 19.17.1
   # TypeScript 7 NATIVE (the Go `tsc`). Track the highest available 7.x
   # PRE-RELEASE — the RC line is intentional. npm's `latest` dist-tag points at
   # 6.x stable, so "latest" is a DOWNGRADE off the native compiler: never follow
