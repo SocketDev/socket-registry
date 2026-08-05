@@ -113,7 +113,7 @@ export function buildPathsAndSupplyChainSteps(): CheckStep[] {
     // incident: a drifted tool entry left an INLINED_* env var empty and hung a
     // pre-commit test run.
     () => run('node', ['scripts/fleet/check/external-tools-are-valid.mts']),
-    // Brand marks under assets/repo/brand/ follow the canonical
+    // Brand marks under assets/ follow the canonical
     // <repo>-<mark>[-light|-dark].<svg|png> grammar (mark ∈ combomark | favicon |
     // logomark | wordmark). Conditional: a repo with no brand/ dir vacuous-passes;
     // the gate bites the moment marks land, so a stray logo.svg or wrong-repo
@@ -191,6 +191,13 @@ export function buildPathsAndSupplyChainSteps(): CheckStep[] {
     // third-party actions. See docs/agents.md/fleet/upstream-references.md.
     () =>
       run('node', ['scripts/fleet/check/action-ports-are-lock-stepped.mts']),
+    // Sibling gate on the same pins: an alias tag (`v4`, `main`) that upstream
+    // MOVES must not be recorded as if it were immutable, or the recorded pin
+    // stops reaching the commit it names.
+    () =>
+      run('node', [
+        'scripts/fleet/check/github-action-aliases-are-not-frozen.mts',
+      ]),
     // The canonical GH Actions allowlist (auditing-gha CANONICAL_PATTERNS)
     // matches the template's workflow surface in BOTH directions: every
     // cascaded template/base `uses:` is pattern-covered — GitHub validates

@@ -31,7 +31,9 @@
  *   Exit: 0 clean or unauthenticated; 1 drift found.
  */
 
+import { readFileSync } from 'node:fs'
 import os from 'node:os'
+import path from 'node:path'
 import process from 'node:process'
 
 import { WIN32 } from '@socketsecurity/lib-stable/constants/platform'
@@ -266,6 +268,29 @@ export async function expectedRepositoryFor(
  * unresolvable repo name answers `false`: the caller then takes the normal
  * path, which fails loudly rather than skipping on a guess.
  */
+/**
+ * The npm name this repo publishes, read from its own manifest. Needed because
+ * the release tier registers this step once for EVERY member with no per-repo
+ * argument, so the check has to answer "which package is mine" itself rather
+ * than failing on a missing name. A private or nameless manifest publishes
+ * nothing and yields undefined.
+ */
+export function publishedNameFromManifest(
+  repoRoot: string,
+): string | undefined {
+  try {
+    const manifest = JSON.parse(
+      readFileSync(path.join(repoRoot, 'package.json'), 'utf8'),
+    ) as { name?: unknown | undefined; private?: unknown | undefined }
+    if (manifest.private === true || typeof manifest.name !== 'string') {
+      return undefined
+    }
+    return manifest.name
+  } catch {
+    return undefined
+  }
+}
+
 export function repoHasNoNpmChannel(repoRoot: string): boolean {
   const roster = loadRosterFromRepo(repoRoot)
   if (!roster) {
@@ -291,11 +316,19 @@ export default async function main(): Promise<void> {
       )
       return
     }
-    logger.fail(
-      'no packages: pass the published names to check, e.g. @socketregistry/packageurl-js.',
-    )
-    process.exitCode = 1
-    return
+    // The repo publishes to npm but the caller named nothing, which is how
+    // the release tier always invokes this. Derive the name from the manifest
+    // rather than failing: the answer is unambiguous and sits on disk.
+    const own = publishedNameFromManifest(REPO_ROOT)
+    if (own) {
+      packages.push(own)
+    } else {
+      logger.fail(
+        'no packages: this repo publishes to npm, but its package.json names none. Pass the published name explicitly, e.g. @socketregistry/packageurl-js.',
+      )
+      process.exitCode = 1
+      return
+    }
   }
   let drifted = 0
   let skipped = 0

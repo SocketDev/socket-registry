@@ -351,7 +351,7 @@ async function killPids(pids: readonly number[]): Promise<number[]> {
   return survivors.filter(isAlive)
 }
 
-async function main(): Promise<void> {
+export async function main(): Promise<void> {
   const servers = parseCanonicalMcpConfig(
     readFileSync(path.join(REPO_ROOT, '.mcp.json'), 'utf8'),
   )

@@ -3,7 +3,7 @@
  *   badge SVG + README reference from a coverage run) and
  *   check/coverage-badge-is-current.mts (asserts the badge matches actual
  *   coverage). The badge is a repo-local optimized SVG asset — no third-party
- *   badge host — generated at `assets/repo/badges/coverage.svg` and referenced
+ *   badge host — generated at `assets/coverage.svg` and referenced
  *   by the README as a dimensioned `<img>` (standardized `height="20"` + the
  *   SVG's exact width, so the badge row aligns with no layout shift) whose src
  *   is the asset's ABSOLUTE raw-GitHub URL at HEAD. One place owns the SVG
@@ -25,7 +25,7 @@ import { COVERAGE_SUMMARY_PATH, REPO_ROOT } from '../paths.mts'
 // is the repo-owned asset tier, never cascade-synced, so each repo's percent
 // is its own. Seeded as a preset placeholder ("n/a", grey) so a fresh README
 // never references a missing image.
-export const BADGE_ASSET_PATH = 'assets/repo/badges/coverage.svg'
+export const BADGE_ASSET_PATH = 'assets/coverage.svg'
 
 // Standardized badge height (px) — every README badge <img> carries it so the
 // row aligns regardless of each SVG's own metrics. The width is set per-badge

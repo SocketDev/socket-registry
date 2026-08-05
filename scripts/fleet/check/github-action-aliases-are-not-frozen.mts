@@ -211,8 +211,14 @@ export function judgeFrozenAliases(
 
 /**
  * The human-readable finding for a frozen alias, naming both tags and both
- * commits so the reader can `git log` the gap and decide between re-pointing
- * the alias and deleting it.
+ * commits so the reader can `git log` the gap.
+ *
+ * The fix names the forward move FIRST because it is the operation a fleet repo
+ * can actually perform. `fleet-tag-protection` matches `refs/tags/v*` with a
+ * `deletion` rule, so deleting an alias needs a ruleset exemption — while
+ * moving one to a DESCENDANT commit is a fast-forward ref update, which the
+ * companion `non_fast_forward` rule does not bar. Leading with deletion sent
+ * the reader into a push the org's own rules reject.
  */
 export function formatFrozenAliasFinding(
   finding: FrozenAliasFinding,
@@ -228,8 +234,10 @@ export function formatFrozenAliasFinding(
     `  Where:  \`${alias}\` -> ${aliasCommit}; newest on that line is ` +
     `\`${newestRelease}\` -> ${newestReleaseCommit}.\n` +
     `  Saw:    alias points at an older commit than the newest release on its line.\n` +
-    `  Fix:    either move the alias to the newest release, or delete the alias ` +
-    `tag so consumers pin a release or a commit SHA.`
+    `  Fix:    move the alias forward to ${newestRelease} — a descendant commit, ` +
+    `so it is a fast-forward ref update that tag protection allows. Deleting the ` +
+    `alias instead needs a fleet-tag-protection exemption, since that ruleset ` +
+    `carries a deletion rule on refs/tags/v*.`
   )
 }
 

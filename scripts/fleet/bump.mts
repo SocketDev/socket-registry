@@ -243,7 +243,7 @@ export function invisibleSrcCommits(
  * `invisibleSrcCommits`; a git failure yields an empty list for that hash
  * the warning is best-effort, never a release blocker.
  */
-async function collectTouchedFiles(
+export async function collectTouchedFiles(
   hashes: readonly string[],
   cwd: string,
 ): Promise<Map<string, string[]>> {
@@ -275,7 +275,7 @@ async function collectTouchedFiles(
  * it. Prints to the log and, when the bump runs in CI, to the job summary
  * via GITHUB_STEP_SUMMARY.
  */
-function warnDerivationInvisibleCommits(
+export function warnDerivationInvisibleCommits(
   invisible: readonly ConventionalCommit[],
   anchorLabel: string,
 ): void {
@@ -316,7 +316,7 @@ function warnDerivationInvisibleCommits(
  * testable without real branches. Runs pre-derive, before any file is written,
  * so `--dry-run` surfaces the same warning with no side effects.
  */
-async function warnBackupBranchesWithUnreleased(
+export async function warnBackupBranchesWithUnreleased(
   baseRef: string,
   exec: BackupBranchGitExec,
 ): Promise<void> {

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * @file Assertion: every file under `assets/repo/brand/` is canonically named
+ * @file Assertion: every file under `assets/` is canonically named
  *   `<repo>-<mark>[-<variant>].<ext>` — a stray `logo.svg`, a wrong-repo
  *   prefix, or an unknown mark drifts the brand surface and breaks the
  *   README/asset-dirs references that resolve those exact names. The canonical
@@ -9,7 +9,7 @@
  *   wordmark <variant> light | dark (optional — the theme-split of an adaptive
  *   mark) <ext> svg | png e.g. `sockeye-combomark.svg` (adaptive),
  *   `sockeye-combomark-dark.svg`, `sockeye-logomark.png`,
- *   `sockeye-favicon.svg`. CONDITIONAL: a repo with no `assets/repo/brand/`
+ *   `sockeye-favicon.svg`. CONDITIONAL: a repo with no `assets/`
  *   directory vacuous-passes, most members carry no brand marks. The gate
  *   bites only on a repo that HAS brand assets, so a malformed name is caught
  *   the moment marks land. Strict: a non-canonical name exits 1 (no known-good
@@ -138,7 +138,7 @@ export function main(): void {
   const dir = brandDir(REPO_ROOT)
   if (!existsSync(dir)) {
     logger.log(
-      'brand-assets-are-canonically-named: skipped (no assets/repo/brand/ — repo carries no brand marks).',
+      'brand-assets-are-canonically-named: skipped (no assets/ — repo carries no brand marks).',
     )
     return
   }
@@ -151,7 +151,7 @@ export function main(): void {
     return
   }
   logger.warn(
-    `brand-assets-are-canonically-named: ${issues.length} non-canonical brand file(s) under assets/repo/brand/:`,
+    `brand-assets-are-canonically-named: ${issues.length} non-canonical brand file(s) under assets/:`,
   )
   for (const issue of issues) {
     logger.warn(`  ${issue.file} — ${issue.message}`)
