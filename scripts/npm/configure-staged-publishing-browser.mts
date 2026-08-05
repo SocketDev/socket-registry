@@ -55,14 +55,10 @@ import {
 } from '../fleet/publish-infra/npm/browser-session.mts'
 
 export { DEFAULT_PROFILE_DIR }
-import {
-  CHALLENGE_PROGRESS_INTERVAL_MS,
-  tickChallengeGate,
-} from '../fleet/publish-infra/npm/challenge-gate.mts'
+import { CHALLENGE_PROGRESS_INTERVAL_MS } from '../fleet/publish-infra/npm/challenge-gate.mts'
 
 import type { TrustedPublisherDesired } from '../fleet/publish-infra/npm/trusted-publisher-plan.mts'
 import {
-  buildOperatorOverlayHtml,
   classifyAccessPageReadiness,
   formatBindingWriteFailure,
   formatMissingPackumentEvidence,
@@ -70,133 +66,27 @@ import {
   formatOperatorWaitTimeout,
   formatUnreadableSettings,
   hasPackumentEvidence,
-  OPERATOR_OVERLAY_ELEMENT_ID,
   OPERATOR_POLL_MS,
-  shouldShowOperatorOverlay,
   TARGET_ENVIRONMENT_NAME,
   TARGET_REPOSITORY_NAME,
   TARGET_REPOSITORY_OWNER,
   TARGET_WORKFLOW_FILENAME,
   WAIT_FOR_OPERATOR_MS,
 } from './configure-staged-publishing-plan.mts'
+import {
+  pauseForOperatorInPlace,
+  removeOperatorOverlay,
+  syncOperatorOverlay,
+} from './configure-staged-publishing-operator.mts'
 import { saveTrustedPublisherInPlace } from './configure-staged-publishing-write.mts'
 
-import type { AccessPageReadiness } from './configure-staged-publishing-session.mts'
+import type { OperatorPause } from './configure-staged-publishing-operator.mts'
 import type {
   StagedConfigurationState,
   StagedConfigurationTarget,
 } from './configure-staged-publishing-plan.mts'
 
 const logger = getDefaultLogger()
-
-/**
- * The operator wait a caller can substitute. One tick: announce if this is a
- * fresh pause, keep the cooldown opt-in ticked, sleep. Injected rather than
- * imported at the call site so the wait loop's no-navigation invariant is
- * testable with a fake page and no gate files.
- */
-export type OperatorPause = (config: {
-  budgetMs: number
-  elapsedMs: number
-  label: string
-  pollMs: number
-  url: string
-}) => Promise<void>
-
-/**
- * Show the Socket shield over the page while a person is needed.
- *
- * Idempotent: the element is looked up first, so a poll loop calling this every
- * tick injects once and then does nothing. Entirely best-effort — every failure
- * is swallowed, because a page that refuses evaluation is a page the run should
- * keep waiting on, not one it should abandon over a missing decoration.
- */
-export async function showOperatorOverlay(page: Page): Promise<void> {
-  try {
-    await page.evaluate(
-      ([elementId, html]) => {
-        if (document.getElementById(elementId!)) {
-          return
-        }
-        const host = document.createElement('div')
-        host.innerHTML = html!
-        const node = host.firstElementChild
-        if (node) {
-          document.body.append(node)
-        }
-      },
-      [OPERATOR_OVERLAY_ELEMENT_ID, buildOperatorOverlayHtml()] as const,
-    )
-  } catch {}
-}
-
-/**
- * Take the shield back down. Called whenever readiness is not a state a person
- * clears, so a navigation that dropped the overlay and a challenge that cleared
- * both end the same way.
- */
-export async function removeOperatorOverlay(page: Page): Promise<void> {
-  try {
-    await page.evaluate(elementId => {
-      document.getElementById(elementId)?.remove()
-    }, OPERATOR_OVERLAY_ELEMENT_ID)
-  } catch {}
-}
-
-/**
- * Keep the overlay in sync with one readiness reading — injected during a real
- * challenge or step-up, removed otherwise.
- */
-export async function syncOperatorOverlay(
-  page: Page,
-  readiness: AccessPageReadiness,
-): Promise<void> {
-  if (shouldShowOperatorOverlay(readiness)) {
-    await showOperatorOverlay(page)
-    return
-  }
-  await removeOperatorOverlay(page)
-}
-
-/**
- * One tick of the operator pause, WITHOUT the fleet pause's reload.
- *
- * The fleet's `pauseForChallenge` is otherwise exactly what is wanted here — it
- * owns the 🖐 gate block, the desktop ping, the cross-call pause tracker, the
- * progress cadence and the budget — but on a fresh pause it re-navigates to the
- * URL. That reload closed the trusted-publisher form mid-write on a live run,
- * and the resulting reload loop is itself the traffic shape npm's bot
- * management answers with a challenge. So this composes the same
- * {@link tickChallengeGate} the fleet pause is built on and simply does not
- * navigate: the window is brought forward instead, which gets the operator's
- * attention without touching the page's state.
- *
- * @throws {Error} When the challenge outlasts its budget.
- */
-export async function pauseForOperatorInPlace(config: {
-  budgetMs: number
-  elapsedMs: number
-  label: string
-  page: Page
-  pollMs: number
-  url: string
-}): Promise<void> {
-  const cfg = { __proto__: null, ...config } as typeof config
-  const tick = await tickChallengeGate(cfg.page, {
-    budgetMs: cfg.budgetMs,
-    fallbackElapsedMs: cfg.elapsedMs,
-    pkg: cfg.label,
-    url: cfg.url,
-  })
-  if (tick.expiredMessage !== undefined) {
-    throw new Error(tick.expiredMessage)
-  }
-  if (tick.freshPause) {
-    await cfg.page.bringToFront().catch(() => {})
-  }
-  await optIntoChallengeCooldown(cfg.page)
-  await sleep(cfg.pollMs)
-}
 
 // How long each poll gives the page to go quiet before its payload is read.
 // Bounded and fail-soft: npm keeps background requests running, so a page that
@@ -263,12 +153,17 @@ async function settleAccessPage(page: Page): Promise<void> {
  * markers — is what keeps a half-finished login from being read as a settings
  * payload and reported `unreadable`.
  *
- * A Cloudflare challenge pauses through the fleet's shared anti-bot rhythm
- * ({@link pauseForChallenge}), which owns the 🖐 gate block, the desktop ping,
- * the cooldown opt-in, and the budget. A sign-in / one-time-password page
- * pauses here instead, and pointedly does NOT navigate: the operator owns that
- * window, and navigating mid-wait would discard a partly entered one-time
- * password. Only the first attempt navigates.
+ * The wait navigates AT MOST ONCE, on its first tick, and never again — not on
+ * a challenge, not on a step-up, not on a sign-in. The operator owns that
+ * window: a `goto` mid-wait discards a partly entered one-time password, closes
+ * a form the write lane has open, and adds one more reload to the traffic
+ * pattern that earns a challenge in the first place. `navigate: false` skips
+ * even that first one, for a caller whose page is already there.
+ *
+ * A real challenge or step-up pauses through {@link pauseForOperatorInPlace},
+ * which keeps the fleet's operator UX — the 🖐 gate block, the desktop ping,
+ * the cooldown opt-in, the budget — and drops its reload. The Socket shield
+ * goes up for those two states and comes down for everything else.
  *
  * @throws {Error} When the wait outlasts {@link WAIT_FOR_OPERATOR_MS}, when the
  *   session is signed out, or when npm answers with a real HTTP error.
@@ -276,20 +171,29 @@ async function settleAccessPage(page: Page): Promise<void> {
 export async function waitForAccessPage(
   page: Page,
   target: StagedConfigurationTarget,
-  options?: { budgetMs?: number | undefined; pollMs?: number | undefined },
+  options?: {
+    budgetMs?: number | undefined
+    navigate?: boolean | undefined
+    pause?: OperatorPause | undefined
+    pollMs?: number | undefined
+  },
 ): Promise<SettingsProbe> {
   const opts = { __proto__: null, ...options } as NonNullable<typeof options>
   const budgetMs = opts.budgetMs ?? WAIT_FOR_OPERATOR_MS
   const pollMs = opts.pollMs ?? OPERATOR_POLL_MS
+  const pause =
+    opts.pause ??
+    (async config => {
+      await pauseForOperatorInPlace({ ...config, page })
+    })
   const started = Date.now()
-  let navigated = false
+  let navigated = opts.navigate === false
   let announced = false
-  let challengeAnnounced = false
   let lastProgressMs = 0
   for (;;) {
     if (!navigated) {
       navigated = true
-      // eslint-disable-next-line no-await-in-loop -- one-shot: the only navigation this wait performs.
+      // eslint-disable-next-line no-await-in-loop -- one-shot: the ONLY navigation this wait ever performs.
       await page
         .goto(target.settingsUrl, { waitUntil: 'domcontentloaded' })
         .catch(() => {})
@@ -304,6 +208,8 @@ export async function waitForAccessPage(
       pageUrl: page.url(),
       status: probe.status,
     })
+    // eslint-disable-next-line no-await-in-loop -- serial: the overlay tracks each reading in turn.
+    await syncOperatorOverlay(page, readiness)
     if (readiness === 'ready') {
       return probe
     }
@@ -330,17 +236,15 @@ export async function waitForAccessPage(
         }),
       )
     }
-    if (readiness === 'challenge') {
-      // eslint-disable-next-line no-await-in-loop -- serial pause while the operator solves the challenge.
-      await pauseForChallenge(page, {
-        announced: challengeAnnounced,
+    if (readiness === 'challenge' || readiness === 'two-factor') {
+      // eslint-disable-next-line no-await-in-loop -- serial pause while the operator clears the challenge, in place.
+      await pause({
         budgetMs,
         elapsedMs,
         label: target.name,
         pollMs,
         url: target.settingsUrl,
       })
-      challengeAnnounced = true
       continue
     }
     // Sign-in, one-time password, or a page that has not landed on the access
@@ -384,7 +288,12 @@ export async function waitForAccessPage(
 export async function readSettingsPayload(
   page: Page,
   target: StagedConfigurationTarget,
-  options?: { budgetMs?: number | undefined; pollMs?: number | undefined },
+  options?: {
+    budgetMs?: number | undefined
+    navigate?: boolean | undefined
+    pause?: OperatorPause | undefined
+    pollMs?: number | undefined
+  },
 ): Promise<unknown> {
   const probe = await waitForAccessPage(page, target, options)
   try {
@@ -401,16 +310,22 @@ export async function readSettingsPayload(
 
 /**
  * The trusted-publisher binding every `@socketregistry/*` package must end up
- * with, in the fleet driver's own shape. `stageOnly` is the only variable: it
- * clears the direct-publish action so every release has to go through the
- * approval queue.
+ * with, in the fleet driver's own shape.
+ *
+ * Stage-only is the target, not an option. `clearDirectPublish` exists solely
+ * so the ONE case with no registry evidence behind it — a name the packument
+ * read never answered for — can still be bound to the right workflow without
+ * having a permission taken away on the strength of nothing.
  */
 export function buildDesiredPublisher(config: {
-  stageOnly: boolean
+  clearDirectPublish: boolean
 }): TrustedPublisherDesired {
-  const { stageOnly } = { __proto__: null, ...config } as typeof config
+  const { clearDirectPublish } = {
+    __proto__: null,
+    ...config,
+  } as typeof config
   return {
-    allowNpmPublish: !stageOnly,
+    allowNpmPublish: !clearDirectPublish,
     allowNpmStagePublish: true,
     environmentName: TARGET_ENVIRONMENT_NAME,
     repositoryName: TARGET_REPOSITORY_NAME,
@@ -421,39 +336,85 @@ export function buildDesiredPublisher(config: {
 
 /**
  * Write one package's trusted publisher so a staged publish from
- * `npm-publish-packages.yml` is allowed.
+ * `npm-publish-packages.yml` is allowed, and a direct publish is not.
  *
- * All three write states drive the SAME form, so all three take the same path:
+ * Every write state drives the SAME form, so every one takes the same path:
  * `create` fills it for a package that has no publisher, `rebind` overwrites
- * one pointing at another workflow, and `configure` rewrites a correct binding
- * with the staged action added. Writing the whole field set every time means a
- * half-done earlier pass never survives as a residue.
+ * one pointing at another workflow, `configure` adds the staged action to a
+ * correct binding, and `narrow` clears the direct-publish grant that was left
+ * beside it. Writing the whole field set every time means a half-done earlier
+ * pass never survives as a residue.
+ *
+ * The caller must have left the page ON the settled access page — this drives
+ * the form where it stands and never navigates, because a reload is what closed
+ * the form mid-write on the run this replaced.
  *
  * Idempotence is the caller's contract and this function's too: a package the
  * caller already classified as `skip` never reaches here, and a package that IS
  * already correct verifies on the first re-read and reports success without a
  * second write.
  *
- * @throws {Error} When the form cannot be opened, when a human-verification
- *   challenge outlasts its budget, or when the RE-READ does not confirm the
- *   target binding after the save and its one fresh retry.
+ * @throws {Error} When the package carries no registry evidence, when the form
+ *   cannot be opened, when a human-verification challenge outlasts its budget,
+ *   or when the in-place RE-READ does not confirm the target after the save.
  */
 export async function applyStagedPublishing(
   page: Page,
   target: StagedConfigurationTarget,
-  config: { state: StagedConfigurationState; stageOnly: boolean },
+  config: {
+    state: StagedConfigurationState
+    verifyPollMs?: number | undefined
+    verifyTimeoutMs?: number | undefined
+  },
 ): Promise<void> {
-  const { state, stageOnly } = { __proto__: null, ...config } as typeof config
-  const verdict = await driveVerifiedSave(
-    page,
-    target.name,
-    buildDesiredPublisher({ stageOnly }),
-  )
+  const cfg = { __proto__: null, ...config } as typeof config
+  // Assert the packument was readable BEFORE anything is cleared. Every package
+  // in the plan clears this today — the plan is built from `not-staged`
+  // verdicts, which only exist for a name the registry answered for — and it is
+  // checked anyway, because a permission taken away on an empty read is not
+  // recoverable by re-running.
+  if (!hasPackumentEvidence(target)) {
+    throw new Error(formatMissingPackumentEvidence(target))
+  }
+  const desired = buildDesiredPublisher({ clearDirectPublish: true })
+  const budgetMs = WAIT_FOR_OPERATOR_MS
+  const started = Date.now()
+  const verdict = await saveTrustedPublisherInPlace(page, {
+    challengePresent: async () => {
+      const probe = await fetchJsonInPage(page, target.settingsUrl)
+      const readiness = classifyAccessPageReadiness({
+        body: probe.body,
+        fetchUrl: probe.fetchUrl,
+        pageUrl: page.url(),
+        status: probe.status,
+      })
+      return readiness === 'challenge' || readiness === 'two-factor'
+    },
+    desired,
+    label: target.name,
+    pause: async () => {
+      await pauseForOperatorInPlace({
+        budgetMs,
+        elapsedMs: Date.now() - started,
+        label: target.name,
+        page,
+        pollMs: OPERATOR_POLL_MS,
+        url: target.settingsUrl,
+      })
+    },
+    readPayload: async () => {
+      const probe = await fetchJsonInPage(page, target.settingsUrl)
+      return JSON.parse(probe.body)
+    },
+    verifyPollMs: cfg.verifyPollMs,
+    verifyTimeoutMs: cfg.verifyTimeoutMs,
+  })
+  await removeOperatorOverlay(page)
   if (!verdict.ok) {
     throw new Error(
       formatBindingWriteFailure({
         mismatches: verdict.mismatches,
-        state,
+        state: cfg.state,
         target,
       }),
     )
