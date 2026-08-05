@@ -44,9 +44,13 @@ catalog:
   # 'brace-expansion'`, which is the shape the fleet CI cache action resolves
   # through. An unpatched member dies at setup before a test runs. Members had
   # drifted across 5.0.5 / 5.0.6 / 5.0.7 / 5.0.8, so the fleet converges here.
-  # Soaked (5.0.8 published 2026-07-23; 5.0.9 published 2026-07-30 is still
-  # inside the 7-day cooldown).
-  'brace-expansion': 5.0.8
+  #
+  # 5.0.9 carries a HIGH advisory fix (DoS via unbounded intermediate arrays;
+  # `<5.0.9` is vulnerable), so it is pulled ahead of the 7-day cooldown with a
+  # dated minimumReleaseAgeExclude entry rather than left pinned to a version
+  # `pnpm audit` fails on. patchedDependencies keys on this pin, so the
+  # regenerated patches/brace-expansion@5.0.9.patch lands in the same change.
+  'brace-expansion': 5.0.9
   # istanbul-org converter for raw NODE_V8_COVERAGE output — cover.mts turns
   # spawned-child coverage into the children merge tier with `c8 report`.
   # Soaked (11.0.0 published 2026-02-22).

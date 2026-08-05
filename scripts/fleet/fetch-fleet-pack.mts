@@ -55,6 +55,8 @@ import {
   withMirrorLockLiftedSync,
   writeThroughMirrorLock,
 } from './_shared/mirror-lock.mts'
+import { runMain } from './_shared/run-main.mts'
+import type { ScriptMeta } from './_shared/run-main.mts'
 
 const logger = getDefaultLogger()
 
@@ -430,14 +432,18 @@ export async function main(): Promise<number> {
   }
 }
 
+const SCRIPT_META: ScriptMeta = {
+  describe:
+    'fetch a fleet release bundle, verify every SHA-256, and place the files',
+  help: `Usage: node scripts/fleet/fetch-fleet-pack.mts --ref <tag> [flags]
+  --ref <tag>         release tag to fetch (e.g. fleet-pack-<sha>)
+  --repo <owner/repo> source repo (default SocketDev/socket-wheelhouse)
+  --dest <dir>        destination directory (default the repo root)
+  --dry-run           verify only; write nothing
+  --allow-non-member  place into a non-roster destination (requires --reason)
+  --reason <why>      audited reason for --allow-non-member`,
+}
+
 if (isMainModule(import.meta.url)) {
-  main().then(
-    code => {
-      process.exitCode = code
-    },
-    (e: unknown) => {
-      logger.error(e)
-      process.exitCode = 1
-    },
-  )
+  runMain(main, SCRIPT_META)
 }

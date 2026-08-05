@@ -19,6 +19,9 @@ import { spawnSync } from '@socketsecurity/lib-stable/process/spawn/child'
 
 import { REPO_ROOT } from '../paths.mts'
 import { isMainModule } from '../_shared/is-main-module.mts'
+import { runMain } from '../_shared/run-main.mts'
+
+import type { ScriptMeta } from '../_shared/run-main.mts'
 
 const logger = getDefaultLogger()
 
@@ -258,9 +261,11 @@ async function main(): Promise<void> {
   process.exitCode = 1
 }
 
+const SCRIPT_META: ScriptMeta = {
+  describe: 'checks no tracked file exceeds the 2 MB size cap',
+  help: 'Usage: node scripts/fleet/check/tracked-files-are-within-size-cap.mts',
+}
+
 if (isMainModule(import.meta.url)) {
-  main().catch((error: unknown) => {
-    logger.fail('file-size check failed:', error)
-    process.exitCode = 1
-  })
+  runMain(main, SCRIPT_META)
 }

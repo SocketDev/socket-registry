@@ -138,7 +138,7 @@ const SIBLING_PATH_RES: readonly RegExp[] = [
 // The canonical social-follow badge block every fleet README carries under
 // the title, byte-identical fleet-canonical, not repo-contextual. Both must
 // be present. Matched by the stable LINK target, not the badge image, so an
-// image-host change (shields.io → the local assets/fleet/ SVGs) or reworded
+// image-host change (shields.io → the local assets/ SVGs) or reworded
 // alt-text still counts.
 const SOCIAL_BADGES: ReadonlyArray<{ name: string; signature: RegExp }> = [
   { name: 'Bluesky follow', signature: /bsky\.app\/profile\/socket\.dev/ },
@@ -155,8 +155,8 @@ const SOCIAL_BADGES: ReadonlyArray<{ name: string; signature: RegExp }> = [
 // vertical space, which is what made the 420px footer read as oversized on
 // repos that already had a logo.
 //
-// Matched on the ASSET PATH, which is the stable part: `assets/repo/brand/`
-// is repo-owned, `assets/fleet/socket-combomark` is the fleet mark. Sizes and
+// Matched on the ASSET PATH, which is the stable part: `assets/`
+// is repo-owned, `assets/socket-combomark` is the fleet mark. Sizes and
 // alt text are free to change without touching this rule.
 const REPO_BRAND_MARK = /assets\/repo\/brand\/[^"')\s]*combomark/
 const FLEET_BRAND_MARK = /assets\/fleet\/socket-combomark/

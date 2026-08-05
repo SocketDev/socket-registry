@@ -42,6 +42,8 @@ import {
 } from '../_shared/github-raw-url.mts'
 import { isMainModule } from '../_shared/is-main-module.mts'
 import { writeThroughMirrorLock } from '../_shared/mirror-lock.mts'
+import { runMain } from '../_shared/run-main.mts'
+import type { ScriptMeta } from '../_shared/run-main.mts'
 
 const logger = getDefaultLogger()
 
@@ -138,6 +140,13 @@ function main(): void {
   })
 }
 
+const SCRIPT_META: ScriptMeta = {
+  describe:
+    'regenerate the repo-local coverage badge from the latest coverage run',
+  help: `Usage: node scripts/fleet/gen/coverage-badge.mts [flags]
+  --check  exit 1 when the badge would change instead of writing`,
+}
+
 if (isMainModule(import.meta.url)) {
-  main()
+  runMain(main, SCRIPT_META)
 }

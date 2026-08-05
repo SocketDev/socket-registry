@@ -33,6 +33,9 @@ import {
 } from '../../../.claude/hooks/fleet/_shared/foreign-linters.mts'
 import { REPO_ROOT } from '../paths.mts'
 import { isMainModule } from '../_shared/is-main-module.mts'
+import { runMain } from '../_shared/run-main.mts'
+
+import type { ScriptMeta } from '../_shared/run-main.mts'
 
 const logger = getDefaultLogger()
 
@@ -85,6 +88,12 @@ function main(): void {
   )
 }
 
+const SCRIPT_META: ScriptMeta = {
+  describe:
+    'checks tracked files for foreign linter/formatter configs and deps — the fleet is oxlint + oxfmt only',
+  help: 'Usage: node scripts/fleet/check/linters-are-oxlint-oxfmt-only.mts',
+}
+
 if (isMainModule(import.meta.url)) {
-  main()
+  runMain(main, SCRIPT_META)
 }

@@ -17,12 +17,14 @@
 
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import path from 'node:path'
-import process from 'node:process'
 
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
 import { REPO_ROOT } from '../paths.mts'
 import { isMainModule } from '../_shared/is-main-module.mts'
+import { runMain } from '../_shared/run-main.mts'
+
+import type { ScriptMeta } from '../_shared/run-main.mts'
 
 const logger = getDefaultLogger()
 
@@ -122,15 +124,12 @@ export function runCheck(repoRoot: string): number {
   return 1
 }
 
-function main(): void {
-  process.exitCode = runCheck(REPO_ROOT)
+const SCRIPT_META: ScriptMeta = {
+  describe:
+    'checks that every co-located app-token minter copy is byte-identical',
+  help: 'Usage: node scripts/fleet/check/app-token-minters-are-identical.mts',
 }
 
 if (isMainModule(import.meta.url)) {
-  try {
-    main()
-  } catch (e) {
-    logger.error(e)
-    process.exitCode = 1
-  }
+  runMain(() => runCheck(REPO_ROOT), SCRIPT_META)
 }
