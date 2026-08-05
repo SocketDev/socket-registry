@@ -175,15 +175,97 @@ describe('classifyAccessPageReadiness', () => {
     ).toBe('sign-in')
   })
 
-  test('a Cloudflare interstitial is a challenge', () => {
+  test('a Cloudflare interstitial is a challenge, in every spelling', () => {
+    // The interstitial title arrives with a Unicode ellipsis, with three ASCII
+    // dots, with nothing, and in any case. Each is the same phrase, so each has
+    // to reach the same verdict.
+    for (const title of [
+      'Just a moment…',
+      'Just a moment…',
+      'Just a moment',
+      'JUST A MOMENT…',
+    ]) {
+      expect(
+        classifyAccessPageReadiness({
+          body: `<html><head><title>${title}</title></head></html>`,
+          fetchUrl: ACCESS_URL,
+          pageUrl: ACCESS_URL,
+          status: 200,
+        }),
+      ).toBe('challenge')
+    }
+  })
+
+  test('an access page carrying npm’s notice banners is ready, not a challenge', () => {
+    // The live false positive: a rendered access page with the 2026 two-factor
+    // token-restriction warning on it. The run announced "waiting on human
+    // verification" and burned its whole budget with the trusted-publisher form
+    // sitting open underneath.
     expect(
       classifyAccessPageReadiness({
-        body: '<html><head><title>Just a moment…</title></head></html>',
+        body:
+          '<div role="alert" class="alert alert-warning">npm tokens that bypass 2FA are being ' +
+          `restricted — account changes (Aug 2026) and direct publishing (Jan 2027)</div>${ACCESS_PAYLOAD}`,
         fetchUrl: ACCESS_URL,
         pageUrl: ACCESS_URL,
         status: 200,
       }),
-    ).toBe('challenge')
+    ).toBe('ready')
+  })
+
+  test('a provenance-fetch-failure banner is ready too', () => {
+    expect(
+      classifyAccessPageReadiness({
+        body:
+          '<div class="banner banner-error">Failed to fetch provenance details for ' +
+          `@socketregistry/abab@1.0.9. Please try reloading the page.</div>${ACCESS_PAYLOAD}`,
+        fetchUrl: ACCESS_URL,
+        pageUrl: ACCESS_URL,
+        status: 200,
+      }),
+    ).toBe('ready')
+  })
+
+  test('the rendered trusted-publisher form is ready even served as HTML', () => {
+    // The page in the screenshot: the form one click away, on a full HTML
+    // document. A bare "HTML where JSON was expected" reading filed that under
+    // Cloudflare and paused for a person who had nothing to do.
+    expect(
+      classifyAccessPageReadiness({
+        body: '<html><body><input name="workflowName" value="npm-publish.yml"></body></html>',
+        fetchUrl: ACCESS_URL,
+        pageUrl: ACCESS_URL,
+        status: 200,
+      }),
+    ).toBe('ready')
+  })
+
+  test('a two-factor step-up at the access URL is still the step-up', () => {
+    // Payload-presence-first must not weaken this: npm serves the step-up AT
+    // the access URL as a 200 to a signed-in session, and reading it as
+    // settings reports a configured package as having no publisher at all.
+    expect(
+      classifyAccessPageReadiness({
+        body: '{"escalateType":"webauthn","hasTotp":true,"originalUrl":"/package/x/access"}',
+        fetchUrl: ACCESS_URL,
+        pageUrl: ACCESS_URL,
+        status: 200,
+      }),
+    ).toBe('two-factor')
+  })
+
+  test('an account’s WebAuthn posture on a settings payload is not a step-up', () => {
+    // npm is tightening two-factor across the site. A settings payload that
+    // starts reporting the account's WebAuthn devices must not read as an
+    // escalation forever after.
+    expect(
+      hasTwoFactorEscalationMarkers(
+        `{"hasWebAuthnDevices":false,"oidcConnections":[]}`,
+      ),
+    ).toBe(false)
+    expect(hasTwoFactorEscalationMarkers('{"hasWebAuthnDevices":false}')).toBe(
+      true,
+    )
   })
 
   test('a destroyed execution context is unsettled, not an error', () => {

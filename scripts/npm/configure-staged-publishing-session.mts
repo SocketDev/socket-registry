@@ -32,6 +32,17 @@
  *   and the landed URL is the access page. So the escalation gets its own
  *   marker set and its own operator pause, and the connections keys were never
  *   the problem.
+ *   The third lesson reordered everything above it. A settled access page
+ *   renders npm's dismissable notice banners — the 2026 warning about tokens
+ *   that bypass two-factor, an error banner when provenance details fail to
+ *   load — and the challenge detector scored that copy as human-verification
+ *   text. The run then announced "waiting on human verification" and burned its
+ *   whole ten-minute budget while the trusted-publisher form sat open
+ *   underneath. So the PAYLOAD now decides first: a body carrying the settings
+ *   data or the rendered form is `ready`, whatever banners render around it,
+ *   and only a body with no payload at all is handed to the challenge,
+ *   step-up, and sign-in matchers. A real interstitial has no package data to
+ *   serve, so nothing is weakened by asking about the payload first.
  */
 
 import {
@@ -39,10 +50,11 @@ import {
   MILLISECONDS_PER_SECOND,
 } from '@socketsecurity/lib-stable/constants/time'
 
+import { classifyStagedFetch } from '../fleet/publish-infra/npm/staged-browser-parse.mts'
 import {
-  classifyStagedFetch,
-  isCloudflareChallenge,
-} from '../fleet/publish-infra/npm/staged-browser-parse.mts'
+  hasHumanVerificationMarkers,
+  hasSettingsPayloadMarkers,
+} from './configure-staged-publishing-markers.mts'
 
 /**
  * The ONE budget for every state a person has to clear in the browser window:
@@ -131,19 +143,27 @@ const SIGN_IN_FORM_MARKERS: readonly RegExp[] = [
   /id="npm-otp"/i,
 ]
 
-// Keys only npm's two-factor STEP-UP payload carries. Anchored on KEY NAMES,
+// Keys ONLY npm's two-factor STEP-UP payload carries. Anchored on KEY NAMES,
 // never on markup or copy: the step-up arrives as JSON from the `x-spiferack`
 // fetch, so there is no markup to anchor on, and npm's own key names are the
 // stabler contract anyway.
 //
 // Quotes may be escaped (\") when the JSON sits embedded inside an HTML page's
 // string, which is how the same payload arrives through the server-rendered
-// route. `escalateType` and `disable2faPasswordOption` are unique to the
-// step-up; `publicKeyCredentialRequestOptions` and `hasWebAuthnDevices` are its
-// WebAuthn arm, present (as `null`/`false`) even on a TOTP-only account.
+// route. These two name the escalation itself, so they are decisive on their
+// own.
 const TWO_FACTOR_ESCALATION_MARKERS: readonly RegExp[] = [
   /\\?"escalateType\\?"\s*:/,
   /\\?"disable2faPasswordOption\\?"\s*:/,
+]
+
+// The step-up's WebAuthn arm. These describe an ACCOUNT's second-factor
+// posture, not the escalation, so they can legitimately ride a settings payload
+// — npm is tightening two-factor across the site, and a page that starts
+// reporting the account's WebAuthn devices would otherwise read as a step-up
+// forever. They count only when no settings payload accompanies them, the same
+// two-tier split the fleet parser uses for Cloudflare's ambient scripts.
+const TWO_FACTOR_WEBAUTHN_MARKERS: readonly RegExp[] = [
   /\\?"publicKeyCredentialRequestOptions\\?"\s*:/,
   /\\?"hasWebAuthnDevices\\?"\s*:/,
 ]
@@ -189,10 +209,21 @@ export function isOperatorSignInUrl(url: string | undefined): boolean {
 }
 
 /**
- * Whether a signed-in access page's own content is present in `body`.
+ * Whether a signed-in access page's own content is present in `body` — either
+ * its settings payload / rendered form, or the page's own copy.
  */
 export function hasAccessPageMarkers(body: string): boolean {
-  return !!body && matchesAny(body, ACCESS_PAGE_MARKERS)
+  return (
+    !!body &&
+    (hasSettingsPayloadMarkers(body) || matchesAny(body, ACCESS_PAGE_MARKERS))
+  )
+}
+
+// The escalation's own keys, which veto `ready` on their own. Split out from
+// the two-tier export below so the readiness gate can ask the narrow question
+// without the WebAuthn arm's ambiguity.
+function hasDecisiveTwoFactorMarkers(body: string): boolean {
+  return !!body && matchesAny(body, TWO_FACTOR_ESCALATION_MARKERS)
 }
 
 /**
@@ -206,9 +237,22 @@ export function hasAccessPageMarkers(body: string): boolean {
  * for the absence of. Only the step-up's own keys tell them apart, and reading
  * it as settings data reports a configured package as having no
  * trusted-publisher block at all.
+ *
+ * Two tiers. The escalation's own keys decide on their own; its WebAuthn arm
+ * counts only when the body carries no settings payload, because an account's
+ * second-factor posture can legitimately ride the page that was asked for.
  */
 export function hasTwoFactorEscalationMarkers(body: string): boolean {
-  return !!body && matchesAny(body, TWO_FACTOR_ESCALATION_MARKERS)
+  if (!body) {
+    return false
+  }
+  if (hasDecisiveTwoFactorMarkers(body)) {
+    return true
+  }
+  return (
+    matchesAny(body, TWO_FACTOR_WEBAUTHN_MARKERS) &&
+    !hasSettingsPayloadMarkers(body)
+  )
 }
 
 /**
@@ -231,13 +275,23 @@ export function hasSignInMarkers(body: string): boolean {
 /**
  * Classify one probe of the access page.
  *
- * Order matters. A sign-in URL wins over everything: npm answers the
- * interstitial with HTTP 200 JSON, so status and body shape alone read it as a
- * perfectly good response — the misread that reported a package `unreadable`
- * while the operator was still typing a one-time password. A destroyed
- * execution context (status 0) is a mid-navigation race, so it is unsettled
- * rather than an error. `ready` requires all of it: no interstitial, a real
- * 200, and a fetch that ended on the access page.
+ * Order matters, and it was learned twice.
+ *
+ * A sign-in URL still wins over everything: npm answers the interstitial with
+ * HTTP 200 JSON, so status and body shape alone read it as a perfectly good
+ * response — the misread that reported a package `unreadable` while the
+ * operator was still typing a one-time password. A destroyed execution context
+ * (status 0) is a mid-navigation race, so it is unsettled rather than an error.
+ *
+ * Then the PAYLOAD decides. A 200 that landed on the access page and carries
+ * the settings data — or the trusted-publisher form itself — is `ready`, before
+ * any text matcher gets a say. That ordering is the fix for a live run that
+ * announced "waiting on human verification" against npm's own dismissable
+ * notice banners and waited out its full budget with the form open underneath.
+ * It weakens nothing: a Cloudflare interstitial and a two-factor step-up carry
+ * no package data, which is exactly why asking about the data first is safe.
+ * The step-up's own keys still veto `ready`, since npm serves it AT the access
+ * URL as a 200 and its payload must never be read as settings.
  */
 export function classifyAccessPageReadiness(
   probe: AccessPageProbe,
@@ -250,7 +304,15 @@ export function classifyAccessPageReadiness(
   if (cfg.status === 0) {
     return 'unsettled'
   }
-  if (isCloudflareChallenge(body)) {
+  if (
+    cfg.status === 200 &&
+    hasSettingsPayloadMarkers(body) &&
+    !hasDecisiveTwoFactorMarkers(body) &&
+    isAccessPageUrl(cfg.fetchUrl ?? cfg.pageUrl)
+  ) {
+    return 'ready'
+  }
+  if (hasHumanVerificationMarkers(body)) {
     return 'challenge'
   }
   // Before every other body check, and before the `ready` return at the bottom.
