@@ -105,9 +105,9 @@ describe('update-manifest — dropped-package guard', () => {
   test('a package the config no longer lists is a removal, not a failedDrop', async () => {
     // is-string was dropped from the expected set entirely — never attempted,
     // so no fetch failure is recorded for it.
-    const fetchPackageManifest = vi.fn(
-      async (): Promise<FakeManifest> => ({ version: '9.9.9' }),
-    )
+    const fetchPackageManifest = vi.fn(async (): Promise<FakeManifest> => ({
+      version: '9.9.9',
+    }))
     const { fetchFailures, next } = await regenerate(
       [
         { name: '@socketregistry/abab', origName: 'abab' },
