@@ -23,6 +23,17 @@
 import { OIDC_PERMISSION_ACTIONS } from '../fleet/publish-infra/npm/access-context-schema.mts'
 
 /**
+ * The action token npm uses for a staged publish in the trusted publisher's
+ * "Allowed actions" control.
+ */
+export const STAGE_PUBLISH_ACTION = 'npm stage publish'
+
+/**
+ * The action token for a direct, unapproved publish.
+ */
+export const DIRECT_PUBLISH_ACTION = 'npm publish'
+
+/**
  * The tuple npm matches a workflow run's OIDC claim against.
  */
 export interface TrustedPublisherBinding {
@@ -88,6 +99,41 @@ const MAX_PAYLOAD_DEPTH = 6
  */
 export function normalizePayloadKey(key: string): string {
   return key.toLowerCase().replace(/[^a-z]/g, '')
+}
+
+// Every grant spelling npm has been observed to carry, keyed by its NORMALIZED
+// form so a snake / camel / kebab / spaced difference is one entry rather than
+// four. The fleet's own `OIDC_PERMISSION_ACTIONS` covers the payload's
+// `createStagedPackage` / `createPackageVersion` pair; this table adds the
+// rendered spellings the FORM uses, which npm also hands back in some payloads.
+// An entry costs nothing and a missing one is expensive: an unrecognized grant
+// disappears from the action set, so a package carrying a direct-publish grant
+// under a name this table does not know reads as already narrowed and gets
+// skipped instead of narrowed.
+const NORMALIZED_PERMISSION_ACTIONS: Readonly<Record<string, string>> = {
+  createpackageversion: DIRECT_PUBLISH_ACTION,
+  createstagedpackage: STAGE_PUBLISH_ACTION,
+  npmpublish: DIRECT_PUBLISH_ACTION,
+  npmstagepublish: STAGE_PUBLISH_ACTION,
+  publish: DIRECT_PUBLISH_ACTION,
+  publishstaged: STAGE_PUBLISH_ACTION,
+  stagedpublish: STAGE_PUBLISH_ACTION,
+  stagepublish: STAGE_PUBLISH_ACTION,
+}
+
+/**
+ * The rendered action one of npm's grant tokens means, or `undefined` when the
+ * token is one nothing here recognizes.
+ *
+ * The fleet's exact map is tried first — it is the observed payload contract —
+ * and the normalized table catches every other spelling of the same two grants.
+ */
+export function resolvePermissionAction(token: string): string | undefined {
+  const exact = OIDC_PERMISSION_ACTIONS[token]
+  if (exact) {
+    return exact
+  }
+  return NORMALIZED_PERMISSION_ACTIONS[normalizePayloadKey(token)]
 }
 
 /**
@@ -311,7 +357,7 @@ export function readTrustedPublisherState(
   for (let i = 0, { length } = permissions; i < length; i += 1) {
     const token = permissions[i]
     const action =
-      typeof token === 'string' ? OIDC_PERMISSION_ACTIONS[token] : undefined
+      typeof token === 'string' ? resolvePermissionAction(token) : undefined
     if (action) {
       actions.add(action)
     }
@@ -342,18 +388,17 @@ export function readTrustedPublisherState(
 }
 
 /**
- * How many permission tokens the live connection carries, or undefined when
- * there is no live connection to count.
+ * The raw permission tokens on the live connection, in payload order, or
+ * `undefined` when there is no live connection to read.
  *
- * The COUNT is the diagnostic, not the tokens. Comparing it against how many
- * actions {@link readTrustedPublisherState} managed to map is what surfaces a
- * grant npm has added that the action map does not know — which otherwise
- * disappears silently, and would make `--stage-only` clear an action it never
- * recognized.
+ * Raw on purpose. Every other reader maps tokens to actions and drops what it
+ * cannot map, so this is the only place a grant npm has renamed is still
+ * visible — and a grant that disappears silently is one the run would narrow
+ * around without ever knowing it was there.
  */
-export function countConnectionPermissionTokens(
+export function readConnectionPermissionTokens(
   payload: unknown,
-): number | undefined {
+): string[] | undefined {
   const connections = findOidcConnections(payload)
   if (connections === undefined) {
     return undefined
@@ -361,8 +406,47 @@ export function countConnectionPermissionTokens(
   for (let i = 0, { length } = connections; i < length; i += 1) {
     const row = connections[i]
     if (isLiveConnection(row)) {
-      return Array.isArray(row.permissions) ? row.permissions.length : 0
+      const permissions = Array.isArray(row.permissions) ? row.permissions : []
+      return permissions.filter(
+        (token): token is string => typeof token === 'string',
+      )
     }
   }
   return undefined
+}
+
+/**
+ * How many permission tokens the live connection carries, or undefined when
+ * there is no live connection to count.
+ *
+ * The COUNT is the diagnostic, not the tokens. Comparing it against how many
+ * actions {@link readTrustedPublisherState} managed to map is what surfaces a
+ * grant npm has added that the action map does not know — which otherwise
+ * disappears silently, and would let the run clear a direct-publish grant it
+ * never recognized (or, worse, report a package already narrowed when it is
+ * not).
+ */
+export function countConnectionPermissionTokens(
+  payload: unknown,
+): number | undefined {
+  return readConnectionPermissionTokens(payload)?.length
+}
+
+/**
+ * The live connection's permission tokens that {@link resolvePermissionAction}
+ * does not recognize, or `undefined` when there is no live connection.
+ *
+ * This is what makes the token count EXACT rather than a comparison of two
+ * numbers that can differ for two unrelated reasons: two tokens mapping to the
+ * same action also shrink the action set, so `tokens > actions` alone never
+ * proved anything was unmapped.
+ */
+export function findUnmappedPermissionTokens(
+  payload: unknown,
+): string[] | undefined {
+  const tokens = readConnectionPermissionTokens(payload)
+  if (tokens === undefined) {
+    return undefined
+  }
+  return tokens.filter(token => resolvePermissionAction(token) === undefined)
 }

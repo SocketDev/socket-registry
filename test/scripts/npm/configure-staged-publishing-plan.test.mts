@@ -25,9 +25,9 @@ import {
   formatUnreadableSettings,
   isOperatorSignInUrl,
   isTwoFactorEscalationPayload,
+  permitsDirectPublish,
   permitsStagedPublish,
   planStagedConfiguration,
-  readAllowedActions,
   readTrustedPublisherState,
   TARGET_ENVIRONMENT_NAME,
   TARGET_REPOSITORY_NAME,
@@ -130,38 +130,6 @@ describe('planStagedConfiguration', () => {
   })
 })
 
-describe('readAllowedActions', () => {
-  test('reads an array of action tokens', () => {
-    const actions = readAllowedActions({
-      trustedPublisher: {
-        allowedActions: ['npm publish', 'npm stage publish'],
-      },
-    })
-    expect(actions).toBeDefined()
-    expect(permitsStagedPublish(actions!)).toBe(true)
-  })
-
-  test('reads a boolean map keyed by action token', () => {
-    const actions = readAllowedActions({
-      package: {
-        trustedPublisher: {
-          allowedActions: { stagePublish: true, publish: false },
-        },
-      },
-    })
-    expect(actions).toBeDefined()
-    expect(permitsStagedPublish(actions!)).toBe(true)
-  })
-
-  test('an unrecognized payload is undefined, never an empty set', () => {
-    expect(
-      readAllowedActions({ some: 'other', page: { of: 'json' } }),
-    ).toBeUndefined()
-    expect(readAllowedActions(undefined)).toBeUndefined()
-    expect(readAllowedActions('a string')).toBeUndefined()
-  })
-})
-
 describe('readTrustedPublisherState / decideStagedConfigurationState', () => {
   test('an empty connections list is create, not unreadable', () => {
     // The 401-on-every-package case: npm knows the package, and knows it has no
@@ -223,33 +191,28 @@ describe('readTrustedPublisherState / decideStagedConfigurationState', () => {
     expect(decideStagedConfigurationState(reading)).toBe('configure')
   })
 
-  test('a correctly bound, staged-enabled package is skipped, so a re-run is a no-op', () => {
+  test('a correctly bound package still holding the direct grant is narrow, never skip', () => {
+    // The owner's ruling: once the 0.0.0 placeholder exists, "npm stage
+    // publish" is the ONLY permission a package may carry. Both grants
+    // together means a release can still reach consumers with no approval
+    // step, so this is work to do, not a package to skip past.
     const reading = readTrustedPublisherState(
       payloadWithConnection({
         permissions: ['createPackageVersion', 'createStagedPackage'],
       }),
     )
     expect(bindingMatchesTarget(reading.binding)).toBe(true)
+    expect(permitsDirectPublish(reading.actions!)).toBe(true)
+    expect(decideStagedConfigurationState(reading)).toBe('narrow')
+  })
+
+  test('a stage-only package is skipped, so a re-run is a no-op', () => {
+    const reading = readTrustedPublisherState(
+      payloadWithConnection({ permissions: ['createStagedPackage'] }),
+    )
+    expect(bindingMatchesTarget(reading.binding)).toBe(true)
+    expect(permitsDirectPublish(reading.actions!)).toBe(false)
     expect(decideStagedConfigurationState(reading)).toBe('skip')
-  })
-
-  test('an allowed-actions block with no connections list is rebind, never skip', () => {
-    // The publisher exists but the payload never says what it points at, so the
-    // whole form gets rewritten rather than trusted.
-    const reading = readTrustedPublisherState({
-      trustedPublisher: { allowedActions: ['npm stage publish'] },
-    })
-    expect(reading.blockState).toBe('present')
-    expect(reading.binding).toBeUndefined()
-    expect(decideStagedConfigurationState(reading)).toBe('rebind')
-  })
-
-  test('an unrecognized payload stops the run rather than reading as create', () => {
-    for (const payload of [undefined, 'a string', { some: 'other page' }]) {
-      const reading = readTrustedPublisherState(payload)
-      expect(reading.blockState).toBe('unreadable')
-      expect(decideStagedConfigurationState(reading)).toBe('unreadable')
-    }
   })
 })
 
@@ -309,6 +272,39 @@ describe('operator-facing messages', () => {
     expect(block).toContain(
       'current: SocketDev/socket-registry, workflow npm-publish.yml',
     )
+  })
+
+  test('a narrow entry prints the current grants beside the wanted ones', () => {
+    // A package whose ONLY defect is the extra direct grant has the same
+    // binding, workflow, and environment as a correct one. The two grant lines
+    // side by side are the only thing that shows the difference at a glance.
+    const [target] = planStagedConfiguration([
+      reportOf('@socketregistry/abab', 'not-staged', '1.0.9'),
+    ])
+    const reading = readTrustedPublisherState(
+      payloadWithConnection({
+        permissions: ['createPackageVersion', 'createStagedPackage'],
+      }),
+    )
+    const block = formatStagedPlanLine({
+      actions: reading.actions,
+      binding: reading.binding,
+      state: decideStagedConfigurationState(reading),
+      target: target!,
+    })
+    expect(block).toContain('state:   narrow')
+    expect(block).toContain('grants:  npm publish, npm stage publish')
+    expect(block).toContain('wanted:  npm stage publish')
+  })
+
+  test('a dry-run entry says the grants are unknown rather than none', () => {
+    // No page was read, so "(none)" would be a claim the run has no basis for.
+    const [target] = planStagedConfiguration([
+      reportOf('@socketregistry/own-keys', 'not-staged', '0.0.0'),
+    ])
+    expect(
+      formatStagedPlanLine({ state: DRY_RUN_PLAN_STATE, target: target! }),
+    ).toContain('grants:  (unknown)')
   })
 
   test('the write-failure block follows What / Where / Saw / Wanted / Fix', () => {

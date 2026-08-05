@@ -15,7 +15,11 @@
  *   nobody has verified.
  */
 
-import { normalizePayloadKey } from './configure-staged-publishing-payload.mts'
+import {
+  DIRECT_PUBLISH_ACTION,
+  normalizePayloadKey,
+  STAGE_PUBLISH_ACTION,
+} from './configure-staged-publishing-payload.mts'
 
 import type {
   TrustedPublisherBinding,
@@ -58,12 +62,30 @@ export const TARGET_BINDING: Readonly<TrustedPublisherBinding> = Object.freeze({
 })
 
 /**
+ * The allowed actions every `@socketregistry/*` package must end up with, and
+ * the ONLY ones.
+ *
+ * Stage-only is the policy, not an option. Once a package's initial `0.0.0`
+ * placeholder exists there is nothing left that needs to publish directly, and
+ * leaving the direct grant in place means a compromised or mis-triggered
+ * workflow can put a version in front of consumers with no approval step. So
+ * "npm publish" is CLEARED, not merely left alone, and a package carrying both
+ * grants is a package that still needs work.
+ */
+export const TARGET_ALLOWED_ACTIONS: readonly string[] = Object.freeze([
+  STAGE_PUBLISH_ACTION,
+])
+
+/**
  * What the driver should do with one package.
  *
  * - `create` — no trusted publisher exists; fill the whole form.
  * - `rebind` — one exists but points somewhere else; overwrite the whole form.
- * - `configure` — the binding is right and only the staged-publish action is
- *   missing.
+ * - `configure` — the binding is right and the staged-publish action is missing.
+ * - `narrow` — the binding is right and the staged-publish action is there, but
+ *   the direct "npm publish" grant is still allowed alongside it. The whole
+ *   form is rewritten with that box cleared, so every release has to go through
+ *   the approval queue.
  * - `skip` — nothing to do; the idempotent re-run case.
  * - `unreadable` — the settings payload could not be read. Never silently
  *   skipped.
@@ -71,6 +93,7 @@ export const TARGET_BINDING: Readonly<TrustedPublisherBinding> = Object.freeze({
 export type StagedConfigurationState =
   | 'configure'
   | 'create'
+  | 'narrow'
   | 'rebind'
   | 'skip'
   | 'unreadable'
@@ -133,12 +156,51 @@ export function permitsStagedPublish(actions: ReadonlySet<string>): boolean {
 }
 
 /**
+ * Whether a token set still permits a DIRECT, unapproved publish. Matched the
+ * same normalized way as the staged twin, and pointedly NOT by asking whether
+ * the string contains "publish" — "npm stage publish" contains it too, and a
+ * substring test there would report every staged package as still direct.
+ */
+export function permitsDirectPublish(actions: ReadonlySet<string>): boolean {
+  for (const action of actions) {
+    const normalized = normalizePayloadKey(action)
+    if (
+      normalized === 'createpackageversion' ||
+      normalized === 'npmpublish' ||
+      normalized === 'publish'
+    ) {
+      return true
+    }
+  }
+  return false
+}
+
+/**
+ * One-line rendering of an allowed-action set for the plan output. `undefined`
+ * is the payload saying nothing, which is materially different from a package
+ * with no grants at all.
+ */
+export function describeAllowedActions(
+  actions: ReadonlySet<string> | undefined,
+): string {
+  if (actions === undefined) {
+    return '(unknown)'
+  }
+  return actions.size ? [...actions].toSorted().join(', ') : '(none)'
+}
+
+/**
  * What to do with one package, given what npm reports about it today.
  *
  * A `present` block whose binding could not be read reports `rebind` rather
  * than `skip`: rebind rewrites the WHOLE form from the target, so it lands on
  * the right binding whatever the unreadable current values were, while `skip`
  * would leave a package publishing under an identity nobody confirmed.
+ *
+ * `skip` is the narrowest verdict in the table on purpose. It requires the
+ * target binding, the staged grant present, AND the direct grant gone — a
+ * package holding both is `narrow`, never skipped, because leaving the direct
+ * grant is what lets a release reach consumers with no approval step.
  */
 export function decideStagedConfigurationState(
   reading: TrustedPublisherReading,
@@ -152,10 +214,31 @@ export function decideStagedConfigurationState(
   if (!bindingMatchesTarget(reading.binding)) {
     return 'rebind'
   }
-  return reading.actions && permitsStagedPublish(reading.actions)
-    ? 'skip'
-    : 'configure'
+  const { actions } = reading
+  if (!actions || !permitsStagedPublish(actions)) {
+    return 'configure'
+  }
+  return permitsDirectPublish(actions) ? 'narrow' : 'skip'
 }
+
+/**
+ * Whether a state means the driver writes the form. Every state but `skip` and
+ * the fail-loud `unreadable` does.
+ */
+export function isWriteState(state: StagedConfigurationState): boolean {
+  return (
+    state === 'configure' ||
+    state === 'create' ||
+    state === 'narrow' ||
+    state === 'rebind'
+  )
+}
+
+/**
+ * The direct-publish action, re-exported so a caller comparing a plan line
+ * against the target does not have to reach past the binding module for it.
+ */
+export { DIRECT_PUBLISH_ACTION, STAGE_PUBLISH_ACTION }
 
 /**
  * One-line rendering of a binding for the plan output.
