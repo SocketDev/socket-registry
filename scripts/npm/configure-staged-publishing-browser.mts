@@ -13,6 +13,13 @@
  *   how long the run has waited and how long remains, so the wait is visible
  *   rather than a silent hang, and nothing is written while a challenge is
  *   outstanding.
+ *   The WRITE is not hand-rolled here. `create`, `rebind`, and `configure` all
+ *   fill the same GitHub Actions trusted-publisher form, so all three delegate
+ *   to the fleet's `driveVerifiedSave` — the observed-working driver that opens
+ *   the form whatever shape the page renders it in, fills the whole field set
+ *   from the desired binding, saves inside the challenge rhythm, and treats the
+ *   RE-READ as the arbiter of success rather than the click. A partial write
+ *   therefore reports its mismatched fields instead of reading as done.
  */
 
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
@@ -26,16 +33,25 @@ import {
 } from '../fleet/publish-infra/npm/browser-session.mts'
 
 export { DEFAULT_PROFILE_DIR }
+import { driveVerifiedSave } from '../fleet/publish-infra/npm/trusted-publisher-page.mts'
+
+import type { TrustedPublisherDesired } from '../fleet/publish-infra/npm/trusted-publisher-plan.mts'
 import {
   classifyStagedFetch,
+  formatBindingWriteFailure,
   formatChallengeTimeout,
   formatChallengeWait,
   formatUnreadableSettings,
-  isSignInRedirect,
-  STAGE_PUBLISH_ACTION,
+  TARGET_ENVIRONMENT_NAME,
+  TARGET_REPOSITORY_NAME,
+  TARGET_REPOSITORY_OWNER,
+  TARGET_WORKFLOW_FILENAME,
 } from './configure-staged-publishing-plan.mts'
 
-import type { StagedConfigurationTarget } from './configure-staged-publishing-plan.mts'
+import type {
+  StagedConfigurationState,
+  StagedConfigurationTarget,
+} from './configure-staged-publishing-plan.mts'
 
 const logger = getDefaultLogger()
 
@@ -170,116 +186,62 @@ export async function readSettingsPayload(
 }
 
 /**
- * Set the trusted publisher's allowed actions to include a staged publish.
+ * The trusted-publisher binding every `@socketregistry/*` package must end up
+ * with, in the fleet driver's own shape. `stageOnly` is the only variable: it
+ * clears the direct-publish action so every release has to go through the
+ * approval queue.
+ */
+export function buildDesiredPublisher(config: {
+  stageOnly: boolean
+}): TrustedPublisherDesired {
+  const { stageOnly } = { __proto__: null, ...config } as typeof config
+  return {
+    allowNpmPublish: !stageOnly,
+    allowNpmStagePublish: true,
+    environmentName: TARGET_ENVIRONMENT_NAME,
+    repositoryName: TARGET_REPOSITORY_NAME,
+    repositoryOwner: TARGET_REPOSITORY_OWNER,
+    workflowFilename: TARGET_WORKFLOW_FILENAME,
+  }
+}
+
+/**
+ * Write one package's trusted publisher so a staged publish from
+ * `npm-publish-packages.yml` is allowed.
  *
- * Controls are located by their ACCESSIBLE NAME, never a CSS path, and every
- * lookup that misses throws a What / Where / Saw vs wanted / Fix block naming
- * the control inventory it did find. A settings write that cannot prove it hit
- * the right control must fail, never report success.
+ * All three write states drive the SAME form, so all three take the same path:
+ * `create` fills it for a package that has no publisher, `rebind` overwrites
+ * one pointing at another workflow, and `configure` rewrites a correct binding
+ * with the staged action added. Writing the whole field set every time means a
+ * half-done earlier pass never survives as a residue.
  *
- * @throws {Error} When the page redirects to sign-in, or when the allowed-actions
- *   control or the save button cannot be located.
+ * Idempotence is the caller's contract and this function's too: a package the
+ * caller already classified as `skip` never reaches here, and a package that IS
+ * already correct verifies on the first re-read and reports success without a
+ * second write.
+ *
+ * @throws {Error} When the form cannot be opened, when a human-verification
+ *   challenge outlasts its budget, or when the RE-READ does not confirm the
+ *   target binding after the save and its one fresh retry.
  */
 export async function applyStagedPublishing(
   page: Page,
   target: StagedConfigurationTarget,
-  config: { stageOnly: boolean },
+  config: { state: StagedConfigurationState; stageOnly: boolean },
 ): Promise<void> {
-  const { stageOnly } = { __proto__: null, ...config } as typeof config
-  await page.goto(target.settingsUrl, { waitUntil: 'domcontentloaded' })
-  if (isSignInRedirect(page.url())) {
+  const { state, stageOnly } = { __proto__: null, ...config } as typeof config
+  const verdict = await driveVerifiedSave(
+    page,
+    target.name,
+    buildDesiredPublisher({ stageOnly }),
+  )
+  if (!verdict.ok) {
     throw new Error(
-      formatUnreadableSettings(
+      formatBindingWriteFailure({
+        mismatches: verdict.mismatches,
+        state,
         target,
-        'npm redirected the settings page to sign-in.',
-      ),
-    )
-  }
-
-  const stageControl = page
-    .getByRole('checkbox', { name: /stage\s*publish/i })
-    .first()
-  if ((await stageControl.count()) === 0) {
-    // Report only the `name` attributes of the form's controls, never their
-    // values, which on a settings page can include tokens. Gathered through
-    // Playwright locators rather than a page-world DOM callback, so the
-    // diagnostic cannot accidentally serialize page state.
-    const controls = await page.getByRole('checkbox').all()
-    const found: string[] = []
-    for (let i = 0, { length } = controls; i < length; i += 1) {
-      // eslint-disable-next-line no-await-in-loop -- serial attribute reads over a short control list.
-      const attr = await controls[i]!.getAttribute('name').catch(
-        () => undefined,
-      )
-      found.push(attr ?? '(unnamed)')
-    }
-    throw new Error(
-      [
-        `What: the "${STAGE_PUBLISH_ACTION}" control was not found, so ${target.name} was left unchanged.`,
-        `Where: ${target.settingsUrl}`,
-        `Saw: checkbox controls named [${found.join(', ')}].`,
-        `Wanted: an "Allowed actions" checkbox whose accessible name matches "${STAGE_PUBLISH_ACTION}".`,
-        'Fix: open the URL above and confirm the package has a trusted publisher configured — the allowed-actions control only renders once one exists. If npm has renamed the control, update the accessible-name matcher in this script.',
-      ].join('\n'),
-    )
-  }
-  if (!(await stageControl.isChecked())) {
-    await stageControl.check()
-  }
-
-  if (stageOnly) {
-    // "npm" followed directly by "publish" — the stage control reads
-    // "Allow npm stage publish", so it cannot match this.
-    const directControl = page
-      .getByRole('checkbox', { name: /npm\s+publish/i })
-      .first()
-    if (
-      (await directControl.count()) > 0 &&
-      (await directControl.isChecked())
-    ) {
-      await directControl.uncheck()
-    }
-  }
-
-  // Scope the save to the form holding the checkbox. The settings page renders
-  // a separate "Package access" section with its own save, so a page-wide
-  // lookup can submit the wrong form.
-  const save = page
-    .locator('form')
-    .filter({ has: stageControl })
-    .getByRole('button', { name: /save changes/i })
-    .first()
-  if ((await save.count()) === 0) {
-    throw new Error(
-      [
-        `What: the save button was not found, so ${target.name}'s change was not submitted.`,
-        `Where: ${target.settingsUrl}`,
-        'Saw: no button named "Save changes" inside the form holding the allowed-actions checkboxes.',
-        "Wanted: the trusted-publisher form's save button.",
-        'Fix: open the URL above and confirm the form renders; if npm has renamed the button, update the accessible-name matcher in this script.',
-      ].join('\n'),
-    )
-  }
-  await save.click()
-  await page.waitForLoadState('networkidle').catch(() => {})
-
-  // Re-read the saved state rather than trusting the click. A form that
-  // rejected validation, or a save the session was no longer authorized for,
-  // leaves the page looking unchanged — reporting success from the click alone
-  // is how an unconfigured package reads as done.
-  await page.reload({ waitUntil: 'domcontentloaded' })
-  const persisted = page
-    .getByRole('checkbox', { name: /stage\s*publish/i })
-    .first()
-  if ((await persisted.count()) === 0 || !(await persisted.isChecked())) {
-    throw new Error(
-      [
-        `What: ${target.name} still reports "${STAGE_PUBLISH_ACTION}" as unset after saving.`,
-        `Where: ${target.settingsUrl}`,
-        'Saw: the control unchecked on a re-read following the save.',
-        'Wanted: the control checked, confirming the form persisted.',
-        'Fix: open the URL above and save once by hand. A required field left blank — publisher, organization, repository, or workflow filename — blocks the save without changing the checkbox.',
-      ].join('\n'),
+      }),
     )
   }
 }

@@ -1,30 +1,67 @@
 /**
  * @file Tests for the staged-publishing configurator's pure layer: the plan
- *   derived from the check's reports, the idempotency decision read off npm's
- *   settings payload, and the challenge/sign-in classification.
- *   The load-bearing case is `readAllowedActions` returning `undefined` for a
- *   payload it cannot parse. npm's trusted-publisher JSON key names are not a
- *   contract, so an unrecognized payload must read as "could not determine" and
- *   stop the run — reading it as "no actions configured" would send a write at
- *   a page nobody has verified.
+ *   derived from the check's reports, the per-package state read off npm's
+ *   settings payload, and the challenge/sign-in classification. Two cases are
+ *   load-bearing. A payload carrying a connections list with no live row must
+ *   read as `create` — that is a package with no trusted publisher, the state
+ *   that made every staging upload 401 the first time
+ *   `npm-publish-packages.yml` ran. A payload the reader cannot recognize at
+ *   all must read as `unreadable` and stop the run, never as "nothing
+ *   configured", which would send a write at a page nobody has verified.
  */
 
 import { describe, expect, test } from 'vitest'
 
 import {
+  bindingMatchesTarget,
   buildPackageAccessUrl,
   classifyStagedFetch,
-  decideStagedConfigurationAction,
+  decideStagedConfigurationState,
+  diffTargetBinding,
+  DRY_RUN_PLAN_STATE,
+  formatBindingWriteFailure,
   formatChallengeTimeout,
   formatChallengeWait,
+  formatStagedPlanLine,
   formatUnreadableSettings,
   isSignInRedirect,
   permitsStagedPublish,
   planStagedConfiguration,
   readAllowedActions,
+  readTrustedPublisherState,
+  TARGET_ENVIRONMENT_NAME,
+  TARGET_REPOSITORY_NAME,
+  TARGET_WORKFLOW_FILENAME,
 } from '../../../scripts/npm/configure-staged-publishing-plan.mts'
 
 import type { StagedTrustReport } from '../../../scripts/npm/check-trusted-packages-staged.mts'
+
+// One npm access-page payload carrying a single live trusted-publisher
+// connection, in the shape npm's own `oidcConnections` list uses.
+function payloadWithConnection(config: {
+  deleted?: string | undefined
+  environment?: string | undefined
+  permissions?: string[] | undefined
+  repository?: string | undefined
+  workflow?: string | undefined
+}): unknown {
+  return {
+    context: {
+      oidcConnections: [
+        {
+          config: {
+            environment_name: config.environment ?? TARGET_ENVIRONMENT_NAME,
+            repository_name: config.repository ?? TARGET_REPOSITORY_NAME,
+            repository_owner: 'SocketDev',
+            workflow: config.workflow ?? TARGET_WORKFLOW_FILENAME,
+          },
+          deleted: config.deleted,
+          permissions: config.permissions ?? ['createStagedPackage'],
+        },
+      ],
+    },
+  }
+}
 
 function reportOf(
   name: string,
@@ -116,27 +153,103 @@ describe('readAllowedActions', () => {
     expect(permitsStagedPublish(actions!)).toBe(true)
   })
 
-  test('reports direct-publish-only as needing configuration', () => {
-    const actions = readAllowedActions({ allowed_actions: ['npm publish'] })
-    expect(actions).toBeDefined()
-    expect(permitsStagedPublish(actions!)).toBe(false)
-    expect(decideStagedConfigurationAction(actions)).toBe('configure')
-  })
-
   test('an unrecognized payload is undefined, never an empty set', () => {
     expect(
       readAllowedActions({ some: 'other', page: { of: 'json' } }),
     ).toBeUndefined()
     expect(readAllowedActions(undefined)).toBeUndefined()
     expect(readAllowedActions('a string')).toBeUndefined()
-    expect(decideStagedConfigurationAction(undefined)).toBe('unreadable')
+  })
+})
+
+describe('readTrustedPublisherState / decideStagedConfigurationState', () => {
+  test('an empty connections list is create, not unreadable', () => {
+    // The 401-on-every-package case: npm knows the package, and knows it has no
+    // trusted publisher at all.
+    const reading = readTrustedPublisherState({ oidcConnections: [] })
+    expect(reading.blockState).toBe('absent')
+    expect(reading.binding).toBeUndefined()
+    expect(decideStagedConfigurationState(reading)).toBe('create')
   })
 
-  test('an already-configured package is skipped, so a second run is idempotent', () => {
-    const actions = readAllowedActions({
+  test('npm’s own JSON null for `deleted` reads as a live row', () => {
+    // Parsed rather than written as a literal: this is the exact wire shape
+    // npm serves, where an unrevoked row carries `"deleted": null`.
+    const payload = JSON.parse(
+      '{"oidcConnections":[{"config":{"environment_name":"npm-publish",' +
+        '"repository_name":"socket-registry","repository_owner":"SocketDev",' +
+        '"workflow":"npm-publish-packages.yml"},"deleted":null,' +
+        '"permissions":["createStagedPackage"]}]}',
+    )
+    const reading = readTrustedPublisherState(payload)
+    expect(reading.blockState).toBe('present')
+    expect(decideStagedConfigurationState(reading)).toBe('skip')
+  })
+
+  test('a connections list holding only revoked rows is create', () => {
+    const reading = readTrustedPublisherState(
+      payloadWithConnection({ deleted: '2026-07-01T00:00:00.000Z' }),
+    )
+    expect(reading.blockState).toBe('absent')
+    expect(decideStagedConfigurationState(reading)).toBe('create')
+  })
+
+  test('a block bound to the wrong workflow is rebind', () => {
+    const reading = readTrustedPublisherState(
+      payloadWithConnection({ workflow: 'npm-publish.yml' }),
+    )
+    expect(reading.blockState).toBe('present')
+    expect(reading.binding?.workflowFilename).toBe('npm-publish.yml')
+    expect(decideStagedConfigurationState(reading)).toBe('rebind')
+    expect(diffTargetBinding(reading.binding)).toEqual([
+      `workflow filename: npm-publish.yml -> ${TARGET_WORKFLOW_FILENAME}`,
+    ])
+  })
+
+  test('a block with the right workflow but no environment is rebind', () => {
+    // An empty environment is a mismatch, never a wildcard: the staging job
+    // runs inside the npm-publish environment and npm matches the claim.
+    const reading = readTrustedPublisherState(
+      payloadWithConnection({ environment: '' }),
+    )
+    expect(decideStagedConfigurationState(reading)).toBe('rebind')
+    expect(bindingMatchesTarget(reading.binding)).toBe(false)
+  })
+
+  test('a block bound right but missing the staged action is configure', () => {
+    const reading = readTrustedPublisherState(
+      payloadWithConnection({ permissions: ['createPackageVersion'] }),
+    )
+    expect(decideStagedConfigurationState(reading)).toBe('configure')
+  })
+
+  test('a correctly bound, staged-enabled package is skipped, so a re-run is a no-op', () => {
+    const reading = readTrustedPublisherState(
+      payloadWithConnection({
+        permissions: ['createPackageVersion', 'createStagedPackage'],
+      }),
+    )
+    expect(bindingMatchesTarget(reading.binding)).toBe(true)
+    expect(decideStagedConfigurationState(reading)).toBe('skip')
+  })
+
+  test('an allowed-actions block with no connections list is rebind, never skip', () => {
+    // The publisher exists but the payload never says what it points at, so the
+    // whole form gets rewritten rather than trusted.
+    const reading = readTrustedPublisherState({
       trustedPublisher: { allowedActions: ['npm stage publish'] },
     })
-    expect(decideStagedConfigurationAction(actions)).toBe('already-configured')
+    expect(reading.blockState).toBe('present')
+    expect(reading.binding).toBeUndefined()
+    expect(decideStagedConfigurationState(reading)).toBe('rebind')
+  })
+
+  test('an unrecognized payload stops the run rather than reading as create', () => {
+    for (const payload of [undefined, 'a string', { some: 'other page' }]) {
+      const reading = readTrustedPublisherState(payload)
+      expect(reading.blockState).toBe('unreadable')
+      expect(decideStagedConfigurationState(reading)).toBe('unreadable')
+    }
   })
 })
 
@@ -183,6 +296,64 @@ describe('operator-facing messages', () => {
     expect(lines[3]).toMatch(/^Wanted: /)
     expect(lines[4]).toMatch(/^Fix: /)
     expect(block).toContain('Nothing was changed')
+  })
+
+  test('a dry-run plan entry names the state, the unknown current binding, and the target', () => {
+    const [target] = planStagedConfiguration([
+      reportOf('@socketregistry/own-keys', 'not-staged', '0.0.0'),
+    ])
+    const block = formatStagedPlanLine({
+      state: DRY_RUN_PLAN_STATE,
+      target: target!,
+    })
+    expect(DRY_RUN_PLAN_STATE).toBe('create')
+    expect(block).toContain('@socketregistry/own-keys (npm latest 0.0.0)')
+    expect(block).toContain('state:   create')
+    expect(block).toContain('current: no trusted publisher')
+    expect(block).toContain(
+      `target:  SocketDev/socket-registry, workflow ${TARGET_WORKFLOW_FILENAME}, environment ${TARGET_ENVIRONMENT_NAME}`,
+    )
+    expect(block).toContain(
+      'page:    https://www.npmjs.com/package/@socketregistry/own-keys/access',
+    )
+  })
+
+  test('a rebind plan entry names the binding npm reports today', () => {
+    const [target] = planStagedConfiguration([
+      reportOf('@socketregistry/abab', 'not-staged', '1.0.9'),
+    ])
+    const reading = readTrustedPublisherState(
+      payloadWithConnection({ workflow: 'npm-publish.yml' }),
+    )
+    const block = formatStagedPlanLine({
+      binding: reading.binding,
+      state: decideStagedConfigurationState(reading),
+      target: target!,
+    })
+    expect(block).toContain('state:   rebind')
+    expect(block).toContain(
+      'current: SocketDev/socket-registry, workflow npm-publish.yml',
+    )
+  })
+
+  test('the write-failure block follows What / Where / Saw / Wanted / Fix', () => {
+    const [target] = planStagedConfiguration([
+      reportOf('@socketregistry/own-keys', 'not-staged', '0.0.0'),
+    ])
+    const lines = formatBindingWriteFailure({
+      mismatches: [
+        'workflowName: saved npm-publish.yml, wanted npm-publish-packages.yml',
+      ],
+      state: 'create',
+      target: target!,
+    }).split('\n')
+    expect(lines[0]).toMatch(/^What: /)
+    expect(lines[1]).toMatch(/^Where: /)
+    expect(lines[2]).toMatch(/^Saw: /)
+    expect(lines[3]).toMatch(/^Wanted: /)
+    expect(lines[4]).toMatch(/^Fix: /)
+    expect(lines[2]).toContain('after the create save')
+    expect(lines[4]).toContain('PARTIALLY saved')
   })
 
   test('the unreadable-settings block follows What / Where / Saw / Wanted / Fix', () => {

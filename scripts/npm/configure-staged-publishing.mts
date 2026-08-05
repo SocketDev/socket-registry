@@ -1,14 +1,24 @@
 /**
- * @file Configure npm staged publishing for every package the trusted-package
+ * @file Configure npm's trusted publisher for every package the trusted-package
  *   gate reports as not staged. npm exposes no registry API for this: the
- *   trusted publisher's "Allowed actions" control lives behind the signed-in
- *   web UI at `/package/<name>/access`, so this drives system Chrome through
+ *   trusted-publisher form lives behind the signed-in web UI at
+ *   `/package/<name>/access`, so this drives system Chrome through
  *   playwright-core.
- *   Dry run is the DEFAULT; `--apply` opts into writing. The target list comes
- *   from `./check-trusted-packages-staged.mts` rather than a hardcoded array,
- *   so a package configured on one run drops out of the plan on the next, and
- *   a package whose settings already permit a staged publish is skipped without
- *   a write. Both together make a re-run a no-op.
+ *   Four per-package states come out of reading that page. `create` is a
+ *   package with no trusted publisher at all — the state that made every
+ *   `@socketregistry/*` staging upload 401 the first time
+ *   `.github/workflows/npm-publish-packages.yml` ran, because npm answers the
+ *   OIDC token exchange with a 404 when no publisher matches the claim.
+ *   `rebind` is a publisher pointing somewhere else, most often at the
+ *   single-subject `npm-publish.yml` rather than the family stager. `configure`
+ *   is a correct binding missing the staged-publish action. `skip` is a package
+ *   already correct, which is what makes a re-run a no-op.
+ *   Dry run is the DEFAULT; `--apply` opts into writing. A dry run reads no
+ *   page, so it reports every target as `create` and names the target binding;
+ *   `--apply` reads each package first and narrows the state from what npm
+ *   actually reports. The target list comes from
+ *   `./check-trusted-packages-staged.mts` rather than a hardcoded array, so a
+ *   package that gets configured drops out of the plan on the next run.
  *   `--stage-only` additionally clears "npm publish". It is OFF by default:
  *   clearing it forces every publish through the approval queue, which breaks a
  *   pipeline still publishing directly. Adding the staged action is additive
@@ -17,9 +27,11 @@
  *   pnpm run npm:configure-staged                  # plan only, writes nothing
  *   pnpm run npm:configure-staged --apply
  *   pnpm run npm:configure-staged --package date
+ *   pnpm run npm:configure-staged --apply --limit 1
  *   pnpm run npm:configure-staged --apply --stage-only
  *   Browser I/O lives in `./configure-staged-publishing-browser.mts`; pure
- *   planning and payload parsing in `./configure-staged-publishing-plan.mts`.
+ *   planning in `./configure-staged-publishing-plan.mts`; the binding target
+ *   and the state decision in `./configure-staged-publishing-binding.mts`.
  */
 
 import process from 'node:process'
@@ -39,12 +51,16 @@ import {
   readSettingsPayload,
 } from './configure-staged-publishing-browser.mts'
 import {
-  decideStagedConfigurationAction,
+  decideStagedConfigurationState,
+  describeBinding,
   DIRECT_PUBLISH_ACTION,
+  DRY_RUN_PLAN_STATE,
+  formatStagedPlanLine,
   formatUnreadableSettings,
   planStagedConfiguration,
-  readAllowedActions,
+  readTrustedPublisherState,
   STAGE_PUBLISH_ACTION,
+  TARGET_BINDING,
 } from './configure-staged-publishing-plan.mts'
 
 import type { StagedTrustReport } from './check-trusted-packages-staged.mts'
@@ -164,19 +180,19 @@ export async function main(): Promise<void> {
   )
   logger.log('')
   for (let i = 0, { length } = slice; i < length; i += 1) {
-    const target = slice[i]!
-    const latest = target.latestVersion
-      ? ` (latest ${target.latestVersion})`
-      : ''
-    logger.log(`  ${target.name}${latest} -> ${target.settingsUrl}`)
+    logger.log(
+      formatStagedPlanLine({ state: DRY_RUN_PLAN_STATE, target: slice[i]! }),
+    )
   }
   logger.log('')
 
   if (!apply) {
     logger.log(
-      `Dry run: would set "${STAGE_PUBLISH_ACTION}" on ${slice.length} package(s)` +
-        `${stageOnly ? ` and clear "${DIRECT_PUBLISH_ACTION}"` : ''}. ` +
-        'Re-run with --apply to write.',
+      `Dry run: would bind ${slice.length} package(s) to ${describeBinding(TARGET_BINDING)} ` +
+        `and allow "${STAGE_PUBLISH_ACTION}"` +
+        `${stageOnly ? `, clearing "${DIRECT_PUBLISH_ACTION}"` : ''}. ` +
+        `No page was read, so every package above reads as "${DRY_RUN_PLAN_STATE}"; ` +
+        '--apply reads each one first and narrows to rebind, configure, or skip.',
     )
     return
   }
@@ -193,31 +209,35 @@ export async function main(): Promise<void> {
     for (let i = 0, { length } = slice; i < length; i += 1) {
       const target = slice[i]!
       try {
-        // Read current state BEFORE writing, so a package that already permits
-        // a staged publish is skipped rather than re-submitted.
+        // Read the current binding BEFORE writing, so a package that is already
+        // correct is skipped rather than re-submitted.
         // eslint-disable-next-line no-await-in-loop -- one browser page, one package at a time.
         const payload = await readSettingsPayload(session.page, target)
-        const action = decideStagedConfigurationAction(
-          readAllowedActions(payload),
+        const reading = readTrustedPublisherState(payload)
+        const state = decideStagedConfigurationState(reading)
+        logger.log(
+          formatStagedPlanLine({ binding: reading.binding, state, target }),
         )
-        if (action === 'already-configured') {
+        if (state === 'skip') {
           logger.log(
-            `${target.name}: already permits a staged publish; skipping.`,
+            `${target.name}: already bound to the target and permits a staged publish; skipping.`,
           )
           skipped.push(target.name)
           continue
         }
-        if (action === 'unreadable') {
+        if (state === 'unreadable') {
           throw new Error(
             formatUnreadableSettings(
               target,
-              'the settings payload carried no recognizable "Allowed actions" block.',
+              'the settings payload carried neither a trusted-publisher connections list nor an "Allowed actions" block.',
             ),
           )
         }
         // eslint-disable-next-line no-await-in-loop -- one browser page, one package at a time.
-        await applyStagedPublishing(session.page, target, { stageOnly })
-        logger.success(`${target.name}: set "${STAGE_PUBLISH_ACTION}".`)
+        await applyStagedPublishing(session.page, target, { state, stageOnly })
+        logger.success(
+          `${target.name}: ${state} done — bound to ${describeBinding(TARGET_BINDING)} with "${STAGE_PUBLISH_ACTION}" allowed.`,
+        )
         configured.push(target.name)
       } catch (e) {
         logger.error(errorMessage(e))

@@ -1,16 +1,18 @@
 /**
- * @file Pure planning + payload parsing for the staged-publishing configurator
- *   — no playwright, no network, so the plan, the idempotency decision, and the
- *   challenge/auth classification are unit-testable without a browser. npm has
- *   no registry API for the trusted-publisher configuration: it lives behind
- *   the signed-in web UI at `/package/<name>/access`, whose SPA backend answers
- *   the same path as JSON when asked with `x-spiferack: 1` (the header the
- *   fleet's staged-packages reader already relies on). The JSON key names for
- *   the trusted-publisher block are NOT contractual, so `readAllowedActions`
- *   reads defensively across the plausible spellings and reports `undefined` —
- *   meaning "could not determine" — rather than guessing a value. `undefined`
- *   is never treated as "already configured": an unreadable payload must stop
- *   the run, not silently skip a package.
+ * @file Pure planning for the staged-publishing configurator — no playwright,
+ *   no network, so the plan, the per-package state, and the challenge/auth
+ *   classification are unit-testable without a browser. npm has no registry API
+ *   for the trusted-publisher configuration: it lives behind the signed-in web
+ *   UI at `/package/<name>/access`, whose SPA backend answers the same path as
+ *   JSON when asked with `x-spiferack: 1` (the header the fleet's
+ *   staged-packages reader already relies on).
+ *   The plan is the check's `not-staged` verdicts and nothing else, so a
+ *   package that gets configured drops out on the next run. A dry run reads no
+ *   page at all, so it reports every target under {@link DRY_RUN_PLAN_STATE};
+ *   the write lane reads each package's real binding and narrows to `rebind`,
+ *   `configure`, or `skip` from there. Binding reading and the state decision
+ *   live in `./configure-staged-publishing-binding.mts` and are re-exported
+ *   here so callers have one import surface.
  */
 
 import {
@@ -18,12 +20,56 @@ import {
   isCloudflareChallenge,
   looksLikeHtmlBody,
 } from '../fleet/publish-infra/npm/staged-browser-parse.mts'
+import {
+  bindingMatchesTarget,
+  decideStagedConfigurationState,
+  describeBinding,
+  diffTargetBinding,
+  DRY_RUN_PLAN_STATE,
+  permitsStagedPublish,
+  readAllowedActions,
+  readTrustedPublisherState,
+  TARGET_BINDING,
+  TARGET_ENVIRONMENT_NAME,
+  TARGET_REPOSITORY_NAME,
+  TARGET_REPOSITORY_OWNER,
+  TARGET_WORKFLOW_FILENAME,
+} from './configure-staged-publishing-binding.mts'
 
 import type { StagedFetchState } from '../fleet/publish-infra/npm/staged-browser-parse.mts'
 import type { StagedTrustReport } from './check-trusted-packages-staged.mts'
+import type {
+  StagedConfigurationState,
+  TrustedPublisherBinding,
+  TrustedPublisherBlockState,
+  TrustedPublisherReading,
+} from './configure-staged-publishing-binding.mts'
 
-export { classifyStagedFetch, isCloudflareChallenge, looksLikeHtmlBody }
-export type { StagedFetchState }
+export {
+  bindingMatchesTarget,
+  classifyStagedFetch,
+  decideStagedConfigurationState,
+  describeBinding,
+  diffTargetBinding,
+  DRY_RUN_PLAN_STATE,
+  isCloudflareChallenge,
+  looksLikeHtmlBody,
+  permitsStagedPublish,
+  readAllowedActions,
+  readTrustedPublisherState,
+  TARGET_BINDING,
+  TARGET_ENVIRONMENT_NAME,
+  TARGET_REPOSITORY_NAME,
+  TARGET_REPOSITORY_OWNER,
+  TARGET_WORKFLOW_FILENAME,
+}
+export type {
+  StagedConfigurationState,
+  StagedFetchState,
+  TrustedPublisherBinding,
+  TrustedPublisherBlockState,
+  TrustedPublisherReading,
+}
 
 export const NPM_ORIGIN = 'https://www.npmjs.com'
 
@@ -95,119 +141,28 @@ export function planStagedConfiguration(
   return targets.toSorted((a, b) => a.name.localeCompare(b.name))
 }
 
-function collectStrings(value: unknown, into: Set<string>): void {
-  if (typeof value === 'string') {
-    into.add(value.trim().toLowerCase())
-    return
-  }
-  if (Array.isArray(value)) {
-    for (let i = 0, { length } = value; i < length; i += 1) {
-      collectStrings(value[i], into)
-    }
-    return
-  }
-  if (value && typeof value === 'object') {
-    const record = value as Record<string, unknown>
-    const keys = Object.keys(record)
-    for (let i = 0, { length } = keys; i < length; i += 1) {
-      const key = keys[i]!
-      // A `{ "npm stage publish": true }` / `{ stagePublish: true }` shape
-      // carries the token in the KEY, with the boolean as the value.
-      if (record[key] === true) {
-        into.add(key.trim().toLowerCase())
-      }
-      collectStrings(record[key], into)
-    }
-  }
-}
-
 /**
- * The allowed-action tokens on a package's trusted-publisher configuration,
- * lowercased, or `undefined` when the payload carries no recognizable
- * trusted-publisher block.
- *
- * `undefined` means "could not determine", NOT "none configured" — the caller
- * must stop on it. Reading `undefined` as an empty set would make an
- * unparseable payload look like a package needing configuration, and a write
- * driven off a misread payload is exactly the failure this split exists to
- * prevent.
+ * Render one package's plan entry: its state, the binding npm reports today,
+ * the binding it must end up with, and the page an operator would open to check
+ * by hand. `binding` is omitted on a dry run, which reads no page.
  */
-export function readAllowedActions(
-  payload: unknown,
-): ReadonlySet<string> | undefined {
-  if (!payload || typeof payload !== 'object') {
-    return undefined
-  }
-  const found = new Set<string>()
-  let sawBlock = false
-  const visit = (node: unknown, depth: number): void => {
-    if (depth > 6 || !node || typeof node !== 'object') {
-      return
-    }
-    if (Array.isArray(node)) {
-      for (let i = 0, { length } = node; i < length; i += 1) {
-        visit(node[i], depth + 1)
-      }
-      return
-    }
-    const record = node as Record<string, unknown>
-    const keys = Object.keys(record)
-    for (let i = 0, { length } = keys; i < length; i += 1) {
-      const key = keys[i]!
-      const normalized = key.toLowerCase().replace(/[^a-z]/g, '')
-      if (
-        normalized === 'actions' ||
-        normalized === 'allowedactions' ||
-        normalized === 'permittedactions'
-      ) {
-        sawBlock = true
-        collectStrings(record[key], found)
-      }
-      visit(record[key], depth + 1)
-    }
-  }
-  visit(payload, 0)
-  return sawBlock ? found : undefined
-}
-
-/**
- * Whether a token set already permits a staged publish. Matches both the
- * human-readable token (`npm stage publish`) and the camel/kebab identifiers
- * npm's own payloads use for it, so a spelling difference between the rendered
- * control and the JSON never reads as "not configured".
- */
-export function permitsStagedPublish(actions: ReadonlySet<string>): boolean {
-  for (const action of actions) {
-    const normalized = action.toLowerCase().replace(/[^a-z]/g, '')
-    if (normalized === 'npmstagepublish' || normalized === 'stagepublish') {
-      return true
-    }
-  }
-  return false
-}
-
-/**
- * What the driver should do with one package, given its current allowed
- * actions.
- *
- * - `configure` — the trusted publisher exists and does not permit a staged
- *   publish.
- * - `already-configured` — nothing to do; the idempotent re-run case.
- * - `unreadable` — the payload carried no recognizable trusted-publisher block.
- *   Never silently skipped.
- */
-export type StagedConfigurationAction =
-  | 'already-configured'
-  | 'configure'
-  | 'unreadable'
-
-export function decideStagedConfigurationAction(
-  actions: ReadonlySet<string> | undefined,
-): StagedConfigurationAction {
-  if (actions === undefined) {
-    return 'unreadable'
-  }
-  return permitsStagedPublish(actions) ? 'already-configured' : 'configure'
+export function formatStagedPlanLine(config: {
+  binding?: TrustedPublisherBinding | undefined
+  state: StagedConfigurationState
+  target: StagedConfigurationTarget
+}): string {
+  const cfg = { __proto__: null, ...config } as typeof config
+  const { target } = cfg
+  const latest = target.latestVersion
+    ? ` (npm latest ${target.latestVersion})`
+    : ' (unpublished)'
+  return [
+    `${target.name}${latest}`,
+    `  state:   ${cfg.state}`,
+    `  current: ${describeBinding(cfg.binding)}`,
+    `  target:  ${describeBinding(TARGET_BINDING)}`,
+    `  page:    ${target.settingsUrl}`,
+  ].join('\n')
 }
 
 /**
@@ -222,8 +177,32 @@ export function formatUnreadableSettings(
     `What: ${target.name}'s trusted-publisher settings could not be read, so its staged-publishing state is unknown.`,
     `Where: ${target.settingsUrl}`,
     `Saw: ${detail}`,
-    'Wanted: a settings payload carrying an "Allowed actions" block.',
-    'Fix: open the URL above in the signed-in Chrome window and confirm the package has a trusted publisher configured; a package with no trusted publisher has no allowed-actions control to set.',
+    'Wanted: a settings payload carrying the trusted-publisher connections list, or an "Allowed actions" block.',
+    'Fix: open the URL above in the signed-in Chrome window and confirm the access page renders. A package with NO trusted publisher is not this error — that reads as `create` and the run configures it. This block means the payload was not the access page at all, so the key names may have changed; re-derive them before writing.',
+  ].join('\n')
+}
+
+/**
+ * Failure block for a trusted-publisher write that did not verify, in What /
+ * Where / Saw vs wanted / Fix order. `mismatches` names the fields npm still
+ * reports off-target after the save, so the operator knows exactly what to
+ * correct by hand.
+ */
+export function formatBindingWriteFailure(config: {
+  mismatches: readonly string[]
+  state: StagedConfigurationState
+  target: StagedConfigurationTarget
+}): string {
+  const cfg = { __proto__: null, ...config } as typeof config
+  const saw = cfg.mismatches.length
+    ? cfg.mismatches.join('; ')
+    : 'the re-read did not report the saved binding at all'
+  return [
+    `What: ${cfg.target.name}'s trusted publisher did not reach the target binding, so its staged publish will still be refused.`,
+    `Where: ${cfg.target.settingsUrl}`,
+    `Saw: after the ${cfg.state} save, ${saw}.`,
+    `Wanted: ${describeBinding(TARGET_BINDING)}, with "${STAGE_PUBLISH_ACTION}" allowed.`,
+    'Fix: open the URL above and set those fields by hand. The row may be PARTIALLY saved, so check every field, not just the ones named above.',
   ].join('\n')
 }
 
