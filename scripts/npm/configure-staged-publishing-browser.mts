@@ -13,6 +13,15 @@
  *   how long the run has waited and how long remains, so the wait is visible
  *   rather than a silent hang, and nothing is written while a challenge is
  *   outstanding.
+ *   A signed-in session is NOT the same as a readable page, which is why every
+ *   read goes through {@link waitForAccessPage} first. `/-/whoami` can answer
+ *   with the username while npmjs still serves the sign-in / one-time-password
+ *   interstitial for the access page, and that interstitial comes back through
+ *   the spiferack fetch as HTTP 200 JSON. Reading it as a payload is how a
+ *   package the operator was still signing in for got reported `unreadable`.
+ *   So the wait polls until the page is authenticated AND settled on the access
+ *   URL, and it never navigates while the operator holds the window — a `goto`
+ *   mid-wait would wipe a half-typed one-time password.
  *   The WRITE is not hand-rolled here. `create`, `rebind`, and `configure` all
  *   fill the same GitHub Actions trusted-publisher form, so all three delegate
  *   to the fleet's `driveVerifiedSave` — the observed-working driver that opens
