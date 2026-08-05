@@ -8,7 +8,10 @@
  *   throw, so a run can't report a package trustworthy because its fetch died).
  *   The pure classifier is exercised directly; the I/O wrapper is exercised
  *   through socket-lib's injectable `http` adapter seam, so no test touches the
- *   network.
+ *   network. The roster half asserts the union of `registry/manifest.json` with
+ *   the `packages/npm/*` working tree — the manifest omits `0.0.0` placeholders
+ *   on purpose, and a placeholder is exactly the package whose trusted
+ *   publisher has never been set up, so a manifest-only roster hid them.
  */
 
 import crypto from 'node:crypto'
@@ -23,6 +26,9 @@ import {
   describeStagedTrust,
   formatStagedTrustProblem,
   isStagedTrustFailure,
+  loadStagedRoster,
+  mergeStagedRosters,
+  readLocalNpmPackages,
   readStagedTrust,
 } from '../../../scripts/npm/check-trusted-packages-staged.mts'
 
@@ -142,6 +148,83 @@ describe('collectStagedRoster', () => {
   test('returns an empty roster for a manifest with no npm array', () => {
     expect(collectStagedRoster({})).toEqual([])
     expect(collectStagedRoster(undefined)).toEqual([])
+  })
+})
+
+describe('mergeStagedRosters', () => {
+  test('keeps a placeholder package the manifest deliberately omits', () => {
+    // `update-manifest.mts` drops a package whose npm latest is the 0.0.0 name
+    // reservation, so the manifest alone hides exactly the packages whose
+    // trusted publisher has never been set up.
+    const merged = mergeStagedRosters(
+      [entryOf('@socketregistry/abab', '1.0.9')],
+      [
+        { name: '@socketregistry/abab', version: '1.0.9' },
+        { name: '@socketregistry/own-keys', version: '1.0.0' },
+      ],
+    )
+    expect(merged).toEqual([
+      { manifestVersion: '1.0.9', name: '@socketregistry/abab' },
+      { manifestVersion: '1.0.0', name: '@socketregistry/own-keys' },
+    ])
+  })
+
+  test('the manifest wins a name collision, since it carries the version of record', () => {
+    const merged = mergeStagedRosters(
+      [entryOf('@socketregistry/abab', '1.0.9')],
+      [{ name: '@socketregistry/abab', version: '1.0.8' }],
+    )
+    expect(merged).toEqual([
+      { manifestVersion: '1.0.9', name: '@socketregistry/abab' },
+    ])
+  })
+
+  test('sorts the union and skips a nameless working-tree row', () => {
+    const merged = mergeStagedRosters(
+      [entryOf('@socketregistry/zebra', '1.0.0')],
+      [
+        { name: '', version: '1.0.0' },
+        { name: '@socketregistry/alpha', version: undefined },
+      ],
+    )
+    expect(merged.map(e => e.name)).toEqual([
+      '@socketregistry/alpha',
+      '@socketregistry/zebra',
+    ])
+  })
+})
+
+describe('readLocalNpmPackages', () => {
+  test('reads every packages/npm package, placeholders included', async () => {
+    const local = await readLocalNpmPackages()
+    const names = local.map(e => e.name)
+    expect(names).toContain('@socketregistry/abab')
+    // A 0.0.0 placeholder is absent from registry/manifest.json by design.
+    expect(names).toContain('@socketregistry/own-keys')
+    expect(local.every(e => e.name.startsWith('@'))).toBe(true)
+  })
+})
+
+describe('loadStagedRoster', () => {
+  test('the roster includes packages the manifest omits as placeholders', async () => {
+    const roster = await loadStagedRoster({ scopes: ['@socketregistry/'] })
+    const names = new Set(roster.map(e => e.name))
+    const placeholders = [
+      '@socketregistry/data-view-buffer',
+      '@socketregistry/es-to-primitive',
+      '@socketregistry/is-async-function',
+      '@socketregistry/own-keys',
+      '@socketregistry/stop-iteration-iterator',
+    ]
+    for (let i = 0, { length } = placeholders; i < length; i += 1) {
+      const name = placeholders[i]!
+      expect(names.has(name)).toBe(true)
+    }
+  })
+
+  test('the scope filter still narrows the union', async () => {
+    const roster = await loadStagedRoster({ scopes: ['@nothing-publishes/'] })
+    expect(roster).toEqual([])
   })
 })
 

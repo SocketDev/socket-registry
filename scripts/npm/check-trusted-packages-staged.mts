@@ -9,9 +9,14 @@
  *   version that dist-tag `latest` points at and reports the per-version
  *   history alongside it, since a package staged today but not for its older
  *   releases is a materially different state from one never staged at all.
- *   The roster is derived from `registry/manifest.json` (the set of packages
- *   this repo publishes) rather than a hardcoded list, and a manifest version
- *   that isn't on the registry yet is a pending bump, not a failure. A
+ *   The roster is derived from `registry/manifest.json` UNIONED with the
+ *   `packages/npm/*` working tree rather than a hardcoded list, and a manifest
+ *   version that isn't on the registry yet is a pending bump, not a failure.
+ *   The union matters: `update-manifest.mts` keeps a package whose npm `latest`
+ *   is still the `0.0.0` name-reservation placeholder OUT of the manifest,
+ *   because the manifest advertises usable overrides. A placeholder is exactly
+ *   the package whose publishing trust has never been set up, so a
+ *   manifest-only roster hides the packages that most need configuring. A
  *   registry read that fails for any reason other than a 404 propagates — a
  *   trust gate that reads green because a fetch died is worse than no gate.
  *   Pure classification lives in `classifyStagedTrust` so the verdict table is
@@ -19,7 +24,7 @@
  *   around socket-lib's `getPackumentSlim`.
  */
 
-import { readFile } from 'node:fs/promises'
+import { readdir, readFile } from 'node:fs/promises'
 import path from 'node:path'
 
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
@@ -28,6 +33,7 @@ import {
   getPackumentSlim,
 } from '@socketsecurity/lib/npm/meta'
 
+import { NPM_PACKAGES_PATH } from '../constants/paths.mts'
 import { REPO_ROOT } from '../fleet/paths.mts'
 
 import type {
@@ -110,11 +116,12 @@ export type StagedManifestRow = [
 ]
 
 /**
- * Derive the staged-publishing roster from a parsed `registry/manifest.json`.
- * The manifest is the authoritative list of what this repo publishes, so the
- * predicate for "must be staged-enabled" is membership in it — never a
- * hardcoded array that drifts the moment a package is added or dropped. Rows
- * without a usable name are skipped rather than guessed at.
+ * Derive the manifest half of the staged-publishing roster from a parsed
+ * `registry/manifest.json`. The manifest is the authoritative list of what this
+ * repo publishes as a usable override, so it is never a hardcoded array that
+ * drifts the moment a package is added or dropped. Rows without a usable name
+ * are skipped rather than guessed at. `loadStagedRoster` unions this with the
+ * working tree, because the manifest deliberately omits `0.0.0` placeholders.
  */
 export function collectStagedRoster(manifest: unknown): StagedRosterEntry[] {
   const rows =
@@ -140,14 +147,142 @@ export function collectStagedRoster(manifest: unknown): StagedRosterEntry[] {
 }
 
 /**
- * Read `registry/manifest.json` and derive the roster, optionally narrowed to
- * the scopes this repo publishes.
+ * One `packages/npm/<dir>/package.json` row: the npm name this repo publishes
+ * that directory under, and the version the working tree declares for it.
+ */
+export interface LocalPackageEntry {
+  name: string
+  version: string | undefined
+}
+
+/**
+ * Union the manifest roster with the working-tree roster. A name in both keeps
+ * its MANIFEST entry, which carries the version of record; a name only in the
+ * working tree joins with its local version.
+ *
+ * This union is the whole point of the roster: a package whose npm `latest` is
+ * still the `0.0.0` placeholder is absent from the manifest by design, and it
+ * is precisely the package whose trusted publisher has never been configured.
+ * Pure — the file reads live in `readLocalNpmPackages`.
+ */
+export function mergeStagedRosters(
+  manifestRoster: readonly StagedRosterEntry[],
+  localPackages: readonly LocalPackageEntry[],
+): StagedRosterEntry[] {
+  const byName = new Map<string, StagedRosterEntry>()
+  for (let i = 0, { length } = localPackages; i < length; i += 1) {
+    const local = localPackages[i]!
+    if (local.name) {
+      byName.set(local.name, {
+        manifestVersion: local.version,
+        name: local.name,
+      })
+    }
+  }
+  for (let i = 0, { length } = manifestRoster; i < length; i += 1) {
+    const entry = manifestRoster[i]!
+    byName.set(entry.name, entry)
+  }
+  return Array.from(byName.values()).toSorted((a, b) =>
+    a.name.localeCompare(b.name),
+  )
+}
+
+/**
+ * Read every `packages/npm/*` package's name and version off the working tree.
+ *
+ * A subdirectory with no `package.json` is not a package and is skipped. A
+ * `package.json` that exists but cannot be read or parsed THROWS: swallowing it
+ * would drop a real package from the roster, and a package silently missing
+ * from a trust roster reads as "nothing to configure".
+ *
+ * @throws {Error} When `packages/npm` cannot be listed, or when a package's
+ *   `package.json` exists but is unreadable or malformed.
+ */
+export async function readLocalNpmPackages(): Promise<LocalPackageEntry[]> {
+  let dirents
+  try {
+    dirents = await readdir(NPM_PACKAGES_PATH, { withFileTypes: true })
+  } catch (e) {
+    throw new Error(
+      [
+        'What: the working-tree package list could not be read, so the staged-publishing roster is incomplete.',
+        `Where: ${NPM_PACKAGES_PATH}`,
+        `Saw: ${errorMessage(e)}`,
+        'Wanted: a readable directory of one subdirectory per published override package.',
+        'Fix: confirm the checkout is complete (`git status`), then re-run.',
+      ].join('\n'),
+    )
+  }
+  const entries: LocalPackageEntry[] = []
+  for (let i = 0, { length } = dirents; i < length; i += 1) {
+    const dirent = dirents[i]!
+    if (!dirent.isDirectory()) {
+      continue
+    }
+    const pkgJsonPath = path.join(
+      NPM_PACKAGES_PATH,
+      dirent.name,
+      'package.json',
+    )
+    let raw: string
+    try {
+      // eslint-disable-next-line no-await-in-loop -- serial reads keep each parse error tied to its package.
+      raw = await readFile(pkgJsonPath, 'utf8')
+    } catch (e) {
+      if ((e as NodeJS.ErrnoException | undefined)?.code === 'ENOENT') {
+        continue
+      }
+      throw new Error(
+        [
+          `What: ${dirent.name}'s package.json could not be read, so it would drop out of the staged-publishing roster unnoticed.`,
+          `Where: ${pkgJsonPath}`,
+          `Saw: ${errorMessage(e)}`,
+          'Wanted: a readable package.json declaring the package name.',
+          'Fix: restore the file from git, then re-run.',
+        ].join('\n'),
+      )
+    }
+    let parsed: unknown
+    try {
+      parsed = JSON.parse(raw)
+    } catch (e) {
+      throw new Error(
+        [
+          `What: ${dirent.name}'s package.json is not valid JSON, so it would drop out of the staged-publishing roster unnoticed.`,
+          `Where: ${pkgJsonPath}`,
+          `Saw: ${errorMessage(e)}`,
+          'Wanted: a parseable package.json declaring the package name.',
+          'Fix: repair the JSON, then re-run.',
+        ].join('\n'),
+      )
+    }
+    const record = (parsed ?? {}) as { name?: unknown; version?: unknown }
+    const name = typeof record.name === 'string' ? record.name : ''
+    if (!name) {
+      continue
+    }
+    entries.push({
+      name,
+      version: typeof record.version === 'string' ? record.version : undefined,
+    })
+  }
+  return entries
+}
+
+/**
+ * Read `registry/manifest.json`, union it with the `packages/npm/*` working
+ * tree, and derive the roster, optionally narrowed to the scopes this repo
+ * publishes. A roster name the registry has never seen classifies as
+ * `unpublished` downstream, so "exists on npm" is decided by the registry read
+ * rather than guessed at here.
  *
  * An unreadable manifest THROWS. Swallowing it would silently shrink the roster
  * to nothing and let the gate report success over an empty set — the exact
  * false-green this module exists to avoid.
  *
- * @throws {Error} When the manifest cannot be read or parsed.
+ * @throws {Error} When the manifest or the working-tree package list cannot be
+ *   read or parsed.
  */
 export async function loadStagedRoster(options?: {
   scopes?: readonly string[] | undefined
@@ -169,7 +304,10 @@ export async function loadStagedRoster(options?: {
       ].join('\n'),
     )
   }
-  const roster = collectStagedRoster(manifest)
+  const roster = mergeStagedRosters(
+    collectStagedRoster(manifest),
+    await readLocalNpmPackages(),
+  )
   if (!scopes?.length) {
     return roster
   }
@@ -336,6 +474,6 @@ export function formatStagedTrustProblem(report: StagedTrustReport): string {
     `Where: ${where}`,
     `Saw: ${stagedVersionCount} of ${publishedVersionCount} published version(s) carry the staged approver marker; dist-tag latest carries none.`,
     'Wanted: the version dist-tag latest points at published through the staged approval queue.',
-    `Fix: set the package's trusted publisher "Allowed actions" to "npm stage publish" at the URL above, then republish. \`pnpm run npm:configure-staged --dry-run\` reports every package needing it; drop --dry-run to apply.`,
+    `Fix: give the package a trusted publisher at the URL above — or, if one already exists, set its "Allowed actions" to "npm stage publish" — then republish. \`pnpm run npm:configure-staged\` reports every package needing it, creating or rebinding as each package requires; add --apply to write.`,
   ].join('\n')
 }
