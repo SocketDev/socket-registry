@@ -1,3 +1,4 @@
+// socket-lint: mirror-exempt — configure-staged-publishing-plan.test.mts is the module's primary mirror; this file carries its permission-token half, split out to stay under the file-size cap.
 /**
  * @file Tests for the permission half of the staged-publishing configurator:
  *   which of npm's grant tokens map to which rendered action, and the registry
@@ -30,8 +31,6 @@ import {
   TARGET_REPOSITORY_NAME,
   TARGET_WORKFLOW_FILENAME,
 } from '../../../scripts/repo/npm/configure-staged-publishing-plan.mts'
-
-import { normalizePayloadKey } from '../../../scripts/repo/npm/configure-staged-publishing-payload.mts'
 
 import type { StagedTrustReport } from '../../../scripts/repo/npm/check-trusted-packages-staged.mts'
 
@@ -113,32 +112,38 @@ describe('permission tokens', () => {
   test('every spelling of one action is offered to the control resolver', () => {
     // The form can identify a grant by a control's VALUE rather than by a field
     // name, so the resolver needs the same vocabulary the payload reader has.
-    // Some spellings arrive already normalized, which is fine: the resolver
-    // compares tokens with the same letters-and-digits normalization, so
-    // `createpackage` matches a control carrying `createPackage`.
+    // Pinned as a round-trip: every token offered for an action resolves back
+    // to that action and no other, which is the same-letters-and-digits
+    // equivalence the payload reader applies without reaching into it.
+    const normalize = (token: string) =>
+      token.toLowerCase().replace(/[^a-z]/g, '')
     const direct = grantTokensForAction('npm publish')
+    expect(direct.length).toBeGreaterThan(0)
+    for (const token of direct) {
+      expect(resolvePermissionAction(token)).toBe('npm publish')
+    }
     for (const token of [
       'npm publish',
       'createPackage',
       'createPackageVersion',
       'publish',
     ]) {
-      expect(direct.map(normalizePayloadKey)).toContain(
-        normalizePayloadKey(token),
-      )
+      expect(direct.map(normalize)).toContain(normalize(token))
     }
     const staged = grantTokensForAction('npm stage publish')
+    expect(staged.length).toBeGreaterThan(0)
+    for (const token of staged) {
+      expect(resolvePermissionAction(token)).toBe('npm stage publish')
+    }
     for (const token of [
       'npm stage publish',
       'createStagedPackage',
       'stagePublish',
     ]) {
-      expect(staged.map(normalizePayloadKey)).toContain(
-        normalizePayloadKey(token),
-      )
+      expect(staged.map(normalize)).toContain(normalize(token))
     }
-    expect(direct.map(normalizePayloadKey)).not.toContain(
-      normalizePayloadKey('createStagedPackage'),
+    expect(direct.map(normalize)).not.toContain(
+      normalize('createStagedPackage'),
     )
   })
 
