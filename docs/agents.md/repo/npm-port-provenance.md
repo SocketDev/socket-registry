@@ -15,14 +15,14 @@ each gate catches.
 | Dependency spec | `test/npm/package.json` → `devDependencies`                  | The upstream bytes the suite actually runs against.                                 |
 
 The **port row is the source of truth.** The header is hand-written prose and
-drifts silently — the corpus already carries two incompatible SHA conventions
+drifts silently - the corpus already carries two incompatible SHA conventions
 (some headers record an annotated tag's object id, others its peeled commit),
 and nothing caught it until the rows were written. Treat the header as a
 rendering of the row, never the other way around.
 
 ## The two gates
 
-- **`node scripts/repo/check/npm-port-provenance-is-current.mts`** — offline,
+- **`node scripts/repo/check/npm-port-provenance-is-current.mts`** - offline,
   runs inside `pnpm run check --all` via `scripts/repo/check/` discovery. It
   asserts the four records agree: the row's upstream resolves to a shallow,
   single-branch, sparse, sha256-stamped block pinned at a release tag; the
@@ -32,10 +32,10 @@ rendering of the row, never the other way around.
   version or the ported object id. Add `--online` and it also reads each
   upstream's tag list with `git ls-remote --tags` and reports how many releases
   the pin trails. Any input it cannot resolve is an exit-1 failure with a
-  What / Where / Saw vs wanted / Fix block — it never reads green on a pin it
+  What / Where / Saw vs wanted / Fix block - it never reads green on a pin it
   could not check.
 
-- **`pnpm run lockstep`** — the deep tier. It runs
+- **`pnpm run lockstep`** - the deep tier. It runs
   `git log <forked_at_sha>..HEAD -- <upstream_path>` inside the materialized
   submodule, so it catches drift in the ported _bytes_: upstream commits that
   touched the file the suite was ported from. It needs the reference
@@ -56,7 +56,7 @@ git -C upstream/<owner>-<repo> sparse-checkout set test/
 ```
 
 Cone-mode sparse-checkout always materializes the repo's root files, so
-`set test/` yields the upstream's entry points plus its test directory — exactly
+`set test/` yields the upstream's entry points plus its test directory - exactly
 what a ported suite references. All three wired references together are 648 KB
 on disk including their `.git` directories.
 
@@ -67,9 +67,12 @@ wheelhouse.
 
 ## Wiring the next package
 
+<details>
+<summary><b>The five wiring steps</b> - port header, release tag, reference block, manifest records, gates</summary>
+
 1. **Read the port header.** It names the upstream version, an object id, and a
    permalink to the upstream test file. If it has no `Ported 1:1 from upstream
-v<version> (<sha>): <permalink>` clause, the suite is not a port — skip it.
+v<version> (<sha>): <permalink>` clause, the suite is not a port - skip it.
 
 2. **Resolve the object id to a release tag.**
 
@@ -100,10 +103,10 @@ v<version> (<sha>): <permalink>` clause, the suite is not a port — skip it.
    entry keyed `<owner>-<repo>` naming the submodule path and repo URL, and a
    `file-fork` row with `id: npm-port-<pkg>`, `local`, `upstream_path` (the
    permalink's path), `forked_at_sha` (the header SHA), and a non-empty
-   `deviations` list. Every port deviates the same three ways at minimum — the
+   `deviations` list. Every port deviates the same three ways at minimum - the
    tape harness becomes vitest, the assertions become `expect`, and the module
    under test resolves to the `@socketregistry` override via
-   `setupNpmPackageTest` — plus whatever else that suite changed.
+   `setupNpmPackageTest` - plus whatever else that suite changed.
 
 5. **Run both gates.**
 
@@ -112,11 +115,13 @@ v<version> (<sha>): <permalink>` clause, the suite is not a port — skip it.
    pnpm run lockstep
    ```
 
+</details>
+
 ## Scale: when to stop adding submodules
 
 131 references is past where a submodule per upstream pays for itself. The
-tracked cost stays flat — `.gitmodules` is ~10 lines per entry and there is no
-gitlink — but the operational cost does not: 131 `git clone` invocations to
+tracked cost stays flat - `.gitmodules` is ~10 lines per entry and there is no
+gitlink - but the operational cost does not: 131 `git clone` invocations to
 materialize, 131 remote reads per currency pass, and a `.gitmodules` file
 approaching 1,400 lines.
 
@@ -126,9 +131,9 @@ to the archive path the pin already encodes: the block's `sha256:` stamp is the
 hash of `https://codeload.github.com/<owner>/<repo>/tar.gz/<ref>`, so a fetch-
 and-verify of that one tarball gives the same bytes with no submodule, no clone
 state, and no per-checkout materialization. Keep submodules for the ports whose
-upstream churns — the es-shims suites gain cases every release; use the
+upstream churns - the es-shims suites gain cases every release; use the
 verified tarball for the frozen ones, such as `object-assign`, which has not
 moved since 2016.
 
-The currency leg needs neither — `git ls-remote --tags` is one cheap remote read
+The currency leg needs neither - `git ls-remote --tags` is one cheap remote read
 per upstream and is already what tells you a re-port is due.

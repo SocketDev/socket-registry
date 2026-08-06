@@ -11,7 +11,7 @@ Optimized package overrides for [Socket Optimize](https://socket.dev/features/op
 
 <img src="https://raw.githubusercontent.com/SocketDev/socket-registry/HEAD/assets/socket-optimize-hero.png" height="272px" width="576px" alt="socket optimize">
 
-`@socketregistry` is the monorepo behind [Socket Optimize](https://socket.dev/features/optimize) — a curated set of drop-in npm package replacements that reduce dependencies, modernize APIs, improve performance, and patch known CVEs without breaking compatibility. Every override passes the original package's own test suite, ships with TypeScript types, and stays MIT-compatible. The registry exists so `socket optimize` has something authoritative to swap in.
+`@socketregistry` is the monorepo behind [Socket Optimize](https://socket.dev/features/optimize) - a curated set of drop-in npm package replacements that reduce dependencies, modernize APIs, improve performance, and patch known CVEs without breaking compatibility. Every override passes the original package's own test suite, ships with TypeScript types, and stays MIT-compatible. The registry exists so `socket optimize` has something authoritative to swap in.
 
 ## Install
 

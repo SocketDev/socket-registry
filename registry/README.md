@@ -32,7 +32,7 @@ console.log(pkg?.categories) // ['cleanup']
 
 ### List all overrides for an ecosystem
 
-Returns the raw `[purl, data]` tuples — iterate them, don't assume they're a map:
+Returns the raw `[purl, data]` tuples - iterate them, don't assume they're a map:
 
 ```typescript
 const entries = getManifestData('npm')

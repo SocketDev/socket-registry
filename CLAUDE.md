@@ -132,8 +132,8 @@
 Layout, commands, build, testing, vitest config, dependency policy, and the scratch-doc convention live in [`architecture`](docs/agents.md/repo/architecture.md).
 
 - 🚨 Node ≥24 engines floor, yet shipped override code still avoids ES2023+ array methods (`toReversed`/`toSorted`/`toSpliced`/`with()`). [`architecture`](docs/agents.md/repo/architecture.md)
-- 🚨 Never type or guess a SHA in a cascade — read it with `git rev-parse origin/main` AFTER the merge lands. [`architecture`](docs/agents.md/repo/architecture.md)
-- 🚨 Never `sed`/`awk`/`perl -i` a workflow YAML — edit it with the Edit tool. [`architecture`](docs/agents.md/repo/architecture.md)
+- 🚨 Never type or guess a SHA in a cascade - read it with `git rev-parse origin/main` AFTER the merge lands. [`architecture`](docs/agents.md/repo/architecture.md)
+- 🚨 Never `sed`/`awk`/`perl -i` a workflow YAML - edit it with the Edit tool. [`architecture`](docs/agents.md/repo/architecture.md)
 - 🚨 Never put `--` before a vitest path; it runs ALL tests instead of the file you named. [`architecture`](docs/agents.md/repo/architecture.md)
 - 🚨 Coverage is mandatory and never decreases; every `c8 ignore` reason ends with a period. [`architecture`](docs/agents.md/repo/architecture.md)
 - 🚨 Never the split `@typescript-eslint/*` packages, and never swap tsgo for stock `tsc`. [`architecture`](docs/agents.md/repo/architecture.md)
