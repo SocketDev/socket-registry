@@ -107,7 +107,7 @@ catalog:
   # accidentally"), so the catalog-drift automation skips it and this pin is
   # hand-aligned with the canonical fleet catalog; bump to the stabilized 15.x
   # when it ships.
-  'nock': 14.0.17
+  'nock': 14.0.16
   # npm-high-impact 1.13.0 — wooorm's high-impact npm package lists
   # (npmHighImpact + npmTopDependents + npmTopDownloads); the ecosystem-reach
   # input for scripts/fleet/measure-ecosystem-impact.mts, which ranks override

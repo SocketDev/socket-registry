@@ -75,7 +75,7 @@
     "mcp:reset": "node scripts/fleet/mcp-reset.mts",
     "setup:sfw-ca": "node scripts/fleet/setup/sfw-ca.mts",
     "get-green": "node scripts/fleet/get-green.mts",
-    "weekly-update:ci": "gh workflow run weekly-update.lock.yml",
+    "weekly-update:ci": "gh workflow run weekly-update.yml",
     "prune:branch-backups": "node scripts/fleet/backup-branches.mts prune",
     "prune:gha-caches": "node scripts/fleet/prune-actions-caches.mts",
     "strip:ai-tags": "node scripts/fleet/strip-ai-tags.mts",

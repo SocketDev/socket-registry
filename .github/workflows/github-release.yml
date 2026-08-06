@@ -1,101 +1,103 @@
 name: 🚀 GitHub release
 
-# PRESET — seeded once from template/presets/ (onboarding or first cascade),
-# then repo-owned: customize what THIS repo releases. The fleet base actions
-# do the heavy lifting — github-release-app-token mints the release App token,
-# github-release cuts the immutable 3-step release tied to the pushed tag
-# (create --draft → upload assets → edit --draft=false).
+# The wheelhouse's GitHub release IS the fleet scaffolding bundle. One
+# workflow, two jobs, routed by trigger:
 #
-# Default flow: push a signed v* tag → this workflow cuts a GitHub Release for
-# it. A manual dispatch is a DRY-RUN (prints the cut plan) unless
-# `release: true`. Add build steps + assets for whatever this repo ships.
+#   orchestrate (workflow_dispatch) — the release orchestrator
+#   (scripts/repo/github-release.mts): verify CI green → bump → tag → push.
+#   It does NOT re-run the gate. The fleet gate (check / test / cover) runs in
+#   ci.yml on every main push (cover is a concurrency-cancelled job there); the
+#   orchestrator just VERIFIES that ci.yml run is green on HEAD, then bumps +
+#   tags on it. This keeps the cut fast (a human dispatching `release: true` is
+#   the staging approval) and stops it losing the push race the former inline
+#   20-min gate did. A dispatch is a DRY-RUN (plan only, no mutations) unless
+#   `release: true`; `release-as` picks the semver level. Pushing the bump
+#   commit + tag (with the release-app token) triggers this same workflow's
+#   release-bundle job (the tag → GitHub Release cut).
 #
-# ORDER RULE: the tag + immutable GH release are the FINAL markers of a
-# release — they may only exist AFTER the registry publish is live. A STAGED
-# npm package is not published (staging may never be approved), so this
-# workflow refuses to cut when the tagged version is not resolvable on its
-# registry (npm packument / crates.io sparse index). Registry-less repos
-# (private, github-release-only) skip the gate.
+#   release-bundle (push: fleet-pack-* tags) — builds the bundle
+#   (scripts/repo/bundle-release.mts --build-only) and cuts the immutable
+#   3-step GitHub Release via the fleet base action
+#   (.github/actions/fleet/github-release). Members CONSUME the release via
+#   scripts/fleet/fetch-fleet-pack.mts; they never produce it. A dispatch
+#   with `bundle-dry-run: true` exercises this job without mutating.
+#
+# Wheelhouse-only — lives in the wheelhouse's own .github/workflows (NOT
+# template/base, which would cascade it to members); members get a seed-once
+# starter from template/presets/ and release whatever THEY release.
+#
+# Auth: the release GitHub App token (SOCKET_RELEASE_APP_*) is minted per-job
+# via .github/actions/fleet/github-release-app-token. In orchestrate it is
+# used two ways — the origin remote is re-pointed at it so github-release.mts
+# can push the bump commit + tag, and it is handed to the script as GH_TOKEN
+# for the `gh release ...` calls. The committer identity is resolved from the
+# token's own bot user so the bump commit is attributed to the release app.
 
 on:
   workflow_dispatch:
     inputs:
       release:
-        description: 'Cut the release for real (false = dry-run plan, the default).'
+        description: 'Cut the release for real (false = dry-run gate + plan, the default).'
         type: boolean
         default: false
-      tag:
-        description: 'Tag to release. Required on dispatch (tag pushes use the pushed tag).'
-        type: string
-        default: ''
+      release-as:
+        description: 'Semver bump level for the release commit.'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+        default: patch
+      bundle-dry-run:
+        description: 'Instead of the orchestrator, dry-run the bundle build + release-cut plan.'
+        type: boolean
+        default: false
   push:
     tags:
-      - 'v*'
+      - 'fleet-pack-*'
 
 permissions:
   contents: read
 
-# Fleet no-phone-home posture, lockstep with the FLEET_ENV list in
-# .claude/hooks/fleet/_shared/fleet-env.mts (mirror of ci.yml's env block) —
-# the release job runs the same telemetry + update-notifier opt-outs, so a
-# release build never phones home. OTEL_SDK_DISABLED holds the OpenTelemetry
-# exporter that ships in the skillspector security tool's closure inert.
+# Fleet no-phone-home posture: CI runners don't source the shell-rc that dev
+# machines get from setup-security-tools, so set every FLEET_ENV knob here or
+# the telemetry-env-is-disabled + package-manager-auto-update-is-disabled gates
+# (under `check --all`, which the release orchestrator runs) fail. Lockstep
+# source: .claude/hooks/fleet/_shared/fleet-env.mts.
 env:
   CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: '1'
   COREPACK_ENABLE_PROJECT_SPEC: '0'
   DISABLE_TELEMETRY: '1'
   DO_NOT_TRACK: '1'
+  LINT_MARKDOWN: '1'
   NO_UPDATE_NOTIFIER: '1'
-  OTEL_SDK_DISABLED: 'true'
 
 jobs:
-  release:
+  orchestrate:
+    if: github.event_name == 'workflow_dispatch' && inputs.bundle-dry-run != true
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    env:
+      # Socket Firewall + CLI auth for the sfw-wrapped setup + pnpm install —
+      # sfw and socket-cli read SOCKET_API_KEY from the org-wide secret, so the
+      # enterprise firewall is used, not sfw-free.
+      SOCKET_API_KEY: ${{ secrets.SOCKET_API_TOKEN_FOR_CLI_AND_SFW }}
     steps:
-      # First step must be the third-party actions/checkout (GitHub fetches it
-      # independently) to populate the workspace so the LOCAL
-      # ./.github/actions/* composite resolves; the fleet checkout action then
-      # re-checks-out at its own depth.
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2 (2026-05-15)
-        with:
-          fetch-depth: 1
-          persist-credentials: false
       - name: Checkout
-        uses: ./.github/actions/fleet/checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3 (2026-06-02)
         with:
-          # Authorizes a thin member's bundle hydration right after checkout.
-          # Both stay empty on a member with no payload App, skipping the mint.
-          payload-token-client-id: ${{ vars.SOCKET_PAYLOAD_CLIENT_ID }}
-          payload-token-private-key: ${{ secrets.SOCKET_PAYLOAD_APP_PRIVATE_KEY }}
-      # The resolved tag is the single input every later step trusts — it
-      # feeds the registry-liveness gate as TAG and names the release cut, so
-      # wrong resolution here silently bypasses the publish-before-release
-      # order rule. The branch logic lives in the dependency-free
-      # scripts/fleet/resolve-release-tag.mjs (system Node only — no install
-      # has run here), where the wheelhouse unit suite regression-tests it;
-      # byte-parity with the inline predecessor is pinned per scenario.
-      - name: Resolve tag
-        id: tag
-        env:
-          EVENT_NAME: ${{ github.event_name }}
-          INPUT_TAG: ${{ inputs.tag }}
-          REF_NAME: ${{ github.ref_name }}
-        run: node scripts/fleet/resolve-release-tag.mjs
-      # Belt-and-braces publish-before-release gate: refuse to cut when the
-      # tagged version is not actually live on its registry. Runs only when a
-      # real cut would happen (tag push, or dispatch with release: true) so a
-      # dry-run plan stays inspectable pre-publish. The branch logic lives in
-      # the dependency-free scripts/fleet/registry-liveness-gate.mjs (system
-      # Node only — no install has run here), where the wheelhouse unit suite
-      # regression-tests it; the inline predecessor was untestable and shipped
-      # a regressed single-crate-only gate to cargo workspaces in v1.0.13.
-      - name: Registry publish is live
-        if: ${{ github.event_name == 'push' || inputs.release }}
-        env:
-          TAG: ${{ steps.tag.outputs.tag }}
-        run: node scripts/fleet/registry-liveness-gate.mjs
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Setup + install
+        # Inherit the fleet setup-and-install composite (Node + pnpm bootstrap +
+        # install) instead of a bare setup step — immune to setup-script renames
+        # (the removed scripts/fleet/setup/setup-tools.mjs broke this). The job's
+        # own full-history Checkout above is kept (checkout: false) because the
+        # release orchestrator + bundle build need the tags/history to push.
+        uses: ./.github/actions/fleet/setup-and-install
+        with:
+          checkout: false
       - name: Mint release-app token
         id: app-token
         uses: ./.github/actions/fleet/github-release-app-token
@@ -103,11 +105,107 @@ jobs:
           client-id: ${{ vars.SOCKET_RELEASE_CLIENT_ID }}
           private-key: ${{ secrets.SOCKET_RELEASE_APP_PRIVATE_KEY }}
           owner: ${{ github.repository_owner }}
-      # Build this repo's release assets here, then list them under the cut
-      # step's `assets:` (newline-separated paths; each must exist).
+      - name: Set up GPG signing (Socket Bot)
+        # The bump commit AND `git tag -s` in github-release.mts must be SIGNED,
+        # or the release cut dies at the tag step and the tag is never Verified.
+        # An app INSTALLATION token cannot hold a signing key, so reuse the
+        # fleet's worked-out GPG path (same as socket-registry publishes):
+        # import the Socket Bot key from BOT_GPG_PRIVATE_KEY. The committer
+        # email MUST match the registered key UID (socket-bot@users.noreply
+        # .github.com, key 922630D33925D208) or GitHub marks the commit
+        # Unverified and main's "Require commit signing" ruleset blocks the
+        # push — the numeric-prefixed bot-identity.mts email is NOT a key UID.
+        # Paired with the always() cleanup after the orchestrator.
+        if: ${{ inputs.release }}
+        uses: ./.github/actions/fleet/setup-git-signing
+        with:
+          gpg-private-key: ${{ secrets.BOT_GPG_PRIVATE_KEY }}
+          user-name: Socket Bot
+          user-email: socket-bot@users.noreply.github.com
+      - name: Configure push auth
+        # Committer/author identity + signing come from setup-git-signing above;
+        # here we only re-point origin at the release-app token so the
+        # orchestrator can push the (signed) bump commit + tag.
+        if: ${{ inputs.release }}
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          set -euo pipefail
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+      - name: Run release orchestrator
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: node scripts/repo/github-release.mts --release-as ${{ inputs.release-as }} ${{ inputs.release && '--release' || '' }}
+      - name: Clean up GPG signing
+        # always() so the imported key + gpg-agent never linger on the runner,
+        # even when the orchestrator fails mid-cut.
+        if: ${{ always() && inputs.release }}
+        uses: ./.github/actions/fleet/cleanup-git-signing
+
+  release-bundle:
+    if: github.event_name == 'push' || inputs.bundle-dry-run == true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      # packages: write lets the job's own GITHUB_TOKEN push the fleet-pack
+      # OCI artifact to ghcr.io/socketdev/socket-wheelhouse/fleet-pack (same
+      # auth as prebake-publish.yml), so members pull the bundle tokenlessly.
+      packages: write
+    env:
+      # Socket Firewall + CLI auth for the sfw-wrapped setup + pnpm install —
+      # see the orchestrate job.
+      SOCKET_API_KEY: ${{ secrets.SOCKET_API_TOKEN_FOR_CLI_AND_SFW }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3 (2026-06-02)
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Setup + install
+        # Inherit the fleet setup-and-install composite (Node + pnpm bootstrap +
+        # install) instead of a bare setup step — immune to setup-script renames
+        # (the removed scripts/fleet/setup/setup-tools.mjs broke this). The job's
+        # own full-history Checkout above is kept (checkout: false) because the
+        # release orchestrator + bundle build need the tags/history to push.
+        uses: ./.github/actions/fleet/setup-and-install
+        with:
+          checkout: false
+      - name: Mint release-app token
+        id: app-token
+        uses: ./.github/actions/fleet/github-release-app-token
+        with:
+          client-id: ${{ vars.SOCKET_RELEASE_CLIENT_ID }}
+          private-key: ${{ secrets.SOCKET_RELEASE_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+      - name: Build release bundle
+        id: bundle
+        env:
+          # bundle-release.mts verifies the tag is on origin via gh api.
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: node scripts/repo/bundle-release.mts --build-only
       - name: Cut immutable GitHub release
         uses: ./.github/actions/fleet/github-release
         with:
-          tag: ${{ steps.tag.outputs.tag }}
-          dry-run: ${{ (github.event_name == 'push' || inputs.release) && 'false' || 'true' }}
+          tag: ${{ steps.bundle.outputs.tag }}
+          title: Fleet pack ${{ steps.bundle.outputs.version }}
+          notes: Fleet scaffolding bundle for template ${{ steps.bundle.outputs.version }}.
+          assets: |
+            ${{ steps.bundle.outputs.tarball }}
+            ${{ steps.bundle.outputs.manifest }}
+          dry-run: ${{ github.event_name != 'push' && 'true' || 'false' }}
           token: ${{ steps.app-token.outputs.token }}
+      - name: Push fleet-pack to GHCR
+        # Push the SAME tarball + manifest as a PUBLIC OCI artifact beside the
+        # GitHub-Release asset, so members pull the bundle anonymously (no read
+        # token). Auth is the job's own GITHUB_TOKEN + packages: write (mirrors
+        # prebake-publish.yml). A dispatch (bundle-dry-run) exercises it with
+        # --dry-run so nothing is pushed.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: >-
+          node scripts/repo/push-fleet-pack-oci.mts
+          --repo ${{ github.repository }}
+          --tag ${{ steps.bundle.outputs.tag }}
+          --tarball ${{ steps.bundle.outputs.tarball }}
+          --manifest ${{ steps.bundle.outputs.manifest }}
+          ${{ github.event_name != 'push' && '--dry-run' || '' }}
