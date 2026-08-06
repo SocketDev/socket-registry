@@ -15,6 +15,7 @@ import path from 'node:path'
 
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
+import { isMainModule } from '../../fleet/_shared/is-main-module.mts'
 import { ROOT_PATH } from '../constants/paths.mts'
 import { runValidationScript } from '../util/validation-runner.mts'
 
@@ -438,4 +439,6 @@ async function main(): Promise<void> {
   )
 }
 
-main()
+if (isMainModule(import.meta.url)) {
+  main()
+}

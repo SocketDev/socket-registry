@@ -12,6 +12,7 @@ import { globStreamLicenses } from '@socketsecurity/lib-stable/globs/stream'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { parallelEach } from '@socketsecurity/lib-stable/streams/parallel'
 
+import { isMainModule } from '../../fleet/_shared/is-main-module.mts'
 import { LICENSE, ROOT_PATH } from '../constants/paths.mts'
 import { getIgnoreGlobs, getLicenseContent } from '../constants/utils.mts'
 
@@ -33,7 +34,9 @@ async function main(): Promise<void> {
   )
 }
 
-main().catch((e: unknown) => {
-  logger.error(e)
-  process.exitCode = 1
-})
+if (isMainModule(import.meta.url)) {
+  main().catch((e: unknown) => {
+    logger.error(e)
+    process.exitCode = 1
+  })
+}

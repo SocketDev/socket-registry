@@ -10,6 +10,7 @@ import colors from 'yoctocolors-cjs'
 import { isQuiet } from '@socketsecurity/lib-stable/argv/flag-predicates'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
+import { isMainModule } from '../fleet/_shared/is-main-module.mts'
 import { runCommand } from '../fleet/util/run-command.mts'
 import { REGISTRY_PKG_PATH } from './constants/paths.mts'
 
@@ -45,7 +46,9 @@ async function main(): Promise<void> {
   process.exitCode = 0
 }
 
-main().catch((e: unknown) => {
-  logger.error(colors.red('✗ Build failed:'), e)
-  process.exitCode = 1
-})
+if (isMainModule(import.meta.url)) {
+  main().catch((e: unknown) => {
+    logger.error(colors.red('✗ Build failed:'), e)
+    process.exitCode = 1
+  })
+}

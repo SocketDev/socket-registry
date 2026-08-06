@@ -5,6 +5,7 @@
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { readPackageJson } from '@socketsecurity/lib-stable/packages/read'
 
+import { isMainModule } from '../../fleet/_shared/is-main-module.mts'
 import { PACKAGE_DEFAULT_NODE_RANGE } from '../constants/node.mts'
 import { ROOT_PACKAGE_JSON_PATH } from '../constants/paths.mts'
 
@@ -33,7 +34,9 @@ async function main(): Promise<void> {
   await rootEditablePkgJson.save()
 }
 
-main().catch((e: unknown) => {
-  logger.error(e)
-  process.exitCode = 1
-})
+if (isMainModule(import.meta.url)) {
+  main().catch((e: unknown) => {
+    logger.error(e)
+    process.exitCode = 1
+  })
+}

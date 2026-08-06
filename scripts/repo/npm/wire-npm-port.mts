@@ -25,6 +25,7 @@ import { naturalCompare } from '@socketsecurity/lib-stable/sorts/natural'
 // oxlint-disable-next-line socket/prefer-stable-external-semver -- @socketsecurity/lib-stable has no ./external/semver export at the pinned version; semver is a devDependency (scripts/tests only, not bundled).
 import semver from 'semver'
 
+import { isMainModule } from '../../fleet/_shared/is-main-module.mts'
 import { NPM_PACKAGES_PATH, ROOT_PATH } from '../constants/paths.mts'
 
 const logger = getDefaultLogger()
@@ -480,7 +481,9 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch((e: unknown) => {
-  logger.error(errorMessage(e))
-  process.exitCode = 1
-})
+if (isMainModule(import.meta.url)) {
+  main().catch((e: unknown) => {
+    logger.error(errorMessage(e))
+    process.exitCode = 1
+  })
+}

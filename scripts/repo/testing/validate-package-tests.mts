@@ -15,6 +15,7 @@ import { deleteAsync as del } from 'del'
 import fastGlob from 'fast-glob'
 import process from 'node:process'
 
+import { isMainModule } from '../../fleet/_shared/is-main-module.mts'
 import { NPM_PACKAGES_PATH } from '../constants/paths.mts'
 
 interface CliArgs {
@@ -483,10 +484,12 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch((e: unknown) => {
-  logger.error(`Validation failed: ${errorMessage(e)}`)
-  if (cliArgs.verbose) {
-    logger.error(e instanceof Error ? e.stack : errorMessage(e))
-  }
-  process.exitCode = 1
-})
+if (isMainModule(import.meta.url)) {
+  main().catch((e: unknown) => {
+    logger.error(`Validation failed: ${errorMessage(e)}`)
+    if (cliArgs.verbose) {
+      logger.error(e instanceof Error ? e.stack : errorMessage(e))
+    }
+    process.exitCode = 1
+  })
+}

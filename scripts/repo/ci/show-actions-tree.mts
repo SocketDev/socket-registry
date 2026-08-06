@@ -7,6 +7,7 @@ import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
+import { isMainModule } from '../../fleet/_shared/is-main-module.mts'
 import { REPO_ROOT } from '../../fleet/paths.mts'
 import {
   ROOT_DOT_GITHUB_ACTIONS_PATH,
@@ -222,7 +223,9 @@ async function main(): Promise<void> {
   logger.info(`Total: ${allDependencies.size} unique actions/workflows`)
 }
 
-main().catch((e: unknown) => {
-  logger.error(e)
-  process.exitCode = 1
-})
+if (isMainModule(import.meta.url)) {
+  main().catch((e: unknown) => {
+    logger.error(e)
+    process.exitCode = 1
+  })
+}

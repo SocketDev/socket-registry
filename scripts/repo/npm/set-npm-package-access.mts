@@ -10,6 +10,7 @@ import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { isSpawnError } from '@socketsecurity/lib-stable/process/spawn/errors'
 import { pEach } from '@socketsecurity/lib-stable/promises/iterate'
 import { pluralize } from '@socketsecurity/lib-stable/words/pluralize'
+import { isMainModule } from '../../fleet/_shared/is-main-module.mts'
 import { COLUMN_LIMIT } from '../constants/core.mts'
 import { getEnv } from '../constants/env.mts'
 import { getNpmPackageNames } from '../constants/testing.mts'
@@ -137,7 +138,9 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch((e: unknown) => {
-  logger.error(e)
-  process.exitCode = 1
-})
+if (isMainModule(import.meta.url)) {
+  main().catch((e: unknown) => {
+    logger.error(e)
+    process.exitCode = 1
+  })
+}

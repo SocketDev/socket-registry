@@ -21,6 +21,7 @@ import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 
+import { isMainModule } from '../../fleet/_shared/is-main-module.mts'
 import {
   describeStagedTrust,
   formatStagedTrustProblem,
@@ -484,7 +485,9 @@ async function main(): Promise<void> {
   logger.log('✨ All packages have correct trusted setup!')
 }
 
-main().catch(error => {
-  logger.error('Fatal error:', error)
-  process.exitCode = 1
-})
+if (isMainModule(import.meta.url)) {
+  main().catch(error => {
+    logger.error('Fatal error:', error)
+    process.exitCode = 1
+  })
+}

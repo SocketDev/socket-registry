@@ -11,6 +11,7 @@ import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
 const logger = getDefaultLogger()
 
+import { isMainModule } from '../../fleet/_shared/is-main-module.mts'
 import {
   NPM_PACKAGES_PATH,
   NPM_TEMPLATES_README_PATH,
@@ -54,7 +55,9 @@ async function main(): Promise<void> {
   )
 }
 
-main().catch((e: unknown) => {
-  logger.error(e)
-  process.exitCode = 1
-})
+if (isMainModule(import.meta.url)) {
+  main().catch((e: unknown) => {
+    logger.error(e)
+    process.exitCode = 1
+  })
+}

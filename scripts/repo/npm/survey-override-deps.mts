@@ -29,6 +29,7 @@ import { pEach } from '@socketsecurity/lib-stable/promises/iterate'
 import { naturalCompare } from '@socketsecurity/lib-stable/sorts/natural'
 import { UTF8 } from '@socketsecurity/lib-stable/constants/encoding'
 
+import { isMainModule } from '../../fleet/_shared/is-main-module.mts'
 import { DEFAULT_CONCURRENCY } from '../constants/core.mts'
 import { getNpmPackageNames } from '../constants/testing.mts'
 import { NPM_PACKAGES_PATH, ROOT_PATH } from '../constants/paths.mts'
@@ -427,7 +428,9 @@ async function main(): Promise<void> {
   logger.log(`Report: ${path.relative(ROOT_PATH, mdPath)}`)
 }
 
-main().catch((e: unknown) => {
-  logger.error(e)
-  process.exitCode = 1
-})
+if (isMainModule(import.meta.url)) {
+  main().catch((e: unknown) => {
+    logger.error(e)
+    process.exitCode = 1
+  })
+}

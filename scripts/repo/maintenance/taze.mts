@@ -7,6 +7,7 @@ import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 import process from 'node:process'
 
+import { isMainModule } from '../../fleet/_shared/is-main-module.mts'
 import { REPO_ROOT } from '../../fleet/paths.mts'
 
 const logger = getDefaultLogger()
@@ -66,7 +67,9 @@ async function main(): Promise<void> {
   await tazePromise
 }
 
-main().catch((e: unknown) => {
-  logger.error(e)
-  process.exitCode = 1
-})
+if (isMainModule(import.meta.url)) {
+  main().catch((e: unknown) => {
+    logger.error(e)
+    process.exitCode = 1
+  })
+}

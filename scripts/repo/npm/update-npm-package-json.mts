@@ -9,6 +9,7 @@ import { readPackageJson } from '@socketsecurity/lib-stable/packages/read'
 import { trimLeadingDotSlash } from '@socketsecurity/lib-stable/paths/normalize'
 import { pluralize } from '@socketsecurity/lib-stable/words/pluralize'
 import fastGlob from 'fast-glob'
+import { isMainModule } from '../../fleet/_shared/is-main-module.mts'
 import { getNpmPackageNames } from '../constants/testing.mts'
 import { PACKAGE_DEFAULT_NODE_RANGE } from '../constants/node.mts'
 import { createPackageJson } from '@socketsecurity/lib-stable/packages/manifest'
@@ -111,7 +112,9 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch((e: unknown) => {
-  logger.error(e)
-  process.exitCode = 1
-})
+if (isMainModule(import.meta.url)) {
+  main().catch((e: unknown) => {
+    logger.error(e)
+    process.exitCode = 1
+  })
+}
