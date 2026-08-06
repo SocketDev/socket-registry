@@ -5,10 +5,10 @@ the two measurement traps that produced a wrong answer here once already.
 
 ## The two signals
 
-- **Rank** — position in `npm-high-impact`'s lists (`npmHighImpact`,
+- **Rank** - position in `npm-high-impact`'s lists (`npmHighImpact`,
   `npmTopDependents`, `npmTopDownloads`). Catalog-pinned devDependency; it is
   the ecosystem-reach input.
-- **Cut** — what an override actually REMOVES from an install tree. A cleanup
+- **Cut** - what an override actually REMOVES from an install tree. A cleanup
   override deletes the subtree under the package it replaces, so the value of
   a port is the dependency closure it collapses, not the package's own size.
 
@@ -30,7 +30,7 @@ predicted to drive the plumbing to ~0 reachable roots. It cut 29–43%:
 
 The surviving-gateway breakdown explains it: the top remaining routes to
 `get-intrinsic` were `get-intrinsic` itself (24 paths), `get-proto` (13), and
-`call-bound` (8). These packages are each other's gateways — a
+`call-bound` (8). These packages are each other's gateways - a
 mutually-reinforcing clique. Consumer-side overriding cannot reach a clique;
 only overriding its members can.
 
@@ -51,7 +51,7 @@ that used different ones.
 
 ## Related
 
-- `scripts/repo/npm/survey-override-deps.mts` — the offline-first survey of existing
+- `scripts/repo/npm/survey-override-deps.mts` - the offline-first survey of existing
   overrides and their remaining dependencies.
 - The fleet skill for cross-repo impact research (wheelhouse) wraps the
   reachability simulation described here.
