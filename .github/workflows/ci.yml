@@ -83,7 +83,7 @@ jobs:
           # release-boundary) read the default branch's history and refuse a
           # shallow clone rather than false-green.
           checkout-fetch-depth: '0'
-          socket-api-token: ${{ secrets.SOCKET_API_TOKEN }}
+          socket-api-token: ${{ secrets.SOCKET_API_TOKEN_FOR_CLI_AND_SFW }}
       - uses: ./.github/actions/fleet/run-script
         with:
           main-script: pnpm run check --all
@@ -124,7 +124,7 @@ jobs:
       - uses: ./.github/actions/fleet/setup-and-install
         with:
           node-version: 24
-          socket-api-token: ${{ secrets.SOCKET_API_TOKEN }}
+          socket-api-token: ${{ secrets.SOCKET_API_TOKEN_FOR_CLI_AND_SFW }}
       - uses: ./.github/actions/fleet/run-script
         env:
           GH_TOKEN: ${{ github.token }}
@@ -162,7 +162,7 @@ jobs:
       - uses: ./.github/actions/fleet/setup-and-install
         with:
           node-version: 24
-          socket-api-token: ${{ secrets.SOCKET_API_TOKEN }}
+          socket-api-token: ${{ secrets.SOCKET_API_TOKEN_FOR_CLI_AND_SFW }}
       - uses: ./.github/actions/fleet/run-script
         env:
           GH_TOKEN: ${{ github.token }}
@@ -205,7 +205,7 @@ jobs:
       - uses: ./.github/actions/fleet/setup-and-install
         with:
           node-version: 24
-          socket-api-token: ${{ secrets.SOCKET_API_TOKEN }}
+          socket-api-token: ${{ secrets.SOCKET_API_TOKEN_FOR_CLI_AND_SFW }}
       - uses: ./.github/actions/fleet/run-script
         with:
           main-script: pnpm run test:npm:floor
