@@ -237,6 +237,14 @@ export function buildReleaseAndDocsSteps(): CheckStep[] {
     // (fleet-main-protection) and never touches any other. Strict; skips
     // cleanly off the release tier / member checkouts / no gh.
     releaseStep(['scripts/fleet/check/main-branch-rules-are-enforced.mts']),
+    // The ruleset is the ONE branch-law surface. A classic branch protection
+    // rule beside it is unmanaged: it can contradict the ruleset, carries no
+    // Repository-admin bypass, and no fleet tooling converges it — so the
+    // sweep deletes classic rules everywhere (--fix) and fails while any
+    // remain. Skips cleanly off the release tier / member checkouts / no gh.
+    releaseStep([
+      'scripts/fleet/check/classic-branch-protections-are-absent.mts',
+    ]),
     // Every member's GitHub security posture matches the posture law
     // (_shared/security-posture-law.mts): CodeQL default setup configured with
     // a SANITISED language set on public repos — at most one of the

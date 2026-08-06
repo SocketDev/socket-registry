@@ -84,7 +84,8 @@
     "hide-comments": "node scripts/fleet/hide-comments.mts",
     "ruleset:bypass": "node scripts/fleet/grant-ruleset-bypass.mts",
     "soak:bypass": "node scripts/fleet/soak-bypass.mts",
-    "npm:trust": "node scripts/fleet/publish-infra/npm/trust.mts"
+    "npm:trust": "node scripts/fleet/publish-infra/npm/trust.mts",
+    "npm:login": "node scripts/fleet/npm-web-auth.mts login"
   },
   "devDependencies": {
     "@babel/core": "catalog:",

@@ -44,9 +44,11 @@ So print the phrase and let the operator decide whether to type it. The decision
 
 **RUN `gateFillUrl` and paste its output. Never hand-encode the href.** A hand-written percent-encoding drifts from the visible link text silently, and the operator cannot see it: the first chat gate written this way shipped `%2FDepscan` under link text reading `depscan`, so a click would have copied a phrase no guard matches. The link text and the href encode the same string or the gate is worse than no link at all.
 
-**No fenced fallback underneath.** The link TEXT is the phrase, so it is already selectable and typeable when the handler is absent - a fence repeating it is redundant weight in every gate, and the operator said so the first time one shipped. Making the link text the phrase verbatim is what removes the need for a second copy.
+**No fenced fallback underneath.** The link TEXT is the phrase, so it is already selectable and typeable when the handler is absent - a fence repeating it is redundant weight in every gate. Making the link text the phrase verbatim is what removes the need for a second copy.
 
-Install the handler once per machine with `scripts/repo/setup/gate-fill-handler.mts`. It registers `x-wh-gate://fill` and the first click prompts for Accessibility permission.
+**Say nothing about clicking.** No "click to copy", no "then press Enter", no note about what to do if the click does nothing. The phrase-as-link-text degrades on its own: with a handler installed a click copies it, and without one the operator reads and types the same characters. Both operators see an identical gate, so instructions written for the clickable case only advertise an absence to everyone else. A gate that explains its own machinery is describing the tool instead of the decision.
+
+Install the handler once per machine with `scripts/repo/setup/gate-fill-handler.mts`, which registers `x-wh-gate://fill`. It is macOS-only today; elsewhere the same gate reads as plain text and nothing announces the difference.
 
 Clicking FILLS and never submits, which is a security property rather than a shortcoming. A `url` handler is invokable by any local process, so `open x-wh-gate://…` from an agent is indistinguishable from a human click; a handler that submitted would let an agent mint a user-role turn carrying an authorization phrase and defeat every provenance guard at once. The operator's Enter stays the anchor. The same reasoning bars routing a phrase through `AskUserQuestion`: a selection becomes user input, so pre-filling the phrase as an option is the laundering this rule forbids.
 
