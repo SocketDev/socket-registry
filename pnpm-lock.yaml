@@ -434,8 +434,8 @@ catalogs:
       specifier: 8.0.1
       version: 8.0.1
     playwright-core:
-      specifier: 1.62.0
-      version: 1.62.0
+      specifier: 1.62.1
+      version: 1.62.1
     portless:
       specifier: 0.15.4
       version: 0.15.4
@@ -798,7 +798,7 @@ importers:
         version: 8.0.1
       playwright-core:
         specifier: 'catalog:'
-        version: 1.62.0
+        version: 1.62.1
       portless:
         specifier: 'catalog:'
         version: 0.15.4
@@ -1733,6 +1733,16 @@ importers:
         version: 26.1.2
 
   .claude/hooks/fleet/no-fleet-fork-guard:
+    dependencies:
+      '@socketsecurity/lib-stable':
+        specifier: 'catalog:'
+        version: '@socketsecurity/lib@6.7.0(typescript@7.0.2)'
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 26.1.2
+
+  .claude/hooks/fleet/no-fleet-pr-to-main-guard:
     dependencies:
       '@socketsecurity/lib-stable':
         specifier: 'catalog:'
@@ -7180,13 +7190,13 @@ packages:
     resolution: {integrity: sha512-MnUuEycAemtSaeFSjXKW/aroV7akBbY+Sv+RkyqFjgAe73F+MR0TBWKBRDkmfWq/HiFmdavfZ1G7h4SPZXaCSg==}
     engines: {node: '>=0.10.0'}
 
-  playwright-core@1.62.0:
-    resolution: {integrity: sha512-nsNRyq0r2zsG8AcRHWknc9QRA5XCueC7gWMrs+Gx2tlZn9hcl8zudfh00lhJPY1DE7NmZ6bDsT9g2yey8mXljA==}
+  playwright-core@1.62.0-alpha-1783623505000:
+    resolution: {integrity: sha512-CPJZdsA/KGT2QQlekiV6Wt+QlQrZHVSZ6oiNtOI/bYYOIVLM8jfKGWTM4zQiyd4UN+40Cq4cA6lxmZHZbtPvJQ==}
     engines: {node: '>=20'}
     hasBin: true
 
-  playwright-core@1.62.0-alpha-1783623505000:
-    resolution: {integrity: sha512-CPJZdsA/KGT2QQlekiV6Wt+QlQrZHVSZ6oiNtOI/bYYOIVLM8jfKGWTM4zQiyd4UN+40Cq4cA6lxmZHZbtPvJQ==}
+  playwright-core@1.62.1:
+    resolution: {integrity: sha512-wPYSwEBJY9GHraISXqyqtx0na0LpO3XEX7jNDhntbex7tzUS7kLnZsOlFruFJB4Hi/rhDMjXGqHewDZ68nYZVw==}
     engines: {node: '>=20'}
     hasBin: true
 
@@ -11579,9 +11589,9 @@ snapshots:
 
   pinkie@2.0.4: {}
 
-  playwright-core@1.62.0: {}
-
   playwright-core@1.62.0-alpha-1783623505000: {}
+
+  playwright-core@1.62.1: {}
 
   playwright@1.62.0-alpha-1783623505000:
     dependencies:
