@@ -1,0 +1,12 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Group every socket-registry package into a single Renovate PR. Extend with: github>SocketDev/socket-registry//.github/renovate-preset.json",
+  "packageRules": [
+    {
+      "description": "One PR per run for all @socketregistry overrides and the registry library itself.",
+      "groupName": "socket-registry packages",
+      "groupSlug": "socket-registry",
+      "matchPackageNames": ["@socketregistry/**", "@socketsecurity/registry"]
+    }
+  ]
+}
