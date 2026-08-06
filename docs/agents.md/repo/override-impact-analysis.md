@@ -51,7 +51,7 @@ that used different ones.
 
 ## Related
 
-- `scripts/npm/survey-override-deps.mts` — the offline-first survey of existing
+- `scripts/repo/npm/survey-override-deps.mts` — the offline-first survey of existing
   overrides and their remaining dependencies.
 - The fleet skill for cross-repo impact research (wheelhouse) wraps the
   reachability simulation described here.
