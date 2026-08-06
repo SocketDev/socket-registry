@@ -32,21 +32,74 @@ import path from 'node:path'
 
 import { runCapture } from './shared.mts'
 import { parseGitHubSlug, rawBaseUrl } from '../_shared/github-raw-url.mts'
+import {
+  htmlAttributeValueOffsets,
+  insertAtOffsets,
+  parseMarkdown,
+  urlOffset,
+  walkMarkdown,
+} from '../lib/markdown-ast.mts'
 import { writeThroughMirrorLock } from '../_shared/mirror-lock.mts'
 
+// The relative-ref sentinel. Only refs with this exact leading path are
+// pinned; an absolute ref never starts with it, which is also what makes the
+// rewrite idempotent.
+const RELATIVE_PREFIX = 'assets/'
+
+// The raw-HTML attributes that carry an asset ref: `src` on `<img>`, `srcset`
+// on the `<picture><source>` dark/light variants.
+const PINNED_ATTRS = new Set(['src', 'srcset'])
+
 /**
- * Rewrite the README's RELATIVE `assets/…` refs (`<img src="assets/…">`, the
- * `<picture><source srcset="assets/…">` dark/light variants, and markdown
- * `](assets/…)`) to absolute `${baseUrl}assets/…`. Absolute refs (the
- * socket.dev badge, any https link) are untouched — only the leading
- * `assets/` sentinel is matched. Idempotent: an already-absolute ref has no
- * leading `assets/` to match. Pure.
+ * Rewrite the README's RELATIVE `assets/…` refs to absolute
+ * `${baseUrl}assets/…`. Covers every form a ref actually takes: markdown
+ * images, links and reference-style definitions, plus raw-HTML `src` and
+ * `srcset` attributes — anywhere they occur, including inside tables,
+ * footnotes, blockquotes and list items. Absolute refs (the socket.dev badge,
+ * any https link) are untouched, and the rewrite is idempotent: an
+ * already-absolute ref has no leading `assets/` to pin.
+ *
+ * Parsed, not pattern-matched. The README goes through a position-tracked GFM
+ * mdast parse and every edit lands on a parser-reported byte offset, so an
+ * `assets/` lookalike inside a fenced code block or an inline code span is
+ * CONTENT and stays as written — the string rewrite this replaces pinned those
+ * too, corrupting a README that documents its own badge markup. Raw HTML
+ * arrives as an opaque `html` node whose source slice goes through parse5 with
+ * source locations on, so only real attribute values move. No serializer
+ * round-trip — untouched bytes stay byte-identical. Pure.
+ *
+ * One deliberate limit: a `srcset` CANDIDATE LIST (`assets/a.png 1x, …`) pins
+ * only its first candidate, matching what the fleet's single-candidate
+ * `<source srcset>` usage needs.
  */
 export function pinReadmeAssets(readme: string, baseUrl: string): string {
-  return readme
-    .replaceAll('src="assets/', `src="${baseUrl}assets/`)
-    .replaceAll('srcset="assets/', `srcset="${baseUrl}assets/`)
-    .replaceAll('](assets/', `](${baseUrl}assets/`)
+  const insertAt: number[] = []
+  for (const node of walkMarkdown(parseMarkdown(readme))) {
+    if (
+      (node.type === 'definition' ||
+        node.type === 'image' ||
+        node.type === 'link') &&
+      node.url.startsWith(RELATIVE_PREFIX)
+    ) {
+      const offset = urlOffset(readme, node)
+      if (offset !== undefined) {
+        insertAt.push(offset)
+      }
+    } else if (node.type === 'html') {
+      const start = node.position?.start.offset
+      const end = node.position?.end.offset
+      if (start !== undefined && end !== undefined) {
+        for (const offset of htmlAttributeValueOffsets(
+          readme.slice(start, end),
+          (name, value) =>
+            PINNED_ATTRS.has(name) && value.startsWith(RELATIVE_PREFIX),
+        )) {
+          insertAt.push(start + offset)
+        }
+      }
+    }
+  }
+  return insertAtOffsets(readme, insertAt, baseUrl)
 }
 
 // A full git commit sha — the only thing we'll pin a raw URL to besides the

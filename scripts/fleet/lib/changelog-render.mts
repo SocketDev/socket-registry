@@ -6,6 +6,8 @@
  *   contract; `changelog.mts` imports these internally.
  */
 
+import { headingLines } from './markdown-ast.mts'
+
 import type { ConventionalCommit } from './changelog.mts'
 
 // User-visible commit types → the Keep a Changelog section each lands under.
@@ -62,6 +64,10 @@ export function renderBullet(commit: ConventionalCommit): string {
  * (heading at `start`, `end` at the next `## ` heading or EOF), or undefined
  * when there is no `[Unreleased]` heading. One scanner, shared by
  * promote+merge.
+ *
+ * Which lines ARE `## ` headings comes from the parsed GFM tree, so a `## `
+ * line inside a fenced code block — a changelog bullet that quotes changelog
+ * markup — can no longer cut the accrued block short and strand its entries.
  */
 export function unreleasedRange(
   lines: readonly string[],
@@ -72,18 +78,15 @@ export function unreleasedRange(
   // exact match silently skipped those and promoted nothing, so the accrued
   // entries stayed behind while the release cut an empty section.
   const wanted = unreleasedHeading.trim().toLowerCase()
-  const start = lines.findIndex(l => l.trim().toLowerCase() === wanted)
-  if (start === -1) {
+  const headings = headingLines(lines.join('\n'), 2)
+  const at = headings.findIndex(
+    line => lines[line]?.trim().toLowerCase() === wanted,
+  )
+  if (at === -1) {
     return undefined
   }
-  let end = lines.length
-  for (let i = start + 1, { length } = lines; i < length; i += 1) {
-    if (lines[i]!.startsWith('## ')) {
-      end = i
-      break
-    }
-  }
-  return { end, start }
+  const next = headings[at + 1]
+  return { end: next ?? lines.length, start: headings[at]! }
 }
 
 /**

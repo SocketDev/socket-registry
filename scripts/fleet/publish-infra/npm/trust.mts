@@ -303,7 +303,7 @@ export function deriveRepoFromSiblings(
 /**
  * Every package name a repo publishes: its workspace packages, including the
  * generated napi platform packages, or the single package a non-workspace repo
- * ships. This is what makes the bare `pnpm run trust --apply` complete — an
+ * ships. This is what makes the bare `pnpm run npm:trust --apply` complete — an
  * operator naming nine packages by hand is nine chances to miss one, and a
  * missed platform package fails its publish at release time, not here.
  */
@@ -1017,7 +1017,7 @@ async function runTrust(): Promise<void> {
         `  Where: ${targetRepoRoot}\n` +
         '  Saw:   no package arguments and no publishable manifest in the repo.\n' +
         '  Fix:   name the packages explicitly, or run from a repo that publishes — ' +
-        'pnpm run trust [@scope/pkg…] [--repo owner/name] [--apply]',
+        'pnpm run npm:trust [@scope/pkg…] [--repo owner/name] [--apply]',
     )
     process.exitCode = 1
     return

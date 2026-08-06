@@ -162,6 +162,21 @@ export async function readTrustedPublisher(
         ].join('\n'),
       )
     }
+    if (state === 'step-up') {
+      // The session IS signed in; npm wants a fresh authenticator code before
+      // it will serve this page. Reported loudly because before this state
+      // existed the escalate wall read as "unconfigured" and a caller would
+      // plan a create over a live row.
+      throw new Error(
+        [
+          `What: ${pkg}'s access page is behind npm's 2FA step-up, so its trusted-publisher state is unknown.`,
+          `Where: ${url}`,
+          "Saw: npm's /escalate payload (escalateType + originalUrl) instead of the access page.",
+          'Wanted: the access page carrying the trusted-publisher block.',
+          'Fix: open the URL above in the signed-in Chrome window, enter the authenticator code, then re-run.',
+        ].join('\n'),
+      )
+    }
     if (state === 'error') {
       // A status-0 result is the documented mid-navigation race, not a server
       // error: retry it a couple of times, fast, then report honestly.

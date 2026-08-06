@@ -313,7 +313,7 @@ export function buildReleaseAndDocsSteps(): CheckStep[] {
     // nine unwired workflows and went red on every run for three days.
     () =>
       run('node', [
-        'scripts/fleet/check/thin-workflows-can-fetch-the-payload.mts',
+        'scripts/fleet/check/thin-workflow-payloads-are-fetchable.mts',
         '--quiet',
       ]),
     // Every slashed pattern in .config/fleet/.prettierignore must be `**/`-anchored

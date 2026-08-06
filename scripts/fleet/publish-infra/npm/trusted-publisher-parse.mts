@@ -24,12 +24,15 @@ import {
 
 // Coarse outcome of a GET of `/package/<pkg>/access`. `challenge` exists for
 // the Cloudflare interstitial (a 200 HTML page that is NOT the access page);
-// `configured`/`unconfigured` are the two readable outcomes.
+// `step-up` is npm's own /escalate wall demanding a fresh authenticator code
+// before it will serve the page; `configured`/`unconfigured` are the two
+// readable outcomes.
 export type AccessPageState =
   | 'auth'
   | 'challenge'
   | 'configured'
   | 'error'
+  | 'step-up'
   | 'unconfigured'
 
 /**
@@ -55,6 +58,17 @@ export function classifyAccessPage(config: {
   }
   if (/sign in to npm/i.test(body) && !/Trusted [Pp]ublish/.test(body)) {
     return 'auth'
+  }
+  // npm's 2FA step-up: the session IS signed in, but npm serves its /escalate
+  // wall instead of the access page (observed 2026-08-06: the payload carries
+  // escalateType + action:"/escalate" + the originalUrl it is guarding, and
+  // NO oidcConnections — so before this branch, a live configured row read as
+  // "unconfigured" and a caller would plan a create over it).
+  if (
+    /\\?"escalateType\\?"\s*:/.test(body) &&
+    /\\?"action\\?"\s*:\s*\\?"\/escalate\\?"/.test(body)
+  ) {
+    return 'step-up'
   }
   if (cfg.status < 200 || cfg.status >= 400) {
     return 'error'

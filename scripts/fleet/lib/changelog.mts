@@ -26,6 +26,11 @@ import {
   unreleasedRange,
 } from './changelog-render.mts'
 import { INTERNAL_SECTION, isDevScope } from './changelog-scopes.mts'
+import {
+  hasListItem,
+  headingLines,
+  listItemsByHeading,
+} from './markdown-ast.mts'
 
 // Record separator between commits, unit separator between fields — both
 // control chars that never appear in a commit subject/body, so a `git log
@@ -307,12 +312,14 @@ export const UNRELEASED_HEADING = '## [Unreleased]'
 
 /**
  * True when a generated changelog section carries at least one user-visible
- * entry (a `- ` bullet), vs a bare heading with nothing under it. The empty
- * case is what the release/squash flow stops on (loudly) unless the operator
- * supplies an explicit empty-changelog entry.
+ * entry (a list item), vs a bare heading with nothing under it. The empty case
+ * is what the release/squash flow stops on (loudly) unless the operator
+ * supplies an explicit empty-changelog entry. Parsed, not pattern matched: a
+ * `- ` line inside a fenced code block is a code sample, and counting it let an
+ * entry-less section pass the release gate.
  */
 export function sectionHasEntries(section: string): boolean {
-  return section.split('\n').some(line => /^\s*-\s/u.test(line))
+  return hasListItem(section)
 }
 
 /**
@@ -338,28 +345,16 @@ export function withChangelogEntry(section: string, bullet: string): string {
 
 /**
  * Parse a changelog section's `### <Section>` blocks into a
- * `{ section -> bullet lines }` map, bullets kept verbatim, already rendered.
- * Pure over its input.
+ * `{ section -> bullets }` map, bullets kept verbatim, already rendered. Pure
+ * over its input.
+ *
+ * Parsed rather than line-scanned, which fixes two silent losses: a bullet that
+ * WRAPPED onto a continuation line kept only its first line (the rest of the
+ * sentence vanished on every union), and a `- ` line inside a fenced code
+ * sample was absorbed as if it were an entry.
  */
 export function parseSectionBullets(section: string): Map<string, string[]> {
-  const out = new Map<string, string[]>()
-  let current: string | undefined
-  const lines = section.split('\n')
-  for (let i = 0, { length } = lines; i < length; i += 1) {
-    const line = lines[i]!
-    const heading = /^###\s+(.+?)\s*$/u.exec(line)
-    if (heading) {
-      current = heading[1]!
-      if (!out.has(current)) {
-        out.set(current, [])
-      }
-      continue
-    }
-    if (current && /^\s*-\s/u.test(line)) {
-      out.get(current)!.push(line.trim())
-    }
-  }
-  return out
+  return listItemsByHeading(section, 3)
 }
 
 /**
@@ -418,7 +413,7 @@ export function mergeUnreleased(
   let after: string[]
   let existingBody = ''
   if (!range) {
-    const firstVersion = lines.findIndex(l => l.startsWith('## '))
+    const firstVersion = headingLines(changelog, 2)[0] ?? -1
     if (firstVersion === -1) {
       before = lines
       after = []
