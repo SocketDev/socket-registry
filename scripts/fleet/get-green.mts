@@ -70,6 +70,12 @@ const DEFAULT_SETUP_COMMAND = 'pnpm run build'
 const DEFAULT_TEST_COMMAND = 'pnpm test'
 const DEFAULT_BASE_REF = 'main'
 
+// The fleet's own deterministic fixer — oxlint autofix, the formatter, and the
+// doctor's mechanical repairs. Run on a red branch BEFORE anything that
+// reasons about the failure, because the post-update residue is usually
+// mechanical and this clears it with a reproducible result.
+const DEFAULT_AUTOFIX_COMMAND = 'pnpm run fix'
+
 /**
  * One command's outcome: whether it exited 0 and the tail of its combined
  * output, which is what the workflow forwards to the agent.
@@ -85,6 +91,10 @@ export interface CommandOutcome {
  * `green` bit the workflow gates its PR step on.
  */
 export interface VerifyResult {
+  // Present only when the first test run went red and the deterministic
+  // autofixer was therefore run. `test` then holds the RE-test outcome, so
+  // `green` reflects the branch after mechanical repair.
+  readonly autofix?: CommandOutcome | undefined
   readonly green: boolean
   readonly setup: CommandOutcome
   readonly test: CommandOutcome
@@ -237,7 +247,23 @@ export async function verifyBranch(
     }
   }
   const test = await runCommand(testCommand ?? DEFAULT_TEST_COMMAND)
-  return { green: test.ok, setup, test }
+  if (test.ok) {
+    return { green: true, setup, test }
+  }
+  // Red — but most post-update breakage is MECHANICAL (a formatter width, an
+  // autofixable lint, a lockfile), and the fleet already owns a deterministic
+  // fixer for exactly that class. Run it and re-test before handing the branch
+  // to anything that reasons. `code-first-then-ai`: exhaust the deterministic
+  // path, and let whatever comes after work only on the residue.
+  //
+  // The autofixer failing is NOT itself a failure — it means there was nothing
+  // mechanical to fix, so the original red result stands unchanged.
+  const autofix = await runCommand(DEFAULT_AUTOFIX_COMMAND)
+  if (!autofix.ok) {
+    return { autofix, green: false, setup, test }
+  }
+  const retest = await runCommand(testCommand ?? DEFAULT_TEST_COMMAND)
+  return { autofix, green: retest.ok, setup, test: retest }
 }
 
 /**

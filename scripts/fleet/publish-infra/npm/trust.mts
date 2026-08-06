@@ -79,6 +79,9 @@ export interface TrustPlan {
   readonly desired: TrustedPublisherDesired
   readonly matches: boolean
   readonly pkg: string
+  // The connection already on the package, when it has one. Present means the
+  // write is a REBIND and has to revoke before it creates.
+  readonly trustId?: string | undefined
 }
 
 export interface TrustFlags {
@@ -328,6 +331,32 @@ export function enumerateRepoPackages(repoRoot: string): string[] {
  * ARGUMENT, never the cwd, because npm refuses to run inside a repo whose
  * devEngines names pnpm.
  */
+/**
+ * The `--id` of the trust connection currently on a package, read out of
+ * `npm trust list` output, or undefined when the package carries none.
+ *
+ * `npm trust` has `github` (create) and `revoke`, and no update. Creating over
+ * an existing connection answers 409 Conflict, so REBINDING a package that is
+ * already trusted means revoking the old connection first, and revoking needs
+ * this id. Pure — exported for tests.
+ */
+export function trustConnectionId(listOutput: string): string | undefined {
+  // A v4 uuid on an `id` line, which is how `npm trust list` prints the
+  // connection's identifier.
+  const match =
+    /\bid[:=\s]+([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\b/i.exec(
+      listOutput,
+    )
+  return match?.[1]
+}
+
+/**
+ * The argv that revokes `trustId` from `pkg`. Pure — exported for tests.
+ */
+export function buildTrustRevokeArgs(pkg: string, trustId: string): string[] {
+  return ['trust', 'revoke', pkg, `--id=${trustId}`]
+}
+
 export function buildTrustWriteArgs(
   pkg: string,
   desired: TrustedPublisherDesired,
@@ -587,6 +616,12 @@ export async function runTrustWriteInteractive(
   const deadline = Date.now() + OTP_APPROVAL_BUDGET_MS
   let approved = false
   while (Date.now() < deadline) {
+    // npm may redirect the approval window through its /escalate OTP page,
+    // which carries the per-IP cooldown opt-in — keep it ticked while the
+    // operator works, so the batch rides one challenge.
+    if (approvalSession) {
+      void tickCooldownOptIn(approvalSession.page)
+    }
     // eslint-disable-next-line no-await-in-loop -- serial: one operator, one approval.
     if (await isApprovalComplete(challenge.doneUrl, npmPath, neutralCwd)) {
       approved = true
@@ -978,6 +1013,12 @@ export async function primeOtpSession(
   await openApprovalUrl(challenge.authUrl, neutralCwd)
   const deadline = Date.now() + OTP_APPROVAL_BUDGET_MS
   while (Date.now() < deadline) {
+    // npm may redirect the approval window through its /escalate OTP page,
+    // which carries the per-IP cooldown opt-in — keep it ticked while the
+    // operator works, so the batch rides one challenge.
+    if (approvalSession) {
+      void tickCooldownOptIn(approvalSession.page)
+    }
     // eslint-disable-next-line no-await-in-loop -- serial: one operator, one approval.
     if (await isApprovalComplete(challenge.doneUrl, npmPath, neutralCwd)) {
       logger.success('approval received — continuing.')
@@ -1117,6 +1158,10 @@ async function runTrust(): Promise<void> {
       desired,
       matches: listOutputMatches(listRun.output, desired),
       pkg,
+      // Held from the read so a rebind can revoke the old connection first:
+      // `npm trust` creates or revokes and never updates, so writing over an
+      // existing connection answers 409 Conflict.
+      trustId: trustConnectionId(listRun.output),
     })
   }
   const pending = plans.filter(plan => !plan.matches)
@@ -1153,6 +1198,17 @@ async function runTrust(): Promise<void> {
     if (i > 0) {
       // eslint-disable-next-line no-await-in-loop -- sequential: one 2FA window, npm's own rate-limit guidance.
       await sleep(WRITE_SPACING_MS)
+    }
+    // A package that already carries a connection must lose it before the new
+    // one is created: 409 Conflict is npm's answer to a create over an
+    // existing trust, and it is what stopped 132 of 139 rebinds on 2026-08-06.
+    if (plan.trustId) {
+      // eslint-disable-next-line no-await-in-loop -- sequential: shares the 2FA window with the write that follows.
+      await runTrustWriteInteractive(
+        npmPath,
+        buildTrustRevokeArgs(plan.pkg, plan.trustId),
+        neutralCwd,
+      )
     }
     // A PTY makes npm take its interactive OTP path, which waits rather than
     // refusing; this answers that wait and opens the approval page.

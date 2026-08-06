@@ -110,6 +110,39 @@ export const COOLDOWN_OPTIN_SELECTOR = 'input[name="didOptForCooldown"]'
 // "possibly stale" rather than asserting a live holder.
 const SINGLETON_LOCK = 'SingletonLock'
 
+/**
+ * Chrome Web Store id of the 1Password extension. This is PUBLIC data, not a
+ * secret: every Web Store extension's id is the trailing path segment of its
+ * public listing URL — verified 2026-08-06 at
+ * https://chromewebstore.google.com/detail/aeblfdkhhhdcdjpifhhbdiojplfjncoa
+ * ("1Password – Password Manager") — and the same id names the extension's
+ * install directory under the Chrome profile
+ * (`<profile>/Default/Extensions/<id>`). When the durable profile carries
+ * it, the launch also drops Playwright's `--disable-extensions` default so
+ * the operator's vault can autofill sign-in and OTP pages in the window we
+ * spawn for auth.
+ */
+export const ONE_PASSWORD_EXTENSION_IDS: readonly string[] = [
+  'aeblfdkhhhdcdjpifhhbdiojplfjncoa',
+]
+
+/**
+ * Whether the profile carries a known password-manager extension, checked in
+ * the two places Chrome materializes installed extensions (the default
+ * profile subdirectory and the profile root). Pure over the filesystem —
+ * exported for tests.
+ */
+export function profileHasOnePassword(
+  profileDir: string,
+  ids: readonly string[] = ONE_PASSWORD_EXTENSION_IDS,
+): boolean {
+  return ids.some(
+    id =>
+      existsSync(path.join(profileDir, 'Default', 'Extensions', id)) ||
+      existsSync(path.join(profileDir, 'Extensions', id)),
+  )
+}
+
 export function sleep(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
@@ -557,11 +590,16 @@ export async function openNpmBrowserSession(
   // Chrome installed — playwright-core can't conjure a channel it has no
   // binary for, so the operator points it at one they do have.
   const channel = process.env['SOCKET_BROWSER_CHANNEL'] || 'chrome'
+  // A third ignored default, only when the profile actually carries the
+  // 1Password extension: Playwright's --disable-extensions default would
+  // strip the operator's vault from the very window we spawn for sign-in and
+  // OTP entry. A profile without the extension keeps the exact sanctioned
+  // pair, so nothing changes for it.
+  const loadProfileExtensions = profileHasOnePassword(profileDir)
   const doLaunch =
     launch ??
-    // The sanctioned shape: channel + sandbox ON + headedness + the two
-    // ignored defaults below, nothing else. No args array. See the file
-    // header.
+    // The sanctioned shape: channel + sandbox ON + headedness + the ignored
+    // defaults below, nothing else. No args array. See the file header.
     (cfg =>
       chromium.launchPersistentContext(cfg.profileDir, {
         channel,
@@ -580,7 +618,13 @@ export async function openNpmBrowserSession(
         // bare Chrome launch of the same profile can neither read nor add
         // to, so one stray manual launch would poison the session for every
         // tool run.
-        ignoreDefaultArgs: ['--enable-automation', '--use-mock-keychain'],
+        ignoreDefaultArgs: loadProfileExtensions
+          ? [
+              '--enable-automation',
+              '--use-mock-keychain',
+              '--disable-extensions',
+            ]
+          : ['--enable-automation', '--use-mock-keychain'],
       }))
   const context = await doLaunch({ headless, profileDir })
   // The fleet agent-banner: the same corner ribbon the Playwright MCP injects,

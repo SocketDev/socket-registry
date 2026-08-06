@@ -76,6 +76,17 @@ export const SANCTIONED_IGNORED_DEFAULT_ARGS: readonly string[] = [
 ]
 
 /**
+ * The one OPTIONAL extra ignored default: the sanctioned session drops
+ * Playwright's `--disable-extensions` only when the durable profile carries
+ * the 1Password extension (browser-session.mts `profileHasOnePassword`), so
+ * the operator's vault can autofill the sign-in and OTP pages. Any other
+ * extra entry is still a new launch shape.
+ */
+export const OPTIONAL_IGNORED_DEFAULT_ARGS: readonly string[] = [
+  '--disable-extensions',
+]
+
+/**
  * Files allowed to call a playwright launch directly, each with the reason it
  * is out of the npm session module's scope. Dated so a stale entry is
  * visible; entries are repo-relative paths, matched after normalization.
@@ -264,8 +275,12 @@ export function scanPlaywrightUsage(config: {
         : [...value.matchAll(/['"`]([^'"`]+)['"`]/g)].map(m => m[1]!)
     const sanctioned =
       entries !== undefined &&
-      entries.length === SANCTIONED_IGNORED_DEFAULT_ARGS.length &&
-      SANCTIONED_IGNORED_DEFAULT_ARGS.every(flag => entries.includes(flag))
+      SANCTIONED_IGNORED_DEFAULT_ARGS.every(flag => entries.includes(flag)) &&
+      entries.every(
+        flag =>
+          SANCTIONED_IGNORED_DEFAULT_ARGS.includes(flag) ||
+          OPTIONAL_IGNORED_DEFAULT_ARGS.includes(flag),
+      )
     if (!sanctioned) {
       violations.push({
         detail:
@@ -301,8 +316,9 @@ const RULE_FIX: Record<PlaywrightViolation['rule'], string> = {
     "'…/publish-infra/npm/browser-session.mts'`.",
   'ignore-default-args':
     'Pass exactly ignoreDefaultArgs: ' +
-    "['--enable-automation', '--use-mock-keychain'] — the sanctioned pair — " +
-    'or drop the option.',
+    "['--enable-automation', '--use-mock-keychain'] — the sanctioned pair, " +
+    "plus optionally '--disable-extensions' when the durable profile carries " +
+    'the 1Password extension — or drop the option.',
   'sandbox-flag':
     'Delete the flag / option. The sanctioned shape is ' +
     '`launchPersistentContext(profileDir, { channel, headless, ' +

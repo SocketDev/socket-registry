@@ -25,9 +25,11 @@
     root.innerHTML =
       '<style>' +
       ':host{position:fixed;top:0;left:0;z-index:2147483647;pointer-events:none}' +
-      '.ribbon{position:fixed;top:26px;left:-34px;transform:rotate(-45deg);' +
+      // Long enough that both ends run off-screen past the corner cut — a
+      // band that stops short reads as a sticker, not a ribbon.
+      '.ribbon{position:fixed;top:44px;left:-62px;transform:rotate(-45deg);' +
       'display:flex;align-items:center;justify-content:center;gap:3px;' +
-      'width:150px;padding:4px 0;pointer-events:auto;cursor:pointer;' +
+      'width:230px;padding:5px 0;pointer-events:auto;cursor:pointer;' +
       'background:#fde8f3;border:1px solid rgba(140,80,255,.35);' +
       'box-shadow:0 2px 6px rgba(0,0,0,.25);' +
       'font:700 11px/1.2 system-ui,sans-serif;letter-spacing:.08em;' +
@@ -36,7 +38,7 @@
       // leans with the band instead of standing upright inside it. Oversized
       // against the band's height on purpose — it overhangs the ribbon edges
       // and the drop shadow lifts it off the strip.
-      '.ribbon svg{width:28px;height:28px;' +
+      '.ribbon svg{width:36px;height:36px;' +
       'filter:drop-shadow(0 1px 2px rgba(0,0,0,.35)) drop-shadow(0 2px 6px rgba(140,80,255,.45))}' +
       // Deep Socket purple for the label, darkening along the run.
       '.label{background:linear-gradient(90deg,#8c50ff,#6d28d9);' +
