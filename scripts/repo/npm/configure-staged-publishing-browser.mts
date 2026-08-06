@@ -12,33 +12,32 @@
  *   retry ladder against a bot challenge earns a rate limit. Each poll prints
  *   how long the run has waited and how long remains, so the wait is visible
  *   rather than a silent hang, and nothing is written while a challenge is
- *   outstanding.
- *   A signed-in session is NOT the same as a readable page, which is why every
- *   read goes through {@link waitForAccessPage} first. `/-/whoami` can answer
- *   with the username while npmjs still serves the sign-in / one-time-password
- *   interstitial for the access page, and that interstitial comes back through
- *   the spiferack fetch as HTTP 200 JSON. Reading it as a payload is how a
- *   package the operator was still signing in for got reported `unreadable`.
- *   So the wait polls until the page is authenticated AND settled on the access
- *   URL, and it never navigates while the operator holds the window — a `goto`
- *   mid-wait would wipe a half-typed one-time password.
+ *   outstanding. A signed-in session is NOT the same as a readable page, which
+ *   is why every read goes through {@link waitForAccessPage} first. `/-/whoami`
+ *   can answer with the username while npmjs still serves the sign-in /
+ *   one-time-password interstitial for the access page, and that interstitial
+ *   comes back through the spiferack fetch as HTTP 200 JSON. Reading it as a
+ *   payload is how a package the operator was still signing in for got reported
+ *   `unreadable`. So the wait polls until the page is authenticated AND settled
+ *   on the access URL, and it never navigates while the operator holds the
+ *   window — a `goto` mid-wait would wipe a half-typed one-time password.
  *   NOTHING here navigates after that first `goto`, and that is the module's
- *   load-bearing invariant rather than a nicety. The fleet's shared
- *   `pauseForChallenge` reloads the page on every fresh pause, and the fleet's
- *   `driveVerifiedSave` re-navigates on every attempt; together they produced a
- *   loop on a live run where the reload closed the trusted-publisher form it
- *   had just opened, and the rapid reload traffic PROVOKED the very Cloudflare
- *   challenges it was pausing for. So the pause here is
- *   {@link pauseForOperatorInPlace} — the fleet's operator UX, its gate block,
- *   its desktop ping and its budget, with the `goto` removed — and the write
- *   goes through `./configure-staged-publishing-write.mts`, which opens the
- *   form once and treats an in-place RE-READ as the arbiter of success rather
- *   than the click.
- *   During a REAL challenge or two-factor step-up the Socket shield is injected
- *   into the page as an operator-attention cue. It is best-effort garnish:
- *   `pointer-events: none` so it can never swallow the verify click, wrapped in
- *   try/catch so a page that refuses evaluation cannot break the wait, and
- *   removed the moment readiness clears.
+ *   load-bearing invariant rather than a nicety. A reload closed the
+ *   trusted-publisher form on a live run, and the rapid reload traffic PROVOKED
+ *   the very Cloudflare challenges it was pausing for. The pause is the fleet's
+ *   `pauseForChallenge`, called directly. This module used to hand-copy it to
+ *   strip its `goto`; the fleet pause now waits in place itself, so the copy
+ *   only stopped the challenge rhythm's later fixes — the holding screen, the
+ *   rerun hint, the injectable clock — from reaching this repo. The write still
+ *   goes through `./configure-staged-publishing-write.mts` rather than the
+ *   fleet's `driveVerifiedSave`, which DOES still re-navigate on every attempt:
+ *   it opens the form once and treats an in-place RE-READ as the arbiter of
+ *   success rather than the click. During a REAL challenge or two-factor
+ *   step-up the Socket shield is injected into the page as an
+ *   operator-attention cue. It is best-effort garnish: `pointer-events: none`
+ *   so it can never swallow the verify click, wrapped in try/catch so a page
+ *   that refuses evaluation cannot break the wait, and removed the moment
+ *   readiness clears.
  */
 
 import { MILLISECONDS_PER_SECOND } from '@socketsecurity/lib-stable/constants/time'
@@ -52,6 +51,7 @@ import {
   DEFAULT_PROFILE_DIR,
   openNpmBrowserSession,
   optIntoChallengeCooldown,
+  pauseForChallenge,
 } from '../../fleet/publish-infra/npm/browser-session.mts'
 
 export { DEFAULT_PROFILE_DIR }
@@ -77,7 +77,6 @@ import {
   closeStrayBlankPages,
   dismissSiteNotifications,
   isPolledPageOnTarget,
-  pauseForOperatorInPlace,
   removeOperatorOverlay,
   syncOperatorOverlay,
 } from './configure-staged-publishing-operator.mts'
@@ -163,10 +162,11 @@ async function settleAccessPage(page: Page): Promise<void> {
  * pattern that earns a challenge in the first place. `navigate: false` skips
  * even that first one, for a caller whose page is already there.
  *
- * A real challenge or step-up pauses through {@link pauseForOperatorInPlace},
- * which keeps the fleet's operator UX — the 🖐 gate block, the desktop ping,
- * the cooldown opt-in, the budget — and drops its reload. The Socket shield
- * goes up for those two states and comes down for everything else.
+ * A real challenge or step-up pauses through the fleet's `pauseForChallenge`,
+ * which owns the operator UX — the 🖐 gate block, the desktop ping, the
+ * cooldown opt-in, the holding screen, the budget — and waits in place without
+ * navigating. The Socket shield goes up for those two states and comes down for
+ * everything else.
  *
  * @throws {Error} When the wait outlasts {@link WAIT_FOR_OPERATOR_MS}, when the
  *   session is signed out, or when npm answers with a real HTTP error.
@@ -187,7 +187,7 @@ export async function waitForAccessPage(
   const pause =
     opts.pause ??
     (async config => {
-      await pauseForOperatorInPlace({ ...config, page })
+      await pauseForChallenge(page, { ...config, announced: false })
     })
   const started = Date.now()
   let navigated = opts.navigate === false
@@ -415,11 +415,11 @@ export async function applyStagedPublishing(
     desired,
     label: target.name,
     pause: async () => {
-      await pauseForOperatorInPlace({
+      await pauseForChallenge(page, {
+        announced: false,
         budgetMs,
         elapsedMs: Date.now() - started,
         label: target.name,
-        page,
         pollMs: OPERATOR_POLL_MS,
         url: target.settingsUrl,
       })
