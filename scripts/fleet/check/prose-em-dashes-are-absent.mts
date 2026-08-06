@@ -132,8 +132,10 @@ export function findEmDashes(repoRoot: string): EmDashScanResult {
 function runFix(scope: readonly string[]): void {
   let files = 0
   let lines = 0
+  const unwritable: string[] = []
   for (let i = 0, { length } = scope; i < length; i += 1) {
-    const abs = path.join(REPO_ROOT, scope[i]!)
+    const rel = scope[i]!
+    const abs = path.join(REPO_ROOT, rel)
     let content: string
     try {
       content = readFileSync(abs, 'utf8')
@@ -142,7 +144,14 @@ function runFix(scope: readonly string[]): void {
     }
     const result = fixEmDashes(content)
     if (result.changed) {
-      writeFileSync(abs, result.content, 'utf8')
+      // A cascaded file is read-only in a member checkout; its fix belongs
+      // in the wheelhouse template, so skip it loud instead of dying here.
+      try {
+        writeFileSync(abs, result.content, 'utf8')
+      } catch {
+        unwritable.push(rel)
+        continue
+      }
       files += 1
       lines += result.changed
     }
@@ -150,6 +159,14 @@ function runFix(scope: readonly string[]): void {
   logger.info(
     `[prose-em-dashes-are-absent] --fix hyphenated ${lines} line(s) across ${files} file(s).`,
   )
+  if (unwritable.length) {
+    logger.warn(
+      `[prose-em-dashes-are-absent] --fix skipped ${unwritable.length} read-only file(s) - fix them in the wheelhouse template and cascade:`,
+    )
+    for (let i = 0, { length } = unwritable; i < length; i += 1) {
+      logger.warn(`  ${unwritable[i]!}`)
+    }
+  }
 }
 
 function reportStale(stale: readonly string[]): void {

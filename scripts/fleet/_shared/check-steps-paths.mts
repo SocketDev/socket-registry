@@ -258,6 +258,14 @@ export function buildPathsAndSupplyChainSteps(): CheckStep[] {
         'scripts/fleet/check/generated-outputs-are-untracked.mts',
         '--quiet',
       ]),
+    // Companion: `scripts/` splits into exactly the two ownership tiers, and a
+    // MEMBER tracks nothing under scripts/fleet/. An entry outside fleet/ and
+    // repo/ belongs to neither tier, so nobody can say whether the cascade owns
+    // it; a tracked fleet payload duplicates state the cascade owns and drifts
+    // silently. The wheelhouse is exempt because it AUTHORS the payload. See
+    // docs/agents.md/fleet/thin-distribution.md.
+    () =>
+      run('node', ['scripts/fleet/check/scripts-are-segmented.mts', '--quiet']),
     // Companion: no handoff / planning doc is tracked. These are TRANSIENT agent
     // work-state, a session's in-flight reasoning, whose one home is the
     // gitignored .claude/plans/ — never source control. Matched by filename

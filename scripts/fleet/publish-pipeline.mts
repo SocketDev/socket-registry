@@ -54,6 +54,7 @@
  *          [--reconcile X.Y.Z] [--skip-scan]
  */
 import process from 'node:process'
+import { assertGhAuth } from './publish-infra/gh-auth.mts'
 
 import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
@@ -225,6 +226,10 @@ export async function runPublishPipeline(
 }
 
 export async function main(): Promise<void> {
+  // Every publish flow tags, releases, or dispatches before it
+  // reaches a registry, so the gh state is a precondition rather
+  // than something to discover after a build has run.
+  assertGhAuth({ flow: 'npm:publish', requiredScopes: ['workflow'] })
   const { values } = parseArgs({
     options: {
       approve: { default: false, type: 'boolean' },

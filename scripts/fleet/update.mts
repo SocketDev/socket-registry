@@ -322,7 +322,10 @@ export async function main(): Promise<void> {
           safeDeleteSync(path.join(REPO_ROOT, relPath))
         },
         runPnpmInstall: async () => {
-          const result = await run('pnpm', ['install'])
+          // The resync exists to REGENERATE the lockfile after the catalog
+          // mutations above; CI's frozen-lockfile default refuses exactly
+          // that (ERR_PNPM_LOCKFILE_CONFIG_MISMATCH), so opt out explicitly.
+          const result = await run('pnpm', ['install', '--no-frozen-lockfile'])
           return { ok: result.ok, output: result.output }
         },
         runPnpmPatch: async spec => {
@@ -349,7 +352,7 @@ export async function main(): Promise<void> {
             `update: auto-re-keyed '${r.name}' patch ${r.oldVersion} → ${r.newVersion} (${r.newPatchPath}).`,
           )
         }
-        const { ok } = await run('pnpm', ['install'])
+        const { ok } = await run('pnpm', ['install', '--no-frozen-lockfile'])
         if (!ok) {
           process.exitCode = process.exitCode || 1
         }
@@ -364,7 +367,7 @@ export async function main(): Promise<void> {
         process.exitCode = 1
       }
     } else {
-      const { ok } = await run('pnpm', ['install'])
+      const { ok } = await run('pnpm', ['install', '--no-frozen-lockfile'])
       if (!ok) {
         process.exitCode = process.exitCode || 1
       }

@@ -378,6 +378,7 @@ const FLEET_CANONICAL_END_SENTINEL = ['#fleet', 'canonical', 'end'].join('-')
 const FLEET_CANONICAL_SPLICE_FILES = [
   '.config/fleet/oxlintrc.json',
   '.config/fleet/.prettierignore',
+  '.npmrc',
 ]
 /**
  * True when `relPath`, repo-relative, either separator, is a designated

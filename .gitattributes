@@ -142,8 +142,7 @@ template/.claude/hooks/fleet/_shared/acorn/acorn.wasm binary
 .github/agent-ci.Dockerfile linguist-generated=true
 .github/dependabot.yml linguist-generated=true
 .github/workflows/*.lock.yml linguist-generated=true merge=ours
-.github/workflows/get-green.lock.yml linguist-generated=true
-.github/workflows/get-green.md linguist-generated=true
+.github/workflows/get-green.yml linguist-generated=true
 .github/workflows/github-release.yml linguist-generated=true
 .github/workflows/npm-publish-dryrun.yml linguist-generated=true
 .github/workflows/npm-publish.yml linguist-generated=true

@@ -35,6 +35,7 @@ import {
   resolveStagedSha256,
   runApprove,
 } from './publish-infra/cargo/approve.mts'
+import { assertGhAuth } from './publish-infra/gh-auth.mts'
 import { replaceCargoVersion, runBump } from './publish-infra/cargo/bump.mts'
 import {
   crateNameStatus,
@@ -82,6 +83,10 @@ export {
 }
 
 export async function main(): Promise<void> {
+  // Every publish flow tags, releases, or dispatches before it
+  // reaches a registry, so the gh state is a precondition rather
+  // than something to discover after a build has run.
+  assertGhAuth({ flow: 'cargo:publish', requiredScopes: [] })
   const { values } = parseArgs({
     options: {
       approve: { default: false, type: 'boolean' },

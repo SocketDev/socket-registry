@@ -32,7 +32,7 @@ import { collectThreatFailures, runLocalThreatScan } from './threat-scan.mts'
 import type { ThreatManifest } from './threat-scan.mts'
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { safeDelete } from '@socketsecurity/lib-stable/fs/safe'
-import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
+import { openUrlInNewWindow } from '../../_shared/open-url.mts'
 import { password } from '@socketsecurity/lib-stable/stdio/prompts'
 
 // The canonical fleet env name for the Socket API token — bootstrap hooks
@@ -61,25 +61,12 @@ export function resolveSocketApiToken(
   return typeof value === 'string' && value !== '' ? value : undefined
 }
 
-// Best-effort platform browser opener (`open` / `xdg-open` / `start`),
-// fire-and-forget so the gate never waits on the browser process. A failure
-// to open is non-fatal — the URL is printed and the human opens it by hand.
+// Best-effort browser opener, fire-and-forget so the gate never waits on the
+// browser process. A failure to open is non-fatal: the URL is printed and the
+// human opens it by hand. New window rather than a tab, which is what
+// _shared/open-url.mts owns for every fleet script.
 function openInBrowser(url: string): void {
-  const win32 = process.platform === 'win32'
-  const opener =
-    process.platform === 'darwin' ? 'open' : win32 ? 'start' : 'xdg-open'
-  try {
-    const child = spawn(opener, [url], {
-      detached: true,
-      shell: win32,
-      stdio: 'ignore',
-    })
-    child.catch(() => {
-      // Non-fatal: the printed URL is the fallback.
-    })
-  } catch {
-    // Non-fatal: the printed URL is the fallback.
-  }
+  openUrlInNewWindow(url)
 }
 
 /**

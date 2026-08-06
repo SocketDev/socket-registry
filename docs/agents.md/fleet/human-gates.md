@@ -10,9 +10,8 @@ Every gate renders identically, composed from `scripts/fleet/_shared/human-gate.
 🖐  HUMAN GATE — npm auth [1/3]
   Need: the local npm token is missing or expired (`npm whoami` → 401).
   Mind: raw `npm login` dies without a TTY (legacy Username prompt EOFs) and bare `npm` fails in-repo (devEngines pins pnpm); the router carries both limitations so neither lane can hit them.
-  A) You: run `node scripts/fleet/npm-web-auth.mts login` in your terminal — same flow, you drive.
-  B) Me: say "log me in" and I run `node scripts/fleet/npm-web-auth.mts login` through its PTY — your browser opens for the OAuth + OTP, I wait.
-  Then: re-run the pipeline — receipts resume at verify.
+  You: run `node scripts/fleet/npm-web-auth.mts login` in your terminal — same flow, you drive.
+  Me: say "log me in" and I run `node scripts/fleet/npm-web-auth.mts login` through its PTY — your browser opens for the OAuth + OTP, I wait.
 ```
 
 The rules, each load-bearing:
@@ -20,7 +19,7 @@ The rules, each load-bearing:
 1. **Both lanes are always printed.** Lane A is what the human runs or types themselves; lane B is what they say to have the agent drive it, with the browser opening for them. Authorization phrases count only when a human types them in a user turn. When no agent lane can exist, lane B says so plainly (`no agent lane — …`) instead of vanishing, so the operator never wonders whether an option was omitted.
 2. **Same command, two runners.** Both lanes run the SAME non-interactive-capable command; only who drives it differs. A gate must never send the human down a path that fails in the other context ("oh, `!` won't work - do this instead"). The fleet routers make this possible: they pass through when a real TTY is present and run under a PTY when not.
 3. **`Mind:` names the active restriction.** The guard or tool limitation that shaped the lanes (devEngines veto, no-TTY input, sanctioned-browser law, phrase provenance) is printed, so the operator never picks a lane a guard would block and never wonders why the obvious raw command isn't offered.
-4. **`Then:` closes every block.** It names what resumes once the gate clears, which is also the cost of ignoring it.
+4. **`Me:` closes every block.** It names what the agent does once the gate clears, which is both the resume and the cost of ignoring it. There is no separate `Then:` line - splitting one thought across two lines earned nothing.
 5. **Multiple gates render as one numbered queue** (`[i/N]`), ordered by what must clear first, so the whole path to unblocked is visible at once - never one ask at a time across several messages.
 6. **Compose from the catalog, never hand-write the prose.** `npmAuthGate`, `pushGrantGate`, `approveGate`, and `browserSessionGate` carry the canonical wording; a script that invents its own phrasing drifts and defeats the point. A mirror test (`test/repo/unit/human-gate.test.mts`) asserts the shape.
 7. **Lane A is copy-pasteable, or the gate is broken.** It carries the VERBATIM authorization phrase, or the exact `! <command>` - never a pointer like "type the guard's phrase" or "the phrase its refusal names". A gate exists to unblock in one read; withholding the one string that clears it adds a round trip and sends the operator hunting for wording. This is why `pushGrantGate` takes the phrase as a parameter and renders `type exactly: <phrase>`.
@@ -115,5 +114,5 @@ The command in lane A is pasted into an unknown shell, in an unknown directory.
   input values. A lane the operator has to edit before running is a lane that
   gets run wrong.
 - **Say what remains after the command.** A dispatch does not finish a release:
-  the environment stage still needs a browser approval. Put that in `Then:` so
+  the environment stage still needs a browser approval. Put that in `Me:` so
   the operator is not left believing the paste completed the task.

@@ -11,7 +11,7 @@ metadata:
 
 # pushing
 
-Landing on local main is the default; pushing origin is deliberate — the wheelhouse is the fleet's canonical source (members cascade from origin/main), so a red push breaks the fleet. This skill gates the push, then drives CI to green.
+Landing on local main is the default; pushing origin is deliberate - the wheelhouse is the fleet's canonical source (members cascade from origin/main), so a red push breaks the fleet. This skill gates the push, then drives CI to green.
 
 ## Run the gate
 
@@ -21,11 +21,11 @@ node scripts/fleet/pre-push-gate.mts
 
 Runs in order, stopping + failing loud on the first red step:
 
-1. `pnpm run update` — refresh tool/catalog pins (soak-held stay held)
-2. `pnpm install` — reconcile the lockfile
-3. `pnpm run fix --all` — lint/format autofix
-4. `pnpm run check --all` — the fleet check gates
-5. `pnpm run cover` — full coverage suite (covers "all tests pass")
+1. `pnpm run update` - refresh tool/catalog pins (soak-held stay held)
+2. `pnpm install` - reconcile the lockfile
+3. `pnpm run fix --all` - lint/format autofix
+4. `pnpm run check --all` - the fleet check gates
+5. `pnpm run cover` - full coverage suite (covers "all tests pass")
 
 ## On GREEN
 
@@ -36,7 +36,7 @@ git push
 gh run watch
 ```
 
-If `pnpm run update` / `pnpm install` changed the lockfile or pins, commit those first. The lockfile-only `-o pnpm-lock.yaml` reconcile is sanctioned. Then re-run the gate. The gate never pushes for you — it only tells you it is safe to.
+If `pnpm run update` / `pnpm install` changed the lockfile or pins, commit those first. The lockfile-only `-o pnpm-lock.yaml` reconcile is sanctioned. Then re-run the gate. The gate never pushes for you - it only tells you it is safe to.
 
 ## Handoffs
 

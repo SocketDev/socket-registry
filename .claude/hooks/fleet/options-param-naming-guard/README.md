@@ -46,12 +46,12 @@ function resolve(options?: ResolveOptions) {
 
 ## What's exempt
 
-- Declaration files (`.d.ts`, `.d.mts`) — they mirror external-package
+- Declaration files (`.d.ts`, `.d.mts`) - they mirror external-package
   signatures verbatim.
-- Test files (`*.test.*`, files under a `/test/` tree) — they author
+- Test files (`*.test.*`, files under a `/test/` tree) - they author
   throwaway option-shaped helpers, not production readers.
 - A destructured param (`{ opts }`), a rest param, a `.opts` property
-  access, or a `{ opts: number }` type member — none is a param binding
+  access, or a `{ opts: number }` type member - none is a param binding
   named `opts`.
 
 ## Override marker

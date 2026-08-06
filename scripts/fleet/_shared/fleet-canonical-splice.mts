@@ -46,6 +46,12 @@ export const FLEET_CANONICAL_SPLICE_FILES: readonly string[] = [
   // appends below the end sentinel — a whole-file copy wiped it at stuie on
   // every refresh, unmasking the verbatim upstream mirrors to oxfmt.
   '.config/fleet/.prettierignore',
+  // Member tail: host-only npm settings, and the line
+  // scripts/fleet/soak-bypass.mts appends for a member-local soak bypass. The
+  // fleet head carries the registry, the soak window, and every derived
+  // exemption; without the splice a cascade replaced the whole file and took
+  // the member's own settings with it.
+  '.npmrc',
 ]
 
 /**

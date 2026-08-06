@@ -324,6 +324,27 @@ export function buildReleaseAndDocsSteps(): CheckStep[] {
         'scripts/fleet/check/thin-workflow-payloads-are-fetchable.mts',
         '--quiet',
       ]),
+    // A repo that provisions the on-device model has opted into it. Every
+    // layer of the odai path is fail-open and quiet — ready=false, exit 69, a
+    // default-false opt-in — so a workflow can download a ~4 GB model, invoke
+    // it, and produce nothing on a green run. The capability sat dead
+    // fleet-wide for exactly that reason: `ai.localAssist` was undefined in
+    // every repo while the workflows, the version pin, and the model cache
+    // were all in place.
+    () =>
+      run('node', [
+        'scripts/fleet/check/odai-legs-are-switched-on.mts',
+        '--quiet',
+      ]),
+    // Every workflow running a fleet setup composite supplies the Socket API
+    // token, by step input or job env. Omitting BOTH installs the firewall
+    // unauthenticated while the job still reports green — prune-workflow-runs
+    // shipped that way, the one workflow where neither form was present.
+    () =>
+      run('node', [
+        'scripts/fleet/check/workflow-installs-have-the-socket-token.mts',
+        '--quiet',
+      ]),
     // Every slashed pattern in .config/fleet/.prettierignore must be `**/`-anchored
     // or it silently matches nothing (oxfmt roots the matcher at the ignore file's
     // dir via Gitignore::new). Catches the footgun where a bare `vendor/**` looks

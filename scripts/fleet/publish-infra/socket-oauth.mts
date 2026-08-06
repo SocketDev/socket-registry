@@ -25,7 +25,7 @@ import { createServer } from 'node:http'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import process from 'node:process'
 
-import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
+import { openUrlInNewWindow } from '../_shared/open-url.mts'
 
 import { logger } from './shared.mts'
 
@@ -336,22 +336,9 @@ export async function acquireSocketTokenViaOAuth(
   return body.access_token
 }
 
-// Fire-and-forget platform browser opener; a failure is non-fatal because the
-// flow's failure mode is the callback timeout, which names the fix.
+// Fire-and-forget browser opener; a failure is non-fatal because the flow's
+// failure mode is the callback timeout, which names the fix. New window rather
+// than a tab, which _shared/open-url.mts owns for every fleet script.
 function defaultOpenUrl(url: string): void {
-  const win32 = process.platform === 'win32'
-  const opener =
-    process.platform === 'darwin' ? 'open' : win32 ? 'start' : 'xdg-open'
-  try {
-    const child = spawn(opener, [url], {
-      detached: true,
-      shell: win32,
-      stdio: 'ignore',
-    })
-    child.catch(() => {
-      // Non-fatal: the callback timeout names the fix.
-    })
-  } catch {
-    // Non-fatal: the callback timeout names the fix.
-  }
+  openUrlInNewWindow(url)
 }

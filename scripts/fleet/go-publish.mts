@@ -69,6 +69,7 @@ import { isMainModule } from './_shared/is-main-module.mts'
 import { runMain } from './_shared/run-main.mts'
 import type { ScriptMeta } from './_shared/run-main.mts'
 
+import { assertGhAuth } from './publish-infra/gh-auth.mts'
 import type { VerifyResult } from './publish-infra/go/shared.mts'
 
 // Re-export the pure helpers so the go-publish.yml workflow, and tests, can
@@ -356,6 +357,10 @@ export async function runGoPublish(
 }
 
 export async function main(): Promise<void> {
+  // Every publish flow tags, releases, or dispatches before it
+  // reaches a registry, so the gh state is a precondition rather
+  // than something to discover after a build has run.
+  assertGhAuth({ flow: 'go:publish', requiredScopes: [] })
   const { values } = parseArgs({
     options: {
       apply: { default: false, type: 'boolean' },

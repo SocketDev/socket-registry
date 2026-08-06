@@ -105,6 +105,36 @@ export const CHALLENGE_POLL_MS = 5000
  */
 export const COOLDOWN_OPTIN_SELECTOR = 'input[name="didOptForCooldown"]'
 
+/**
+ * How long a tick waits for the checkbox to become actionable.
+ */
+export const COOLDOWN_TICK_TIMEOUT_MS = 4000
+
+/**
+ * The watcher's budget and pace. The budget covers the operator's whole OTP
+ * step; the pace is cheap and still catches npm's `/escalate/otp` redirect
+ * the moment it renders.
+ */
+export const COOLDOWN_WATCH_BUDGET_MS = 5 * 60_000
+export const COOLDOWN_WATCH_INTERVAL_MS = 1500
+
+/**
+ * The slice of a page the cooldown tick needs, declared beside the selector it
+ * queries so both this module and the trust reconciler share ONE shape.
+ * Structural on purpose: a real playwright `Page` satisfies it, and a unit
+ * test's plain object does too. `locator` optional means a minimal fake
+ * no-ops instead of crashing.
+ */
+export interface CooldownTickablePage {
+  locator?:
+    | ((selector: string) => {
+        first: () => {
+          check: (options: { timeout: number }) => Promise<void>
+        }
+      })
+    | undefined
+}
+
 // Chrome's profile lock. Present while an instance holds the profile; a
 // crashed instance can leave it behind, which is why the guard reports it as
 // "possibly stale" rather than asserting a live holder.
@@ -215,16 +245,65 @@ export async function resolveNpmUser(page: Page): Promise<string> {
  * a batch of operations rides ONE approval. Fail-soft: any error is swallowed
  * and the flow proceeds exactly as before.
  */
-export async function optIntoChallengeCooldown(page: Page): Promise<void> {
+export async function optIntoChallengeCooldown(
+  page: CooldownTickablePage,
+): Promise<void> {
+  if (typeof page.locator !== 'function') {
+    return
+  }
   try {
-    const box = page.locator(COOLDOWN_OPTIN_SELECTOR).first()
-    if ((await box.count()) > 0 && !(await box.isChecked())) {
-      await box.check({ timeout: 2000 })
-      logger.log(
-        'Ticked the npm challenge-cooldown opt-in — publish/trust operations skip re-challenge for 5 minutes.',
-      )
+    // `check()` straight away rather than count()+isChecked() first: it is
+    // idempotent and carries its own actionability wait, which also covers a
+    // checkbox that hydrates after load.
+    await page
+      .locator(COOLDOWN_OPTIN_SELECTOR)
+      .first()
+      .check({ timeout: COOLDOWN_TICK_TIMEOUT_MS })
+    logger.log(
+      'Ticked the npm challenge-cooldown opt-in — publish/trust operations skip re-challenge for 5 minutes.',
+    )
+  } catch {
+    // The opt-in is a convenience, never load-bearing: an absent checkbox or
+    // a page without one both no-op.
+  }
+}
+
+/**
+ * Keep the cooldown opt-in ticked for `budgetMs` while the operator works,
+ * returning a stop function.
+ *
+ * One tick is not enough. npm REDIRECTS an approval page (`/auth/cli/<id>`)
+ * to its `/escalate/otp` step-up, and the checkbox lives on that LATER page —
+ * a tick fired right after the first navigation lands somewhere that has no
+ * checkbox yet (observed 2026-08-06). Nothing in the expect(1) write path
+ * loops either, because npm polls for the approval itself, so without a
+ * watcher that path never ticks the box at all.
+ *
+ * Fire-and-forget: never throws, and every tick is the same idempotent
+ * {@link optIntoChallengeCooldown}.
+ */
+export function watchCooldownOptIn(
+  page: CooldownTickablePage,
+  budgetMs = COOLDOWN_WATCH_BUDGET_MS,
+  intervalMs = COOLDOWN_WATCH_INTERVAL_MS,
+): () => void {
+  if (typeof page.locator !== 'function') {
+    return () => {}
+  }
+  let stopped = false
+  const deadline = Date.now() + budgetMs
+  const pump = async (): Promise<void> => {
+    while (!stopped && Date.now() < deadline) {
+      // eslint-disable-next-line no-await-in-loop -- paced watcher, one page.
+      await optIntoChallengeCooldown(page)
+      // eslint-disable-next-line no-await-in-loop -- paced watcher, one page.
+      await sleep(intervalMs)
     }
-  } catch {}
+  }
+  void pump().catch(() => undefined)
+  return () => {
+    stopped = true
+  }
 }
 
 /**
@@ -498,6 +577,66 @@ export async function clearStaleSingletons(
 }
 
 /**
+ * The profile file whose two exit keys drive Chrome's "Restore pages?" bubble,
+ * and the values that mean "last run ended normally".
+ *
+ * The bubble is NOT suppressible from the launch shape. A flag like
+ * `--hide-crash-restore-bubble` would mean an `args` array, and the file header
+ * forbids one: every extra launch arg tried here has cost a live npm session.
+ * Chrome decides the bubble from the profile itself, so the profile is where
+ * this belongs.
+ */
+const PROFILE_PREFERENCES = ['Default', 'Preferences']
+const CLEAN_EXIT = { exit_type: 'Normal', exited_cleanly: true }
+
+/**
+ * Clear the "Restore pages?" bubble before launch by marking the profile's
+ * last exit clean.
+ *
+ * Every run ends by closing the context rather than by Chrome's own quit path,
+ * so Chrome records the previous session as crashed and offers to restore it.
+ * The operator then has a modal sitting on top of the page a tool is driving,
+ * which is how a tick or a sign-in gets missed. Answers whether it rewrote the
+ * file. Fail-soft throughout: a profile with no Preferences yet is a first
+ * launch, which has nothing to restore anyway.
+ */
+export async function markProfileExitedCleanly(
+  profileDir: string,
+): Promise<boolean> {
+  const file = path.join(profileDir, ...PROFILE_PREFERENCES)
+  let parsed: Record<string, unknown>
+  try {
+    parsed = JSON.parse(await fs.readFile(file, 'utf8')) as Record<
+      string,
+      unknown
+    >
+  } catch {
+    return false
+  }
+  const profile = parsed['profile']
+  // A Preferences file whose `profile` is not an object is not one this should
+  // rewrite; leaving it alone beats reshaping something unrecognized.
+  if (!profile || typeof profile !== 'object' || Array.isArray(profile)) {
+    return false
+  }
+  const current = profile as Record<string, unknown>
+  if (
+    current['exit_type'] === CLEAN_EXIT.exit_type &&
+    current['exited_cleanly'] === CLEAN_EXIT.exited_cleanly
+  ) {
+    return false
+  }
+  current['exit_type'] = CLEAN_EXIT.exit_type
+  current['exited_cleanly'] = CLEAN_EXIT.exited_cleanly
+  try {
+    await fs.writeFile(file, JSON.stringify(parsed))
+    return true
+  } catch {
+    return false
+  }
+}
+
+/**
  * The refusal for a profile another Chrome already holds, or undefined when
  * the profile is free to use. A second instance on one profile forces an
  * EPHEMERAL session — the sign-in appears to succeed and then evaporates — so
@@ -584,6 +723,10 @@ export async function openNpmBrowserSession(
     if (refusal !== undefined) {
       throw new Error(refusal)
     }
+    // Then clear the restore bubble. Closing the context is not Chrome's own
+    // quit path, so the previous run reads as a crash and Chrome opens with a
+    // "Restore pages?" modal over the page a tool is about to drive.
+    await markProfileExitedCleanly(profileDir)
   }
   // The browser channel defaults to system Chrome but is overridable
   // (SOCKET_BROWSER_CHANNEL=msedge / chromium / …) for a machine without

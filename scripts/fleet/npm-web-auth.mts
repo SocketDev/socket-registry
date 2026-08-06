@@ -47,7 +47,7 @@
  *      <publish|login|deprecate|owner|access|...> [args] [--npm]
  */
 
-// oxlint-disable-next-line socket/prefer-async-spawn -- PTY streaming + detached opener + exact exit-code propagation need raw child_process control; see the per-call rationale on runUnderPty/runInherit/openInBrowser.
+// oxlint-disable-next-line socket/prefer-async-spawn -- PTY streaming + exact exit-code propagation need raw control; see the per-call rationale on runUnderPty/runInherit.
 import { spawn as nodeSpawn } from 'node:child_process'
 import process from 'node:process'
 
@@ -55,6 +55,7 @@ import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { spawnSync } from '@socketsecurity/lib-stable/process/spawn/child'
 
 import { isMainModule } from './_shared/is-main-module.mts'
+import { openUrlInNewWindow, platformOpener } from './_shared/open-url.mts'
 import { runMain } from './_shared/run-main.mts'
 import { npmScratchCwd } from './publish-infra/npm/shared.mts'
 
@@ -152,16 +153,11 @@ export function extractNpmAuthUrl(text: string): string | undefined {
 
 /**
  * The platform command that opens a URL in the default browser: `open` on
- * macOS, `start` on Windows, `xdg-open` elsewhere.
+ * macOS, `start` on Windows, `xdg-open` elsewhere. One implementation, in
+ * `_shared/open-url.mts`, so the table cannot drift between callers.
  */
 export function pickOpenCommand(platform: NodeJS.Platform): string {
-  if (platform === 'darwin') {
-    return 'open'
-  }
-  if (platform === 'win32') {
-    return 'start'
-  }
-  return 'xdg-open'
+  return platformOpener(platform)
 }
 
 /**
@@ -271,24 +267,33 @@ export function isPassthrough(config: {
   return config.isTty || hasOtpFlag(config.args)
 }
 
-// Spawn the platform opener on the URL, detached, with all stdio discarded. The
-// URL is passed ONLY as an argument (data-flow), never written to our stdout, so
-// the harness masking of displayed output is irrelevant.
-function openInBrowser(url: string, platform: NodeJS.Platform): void {
+// Open the URL in the DURABLE npm profile when one can launch, and in a new
+// default-browser window otherwise. The durable profile is what makes an npm
+// sign-in stick: the session persists there, so the next flow does not send
+// the operator through this page again. It is also the only page our
+// automation can reach, which is what ticks npm's "do not challenge me again
+// for 5 minutes" box — without it every package in a batch re-challenges, and
+// a 139-package run spent its whole budget on one-time passwords.
+//
+// The fallback matters: this runs on machines with no Chrome and inside CI,
+// and a sign-in page that fails to open is worse than one that opens in the
+// wrong browser. The URL travels as an argument either way, never through our
+// stdout.
+async function openInBrowser(
+  url: string,
+  platform: NodeJS.Platform,
+): Promise<void> {
   try {
-    const opener = pickOpenCommand(platform)
-    const child = nodeSpawn(opener, [url], {
-      detached: true,
-      stdio: 'ignore',
-      // `start` is a cmd.exe builtin, not an executable.
-      shell: platform === 'win32',
-    })
-    child.on('error', () => {})
-    child.unref()
+    const { openNpmBrowserSession, optIntoChallengeCooldown } =
+      await import('./publish-infra/npm/browser-session.mts')
+    const session = await openNpmBrowserSession({ scope: 'npm-web-auth' })
+    await session.page.goto(url)
+    await optIntoChallengeCooldown(session.page)
+    return
   } catch {
-    // Opening the browser is best-effort — the URL still streams through to the
-    // caller, who can open it by hand.
+    // No Chrome, no playwright, or a profile another run holds. Fall through.
   }
+  openUrlInNewWindow(url, { platform })
 }
 
 // Run `cmd args` inheriting all stdio and resolve with its exit code. The direct
@@ -330,7 +335,7 @@ function runUnderPty(pty: PtyInvocation, config: RunConfig): Promise<number> {
       const url = extractNpmAuthUrl(buffer)
       if (url) {
         opened = true
-        openInBrowser(url, config.platform)
+        void openInBrowser(url, config.platform)
         // ALSO print the URL. The opener fails silently on some setups (no
         // tab ever surfaced, 2026-07-31), and these login sessions expire in
         // minutes — the operator manually fishing the URL out of task-output

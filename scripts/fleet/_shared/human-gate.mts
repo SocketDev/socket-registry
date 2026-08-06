@@ -7,9 +7,8 @@
  *   🖐  HUMAN GATE — <name> [i/N]
  *   Need: <what is blocked and why, one sentence>
  *   Mind: <the active guard/tool restriction that shaped the lanes>
- *   A) You: <the exact command or phrase the human runs or types>
- *   B) Me: <what to say so the agent drives the SAME command>
- *   Then: <what the flow resumes once the gate clears>
+ *   You: <the exact command or phrase the human runs or types>
+ *   Me: <what to say so the agent drives the SAME command, then what resumes>
  *   Both lanes are ALWAYS printed. When no agent lane exists (authorization
  *   phrases count only when a human types them in a user turn), lane B says
  *   so honestly instead of vanishing — the operator should never wonder
@@ -88,11 +87,11 @@ export function formatHumanGate(
   if (gate.mind) {
     lines.push(`  Mind: ${gate.mind}`)
   }
-  lines.push(
-    `  A) You: ${gate.humanLane}`,
-    `  B) Me: ${laneB}`,
-    `  Then: ${gate.resumes}`,
-  )
+  // `You:` / `Me:` with no letter labels, and the resume folded into `Me:`.
+  // The letters were pure overhead — two lanes need no enumeration — and a
+  // standalone `Then:` split one thought across two lines, since what the
+  // agent does next IS what resumes.
+  lines.push(`  You: ${gate.humanLane}`, `  Me: ${laneB} ${gate.resumes}`)
   return lines
 }
 

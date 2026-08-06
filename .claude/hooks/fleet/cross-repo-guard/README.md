@@ -12,7 +12,7 @@ repo into another.
 
 ## What it catches
 
-Two forbidden shapes — both name another fleet repo by path:
+Two forbidden shapes - both name another fleet repo by path:
 
 | Form                | Example                                                               | Why it's bad                                                                                                                      |
 | ------------------- | --------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
@@ -21,7 +21,7 @@ Two forbidden shapes — both name another fleet repo by path:
 
 ## What to do instead
 
-Import via the published npm package — every fleet repo is a real
+Import via the published npm package - every fleet repo is a real
 workspace dep:
 
 ```ts

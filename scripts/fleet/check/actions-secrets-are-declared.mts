@@ -105,6 +105,14 @@ export const ORG_PROVIDED_SECRETS: readonly string[] = [
  * covers, mapped to the org name that supersedes them. A repo carrying one is
  * redundant rather than expected: the org secret is the single source, and a
  * per-repo copy is a second value to rotate and a second place to leak from.
+ *
+ * These two are ENV VAR names, not credentials of their own. A workflow passes
+ * the org secret once as the setup action's `socket-api-token` input, and
+ * `planSfwEnvExports` (actions/fleet/setup/plan-setup-tools.mjs) exports the
+ * value under BOTH `SOCKET_API_TOKEN` (canonical, what the CLI reads) and
+ * `SOCKET_API_KEY` (what sfw and the dev-machine keychain read) — which is
+ * what the org secret's own name records. So a repo-level secret of either
+ * name adds nothing: the env var it would populate is already set.
  */
 export const ORG_SUPERSEDED_SECRETS: Readonly<Record<string, string>> = {
   __proto__: null,
