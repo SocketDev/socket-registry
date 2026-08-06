@@ -46,6 +46,13 @@ interface FakePage {
 // The narrowest page a wait loop touches: navigate, settle, fetch, report a
 // URL, come to the front. Enough to drive the loop; nothing that needs a
 // browser.
+//
+// It also carries what the DELEGATED fleet pause touches, so a test can drive
+// the real pause instead of injecting one: an empty `locator` for the
+// cooldown-opt-in probe, and a `mainFrame` whose `evaluate` swallows the
+// holding-screen source. The screen is injected through the frame rather than
+// `page.evaluate` precisely so it cannot eat a body sequence, and this double
+// keeps that separation honest.
 function makeFakePage(bodies: readonly string[]): FakePage {
   const state = { gotoCount: 0, index: 0 }
   const page = {
@@ -65,6 +72,17 @@ function makeFakePage(bodies: readonly string[]): FakePage {
       state.gotoCount += 1
       return undefined
     },
+    // No controls on the page: the cooldown opt-in and the notification
+    // banners both read as absent, which is a quiet no-op in each.
+    locator: () => ({
+      count: async () => 0,
+      first: () => ({
+        check: async () => {},
+        click: async () => {},
+        isChecked: async () => false,
+      }),
+    }),
+    mainFrame: () => ({ evaluate: async () => undefined }),
     url: () => ACCESS_URL,
     waitForLoadState: async () => {},
   } as unknown as Page
@@ -119,6 +137,25 @@ describe('waitForAccessPage navigation', () => {
       pollMs: 1,
     })
     expect(fake.gotoCount).toBe(0)
+  })
+
+  test('the DELEGATED fleet pause never navigates either', async () => {
+    // The invariant, asserted against the pause the run actually uses rather
+    // than an injected stand-in. Every other test here hands in a fake `pause`,
+    // which proves the loop's own restraint but says nothing about the pause it
+    // delegates to — and this module used to hand-copy that pause for exactly
+    // one reason: the fleet's version reloaded the URL on every fresh pause,
+    // which closed the trusted-publisher form and provoked more challenges.
+    // The fleet pause now waits in place, so the copy is gone; if it ever
+    // regains a `goto`, this is the test that says so instead of a live run.
+    const fake = makeFakePage([
+      CHALLENGE_BODY,
+      CHALLENGE_BODY,
+      CHALLENGE_BODY,
+      READY_BODY,
+    ])
+    await waitForAccessPage(fake.page, TARGET, { budgetMs: 5000, pollMs: 1 })
+    expect(fake.gotoCount).toBe(1)
   })
 
   test('a banner-laden access page resolves without ever pausing', async () => {
