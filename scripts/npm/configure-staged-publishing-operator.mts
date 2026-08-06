@@ -1,34 +1,32 @@
 /**
- * @file What the configurator does while it is WAITING ON A PERSON: the pause
- *   itself, and the Socket shield that asks for their attention.
- *   Both exist because of the same live failure. The fleet's shared
- *   `pauseForChallenge` is the right operator experience — it owns the 🖐 gate
- *   block, the desktop ping, the cross-call pause tracker, the progress cadence
- *   and the budget — but on a fresh pause it re-navigates to the URL. On a live
- *   run that reload closed the trusted-publisher form the write lane had just
- *   opened, and the resulting reload loop is itself the traffic shape npm's bot
- *   management answers with a challenge: settings page → form opens → reload →
- *   challenge → pause → reload, once per lap. So the pause here composes the
- *   same gate tick the fleet pause is built on and simply does not navigate.
- *   The overlay is the other half of the same moment. When a person genuinely
- *   has to act, the shield says so from the middle of the window instead of
- *   from a terminal they are not looking at. It is garnish and is written that
- *   way: every failure swallowed, nothing load-bearing behind it.
- *   The same best-effort layer keeps the driven window legible: npm's stacked
- *   site-notification banners get dismissed once the page is settled, and stray
- *   `about:blank` tabs get closed so the run drives ONE page. Neither is ever a
- *   readiness signal — the payload decides that — but a session juggling pages
- *   can poll the wrong one, so the page being polled is asserted to be the one
- *   holding the access URL.
+ * @file What the configurator SHOWS the operator while it is waiting on them,
+ *   and what it does to keep the driven window legible. The pause itself is not
+ *   here: it belongs to the fleet's `pauseForChallenge`, which this module used
+ *   to hand-copy. That copy existed for one reason. The fleet pause
+ *   re-navigated to the URL on a fresh pause, and on a live run that reload
+ *   closed the trusted-publisher form the write lane had just opened — settings
+ *   page → form opens → reload → challenge → pause → reload, once per lap,
+ *   which is itself the traffic shape npm's bot management answers with a
+ *   challenge. The fleet pause now waits IN PLACE and never navigates, so the
+ *   copy had nothing left to diverge for and only kept this repo from receiving
+ *   the challenge rhythm's later fixes. The no-navigation invariant is still
+ *   asserted here — see
+ *   `test/scripts/npm/configure-staged-publishing-browser.test.mts`, which
+ *   drives the delegated pause and counts `goto` calls — because it is the
+ *   fleet's contract now rather than this module's workaround. The overlay is
+ *   what stays. When a person genuinely has to act, the shield says so from the
+ *   middle of the window instead of from a terminal they are not looking at. It
+ *   is garnish and is written that way: every failure swallowed, nothing
+ *   load-bearing behind it. The same best-effort layer keeps the driven window
+ *   legible: npm's stacked site-notification banners get dismissed once the
+ *   page is settled, and stray `about:blank` tabs get closed so the run drives
+ *   ONE page. Neither is ever a readiness signal — the payload decides that —
+ *   but a session juggling pages can poll the wrong one, so the page being
+ *   polled is asserted to be the one holding the access URL.
  */
-
-import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
-import { sleep } from '@socketsecurity/lib-stable/promises/timers'
 
 import type { Page } from 'playwright-core'
 
-import { optIntoChallengeCooldown } from '../fleet/publish-infra/npm/browser-session.mts'
-import { tickChallengeGate } from '../fleet/publish-infra/npm/challenge-gate.mts'
 import {
   buildOperatorOverlayInjectionScript,
   buildOperatorOverlayRemovalScript,
@@ -37,13 +35,12 @@ import {
 
 import type { AccessPageReadiness } from './configure-staged-publishing-session.mts'
 
-const logger = getDefaultLogger()
-
 /**
- * The operator wait a caller can substitute. One tick: announce if this is a
- * fresh pause, keep the cooldown opt-in ticked, sleep. Injected rather than
- * imported at the call site so a wait loop's no-navigation invariant is
- * testable with a fake page and no gate files.
+ * The operator wait a caller can substitute, shaped to what a readiness poll
+ * knows rather than to the fleet pause's own parameter list. The production
+ * implementation delegates to `pauseForChallenge`; this seam exists so a wait
+ * loop's no-navigation invariant is also testable without touching the gate
+ * files or the operator's desktop.
  */
 export type OperatorPause = (config: {
   budgetMs: number
@@ -188,39 +185,4 @@ export function isPolledPageOnTarget(
     return true
   }
   return pageUrl.split('?')[0] === settingsUrl.split('?')[0]
-}
-
-/**
- * One tick of the operator pause, WITHOUT the fleet pause's reload. The window
- * is brought forward instead, which gets the operator's attention without
- * touching the page's state.
- *
- * @throws {Error} When the challenge outlasts its budget.
- */
-export async function pauseForOperatorInPlace(config: {
-  budgetMs: number
-  elapsedMs: number
-  label: string
-  page: Page
-  pollMs: number
-  url: string
-}): Promise<void> {
-  const cfg = { __proto__: null, ...config } as typeof config
-  const tick = await tickChallengeGate(cfg.page, {
-    budgetMs: cfg.budgetMs,
-    fallbackElapsedMs: cfg.elapsedMs,
-    pkg: cfg.label,
-    url: cfg.url,
-  })
-  if (tick.expiredMessage !== undefined) {
-    throw new Error(tick.expiredMessage)
-  }
-  if (tick.freshPause) {
-    logger.warn(
-      `${cfg.label}: human verification is on screen. Solve it in the Chrome window — the run is waiting in place and will not reload the page.`,
-    )
-    await cfg.page.bringToFront().catch(() => {})
-  }
-  await optIntoChallengeCooldown(cfg.page)
-  await sleep(cfg.pollMs)
 }
