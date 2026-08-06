@@ -15,7 +15,7 @@ import {
   describePayloadKeyTree,
   describeValueType,
   findPayloadKeyPaths,
-} from '../../../scripts/npm/configure-staged-publishing-dump.mts'
+} from '../../../scripts/repo/npm/configure-staged-publishing-dump.mts'
 
 // The shape npm answered the access URL with while a two-factor step-up was
 // outstanding. Keys real, values invented. Built through JSON.parse because

@@ -3,7 +3,7 @@
  *   socket-registry's release subject carries a generated artifact the
  *   canonical `scripts/fleet/update.mts` knows nothing about:
  *   `registry/manifest.json`, regenerated from each override package's npm
- *   `latest` by `scripts/npm/update-manifest.mts`. Before this overlay the
+ *   `latest` by `scripts/repo/npm/update-manifest.mts`. Before this overlay the
  *   regeneration was a manual step someone had to remember after every
  *   `pnpm run update`, so the manifest drifted stale between releases.
  *   The `update` package.json script now resolves here — the same
@@ -61,6 +61,7 @@ export async function main(): Promise<number> {
   const manifestScript = path.join(
     REPO_ROOT,
     'scripts',
+    'repo',
     'npm',
     'update-manifest.mts',
   )

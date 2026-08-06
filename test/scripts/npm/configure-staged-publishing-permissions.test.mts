@@ -29,11 +29,11 @@ import {
   TARGET_ENVIRONMENT_NAME,
   TARGET_REPOSITORY_NAME,
   TARGET_WORKFLOW_FILENAME,
-} from '../../../scripts/npm/configure-staged-publishing-plan.mts'
+} from '../../../scripts/repo/npm/configure-staged-publishing-plan.mts'
 
-import { normalizePayloadKey } from '../../../scripts/npm/configure-staged-publishing-payload.mts'
+import { normalizePayloadKey } from '../../../scripts/repo/npm/configure-staged-publishing-payload.mts'
 
-import type { StagedTrustReport } from '../../../scripts/npm/check-trusted-packages-staged.mts'
+import type { StagedTrustReport } from '../../../scripts/repo/npm/check-trusted-packages-staged.mts'
 
 // One npm access-page payload carrying a single live trusted-publisher
 // connection, in the shape npm's own `oidcConnections` list uses.

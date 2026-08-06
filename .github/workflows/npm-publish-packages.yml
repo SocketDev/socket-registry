@@ -3,7 +3,7 @@ name: 📦 npm publish packages
 # Repo-owned (NOT cascaded): socket-registry publishes a FAMILY — the
 # `@socketregistry/*` override packages plus the registry package itself —
 # rather than the single subject `npm-publish.yml` handles. The family stager
-# is `scripts/npm/publish-npm-packages.mts`, and this workflow is the only
+# is `scripts/repo/npm/publish-npm-packages.mts`, and this workflow is the only
 # place it uploads from.
 #
 # Why a workflow at all: the fleet allows exactly ONE npm upload invocation,
@@ -136,4 +136,4 @@ jobs:
         env:
           DIST_TAG: ${{ inputs.dist-tag }}
           ONLY: ${{ inputs.only }}
-        run: node scripts/npm/publish-npm-packages.mts --force-publish --dist-tag "$DIST_TAG" ${ONLY:+--only "$ONLY"} ${{ inputs.publish != true && '--dry-run' || '' }}
+        run: node scripts/repo/npm/publish-npm-packages.mts --force-publish --dist-tag "$DIST_TAG" ${ONLY:+--only "$ONLY"} ${{ inputs.publish != true && '--dry-run' || '' }}

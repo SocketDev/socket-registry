@@ -18,7 +18,7 @@ import {
   OPERATOR_OVERLAY_CAPTION,
   OPERATOR_OVERLAY_ELEMENT_ID,
   shouldShowOperatorOverlay,
-} from '../../../scripts/npm/configure-staged-publishing-overlay.mts'
+} from '../../../scripts/repo/npm/configure-staged-publishing-overlay.mts'
 
 describe('shouldShowOperatorOverlay', () => {
   test('only a real challenge earns the shield', () => {

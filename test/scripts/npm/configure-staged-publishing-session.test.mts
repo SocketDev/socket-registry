@@ -24,7 +24,7 @@ import {
   isOperatorSignInUrl,
   OPERATOR_POLL_MS,
   WAIT_FOR_OPERATOR_MS,
-} from '../../../scripts/npm/configure-staged-publishing-session.mts'
+} from '../../../scripts/repo/npm/configure-staged-publishing-session.mts'
 
 const ACCESS_URL = 'https://www.npmjs.com/package/@socketregistry/abab/access'
 const LOGIN_URL =

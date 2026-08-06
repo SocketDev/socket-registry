@@ -1,5 +1,5 @@
 /**
- * @file Tests for scripts/npm/release-npm-packages-report.mts. The release
+ * @file Tests for scripts/repo/npm/release-npm-packages-report.mts. The release
  *   check used to walk every package, print nothing, and exit 0 while nine of
  *   them sat at the npm `0.0.0` placeholder with a real version on disk. These
  *   specs pin the two exit-1 triggers and that a placeholder is listed by name.
@@ -7,12 +7,12 @@
 
 import { describe, expect, test } from 'vitest'
 
-import { reportReleaseState } from '../../../scripts/npm/release-npm-packages-report.mts'
+import { reportReleaseState } from '../../../scripts/repo/npm/release-npm-packages-report.mts'
 
 import type {
   BumpState,
   PkgData,
-} from '../../../scripts/npm/release-npm-packages.mts'
+} from '../../../scripts/repo/npm/release-npm-packages.mts'
 
 function pkg(name: string, version: string): PkgData {
   return {

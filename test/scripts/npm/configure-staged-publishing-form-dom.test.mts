@@ -24,12 +24,12 @@ import {
   redactAttributeValue,
   redactUiText,
   summarizeFormDomControls,
-} from '../../../scripts/npm/configure-staged-publishing-form-dom.mts'
+} from '../../../scripts/repo/npm/configure-staged-publishing-form-dom.mts'
 
 import type {
   FormDomNode,
   FormDomSnapshot,
-} from '../../../scripts/npm/configure-staged-publishing-form-dom.mts'
+} from '../../../scripts/repo/npm/configure-staged-publishing-form-dom.mts'
 
 function node(config: Partial<FormDomNode> & { tag: string }): FormDomNode {
   return {

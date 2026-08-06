@@ -15,7 +15,7 @@ import {
   dismissSiteNotifications,
   isPolledPageOnTarget,
   SITE_NOTIFICATION_CLOSE_SELECTOR,
-} from '../../../scripts/npm/configure-staged-publishing-operator.mts'
+} from '../../../scripts/repo/npm/configure-staged-publishing-operator.mts'
 
 import type { Page } from 'playwright-core'
 

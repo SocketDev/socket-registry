@@ -23,7 +23,7 @@ import type {
 } from '@socketsecurity/lib-stable/packages/types'
 import type { SpinnerInstance } from '@socketsecurity/lib-stable/spinner/types'
 
-import { DEFAULT_CONCURRENCY } from '../../constants/core.mts'
+import { DEFAULT_CONCURRENCY } from '../constants/core.mts'
 
 export {
   buildTestEnv,

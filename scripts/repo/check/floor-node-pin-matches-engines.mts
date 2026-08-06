@@ -22,7 +22,7 @@ import semver from 'semver'
 
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
-import { FLOOR_NODE_VERSION } from '../../npm/floor-node-smoke.mts'
+import { FLOOR_NODE_VERSION } from '../npm/floor-node-smoke.mts'
 
 const logger = getDefaultLogger()
 
@@ -104,7 +104,7 @@ async function main(): Promise<number> {
         `${findings.length} override(s) out of lock-step with the floor-node pin (${FLOOR_NODE_VERSION}):`,
         ...findings.map(f => `  ${f}`),
         'Fix: move engines.node and FLOOR_NODE_VERSION together —',
-        '  scripts/npm/floor-node-smoke.mts (bump the pin + every sha256 from',
+        '  scripts/repo/npm/floor-node-smoke.mts (bump the pin + every sha256 from',
         '  https://nodejs.org/dist/v<version>/SHASUMS256.txt), or correct the',
         '  drifted engines range.',
       ].join('\n'),

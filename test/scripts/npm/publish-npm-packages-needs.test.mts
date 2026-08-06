@@ -1,5 +1,5 @@
 /**
- * @file Tests for scripts/npm/publish-npm-packages-needs.mts. Two defects live
+ * @file Tests for scripts/repo/npm/publish-npm-packages-needs.mts. Two defects live
  *   here. `getReleaseTag` parses a SPEC, so the call sites that handed it a
  *   bare version always got back the empty string and npm rejected every upload
  *   with `Tag must be a non-empty string`. And a package npm holds at the
@@ -16,7 +16,7 @@ import {
   PLACEHOLDER_NPM_VERSION,
   resolveDistTag,
   resolveNeedsPublish,
-} from '../../../scripts/npm/publish-npm-packages-needs.mts'
+} from '../../../scripts/repo/npm/publish-npm-packages-needs.mts'
 
 describe('resolveDistTag', () => {
   test('a release version publishes under latest', () => {
