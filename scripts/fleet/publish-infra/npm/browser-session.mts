@@ -44,8 +44,9 @@
  *     "login does not persist". The only auth failure reported is "signed
  *     out".
  *   - A human-verification challenge is PAUSED for the operator, never
- *     retried on a ladder; {@link runChallengeAware} owns that rhythm for
- *     every consumer. See `docs/agents.md/fleet/npm-anti-bot-rhythm.md`.
+ *     retried on a ladder, and the pause waits IN PLACE — it never navigates
+ *     the page it is waiting on; {@link runChallengeAware} owns that rhythm
+ *     for every consumer. See `docs/agents.md/fleet/npm-anti-bot-rhythm.md`.
  *     `scripts/fleet/check/playwright-launches-are-sanctioned.mts` enforces the
  *     launch rules across the tree, so a new tool cannot re-derive its own.
  */
@@ -205,6 +206,14 @@ export async function optIntoChallengeCooldown(page: Page): Promise<void> {
  * caller therefore never needs a retry ladder. `announced` reports what the
  * CALLING loop has printed; the cross-call tracker is authoritative, which is
  * what stops a re-entered loop from re-announcing the same pause.
+ *
+ * The pause waits IN PLACE: it reads the page and never navigates it. A
+ * re-navigation on a fresh pause closed the trusted-publisher form the write
+ * lane had just opened, and the reload loop is itself the traffic shape npm's
+ * bot management answers with a challenge — settings page → form opens →
+ * reload → challenge → pause → reload, once per lap, observed live burning a
+ * full budget without progressing. The operation the caller re-attempts owns
+ * its own navigation, so nothing here needs to.
  */
 export async function pauseForChallenge(
   page: Page,
@@ -232,7 +241,9 @@ export async function pauseForChallenge(
     throw new Error(tick.expiredMessage)
   }
   if (tick.freshPause) {
-    await page.goto(cfg.url, { waitUntil: 'domcontentloaded' }).catch(() => {})
+    // Bring the window forward, and nothing else. Fronting gets the
+    // operator's attention while the page keeps whatever state the operation
+    // left on it.
     await page.bringToFront().catch(() => {})
   }
   await optIntoChallengeCooldown(page)
