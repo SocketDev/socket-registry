@@ -39,9 +39,6 @@ export function buildPathsAndSupplyChainSteps(): CheckStep[] {
     // died before a single test ran.
     () =>
       run('node', ['scripts/fleet/check/managed-file-imports-are-managed.mts']),
-    // Root `scripts/` is a namespace only: fleet and repo automation must
-    // declare ownership by living below scripts/fleet/ or scripts/repo/.
-    () => run('node', ['scripts/fleet/check/root-scripts-are-segregated.mts']),
     // The repo ROOT is a namespace too: every tracked root entry is a
     // sanctioned tool-anchored name / tier dir, or carries a documented
     // per-repo allowlist reason (.config/repo/root-files.json). The legacy

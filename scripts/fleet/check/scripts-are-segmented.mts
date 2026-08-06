@@ -23,15 +23,17 @@
  *   Usage: node scripts/fleet/check/scripts-are-segmented.mts [--quiet]
  */
 
-import { existsSync, readdirSync } from 'node:fs'
+import { existsSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
+import { normalizePath } from '@socketsecurity/lib-stable/paths/normalize'
 import { spawnSync } from '@socketsecurity/lib-stable/process/spawn/child'
 
 import { isMainModule } from '../_shared/is-main-module.mts'
 import { REPO_ROOT } from '../paths.mts'
+import { collectTrackedFiles } from '../_shared/tracked-globs.mts'
 import { runMain } from '../_shared/run-main.mts'
 
 import type { ScriptMeta } from '../_shared/run-main.mts'
@@ -39,34 +41,56 @@ import type { ScriptMeta } from '../_shared/run-main.mts'
 const logger = getDefaultLogger()
 
 /**
+ * The tree this check owns, repo-relative.
+ */
+export const SCRIPTS_DIR = 'scripts'
+
+/**
  * The only two ownership tiers `scripts/` may contain.
  */
 export const SEGMENT_DIRS: ReadonlySet<string> = new Set(['fleet', 'repo'])
 
 /**
- * Entries directly under `scripts/` that belong to neither tier: any
- * directory that is not `fleet`/`repo`, plus any loose file. Dot- and
- * underscore-prefixed names pass — the latter is the documented internals
- * convention. Pure over the filesystem — exported for tests.
+ * The entries under `scripts/` that belong to neither tier, derived from
+ * TRACKED paths: a directory that is not `fleet`/`repo`, and any loose file.
+ * Dot- and underscore-prefixed names pass, the latter being the documented
+ * internals convention.
+ *
+ * Tracked paths rather than a filesystem walk, because the question is
+ * ownership and only a committed file has any. A build output, a scratch dir,
+ * or a gitignored cache under `scripts/` belongs to nobody by design, and
+ * failing the gate on one would report a violation the repo never made.
+ *
+ * Pure over the path list, so a test names the shapes instead of building
+ * trees.
  */
-export function findUnsegmentedEntries(scriptsDir: string): string[] {
-  if (!existsSync(scriptsDir)) {
-    return []
-  }
-  const violations: string[] = []
-  const entries = readdirSync(scriptsDir, { withFileTypes: true })
-  for (let i = 0, { length } = entries; i < length; i += 1) {
-    const entry = entries[i]!
-    const { name } = entry
-    if (name.startsWith('.') || name.startsWith('_')) {
+export function findUnsegmentedEntries(
+  trackedPaths: readonly string[],
+): string[] {
+  const violations = new Set<string>()
+  for (let i = 0, { length } = trackedPaths; i < length; i += 1) {
+    // Normalized first: a tracked path arrives with whichever separator the
+    // platform's git emitted, and every check below is separator-sensitive.
+    const rel = normalizePath(trackedPaths[i]!)
+    if (!rel.startsWith(`${SCRIPTS_DIR}/`)) {
       continue
     }
-    if (entry.isDirectory() && SEGMENT_DIRS.has(name)) {
+    const rest = rel.slice(SCRIPTS_DIR.length + 1)
+    const slash = rest.indexOf('/')
+    const head = slash === -1 ? rest : rest.slice(0, slash)
+    if (head === '' || head.startsWith('.') || head.startsWith('_')) {
       continue
     }
-    violations.push(entry.isDirectory() ? `${name}/` : name)
+    if (slash !== -1) {
+      // A path with a segment below the head names a DIRECTORY.
+      if (!SEGMENT_DIRS.has(head)) {
+        violations.add(`${head}/`)
+      }
+      continue
+    }
+    violations.add(head)
   }
-  return violations.toSorted()
+  return [...violations].toSorted()
 }
 
 /**
@@ -95,12 +119,14 @@ export function trackedFleetPaths(repoRoot: string): string[] {
   return String(result.stdout ?? '')
     .split('\n')
     .filter(line => line !== '')
+    .map(line => normalizePath(line))
 }
 
-export function main(): void {
+export async function main(): Promise<void> {
   const quiet = process.argv.includes('--quiet')
-  const scriptsDir = path.join(REPO_ROOT, 'scripts')
-  const unsegmented = findUnsegmentedEntries(scriptsDir)
+  const unsegmented = findUnsegmentedEntries(
+    await collectTrackedFiles([`${SCRIPTS_DIR}/*`], { cwd: REPO_ROOT }),
+  )
   const author = isPayloadAuthor(REPO_ROOT)
   const tracked = author ? [] : trackedFleetPaths(REPO_ROOT)
   if (unsegmented.length === 0 && tracked.length === 0) {
