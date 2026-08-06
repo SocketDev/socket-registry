@@ -18,11 +18,6 @@
       "description": "Zig code-intelligence MCP server (indexes a repo for fast code search)",
       "repository": "github:justrach/codedb",
       "version": "0.2.5825",
-      "soakBypass": {
-        "version": "0.2.5825",
-        "published": "2026-06-12",
-        "removable": "2026-06-19"
-      },
       "release": "asset",
       "platforms": {
         "darwin-arm64": {
