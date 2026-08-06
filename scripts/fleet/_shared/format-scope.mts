@@ -273,17 +273,6 @@ export function isNeverGated(filePath: string): boolean {
   ) {
     return true
   }
-  // gh-aw's OTHER generated workflow: the maintenance workflow compiles to a
-  // plain `.yml` (no `.lock` suffix) with a DO NOT EDIT header, and its
-  // `uses:` pins carry the generator's own date-less comments. An exact
-  // suffix comparison, built with path.join + normalizePath rather than a
-  // regex, so the shape stays a real path.
-  const ghAwMaintenance = normalizePath(
-    path.join('.github', 'workflows', 'agentics-maintenance.yml'),
-  )
-  if (p === ghAwMaintenance || p.endsWith(`/${ghAwMaintenance}`)) {
-    return true
-  }
   // The rolldown-bundled fleet oxlint plugin (build-oxlint-bundle.mts output).
   // oxlint-disable-next-line socket/require-regex-comment -- generated-artifact path, described above.
   if (/(?:^|\/)\.config\/fleet\/oxlint-plugin\.mjs$/.test(p)) {
