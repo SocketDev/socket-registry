@@ -5,7 +5,7 @@
 
 import path from 'node:path'
 
-import { NPM, NPM_PACKAGES_PATH } from '../../scripts/constants/paths.mts'
+import { NPM, NPM_PACKAGES_PATH } from '../../scripts/repo/constants/paths.mts'
 import { isPackageTestingSkipped } from '../../scripts/repo/util/tests.mts'
 
 interface SetupNpmPackageTestResult {

@@ -7,7 +7,7 @@ import path from 'node:path'
 
 import { hasOwn } from '@socketsecurity/lib-stable/objects/predicates'
 
-import { PACKAGE_JSON, TEST_NPM_PATH } from '../../constants/paths.mts'
+import { PACKAGE_JSON, TEST_NPM_PATH } from '../constants/paths.mts'
 
 export interface TestNpmPackageJson {
   devDependencies?: Record<string, string> | undefined

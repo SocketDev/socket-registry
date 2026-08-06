@@ -18,7 +18,7 @@ import { readPackageJson } from '@socketsecurity/lib-stable/packages/read'
 import { cleanTestScript } from './script-cleaning.mts'
 import { spawn } from './spawn.mts'
 import { testRunners } from './test-runners.mts'
-import { ROOT_PATH } from '../../constants/paths.mts'
+import { ROOT_PATH } from '../constants/paths.mts'
 
 // Shared pnpm flags to make it behave like npm with hoisting.
 export const PNPM_NPM_LIKE_FLAGS = [

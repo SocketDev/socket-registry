@@ -8,7 +8,7 @@
  */
 
 // Must use hardcoded string as this runs before dependencies are available
-// This matches the WORKSPACE_ANY constant from scripts/constants
+// This matches the WORKSPACE_ANY constant from scripts/repo/constants
 const WORKSPACE_ANY = 'workspace:*'
 
 module.exports = {

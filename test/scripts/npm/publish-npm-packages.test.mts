@@ -1,5 +1,5 @@
 /**
- * @file Tests for the scripts/npm/publish-npm-packages.mts lane router. The
+ * @file Tests for the scripts/repo/npm/publish-npm-packages.mts lane router. The
  *   orchestrator used to carry a local upload path behind `--force`; that path
  *   is deleted, so outside CI the only thing the script can do is DISPATCH the
  *   workflow. These specs pin that the escape hatch is gone and that the local
@@ -11,11 +11,12 @@ import path from 'node:path'
 
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
-import { ROOT_PATH } from '../../../scripts/constants/paths.mts'
+import { ROOT_PATH } from '../../../scripts/repo/constants/paths.mts'
 
 const ORCHESTRATOR_PATH = path.join(
   ROOT_PATH,
   'scripts',
+  'repo',
   'npm',
   'publish-npm-packages.mts',
 )
@@ -23,6 +24,7 @@ const ORCHESTRATOR_PATH = path.join(
 const ARGS_PATH = path.join(
   ROOT_PATH,
   'scripts',
+  'repo',
   'npm',
   'publish-npm-packages-args.mts',
 )
@@ -63,7 +65,7 @@ describe('main outside CI', () => {
     // The module captures ENV + cliArgs at import time, so it is imported
     // fresh under the stubbed environment.
     const { main } =
-      await import('../../../scripts/npm/publish-npm-packages.mts')
+      await import('../../../scripts/repo/npm/publish-npm-packages.mts')
     await expect(main()).resolves.toBe(0)
   })
 })

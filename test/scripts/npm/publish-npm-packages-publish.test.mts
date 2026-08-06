@@ -1,5 +1,5 @@
 /**
- * @file Tests for scripts/npm/publish-npm-packages-publish.mts with the npm
+ * @file Tests for scripts/repo/npm/publish-npm-packages-publish.mts with the npm
  *   upload MOCKED — nothing here touches the network or a registry. The live
  *   run that prompted this passed an EMPTY dist-tag to every package and npm
  *   400'd each one with `Tag must be a non-empty string`; the old `?? 'latest'`
@@ -34,7 +34,7 @@ describe('stagePublish tag defaulting', () => {
 
   test('an empty tag never reaches npm', async () => {
     const { stagePublish } =
-      await import('../../../scripts/npm/publish-npm-packages-publish.mts')
+      await import('../../../scripts/repo/npm/publish-npm-packages-publish.mts')
     const state = { fails: [] as string[], failures: [] }
     await stagePublish(
       { path: '/tmp/pkg', printName: '@socketregistry/own-keys', tag: '' },
@@ -48,7 +48,7 @@ describe('stagePublish tag defaulting', () => {
 
   test('an explicit prerelease tag is forwarded as-is', async () => {
     const { stagePublish } =
-      await import('../../../scripts/npm/publish-npm-packages-publish.mts')
+      await import('../../../scripts/repo/npm/publish-npm-packages-publish.mts')
     await stagePublish(
       { path: '/tmp/pkg', printName: '@socketregistry/own-keys', tag: 'beta' },
       { fails: [], failures: [] },
@@ -65,7 +65,7 @@ describe('stagePublish tag defaulting', () => {
       ran: true,
     })
     const { stagePublish } =
-      await import('../../../scripts/npm/publish-npm-packages-publish.mts')
+      await import('../../../scripts/repo/npm/publish-npm-packages-publish.mts')
     const state = { fails: [] as string[], failures: [] }
     await stagePublish(
       { path: '/tmp/pkg', printName: '@socketregistry/own-keys' },
@@ -87,7 +87,7 @@ describe('stagePublish tag defaulting', () => {
       ran: true,
     })
     const { stagePublish } =
-      await import('../../../scripts/npm/publish-npm-packages-publish.mts')
+      await import('../../../scripts/repo/npm/publish-npm-packages-publish.mts')
     const state = { fails: [] as string[], failures: [] }
     await stagePublish(
       { path: '/tmp/pkg', printName: '@socketregistry/own-keys' },
@@ -101,7 +101,7 @@ describe('stagePublish tag defaulting', () => {
 
   test('a dry run stages nothing at all', async () => {
     const { stagePublish } =
-      await import('../../../scripts/npm/publish-npm-packages-publish.mts')
+      await import('../../../scripts/repo/npm/publish-npm-packages-publish.mts')
     await stagePublish(
       { path: '/tmp/pkg', printName: '@socketregistry/own-keys', tag: '' },
       { fails: [], failures: [] },

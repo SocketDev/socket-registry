@@ -9,7 +9,7 @@
 
 import { describe, expect, test } from 'vitest'
 
-import { verifyStagedPayload } from '../../../scripts/npm/configure-staged-publishing-write.mts'
+import { verifyStagedPayload } from '../../../scripts/repo/npm/configure-staged-publishing-write.mts'
 
 import type { TrustedPublisherDesired } from '../../../scripts/fleet/publish-infra/npm/trusted-publisher-plan.mts'
 

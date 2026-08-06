@@ -1,5 +1,5 @@
 /**
- * @file Tests for scripts/npm/publish-npm-packages-failures.mts. A wave that
+ * @file Tests for scripts/repo/npm/publish-npm-packages-failures.mts. A wave that
  *   collected nine failures once logged `Unable to publish 9 packages` and
  *   exited 0, so every caller reading the exit code saw a successful publish.
  *   These specs pin that a recorded failure is both reportable and non-zero,
@@ -13,9 +13,9 @@ import {
   isTrustedPublisherProblem,
   publishExitCode,
   recordPublishFailure,
-} from '../../../scripts/npm/publish-npm-packages-failures.mts'
+} from '../../../scripts/repo/npm/publish-npm-packages-failures.mts'
 
-import type { PublishState } from '../../../scripts/npm/publish-npm-packages-failures.mts'
+import type { PublishState } from '../../../scripts/repo/npm/publish-npm-packages-failures.mts'
 
 function emptyState(): PublishState {
   return { fails: [], failures: [] }

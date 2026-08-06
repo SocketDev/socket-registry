@@ -13,7 +13,7 @@ import {
   REL_REGISTRY_PKG_PATH,
   ROOT_PACKAGES_PATH,
   ROOT_PATH,
-} from '../../constants/paths.mts'
+} from '../constants/paths.mts'
 // Import sync and additional functions from helpers
 import {
   getChangedFilesSync,

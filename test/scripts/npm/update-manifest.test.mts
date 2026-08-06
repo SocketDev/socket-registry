@@ -1,5 +1,5 @@
 /**
- * @file Tests for the scripts/npm/update-manifest.mts dropped-package guard.
+ * @file Tests for the scripts/repo/npm/update-manifest.mts dropped-package guard.
  *   The regeneration loop skips a package whenever its registry fetch fails,
  *   which used to silently DROP it from the rewritten manifest — observed
  *   live when @socketregistry/string.prototype.at vanished on one run and
@@ -12,9 +12,9 @@
 
 import { describe, expect, test, vi } from 'vitest'
 
-import { diffDroppedPackages } from '../../../scripts/npm/update-manifest.mts'
+import { diffDroppedPackages } from '../../../scripts/repo/npm/update-manifest.mts'
 
-import type { ManifestEntry } from '../../../scripts/npm/update-manifest.mts'
+import type { ManifestEntry } from '../../../scripts/repo/npm/update-manifest.mts'
 
 interface FakeManifest {
   version: string

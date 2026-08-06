@@ -138,4 +138,4 @@ Layout, commands, build, testing, vitest config, dependency policy, and the scra
 - 🚨 Coverage is mandatory and never decreases; every `c8 ignore` reason ends with a period. [`architecture`](docs/agents.md/repo/architecture.md)
 - 🚨 Never the split `@typescript-eslint/*` packages, and never swap tsgo for stock `tsc`. [`architecture`](docs/agents.md/repo/architecture.md)
 - 🚨 A ported `test/npm/*.test.mts` suite's provenance is its `file-fork` row in `lockstep.json`, never its prose header. [`npm-port-provenance`](docs/agents.md/repo/npm-port-provenance.md)
-- Override impact is rank × cut; a cut % without its gateways lies. (`scripts/npm/survey-override-deps.mts`) [`override-impact-analysis`](docs/agents.md/repo/override-impact-analysis.md)
+- Override impact is rank × cut; a cut % without its gateways lies. (`scripts/repo/npm/survey-override-deps.mts`) [`override-impact-analysis`](docs/agents.md/repo/override-impact-analysis.md)

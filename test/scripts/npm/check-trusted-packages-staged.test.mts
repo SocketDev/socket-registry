@@ -30,12 +30,12 @@ import {
   mergeStagedRosters,
   readLocalNpmPackages,
   readStagedTrust,
-} from '../../../scripts/npm/check-trusted-packages-staged.mts'
+} from '../../../scripts/repo/npm/check-trusted-packages-staged.mts'
 
 import type {
   StagedManifestRow,
   StagedRosterEntry,
-} from '../../../scripts/npm/check-trusted-packages-staged.mts'
+} from '../../../scripts/repo/npm/check-trusted-packages-staged.mts'
 import type { PackumentMetaSlim } from '@socketsecurity/lib/npm/meta-types'
 
 interface VersionSpec {

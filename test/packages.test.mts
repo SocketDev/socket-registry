@@ -31,12 +31,12 @@ import {
   NPM_PACKAGES_PATH,
   PACKAGE_JSON,
   SOCKET_REGISTRY_SCOPE,
-} from '../scripts/constants/paths.mts'
+} from '../scripts/repo/constants/paths.mts'
 import {
   getEcosystems,
   getNpmPackageNames,
-} from '../scripts/constants/testing.mts'
-import { getIgnoreGlobs } from '../scripts/constants/utils.mts'
+} from '../scripts/repo/constants/testing.mts'
+import { getIgnoreGlobs } from '../scripts/repo/constants/utils.mts'
 
 const LICENSE_GLOB =
   '**/+(LICENSE|LICENCE|LICENSE.original|LICENSE.*.original)*'

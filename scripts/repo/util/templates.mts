@@ -27,7 +27,7 @@ import {
   NPM_TEMPLATES_PATH,
   PACKAGE_JSON,
   README_MD,
-} from '../../constants/paths.mts'
+} from '../constants/paths.mts'
 import {
   TEMPLATE_CJS,
   TEMPLATE_CJS_BROWSER,
@@ -35,8 +35,8 @@ import {
   TEMPLATE_ES_SHIM_CONSTRUCTOR,
   TEMPLATE_ES_SHIM_PROTOTYPE_METHOD,
   TEMPLATE_ES_SHIM_STATIC_METHOD,
-} from '../../constants/templates.mts'
-import { getLicenseContent } from '../../constants/utils.mts'
+} from '../constants/templates.mts'
+import { getLicenseContent } from '../constants/utils.mts'
 import { biomeFormat } from './biome.mts'
 import type {
   ManifestEntry,

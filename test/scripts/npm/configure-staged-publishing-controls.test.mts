@@ -16,9 +16,9 @@ import { describe, expect, test } from 'vitest'
 import {
   encodesActionState,
   resolveActionControlPlan,
-} from '../../../scripts/npm/configure-staged-publishing-controls.mts'
+} from '../../../scripts/repo/npm/configure-staged-publishing-controls.mts'
 
-import type { ActionControlCandidate } from '../../../scripts/npm/configure-staged-publishing-controls.mts'
+import type { ActionControlCandidate } from '../../../scripts/repo/npm/configure-staged-publishing-controls.mts'
 
 const CLEAR_DIRECT = {
   actionTokens: [

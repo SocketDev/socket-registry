@@ -235,7 +235,7 @@ minimumReleaseAgeExclude:
   # (a scope glob would blanket-bypass any future @typescript publish).
   # Socket-owned scopes — bypass the soak window because they ship
   # through Socket's own provenance + publish pipeline. Canonical
-  # list: scripts/constants/socket-scopes.mts SOCKET_PACKAGE_PATTERNS.
+  # list: scripts/fleet/constants/socket-scopes.mts SOCKET_PACKAGE_PATTERNS.
   # Mirrored in `.config/taze.config.mts` (same scopes, same reason)
   # and consumed by scripts/repo/update-external-tools.mts via
   # isSocketSourcedPackage / isSocketSourcedRepository.

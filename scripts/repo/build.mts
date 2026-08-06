@@ -11,7 +11,7 @@ import { isQuiet } from '@socketsecurity/lib-stable/argv/flag-predicates'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
 import { runCommand } from '../fleet/util/run-command.mts'
-import { REGISTRY_PKG_PATH } from '../constants/paths.mts'
+import { REGISTRY_PKG_PATH } from './constants/paths.mts'
 
 const logger = getDefaultLogger()
 

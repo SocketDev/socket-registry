@@ -16,9 +16,9 @@
 
 import { describe, expect, test } from 'vitest'
 
-import { waitForAccessPage } from '../../../scripts/npm/configure-staged-publishing-browser.mts'
+import { waitForAccessPage } from '../../../scripts/repo/npm/configure-staged-publishing-browser.mts'
 
-import type { StagedConfigurationTarget } from '../../../scripts/npm/configure-staged-publishing-plan.mts'
+import type { StagedConfigurationTarget } from '../../../scripts/repo/npm/configure-staged-publishing-plan.mts'
 import type { Page } from 'playwright-core'
 
 const ACCESS_URL = 'https://www.npmjs.com/package/@socketregistry/abab/access'

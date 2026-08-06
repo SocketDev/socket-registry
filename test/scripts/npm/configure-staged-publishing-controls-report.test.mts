@@ -15,14 +15,14 @@ import { describe, expect, test } from 'vitest'
 import {
   describeActionControlCandidate,
   formatUnresolvedActionControl,
-} from '../../../scripts/npm/configure-staged-publishing-controls-report.mts'
-import { collectActionControlCandidates } from '../../../scripts/npm/configure-staged-publishing-controls.mts'
+} from '../../../scripts/repo/npm/configure-staged-publishing-controls-report.mts'
+import { collectActionControlCandidates } from '../../../scripts/repo/npm/configure-staged-publishing-controls.mts'
 
-import type { ActionControlCandidate } from '../../../scripts/npm/configure-staged-publishing-controls.mts'
+import type { ActionControlCandidate } from '../../../scripts/repo/npm/configure-staged-publishing-controls.mts'
 import type {
   FormDomNode,
   FormDomSnapshot,
-} from '../../../scripts/npm/configure-staged-publishing-form-dom.mts'
+} from '../../../scripts/repo/npm/configure-staged-publishing-form-dom.mts'
 
 const CLEAR_DIRECT = {
   actionTokens: ['npm publish', 'createPackage', 'publish'],

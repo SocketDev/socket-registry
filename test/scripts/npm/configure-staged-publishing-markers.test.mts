@@ -17,7 +17,7 @@ import {
   hasSettingsPayloadMarkers,
   normalizeChallengeText,
   stripDismissableBanners,
-} from '../../../scripts/npm/configure-staged-publishing-markers.mts'
+} from '../../../scripts/repo/npm/configure-staged-publishing-markers.mts'
 
 // The four spellings of one phrase. Enumerating them as regexes is the bug this
 // normalization replaces; enumerating them as TEST INPUT is the point.
