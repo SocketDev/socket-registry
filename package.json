@@ -77,6 +77,7 @@
     "get-green": "node scripts/fleet/get-green.mts",
     "weekly-update:ci": "gh workflow run weekly-update.lock.yml",
     "prune:backups": "node scripts/fleet/backup-branches.mts prune",
+    "prune:caches": "node scripts/fleet/prune-actions-caches.mts",
     "strip:ai-tags": "node scripts/fleet/strip-ai-tags.mts",
     "npm:approve": "node scripts/fleet/publish-pipeline.mts --approve",
     "npm:auth": "node scripts/fleet/npm-web-auth.mts",
