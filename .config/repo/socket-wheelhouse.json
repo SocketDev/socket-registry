@@ -5,6 +5,9 @@
   "ai": {
     "localAssist": true
   },
+  "bundle": {
+    "ref": "fleet-pack-50685b2b1df9238e106b40e361dfd640750e09b1"
+  },
   "repo": {
     "type": "mono"
   },
