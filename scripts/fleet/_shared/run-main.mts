@@ -32,8 +32,8 @@ const logger = getDefaultLogger()
  * parser truncates there — every flag after it is DISCARDED, not collected as a
  * positional. The script then runs with default behaviour while the caller
  * believes they passed flags. That is merely confusing for a read-only script
- * and dangerous for a destructive one: `prune:backups -- --dry-run` drops the
- * `--dry-run` and performs a live run against every repo.
+ * and dangerous for a destructive one: `prune:branch-backups -- --dry-run`
+ * drops the `--dry-run` and performs a live run against every repo.
  *
  * Checked against `process.argv` because by the time parsing finishes the
  * dropped flags are unrecoverable — the parsed result cannot tell you what was
