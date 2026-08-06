@@ -4,11 +4,11 @@ The CLAUDE.md `## 🏗️ Registry-Specific` section is the headline. This file 
 
 ## Layout
 
-- `/registry/src/` — TypeScript source.
-- `/registry/dist/` — esbuild output (CommonJS).
-- `/scripts/` — dev / build / release scripts (`.mts`).
-- `/test/` — test files + fixtures.
-- `/packages/npm/` — NPM package overrides shipped by the registry.
+- `/registry/src/` - TypeScript source.
+- `/registry/dist/` - esbuild output (CommonJS).
+- `/scripts/` - dev / build / release scripts (`.mts`).
+- `/test/` - test files + fixtures.
+- `/packages/npm/` - NPM package overrides shipped by the registry.
 - Primary export: `getManifestData(ecosystem, packageName)` from `@socketsecurity/registry`.
 
 ## Commands
@@ -47,30 +47,30 @@ Minimum **Node 24.0.0**.
 
 🚨 **Never type or guess a SHA.** A workflow pin is a full 40-char commit SHA read from the repository after the change has landed: run `git rev-parse origin/main` once the merge is in, and paste what it prints. A SHA typed from memory or copied from a pre-merge branch points at a commit the workflow will never resolve, and the failure surfaces as a confusing "workflow not found" in every downstream repo at once.
 
-🚨 **Never edit a workflow YAML with `sed`, `awk`, or `perl -i`.** Use the Edit tool. A stream editor matches text, not YAML structure, so a pattern written for one `uses:` line silently rewrites every other line that happens to match — including the comment that records which version a SHA pins.
+🚨 **Never edit a workflow YAML with `sed`, `awk`, or `perl -i`.** Use the Edit tool. A stream editor matches text, not YAML structure, so a pattern written for one `uses:` line silently rewrites every other line that happens to match - including the comment that records which version a SHA pins.
 
 ## Testing
 
 Directory layout:
 
-- `test/npm/` — NPM-package override tests, one subdir per override.
-- `test/registry.test.mts` — registry-level tests.
-- `test/packages.test.mts` — package-level smoke tests.
+- `test/npm/` - NPM-package override tests, one subdir per override.
+- `test/registry.test.mts` - registry-level tests.
+- `test/packages.test.mts` - package-level smoke tests.
 
 Utilities in `test/util/`:
 
-- `setupNpmPackageTest()` — install + link harness for NPM override tests.
-- `itOnWindows` / `itOnUnix` — platform-gated test wrappers.
-- `normalizePath()` — cross-platform path normalization (use this, not regex with `[/\\]`).
-- `expect*` helpers — assertion utilities scoped to registry shape.
-- `createTypeCheckerTests()` — generates type-check tests for an NPM override.
+- `setupNpmPackageTest()` - install + link harness for NPM override tests.
+- `itOnWindows` / `itOnUnix` - platform-gated test wrappers.
+- `normalizePath()` - cross-platform path normalization (use this, not regex with `[/\\]`).
+- `expect*` helpers - assertion utilities scoped to registry shape.
+- `createTypeCheckerTests()` - generates type-check tests for an NPM override.
 
 Coverage policy:
 
 - **Mandatory; never decrease.** Any drop blocks the PR.
 - Every `c8 ignore` comment must carry a reason ending with a period.
 
-🚨 **Never use `--` before test paths** — vitest interprets it as a flag separator and runs ALL tests instead of the specified file.
+🚨 **Never use `--` before test paths** - vitest interprets it as a flag separator and runs ALL tests instead of the specified file.
 
 ## Vitest config
 
@@ -85,15 +85,15 @@ maxForks: 1
 isolate: true
 ```
 
-Timeouts: `testTimeout: 60_000`, `hookTimeout: 60_000`. NPM-package tests legitimately need the time — `setupNpmPackageTest()` does real installs.
+Timeouts: `testTimeout: 60_000`, `hookTimeout: 60_000`. NPM-package tests legitimately need the time - `setupNpmPackageTest()` does real installs.
 
 ## Dependency alignment
 
 Core stack:
 
-- `@typescript/native-preview` — tsgo. Faster than tsc, drop-in for type checking.
-- `@types/node` — Node 24+ types.
-- `typescript-eslint` — unified package only.
+- `@typescript/native-preview` - tsgo. Faster than tsc, drop-in for type checking.
+- `@types/node` - Node 24+ types.
+- `typescript-eslint` - unified package only.
 
 🚨 **Forbidden**: separate `@typescript-eslint/*` packages. The unified `typescript-eslint` ships both the parser and the rules at synchronized versions; mixing the split packages produces version-skew bugs that are painful to diagnose.
 
@@ -103,4 +103,4 @@ Update flow: `pnpm run taze` (third-party scope first, then Socket scopes). Soak
 
 ## Scratch documents
 
-`.claude/` is gitignored — working notes go there, never commit. Use it for in-progress investigation, plans, agent transcripts, anything that shouldn't outlive the session.
+`.claude/` is gitignored - working notes go there, never commit. Use it for in-progress investigation, plans, agent transcripts, anything that shouldn't outlive the session.
