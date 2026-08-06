@@ -188,11 +188,17 @@ export function fixLine(line: string): string {
   if (!columns.length) {
     return line
   }
-  const chars = [...line]
+  // The columns are UTF-16 code-unit indexes (toProse builds them with
+  // `line.length`/`slice`), so the swap must slice by code unit too. A
+  // code-point spread (`[...line]`) shifts every index after an astral char
+  // like 🚨 one slot right, writing the hyphen over the character AFTER the
+  // em-dash and leaving `—-` behind.
+  let fixed = line
   for (let i = 0, { length } = columns; i < length; i += 1) {
-    chars[columns[i]!] = '-'
+    const col = columns[i]!
+    fixed = `${fixed.slice(0, col)}-${fixed.slice(col + 1)}`
   }
-  return chars.join('')
+  return fixed
 }
 
 /**

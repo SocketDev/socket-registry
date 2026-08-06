@@ -88,11 +88,6 @@
       "description": "npm — pinned, SRI-verified registry tarball; installed without self-update",
       "repository": "npm:npm",
       "version": "12.0.2",
-      "soakBypass": {
-        "published": "2026-07-29",
-        "removable": "2026-08-05",
-        "version": "12.0.2"
-      },
       "integrity": "sha512-uIXokLlBj6FpNUTQX1PmT5pz7BlIN9QlixX+zdaSNHsd0qUXsbDLr50xzY6Sw7cJVr0uzHKDOle0swmPW/p5Qw=="
     },
     "smithers": {
