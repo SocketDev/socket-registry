@@ -17,10 +17,7 @@ import {
   resolveOidcPermissionAction,
 } from './access-context-schema.mts'
 import type { OidcConnection } from './access-context-schema.mts'
-import {
-  isCloudflareChallenge,
-  looksLikeHtmlBody,
-} from './staged-browser-parse.mts'
+import { isCloudflareChallenge } from './staged-browser-parse.mts'
 
 // Coarse outcome of a GET of `/package/<pkg>/access`. `challenge` exists for
 // the Cloudflare interstitial (a 200 HTML page that is NOT the access page);
@@ -96,7 +93,11 @@ export function classifyAccessPage(config: {
   ) {
     return 'unconfigured'
   }
-  return looksLikeHtmlBody(body) ? 'unconfigured' : 'error'
+  // An HTML body with NONE of the known access-page signatures is an unknown
+  // shape, and unknown must read as error, never as "unconfigured". A
+  // wrong-but-confident verdict is what makes npm markup drift dangerous:
+  // a caller would plan a create over a row it could not see.
+  return 'error'
 }
 
 /**
@@ -139,12 +140,26 @@ export function parseOidcConnection(
   if (open === -1) {
     return undefined
   }
-  // Walk to the matching bracket so a nested object never truncates the slice.
+  // Walk to the matching bracket so a nested object never truncates the
+  // slice. STRING-AWARE: a `]` inside a JSON string (a workflow filename, an
+  // environment name) is content, not structure — counting it would truncate
+  // the slice and make a live row read as unconfigured.
   let depth = 0
   let end = -1
+  let inString = false
   for (let i = open, { length } = body; i < length; i += 1) {
     const ch = body[i]
-    if (ch === '[') {
+    if (inString) {
+      if (ch === '\\') {
+        i += 1
+      } else if (ch === '"') {
+        inString = false
+      }
+      continue
+    }
+    if (ch === '"') {
+      inString = true
+    } else if (ch === '[') {
       depth += 1
     } else if (ch === ']') {
       depth -= 1

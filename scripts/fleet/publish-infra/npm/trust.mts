@@ -623,8 +623,18 @@ export async function runTrustWriteInteractive(
       void tickCooldownOptIn(approvalSession.page)
     }
     // eslint-disable-next-line no-await-in-loop -- serial: one operator, one approval.
-    if (await isApprovalComplete(challenge.doneUrl, npmPath, neutralCwd)) {
+    const poll = await pollApproval(challenge.doneUrl, npmPath, neutralCwd)
+    if (poll === 'complete') {
       approved = true
+      break
+    }
+    if (poll === 'expired') {
+      // npm dropped the approval session. Polling a dead authId for the rest
+      // of the budget is a silent multi-minute hang; say so and stop.
+      logger.warn(
+        'the npm approval session expired before it was approved — re-run ' +
+          'and approve the page as soon as it opens.',
+      )
       break
     }
     // eslint-disable-next-line no-await-in-loop -- paced poll, not a retry ladder.
@@ -683,24 +693,36 @@ export function buildExpectPtyScript(
 }
 
 /**
- * Whether a PTY-wrapped run died in `script(1)` ITSELF — the pseudo-terminal
- * was never allocated and the wrapped command never ran. BSD script prints
- * `tcgetattr/ioctl: Operation not supported ...` when its stdio is a socket or
- * pipe (agent sessions, captured runs) and exits nonzero with no other
- * output. Pure — exported for tests.
+ * Whether a PTY-wrapped run died in the WRAPPER — the pseudo-terminal was
+ * never allocated and the wrapped command never ran. Decided by EVIDENCE, not
+ * by matching the wrapper's error wording (BSD and util-linux script(1)
+ * phrase their failures differently, and both change): a nonzero exit where
+ * nothing in the output came from the wrapped command means the command never
+ * spoke, so the failure is the wrapper's. npm always identifies itself in its
+ * output (banner, `npm notice`, `npm error`), and script(1) prefixes its own
+ * complaints with `script:`, so stripping wrapper-origin lines and looking
+ * for the wrapped binary's name is wording-independent. Pure — exported for
+ * tests.
  */
-export function isPtyAllocationFailure(output: string, code: number): boolean {
+export function isPtyAllocationFailure(
+  output: string,
+  code: number,
+  wrappedBin = 'npm',
+): boolean {
   if (code === 0) {
     return false
   }
   const trimmed = output.trim()
-  if (!/(?:ioctl|openpty|tcgetattr|tcsetattr)/i.test(trimmed)) {
-    return false
+  if (trimmed === '') {
+    // A nonzero exit with NO output at all: the wrapped command never ran —
+    // it always says something, even failing.
+    return true
   }
-  // Everything script(1) printed is its own failure line(s); npm output —
-  // an EOTP refusal, a usage error — means the command DID run and the
-  // failure is npm's to report, not the wrapper's.
-  return !/npm/i.test(trimmed.replace(/^script:.*$/gm, ''))
+  // Drop the wrapper's own lines, then look for any evidence of the wrapped
+  // command. An EOTP refusal or a usage error means it DID run and the
+  // failure is its to report, not the wrapper's.
+  const withoutWrapperLines = trimmed.replace(/^script:.*$/gm, '')
+  return !new RegExp(`\\b${wrappedBin}\\b`, 'i').test(withoutWrapperLines)
 }
 
 export interface OtpChallenge {
@@ -825,33 +847,98 @@ export const OTP_POLL_MS = 3000
  * Whether npm's done endpoint reports the approval as complete. It answers 202
  * while the operator has not finished and 200 with the token once they have.
  */
-export async function isApprovalComplete(
+export type ApprovalPollResult = 'complete' | 'expired' | 'pending'
+
+// The npm config key the elevated session token lands under, and the record
+// of what was there before, so the run can put it back. A session token is a
+// credential: leaving it persisted in the operator's npm config after the run
+// would outlive the elevation it exists for.
+const AUTH_TOKEN_KEY = '//registry.npmjs.org/:_authToken'
+let persistedToken:
+  | { neutralCwd: string; npmPath: string; prior: string | undefined }
+  | undefined
+
+/**
+ * Restore the operator's npm config auth token to its pre-run value — the
+ * prior token when one existed, deletion when the run introduced the key.
+ * Safe to call when nothing was persisted. Runs in main's finally, so an
+ * elevated session token never outlives the run that earned it.
+ */
+export async function restorePersistedAuthToken(): Promise<void> {
+  const record = persistedToken
+  persistedToken = undefined
+  if (!record) {
+    return
+  }
+  const { neutralCwd, npmPath, prior } = record
+  const args = prior
+    ? ['config', 'set', `${AUTH_TOKEN_KEY}=${prior}`]
+    : ['config', 'delete', AUTH_TOKEN_KEY]
+  await runCaptureBoth(npmPath, args, neutralCwd).catch(() => undefined)
+  logger.info('restored the npm config auth token to its pre-run state.')
+}
+
+/**
+ * One poll of the login protocol's done endpoint. `complete` persists the
+ * elevated session token (recording what it replaced, for restore on exit);
+ * `expired` means the approval session itself is GONE — npm expires them in
+ * minutes, and polling a dead authId for the rest of the budget is the
+ * 5-minute silent hang this state exists to kill; anything else is `pending`.
+ */
+export async function pollApproval(
   doneUrl: string,
   npmPath?: string | undefined,
   neutralCwd?: string | undefined,
-): Promise<boolean> {
+): Promise<ApprovalPollResult> {
   try {
     const response = await httpRequest(doneUrl, {
       headers: { 'npm-auth-type': 'web', 'npm-command': 'login' },
     })
+    if (response.status === 404 || response.status === 410) {
+      return 'expired'
+    }
     if (response.status !== 200) {
-      return false
+      return 'pending'
     }
     // The login protocol answers 200 with the session's token. Persisting it is
     // what makes the CLI use the newly elevated session; npm's own EOTP flow
     // returns no token and needs nothing saved.
     const { token } = response.json<{ token?: string | undefined }>()
     if (neutralCwd && npmPath && token) {
+      if (!persistedToken) {
+        const before = await runCaptureBoth(
+          npmPath,
+          ['config', 'get', AUTH_TOKEN_KEY],
+          neutralCwd,
+        ).catch(() => undefined)
+        const prior = before?.output.trim()
+        persistedToken = {
+          neutralCwd,
+          npmPath,
+          prior: prior && prior !== 'undefined' ? prior : undefined,
+        }
+      }
       await runCaptureBoth(
         npmPath,
-        ['config', 'set', `//registry.npmjs.org/:_authToken=${token}`],
+        ['config', 'set', `${AUTH_TOKEN_KEY}=${token}`],
         neutralCwd,
       )
+      logger.info(
+        'persisted the elevated npm session token (restored on exit).',
+      )
     }
-    return true
+    return 'complete'
   } catch {
-    return false
+    return 'pending'
   }
+}
+
+export async function isApprovalComplete(
+  doneUrl: string,
+  npmPath?: string | undefined,
+  neutralCwd?: string | undefined,
+): Promise<boolean> {
+  return (await pollApproval(doneUrl, npmPath, neutralCwd)) === 'complete'
 }
 
 /**
@@ -1020,9 +1107,20 @@ export async function primeOtpSession(
       void tickCooldownOptIn(approvalSession.page)
     }
     // eslint-disable-next-line no-await-in-loop -- serial: one operator, one approval.
-    if (await isApprovalComplete(challenge.doneUrl, npmPath, neutralCwd)) {
+    const poll = await pollApproval(challenge.doneUrl, npmPath, neutralCwd)
+    if (poll === 'complete') {
       logger.success('approval received — continuing.')
       return true
+    }
+    if (poll === 'expired') {
+      logger.fail(
+        'the npm approval session expired before it was approved.\n' +
+          '  What:  npm expires an approval page within minutes of opening it.\n' +
+          `  Where: ${challenge.authUrl}\n` +
+          '  Saw:   the done endpoint reported the session gone.\n' +
+          '  Fix:   re-run and approve the page as soon as it opens.',
+      )
+      return false
     }
     // eslint-disable-next-line no-await-in-loop -- paced poll, not a retry ladder.
     await sleep(OTP_POLL_MS)
