@@ -2,6 +2,9 @@
   "$schema": "./socket-wheelhouse-schema.json",
   "schemaVersion": 1,
   "repoName": "socket-registry",
+  "ai": {
+    "localAssist": true
+  },
   "repo": {
     "type": "mono"
   },
