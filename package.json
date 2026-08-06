@@ -90,6 +90,7 @@
     "@mdn/browser-compat-data": "catalog:",
     "@npmcli/package-json": "catalog:",
     "@npmcli/promise-spawn": "catalog:",
+    "@playwright/mcp": "catalog:",
     "@redwoodjs/agent-ci": "catalog:",
     "@shadscan/cli": "catalog:",
     "@sinclair/typebox": "catalog:",

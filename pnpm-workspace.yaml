@@ -31,6 +31,7 @@ allowBuilds:
 pmOnFail: warn
 
 catalog:
+  '@playwright/mcp': 0.0.78
   '@shadscan/cli': 0.7.0
   '@ultrathink/acorn.rs.wasm': 0.1.1
   'brace-expansion': 5.0.9
@@ -140,8 +141,8 @@ catalog:
   # test/ code uses the canonical name because vitest aliases that
   # to local src/.
   '@socketregistry/packageurl-js-stable': 'npm:@socketregistry/packageurl-js@1.5.2'
-  '@socketsecurity/lib': 6.6.0
-  '@socketsecurity/lib-stable': 'npm:@socketsecurity/lib@6.6.0'
+  '@socketsecurity/lib': 6.7.0
+  '@socketsecurity/lib-stable': 'npm:@socketsecurity/lib@6.7.0'
   '@socketsecurity/registry': 2.0.5
   '@socketsecurity/registry-stable': 'npm:@socketsecurity/registry@2.0.5'
   '@socketsecurity/sdk': 4.1.4
@@ -454,7 +455,7 @@ overrides:
   'mime-types@>=3': '3.0.2'
   'minimatch@>=3': '10.2.6'
   'minipass@>=4': '7.1.3'
-  'postcss@>=8': '8.5.24'
+  'postcss@>=8': '8.5.25'
   'safe-buffer': 'npm:@socketregistry/safe-buffer@1.0.9'
   'safer-buffer': 'npm:@socketregistry/safer-buffer@1.0.10'
   'semver@>=5.0.0 <7.6.0': '7.8.5'
@@ -478,12 +479,6 @@ overrides:
   'vite': 'catalog:'
   'which@>=4': '7.0.0'
 
-# Native post-install build scripts. These three arrive transitively via
-# @redwoodjs/agent-ci's `ssh2` (optional crypto acceleration). agent-ci's
-# published CLI (`dist/cli.js`) runs without them — verified `agent-ci --help`
-# works with the builds skipped — so we decline to run their post-install
-# scripts. Declining is the safe default; running native build scripts from a
-# transitive dep is unnecessary attack surface here.
 trustPolicy: no-downgrade
 trustPolicyExclude: []
 
