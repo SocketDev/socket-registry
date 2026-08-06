@@ -60,13 +60,35 @@ export function buildWorkflowDispatchArgs(config: DispatchConfig): string[] {
 }
 
 /**
- * The `gh` argv that watches the run this dispatch started. `gh run watch`
- * without a run id attaches to the most recent run, which is the one just
- * created; `--exit-status` makes a failed run a non-zero exit here so the
- * operator's shell reports the publish result rather than the dispatch result.
+ * The `gh` argv that resolves the id of the newest run of the publish
+ * workflow — the one the dispatch just created, once the API registers it.
+ * Pure, so a test pins the argv.
  */
-export function buildWorkflowWatchArgs(): string[] {
-  return ['run', 'watch', '--exit-status', '--compact']
+export function buildRunResolveArgs(): string[] {
+  return [
+    'run',
+    'list',
+    '--workflow',
+    PUBLISH_WORKFLOW_FILE,
+    '--limit',
+    '1',
+    '--json',
+    'databaseId',
+    '--jq',
+    '.[0].databaseId',
+  ]
+}
+
+/**
+ * The `gh` argv that watches `runId`. The id is REQUIRED: `gh run watch`
+ * without one prompts an interactive picker, and this script usually runs in
+ * a non-interactive session, where gh exits 1 with `run ID required` — the
+ * watch dies while the dispatched run is still going. `--exit-status` makes a
+ * failed run a non-zero exit here so the operator's shell reports the publish
+ * result rather than the dispatch result.
+ */
+export function buildWorkflowWatchArgs(runId: string): string[] {
+  return ['run', 'watch', runId, '--exit-status', '--compact']
 }
 
 /**
@@ -88,10 +110,31 @@ export async function dispatchPublishWorkflow(
         `  Fix: run \`gh auth status\`, confirm ${PUBLISH_WORKFLOW_FILE} exists on the target branch, then re-run.`,
     )
   }
-  // The API takes a beat to register the run; watching immediately can attach
-  // to the PREVIOUS run of the same workflow and report its result.
+  // The API takes a beat to register the run; resolving immediately can find
+  // the PREVIOUS run of the same workflow and watch its result.
   await new Promise(resolve => setTimeout(resolve, 5000))
-  const watchArgs = buildWorkflowWatchArgs()
+  const resolveArgs = buildRunResolveArgs()
+  let runId = ''
+  try {
+    const resolved = await spawn('gh', resolveArgs, {
+      cwd: ROOT_PATH,
+      stdioString: true,
+    })
+    runId = String(resolved.stdout ?? '').trim()
+  } catch {
+    // The failure detail lives in the error below, where runId stays empty.
+  }
+  if (!/^\d+$/.test(runId)) {
+    throw new Error(
+      'The dispatched run could not be resolved to watch it.\n' +
+        `  Where: \`gh ${resolveArgs.join(' ')}\`, run from ${ROOT_PATH}.\n` +
+        `  Saw vs wanted: ${runId ? `"${runId}"` : 'no output'}; wanted a numeric run id.\n` +
+        `  Fix: the dispatch itself succeeded — watch it by hand with ` +
+        `\`gh run list --workflow ${PUBLISH_WORKFLOW_FILE}\` and ` +
+        '`gh run watch <id> --exit-status`.',
+    )
+  }
+  const watchArgs = buildWorkflowWatchArgs(runId)
   logger.log(`Watching the run: gh ${watchArgs.join(' ')}`)
   return await runInherit('gh', watchArgs, ROOT_PATH)
 }

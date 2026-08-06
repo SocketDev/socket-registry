@@ -9,6 +9,7 @@
 import { describe, expect, test } from 'vitest'
 
 import {
+  buildRunResolveArgs,
   buildWorkflowDispatchArgs,
   buildWorkflowWatchArgs,
   PUBLISH_WORKFLOW_FILE,
@@ -65,11 +66,29 @@ describe('buildWorkflowDispatchArgs', () => {
   })
 })
 
+describe('buildRunResolveArgs', () => {
+  test('resolves the newest run of the publish workflow to a bare id', () => {
+    expect(buildRunResolveArgs()).toEqual([
+      'run',
+      'list',
+      '--workflow',
+      PUBLISH_WORKFLOW_FILE,
+      '--limit',
+      '1',
+      '--json',
+      'databaseId',
+      '--jq',
+      '.[0].databaseId',
+    ])
+  })
+})
+
 describe('buildWorkflowWatchArgs', () => {
-  test('the watch surfaces the run result as its own exit status', () => {
-    expect(buildWorkflowWatchArgs()).toEqual([
+  test('the watch names its run id — headless gh has no interactive picker', () => {
+    expect(buildWorkflowWatchArgs('31128378123')).toEqual([
       'run',
       'watch',
+      '31128378123',
       '--exit-status',
       '--compact',
     ])
