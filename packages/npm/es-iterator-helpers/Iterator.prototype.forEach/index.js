@@ -14,7 +14,9 @@ function desc(value) {
 module.exports = Object.defineProperties(
   function forEach(thisArg, callbackFn) {
     if (new.target) {
-      // oxlint-disable-next-line no-new -- Upstream constructor-guard side effect (throws); the constructed value is intentionally discarded.
+      // Upstream constructor-guard side effect (throws); the constructed
+      // value is intentionally discarded.
+      // oxlint-disable-next-line no-new -- guard throws
       new impl()
     } else {
       Reflect.apply(impl, thisArg, [callbackFn])

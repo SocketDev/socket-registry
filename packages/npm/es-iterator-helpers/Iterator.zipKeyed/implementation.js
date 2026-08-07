@@ -12,7 +12,9 @@ const {
 } = require('../shared')
 
 // Based on https://tc39.es/proposal-joint-iteration/#sec-iterator.zipkeyed.
-// oxlint-disable-next-line socket/options-null-proto -- TC39 spec reimplementation: options is normalized by getOptionsObject() and `keys`/`padding` are read off the original object by spec.
+// TC39 spec reimplementation: options is normalized by getOptionsObject()
+// and `keys`/`padding` are read off the original object by spec.
+// oxlint-disable-next-line socket/options-null-proto -- spec object
 module.exports = function zipKeyed(iterables, options) {
   // Built-in functions that are not identified as constructors do
   // not implement [[Construct]] unless otherwise specified.

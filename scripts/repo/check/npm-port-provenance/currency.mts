@@ -55,7 +55,9 @@ export async function findNpmPortCurrencyProblems(
     }
     let tags: string[]
     try {
-      // oxlint-disable-next-line no-await-in-loop -- one network read per upstream, sequential so a rate-limited remote fails on the first repo instead of three at once.
+      // One network read per upstream, sequential so a rate-limited remote
+      // fails on the first repo instead of three at once.
+      // oxlint-disable-next-line no-await-in-loop -- sequential reads
       tags = await listTags(upstream.repo)
     } catch (e) {
       problems.push({
