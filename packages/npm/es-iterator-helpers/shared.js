@@ -401,7 +401,9 @@ function iteratorZip(iters, mode, padding, finishResults = v => v) {
           // Step 3.b.iii.3.d: If result is done, then.
           if (next.done) {
             // Step 3.b.iii.3.d.i: Remove iter from openIters.
-            // oxlint-disable-next-line socket/prefer-undefined-over-null -- null is the spec sentinel for a removed iterator; the `iter === null` / `openIters[i] !== null` checks above depend on it.
+            // null is the spec sentinel for a removed iterator; the `iter === null` /
+            // `openIters[i] !== null` checks above depend on it.
+            // oxlint-disable-next-line socket/prefer-undefined-over-null -- null is the spec sentinel
             openIters[i] = null
             if (mode === 'shortest') {
               // Step 3.b.iii.3.d.ii: Return { value: undefined, done: true } in "shortest" mode.
@@ -415,7 +417,8 @@ function iteratorZip(iters, mode, padding, finishResults = v => v) {
           }
         } catch (e) {
           // Step 3.b.iii.3.b.i: Remove iter from openIters on abrupt completion.
-          // oxlint-disable-next-line socket/prefer-undefined-over-null -- null is the spec sentinel for a removed iterator (see the `=== null` checks above).
+          // null is the spec sentinel for a removed iterator (see the `=== null` checks above).
+          // oxlint-disable-next-line socket/prefer-undefined-over-null -- null is the spec sentinel
           openIters[i] = null
           return iteratorCloseAll(openIters, e)
         }
