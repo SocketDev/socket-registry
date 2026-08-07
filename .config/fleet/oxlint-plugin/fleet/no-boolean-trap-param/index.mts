@@ -19,8 +19,9 @@
 import { makeBypassChecker } from '../../lib/comment-markers.mts'
 import type { AstNode, RuleContext } from '../../lib/rule-types.mts'
 
-// socket-lint: allow boolean-trap -- opt-out for a signature where a positional
+// Opt-out for a signature where a positional.
 // boolean is genuinely the clearest shape (rare).
+// oxlint-disable-next-line socket/no-boolean-trap-param -- opt-out
 const BYPASS_RE = /socket-lint:\s*allow\s+boolean-trap/
 
 // Is a param's type annotation `boolean`, or a union that includes `boolean`

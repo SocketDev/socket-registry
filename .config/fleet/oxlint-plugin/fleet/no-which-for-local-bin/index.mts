@@ -46,7 +46,8 @@ import type { AstNode, RuleContext } from '../../lib/rule-types.mts'
 const SHELL_LOOKUP_RE =
   /^(?:command\s+-[vV]|type\s+-P|where|which)\s+[\w./@+-]+$/
 
-// socket-lint: allow which-lookup -- this marker string is the rule's own bypass token, not a real usage.
+// This marker string is the rule's own bypass token, not a real usage.
+// oxlint-disable-next-line socket/no-which-for-local-bin -- this marker string
 const BYPASS_RE = /socket-lint:\s*allow\s+which-lookup/
 
 /**

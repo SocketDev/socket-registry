@@ -19,8 +19,9 @@
 import { makeBypassChecker } from '../../lib/comment-markers.mts'
 import type { AstNode, RuleContext, RuleFixer } from '../../lib/rule-types.mts'
 
-// socket-lint: allow redundant-spread-fallback -- opt-out marker, matched on
+// Opt-out marker, matched on.
 // the line above a spread kept verbose deliberately.
+// oxlint-disable-next-line socket/no-redundant-spread-fallback -- opt-out
 const BYPASS_RE = /socket-lint:\s*allow\s+redundant-spread-fallback/
 
 /**

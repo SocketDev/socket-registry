@@ -285,7 +285,7 @@ const rule = {
       eagerChildProcess:
         '`child_process.{{member}}` at module eval spawns/forks on import — a side effect every consumer pays. Move the spawn inside the function that needs it.',
       snapshotTopLevelAwait:
-        'Top-level `await` in a snapshot-eligible module (it freezes into the V8 dispatch bundle). The snapshot build pass is synchronous, so a module-scope `await` aborts `--build-snapshot`. Move it inside `run()` (the dispatcher awaits the hook), or opt out with `// socket-lint: allow top-level-await -- <reason>` if this file is genuinely never bundled.',
+        'Top-level `await` in a snapshot-eligible module (it freezes into the V8 dispatch bundle). The snapshot build pass is synchronous, so a module-scope `await` aborts `--build-snapshot`. Move it inside `run()` (the dispatcher awaits the hook), or opt out with `// oxlint-disable-line socket/no-top-level-await -- <reason>` if this file is genuinely never bundled.',
       eagerGlobalCapture:
         "Bare `{{name}}` reference at module eval — this global is NOT defined everywhere ({{name}} is absent in the V8 snapshot builder and, for SharedArrayBuffer, in non-cross-origin-isolated browsers), so this line is a module-eval ReferenceError there. Capture it guarded: `typeof {{name}} === 'undefined' ? undefined : {{name}}`, or reference it lazily inside the function that needs it.",
       snapshotDynamicImport:

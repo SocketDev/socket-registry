@@ -343,8 +343,8 @@ export function isSquashOptIn(repoRoot: string): boolean {
 }
 
 /**
- * True when the checkout at `repoRoot` is a thin-distribution consumer — it
- * untracks the wholly-fleet payload and fetches it from the release bundle.
+ * True when the checkout at `repoRoot` is a fleet-pack-distribution consumer —
+ * it untracks the wholly-fleet payload and fetches it from the release bundle.
  *
  * Thin is not an opt-in: EVERY roster member is a thin consumer. Two shapes
  * fall outside it, by identity rather than configuration:
@@ -354,7 +354,7 @@ export function isSquashOptIn(repoRoot: string): boolean {
  * - The wheelhouse itself — it PRODUCES the bundle, so fetching its own payload
  *   would be circular; the producer is never a consumer.
  */
-export function isThinMember(repoRoot: string): boolean {
+export function isFleetPackConsumer(repoRoot: string): boolean {
   const roster = loadRosterFromRepo(repoRoot)
   if (!roster) {
     return false

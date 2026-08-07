@@ -15,9 +15,10 @@
 import { makeBypassChecker } from '../../lib/comment-markers.mts'
 import type { AstNode, RuleContext } from '../../lib/rule-types.mts'
 
-// socket-lint: allow top-level-await -- opt-out for ESM-only entry points
+// Opt-out for ESM-only entry points.
 // that never get bundled to CJS (e.g. a pure-ESM CLI script that runs via
 // node --experimental-vm-modules and ships nothing to the CJS bundle).
+// oxlint-disable-next-line socket/no-top-level-await -- opt-out
 const BYPASS_RE = /socket-lint:\s*allow\s+top-level-await/
 
 const FUNCTION_TYPES = new Set<string>([

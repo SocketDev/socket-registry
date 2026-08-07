@@ -32,14 +32,14 @@ const PATTERNS = [
   // before `pnpm` and `pnx ` is matched before `pnpm`. Each entry
   // is [match-prefix, replacement-prefix, label].
   ['pnpm dlx ', 'node_modules/.bin/', 'pnpm dlx'],
-  // socket-lint: allow npx
+  // oxlint-disable-next-line socket/no-npx-dlx -- the token under test
   ['yarn dlx ', 'node_modules/.bin/', 'yarn dlx'],
-  // socket-lint: allow npx
+  // oxlint-disable-next-line socket/no-npx-dlx -- the token under test
   ['npx ', 'node_modules/.bin/', 'npx'],
   ['pnx ', 'node_modules/.bin/', 'pnx'],
 ]
 
-// socket-lint: allow npx
+// oxlint-disable-next-line socket/no-npx-dlx -- the token under test
 const COMMENT_BYPASS_RE = /socket-lint:\s*allow\s+npx/
 
 /**

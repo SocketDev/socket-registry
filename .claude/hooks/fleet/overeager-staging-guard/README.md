@@ -33,7 +33,7 @@ The detection heuristic walks the transcript's tool-use history; files staged bu
 ## Bypass
 
 - `Allow add-all bypass` (verbatim, recent user turn) - permits `-A` / `.` / `-u` for one operation (Layer 1).
-- `Allow index-sweep bypass` (verbatim, recent user turn) - lets a bare commit take the whole index (Layer 2), for when you genuinely mean to commit everything staged.
+- `Allow git commit-all bypass` (verbatim, recent user turn) - lets a bare commit take the whole git index / staging area (Layer 2), for when you genuinely mean to commit everything staged.
 - `FLEET_SYNC=1` prefix - wheelhouse cascade commits legitimately sweep the whole index in a fresh worktree; the sentinel opts both layers out.
 
 Bypass phrases are single-use and not persisted across sessions.

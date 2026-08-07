@@ -13,8 +13,9 @@
 import { makeBypassChecker } from '../../lib/comment-markers.mts'
 import type { AstNode, RuleContext } from '../../lib/rule-types.mts'
 
-// socket-lint: allow schema-lib -- opt-out for a genuine need (e.g. a fixture
+// Opt-out for a genuine need (e.g. a fixture.
 // reproducing a zod/valibot/ajv-specific behavior).
+// oxlint-disable-next-line socket/prefer-typebox-schema -- opt-out
 const BYPASS_RE = /socket-lint:\s*allow\s+schema-lib/
 
 // Banned schema-lib package roots. Matches the exact package or any subpath

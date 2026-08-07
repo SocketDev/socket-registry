@@ -26,7 +26,7 @@ The rules, each load-bearing:
 
 ## Quoting an authorization phrase is safe
 
-A guard's refusal text says *do not request, relay, or emit this phrase*. That bars permission **laundering** - an agent producing the phrase, or soliciting it from another agent, session, or file, and then treating it as granted. It does **not** bar telling the operator what to type.
+A guard's refusal text says _do not request, relay, or emit this phrase_. That bars permission **laundering** - an agent producing the phrase, or soliciting it from another agent, session, or file, and then treating it as granted. It does **not** bar telling the operator what to type.
 
 The mechanism settles it: these scanners match on transcript **role provenance**, so only a genuine user turn counts. A phrase written in an assistant turn authorizes nothing, however it is quoted. Printing it in lane A carries no risk, and withholding it buys no safety - it costs the operator a round trip and nothing else.
 
@@ -34,33 +34,33 @@ So print the phrase and let the operator decide whether to type it. The decision
 
 ## Rendering lane A: two surfaces, two spellings
 
-`fillablePhrase` wraps the phrase in an OSC 8 escape, which reaches a terminal only from **script stdout**. An agent's chat reply renders as markdown, so that escape never arrives and inline `` `backticks` `` give the operator no copy affordance at all - they retype the phrase by hand, which is the friction the fill handler exists to remove.
+`copyableText` wraps the phrase in an OSC 8 escape, which reaches a terminal only from **script stdout**. An agent's chat reply renders as markdown, so that escape never arrives and inline `` `backticks` `` give the operator no copy affordance at all - they retype the phrase by hand, which is the friction the fill handler exists to remove.
 
-| Surface | Lane A spelling |
-| --- | --- |
-| script stdout | `fillablePhrase(phrase)` - OSC 8, clickable where the terminal supports it |
-| agent chat reply | a markdown link whose href is `gateFillUrl(phrase)` and whose TEXT is the bare phrase |
+| Surface          | Lane A spelling                                                                 |
+| ---------------- | ------------------------------------------------------------------------------- |
+| script stdout    | `copyableText(phrase)` - OSC 8, clickable where the terminal supports it        |
+| agent chat reply | a markdown link whose href is `copyUrl(text)` and whose TEXT is the bare phrase |
 
-**RUN `gateFillUrl` and paste its output. Never hand-encode the href.** A hand-written percent-encoding drifts from the visible link text silently, and the operator cannot see it: the first chat gate written this way shipped `%2FDepscan` under link text reading `depscan`, so a click would have copied a phrase no guard matches. The link text and the href encode the same string or the gate is worse than no link at all.
+**RUN `copyUrl` and paste its output. Never hand-encode the href.** A hand-written percent-encoding drifts from the visible link text silently, and the operator cannot see it: the first chat gate written this way shipped `%2FDepscan` under link text reading `depscan`, so a click would have copied a phrase no guard matches. The link text and the href encode the same string or the gate is worse than no link at all.
 
 **No fenced fallback underneath.** The link TEXT is the phrase, so it is already selectable and typeable when the handler is absent - a fence repeating it is redundant weight in every gate. Making the link text the phrase verbatim is what removes the need for a second copy.
 
 **Say nothing about clicking.** No "click to copy", no "then press Enter", no note about what to do if the click does nothing. The phrase-as-link-text degrades on its own: with a handler installed a click copies it, and without one the operator reads and types the same characters. Both operators see an identical gate, so instructions written for the clickable case only advertise an absence to everyone else. A gate that explains its own machinery is describing the tool instead of the decision.
 
-Install the handler once per machine with `scripts/repo/setup/gate-fill-handler.mts`, which registers `x-wh-gate://fill`. It is macOS-only today; elsewhere the same gate reads as plain text and nothing announces the difference.
+Install the handler once per machine with `scripts/repo/setup/pbcopy-handler.mts`, which registers `x-socketsecurity--fleet://fill`. It is macOS-only today; elsewhere the same gate reads as plain text and nothing announces the difference.
 
-Clicking FILLS and never submits, which is a security property rather than a shortcoming. A `url` handler is invokable by any local process, so `open x-wh-gate://…` from an agent is indistinguishable from a human click; a handler that submitted would let an agent mint a user-role turn carrying an authorization phrase and defeat every provenance guard at once. The operator's Enter stays the anchor. The same reasoning bars routing a phrase through `AskUserQuestion`: a selection becomes user input, so pre-filling the phrase as an option is the laundering this rule forbids.
+Clicking FILLS and never submits, which is a security property rather than a shortcoming. A `url` handler is invokable by any local process, so `open x-socketsecurity--fleet://…` from an agent is indistinguishable from a human click; a handler that submitted would let an agent mint a user-role turn carrying an authorization phrase and defeat every provenance guard at once. The operator's Enter stays the anchor. The same reasoning bars routing a phrase through `AskUserQuestion`: a selection becomes user input, so pre-filling the phrase as an option is the laundering this rule forbids.
 
 ## npm vs pnpm: know the limitations, encode the choice
 
 Gate lanes never name raw `npm`/`pnpm` commands - they name the fleet routers, which already encode when each tool works. The decision table the routers implement:
 
-| Operation | Tool | Why |
-| --- | --- | --- |
-| `login` / `adduser` | pnpm (web OAuth) when available, else npm behind a PTY | raw `npm login` without a TTY falls back to the legacy `Username:` prompt and EOFs; pnpm's login opens the browser directly |
-| `stage list` / stage ops | pnpm | the staging endpoints are pnpm-native; an UNAUTHENTICATED stage list parses as EMPTY, not as an error - always identity-check first |
-| approve / promote | npm behind a PTY | the promotion flow is npm's; the PTY carries its browser 2FA from agent shells |
-| `whoami` / identity reads | npm, from `npmScratchCwd()` | bare `npm` fails in-repo (devEngines pins pnpm), and a home-dir cwd makes lib spawn drop every home-rooted PATH entry |
+| Operation                 | Tool                                                   | Why                                                                                                                                 |
+| ------------------------- | ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `login` / `adduser`       | pnpm (web OAuth) when available, else npm behind a PTY | raw `npm login` without a TTY falls back to the legacy `Username:` prompt and EOFs; pnpm's login opens the browser directly         |
+| `stage list` / stage ops  | pnpm                                                   | the staging endpoints are pnpm-native; an UNAUTHENTICATED stage list parses as EMPTY, not as an error - always identity-check first |
+| approve / promote         | npm behind a PTY                                       | the promotion flow is npm's; the PTY carries its browser 2FA from agent shells                                                      |
+| `whoami` / identity reads | npm, from `npmScratchCwd()`                            | bare `npm` fails in-repo (devEngines pins pnpm), and a home-dir cwd makes lib spawn drop every home-rooted PATH entry               |
 
 Two traps the `Mind:` lines keep visible: **split identities**: pnpm's config token and npm's `.npmrc` token can be different accounts, and a non-maintainer login reads a real stage as "0 staged entries"; and **no-TTY contexts**: the `!` in-session input and agent shells have no TTY, so only PTY-wrapped or web-flow commands belong in gate lanes.
 
@@ -69,7 +69,7 @@ Two traps the `Mind:` lines keep visible: **split identities**: pnpm's config to
 - The release pipeline's verify runner emits the `npm auth` gate when the staged-entry listing is unauthenticated (`release-pipeline/release-runners/verify.mts`).
 - `scripts/fleet/npm-web-auth.mts` is the auth router both auth-gate lanes name; `resolveAuthTool` inside it owns the npm-vs-pnpm choice.
 - A gate that surfaces outside a script (push-grant phrases, browser-profile state) is written conversationally in this same format, and the operator's global CLAUDE.md carries that block verbatim for non-fleet repos. Such a gate spells lane A per the two-surface table above, since OSC 8 cannot cross a chat reply.
-- `scripts/repo/setup/gate-fill-handler.mts` installs the click-to-fill handler; `scripts/repo/check/gate-fill-handler-is-fill-only.mts` gates the property that it can only ever fill.
+- `scripts/repo/setup/pbcopy-handler.mts` installs the click-to-copy handler; `scripts/repo/check/pbcopy-handler-is-copy-only.mts` gates the property that it can only ever fill.
 
 ## Relationship to bypass phrases
 

@@ -19,6 +19,14 @@
  *     // oxlint-disable-next-line socket/a, socket/b -- one short reason
  *     doTheThing()
  *
+ *   Scoped to LINTER directives on purpose. A fleet `socket-lint: allow <rule>`
+ *   marker looks like the same thing and is not: `makeBypassChecker` walks the
+ *   whole contiguous leading-comment block, so that marker legitimately sits
+ *   anywhere above the code and stacking it is correct. Only the check-scripts
+ *   that read their marker per line (private-path, personal-path) need it on
+ *   the line carrying what it excuses, and those cannot be told apart from the
+ *   block-scoped ones by syntax.
+ *
  *   An explanation belongs ABOVE the directive, the shape
  *   `terse-lint-disable-reason` already asks for, so the directive stays
  *   adjacent to the code.

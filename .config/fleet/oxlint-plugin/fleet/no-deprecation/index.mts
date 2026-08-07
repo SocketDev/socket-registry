@@ -29,8 +29,9 @@ import type { RuleContext } from '../../lib/rule-types.mts'
 const DEPRECATION_ANNOTATION_RE =
   /^\s*(?:\*|\/\*\*?|\/\/)\s*@(?:deprecated|obsolete)\b/
 
-// socket-lint: allow deprecated-marker -- opt-out for a comment quoting an
+// Opt-out for a comment quoting an.
 // upstream API's own deprecation tag verbatim.
+// oxlint-disable-next-line socket/no-deprecation -- opt-out for a comment
 const BYPASS_RE = /socket-lint:\s*allow\s+deprecated-marker/
 
 const rule = {

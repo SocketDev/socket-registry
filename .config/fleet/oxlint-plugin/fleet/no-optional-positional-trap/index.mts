@@ -28,8 +28,9 @@
 import { makeBypassChecker } from '../../lib/comment-markers.mts'
 import type { AstNode, RuleContext } from '../../lib/rule-types.mts'
 
-// socket-lint: allow optional-positional-trap -- opt-out for a signature whose
+// Opt-out for a signature whose.
 // optional tail is fixed by an external contract we do not own.
+// oxlint-disable-next-line socket/no-optional-positional-trap -- opt-out
 const BYPASS_RE = /socket-lint:\s*allow\s+optional-positional-trap/
 
 const DEFAULT_THRESHOLD = 3

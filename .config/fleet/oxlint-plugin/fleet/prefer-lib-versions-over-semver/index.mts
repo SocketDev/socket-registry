@@ -26,8 +26,9 @@
 import { makeBypassChecker } from '../../lib/comment-markers.mts'
 import type { AstNode, RuleContext } from '../../lib/rule-types.mts'
 
-// socket-lint: allow bare-semver -- opt-out for a wrapper/forwarder that
+// Opt-out for a wrapper/forwarder that.
 // genuinely needs the upstream package (e.g. socket-lib's own versions/* impl).
+// oxlint-disable-next-line socket/prefer-lib-versions-over-semver -- opt-out
 const BYPASS_RE = /socket-lint:\s*allow\s+bare-semver/
 
 const rule = {

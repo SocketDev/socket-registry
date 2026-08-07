@@ -1264,6 +1264,16 @@ importers:
         specifier: 'catalog:'
         version: 26.1.2
 
+  .claude/hooks/fleet/corrupt-rebase-guard:
+    dependencies:
+      '@socketsecurity/lib-stable':
+        specifier: 'catalog:'
+        version: '@socketsecurity/lib@6.7.0(typescript@7.0.2)'
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 26.1.2
+
   .claude/hooks/fleet/cross-repo-guard:
     dependencies:
       '@socketsecurity/lib-stable':
