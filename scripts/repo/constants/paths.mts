@@ -155,7 +155,6 @@ export const PERF_NPM_FIXTURES_PATH = normalizePath(
 )
 
 // Cache paths.
-// oxlint-disable-next-line socket/prefer-node-modules-dot-cache -- ROOT_CACHE_PATH is the repo-root .cache directory and predates the fleet rule; migrating downstream callers is out of scope here.
 export const ROOT_CACHE_PATH = normalizePath(path.join(ROOT_PATH, '.cache'))
 export const ROOT_GITHUB_CACHE_PATH = normalizePath(
   path.join(ROOT_CACHE_PATH, 'github'),

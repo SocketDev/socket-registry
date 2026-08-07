@@ -21,7 +21,7 @@ import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 import { getDefaultSpinner } from '@socketsecurity/lib-stable/spinner/default'
 import type { SpinnerInstance } from '@socketsecurity/lib-stable/spinner/types'
 import { withSpinner } from '@socketsecurity/lib-stable/spinner/with'
-// oxlint-disable-next-line socket/prefer-stable-external-semver -- @socketsecurity/lib-stable has no ./external/semver export at the pinned version; semver is a devDependency (scripts/tests only, not bundled).
+// oxlint-disable-next-line socket/prefer-lib-versions-over-semver -- @socketsecurity/lib-stable has no ./external/semver export at the pinned version; semver is a devDependency (scripts/tests only, not bundled).
 import semver from 'semver'
 import { LATEST } from '../constants/packages.mts'
 import {

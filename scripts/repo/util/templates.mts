@@ -18,7 +18,7 @@ import { determineArticle } from '@socketsecurity/lib-stable/words/article'
 import { capitalize } from '@socketsecurity/lib-stable/words/capitalize'
 import { Eta } from 'eta'
 import fastGlob from 'fast-glob'
-// oxlint-disable-next-line socket/prefer-stable-external-semver -- @socketsecurity/lib-stable has no ./external/semver export at the pinned version; semver is a devDependency (scripts/tests only, not bundled).
+// oxlint-disable-next-line socket/prefer-lib-versions-over-semver -- @socketsecurity/lib-stable has no ./external/semver export at the pinned version; semver is a devDependency (scripts/tests only, not bundled).
 import semver from 'semver'
 
 import { UTF8 } from '@socketsecurity/lib-stable/constants/encoding'

@@ -24,7 +24,7 @@ import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 import { naturalCompare } from '@socketsecurity/lib-stable/sorts/natural'
 // @socketsecurity/lib-stable has no ./external/semver export at the pinned
 // version; semver is a devDependency (scripts/tests only, not bundled).
-// oxlint-disable-next-line socket/prefer-stable-external-semver -- dev dep
+// oxlint-disable-next-line socket/prefer-lib-versions-over-semver -- dev dep
 import semver from 'semver'
 
 import { isMainModule } from '../../fleet/_shared/is-main-module.mts'

@@ -12,7 +12,7 @@
  *   `Tag must be a non-empty string`, so the resolver here never returns one.
  */
 
-// oxlint-disable-next-line socket/prefer-stable-external-semver -- @socketsecurity/lib-stable has no ./external/semver export at the pinned version; semver is a devDependency (scripts/tests only, not bundled).
+// oxlint-disable-next-line socket/prefer-lib-versions-over-semver -- @socketsecurity/lib-stable has no ./external/semver export at the pinned version; semver is a devDependency (scripts/tests only, not bundled).
 import semver from 'semver'
 
 import { LATEST } from '../constants/packages.mts'

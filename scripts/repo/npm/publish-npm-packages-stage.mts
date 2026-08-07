@@ -16,7 +16,7 @@ import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { fetchPackageManifest } from '@socketsecurity/lib-stable/packages/manifest'
 import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 import { pluralize } from '@socketsecurity/lib-stable/words/pluralize'
-// oxlint-disable-next-line socket/prefer-stable-external-semver -- @socketsecurity/lib-stable has no ./external/semver export at the pinned version; semver is a devDependency (scripts/tests only, not bundled).
+// oxlint-disable-next-line socket/prefer-lib-versions-over-semver -- @socketsecurity/lib-stable has no ./external/semver export at the pinned version; semver is a devDependency (scripts/tests only, not bundled).
 import semver from 'semver'
 
 import { REGISTRY_PKG_PATH } from '../constants/paths.mts'
