@@ -66,10 +66,44 @@ export function isLiteralReplacement(node: AstNode | undefined): boolean {
     return typeof node['value'] === 'string'
   }
   if (node.type === 'TemplateLiteral') {
-    const expressions = node['expressions']
-    return Array.isArray(expressions) && expressions.length === 0
+    return hasNoInterpolation(node)
+  }
+  // `String.raw`\$&`` is the regex-escape idiom spelled without doubling the
+  // backslashes. Nothing is interpolated, so it reads at the call site exactly
+  // like the plain literal it replaces.
+  if (node.type === 'TaggedTemplateExpression') {
+    const tag = node['tag'] as AstNode | undefined
+    const quasi = node['quasi'] as AstNode | undefined
+    return isStringRawTag(tag) && hasNoInterpolation(quasi)
   }
   return false
+}
+
+/**
+ * True when a template has no `${…}` slots, so its text is fixed at authoring
+ * time. Exported so the tag and interpolation halves can be tested apart.
+ */
+export function hasNoInterpolation(node: AstNode | undefined): boolean {
+  const expressions = node?.['expressions']
+  return Array.isArray(expressions) && expressions.length === 0
+}
+
+/**
+ * True when a tag is exactly `String.raw`, the only tag whose result is the
+ * literal source text. Exported for tests.
+ */
+export function isStringRawTag(node: AstNode | undefined): boolean {
+  if (!node || node.type !== 'MemberExpression') {
+    return false
+  }
+  const object = node['object'] as AstNode | undefined
+  const property = node['property'] as AstNode | undefined
+  return (
+    object?.type === 'Identifier' &&
+    object['name'] === 'String' &&
+    property?.type === 'Identifier' &&
+    property['name'] === 'raw'
+  )
 }
 
 /**

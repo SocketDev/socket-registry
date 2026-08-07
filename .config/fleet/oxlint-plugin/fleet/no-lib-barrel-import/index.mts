@@ -113,7 +113,7 @@ const rule = {
               fix(fixer: RuleFixer) {
                 return fixer.replaceText(
                   source,
-                  `'${specifier.replace(new RegExp(`/${area}$`), `/${leaf}`)}'`,
+                  `'${specifier.replace(new RegExp(`/${area}$`), () => `/${leaf}`)}'`,
                 )
               },
             }

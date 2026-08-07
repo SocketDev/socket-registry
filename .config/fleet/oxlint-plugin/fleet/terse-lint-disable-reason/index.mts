@@ -71,7 +71,12 @@ export function readEditorConfigLineLength(
   }
 }
 
-function defaultReadFile(filePath: string): string | undefined {
+/**
+ * Reads a file, answering undefined when it is absent or unreadable. The
+ * default seam {@link readEditorConfigLineLength} walks with; exported so a
+ * test can assert the swallow rather than reach the filesystem to prove it.
+ */
+export function defaultReadFile(filePath: string): string | undefined {
   try {
     return readFileSync(filePath, 'utf8')
   } catch {

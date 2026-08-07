@@ -42,7 +42,8 @@ function strict(a: unknown, b: unknown): boolean {
 }
 
 function makeArguments(): IArguments {
-  // oxlint-disable-next-line prefer-rest-params -- isArguments needs a genuine arguments exotic object; a rest array is not one.
+  // isArguments needs a genuine arguments exotic object; a rest array is not one.
+  // oxlint-disable-next-line prefer-rest-params -- isArguments needs a genuine
   return arguments
 }
 
@@ -148,7 +149,13 @@ describe(`${eco} > ${sockRegPkgName} (portable branch)`, { skip }, () => {
 
   describe('Sets', () => {
     it('equal and unequal sets', () => {
-      // oxlint-disable-next-line socket/sort-set-args -- intentionally unsorted to verify order-independent Set equality.
+      // intentionally unsorted to verify order-independent Set equality.
+      // intentionally unsorted to verify
+      // intentionally unsorted to
+      // intentionally unsorted to
+      // intentionally unsorted to
+      // intentionally unsorted to
+      // oxlint-disable-next-line socket/sort-set-args -- intentionally unsorted to
       expect(loose(new Set([1, 2, 3]), new Set([3, 2, 1]))).toBe(true)
       expect(loose(new Set([1, 2]), new Set([1, 2, 3]))).toBe(false)
     })
