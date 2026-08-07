@@ -48,7 +48,7 @@
       '</style>' +
       '<div class="ribbon" title="Click to hide. This browser is driven by an agent through Playwright MCP.">' +
       SHIELD +
-      '<span class="label">Agent Driven by Playwright MCP</span>' +
+      '<span class="label">Agent driven by Playwright MCP</span>' +
       '</div>'
     root.querySelector('.ribbon').addEventListener('click', () => host.remove())
     document.body.appendChild(host)

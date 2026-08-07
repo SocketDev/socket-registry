@@ -97,7 +97,7 @@ export async function scanDirectory(
         }
       } else if (entry.isFile()) {
         try {
-          // oxlint-disable-next-line socket/prefer-exists-sync -- need .size metadata
+          // oxlint-disable-next-line socket/prefer-exists-sync -- needs size
           const stats = await fs.stat(fullPath)
           if (stats.size > MAX_FILE_SIZE) {
             const relativePath = path.relative(ROOT_PATH, fullPath)

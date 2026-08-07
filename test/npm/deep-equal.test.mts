@@ -135,9 +135,10 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
 
     it('two equal Sets with object values', () => {
-      // oxlint-disable-next-line socket/sort-set-args -- three identical {} literals; ordering is meaningless and intentional test data.
+      // Three identical {} literals; ordering is meaningless test data.
+      // oxlint-disable-next-line socket/sort-set-args -- identical literals
       const set1 = new Set([{}, {}, {}])
-      // oxlint-disable-next-line socket/sort-set-args -- three identical {} literals; ordering is meaningless and intentional test data.
+      // oxlint-disable-next-line socket/sort-set-args -- identical literals
       const set2 = new Set([{}, {}, {}])
       expect(deepEqual(set1, set2)).toBe(true)
       expect(deepEqual(set1, set2, { strict: true })).toBe(true)

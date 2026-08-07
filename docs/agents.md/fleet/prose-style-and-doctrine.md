@@ -13,6 +13,28 @@ adds brevity and directness on top.
 | `docs/**`, `README.md`, `CHANGELOG.md`, release notes, API reference | Documentation |
 | Cascade commits, bot output | Exempt |
 
+Mode picks the VOICE. It does not pick the SHAPE, which varies per surface: a
+`<details>` fold is right on GitHub and dead markup in Linear, and `**bold**`
+posts as literal asterisks in Slack. The per-surface registry is code -
+`scripts/fleet/_shared/outbound-surfaces.mts` (`OUTBOUND_SURFACES`,
+`OUTBOUND_SURFACE_PROMPT`, `surfaceForTool`) - and it carries what each surface
+renders, what to avoid there, a word budget, and the fix affordance.
+
+**The fix affordance is the part that changes behavior.** Where a surface can
+apply a patch, offer the patch:
+
+| Affordance | Surfaces | How a fix is offered |
+| --- | --- | --- |
+| `native-suggestion` | GitHub PR inline review comment | A ```suggestion block, committable in one click |
+| `fix-idea-label` | GitHub PR summary/body, GitHub issue, Linear | The `Fix idea 💡:` label |
+| `prose-only` | Slack, Notion comment, commit body | One sentence; the surface renders little else |
+
+So `Fix idea 💡:` is the fallback for surfaces with no commit-a-patch
+affordance, not the default everywhere. Describing in prose a change the reader
+could have committed in one click is strictly worse for them. The GitHub rows
+are verified; the Slack, Linear, and Notion rows encode documented product
+behavior this repo cannot check, and say so in the module.
+
 ## Conversational mode rules
 
 - **Lead with the point.** First sentence = the decision, finding, or answer.

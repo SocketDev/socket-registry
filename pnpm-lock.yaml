@@ -3199,6 +3199,8 @@ importers:
 
   .config/fleet/oxlint-plugin/fleet/sort-source-methods: {}
 
+  .config/fleet/oxlint-plugin/fleet/terse-lint-disable-reason: {}
+
   .config/fleet/oxlint-plugin/fleet/use-fleet-canonical-api-token-getter: {}
 
   packages/npm/abab: {}

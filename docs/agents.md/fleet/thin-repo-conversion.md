@@ -57,6 +57,9 @@ curl -s -H "Authorization: Bearer $TOKEN" \
 
 ## The traps
 
+<details>
+<summary><b>Six conversion traps</b> - stale bundle ref, web-UI-only visibility, blind untracking, CI ordering, hydration sweeps, worktree pre-push lint</summary>
+
 **A pinned ref that predates OCI publishing.** socket-facts pinned
 `fleet-pack-be357fd7...` in `.config/repo/socket-wheelhouse.json`. GHCR had only
 `fleet-pack-aea37f35...`, and the release fallback needs a token nobody has, so
@@ -91,6 +94,8 @@ worktree with an incomplete `node_modules` fails for a missing toolchain, not a
 real violation; pushing from the primary checkout lints the PRIMARY's files and
 ignores your worktree's fixes. Symlink the primary's `node_modules` into the
 worktree and push from there.
+
+</details>
 
 ## Procedure
 

@@ -72,7 +72,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   })
 
   it('supports Object.create(null) objects', () => {
-    // oxlint-disable-next-line socket/prefer-undefined-over-null -- Object.create only accepts object | null
+    // Object.create only accepts object | null.
+    // oxlint-disable-next-line socket/prefer-undefined-over-null -- API null
     const obj = Object.create(null)
     obj.foo = true
     expect(objectAssign({}, obj)).toEqual({ foo: true })

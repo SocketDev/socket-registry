@@ -45,7 +45,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
 
     it('works with nulled objects', () => {
-      // oxlint-disable-next-line socket/prefer-undefined-over-null -- Object.create only accepts object | null
+      // Object.create only accepts object | null.
+      // oxlint-disable-next-line socket/prefer-undefined-over-null -- API null
       const o = Object.create(null)
       o.foo = 'bar'
       expect(qs.stringify(o)).toBe('foo=bar')
@@ -93,7 +94,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       const obj = qs.parse('?toString&__proto__=lol')
       expect(typeof obj).toBe('object')
       expect(typeof obj.toString).toBe('function')
-      // eslint-disable-next-line no-proto -- testing prototype pollution protection.
+      // eslint-disable-next-line no-proto -- proto pollution test
       expect(obj.__proto__).not.toBe('lol')
     })
 

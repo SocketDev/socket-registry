@@ -153,7 +153,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     expect(() => arrayFrom([], undefined)).not.toThrow()
     expect(() => arrayFrom([], undefined, undefined)).not.toThrow()
     expect(() => arrayFrom([], undefined, {})).not.toThrow()
-    // oxlint-disable-next-line socket/prefer-undefined-over-null -- Array.from spec rejects null mapfn (not callable, not undefined).
+    // Array.from spec rejects null mapfn (not callable, not undefined).
+    // oxlint-disable-next-line socket/prefer-undefined-over-null -- spec null
     expect(() => arrayFrom([], null)).toThrow(TypeError)
     expect(() => arrayFrom([], false)).toThrow(TypeError)
     expect(() => arrayFrom([], true)).toThrow(TypeError)

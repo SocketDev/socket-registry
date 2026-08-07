@@ -22,7 +22,9 @@ import { httpJson } from '@socketsecurity/lib-stable/http-request'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 import { naturalCompare } from '@socketsecurity/lib-stable/sorts/natural'
-// oxlint-disable-next-line socket/prefer-stable-external-semver -- @socketsecurity/lib-stable has no ./external/semver export at the pinned version; semver is a devDependency (scripts/tests only, not bundled).
+// @socketsecurity/lib-stable has no ./external/semver export at the pinned
+// version; semver is a devDependency (scripts/tests only, not bundled).
+// oxlint-disable-next-line socket/prefer-stable-external-semver -- dev dep
 import semver from 'semver'
 
 import { isMainModule } from '../../fleet/_shared/is-main-module.mts'
