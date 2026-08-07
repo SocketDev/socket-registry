@@ -550,7 +550,7 @@ overrides:
   css-tree: 3.2.1
   is-interactive: npm:@socketregistry/is-interactive@1.0.6
   is-unicode-supported: npm:@socketregistry/is-unicode-supported@1.0.5
-  json-stable-stringify: npm:@socketregistry/json-stable-stringify@1.0.13
+  json-stable-stringify: npm:@socketregistry/json-stable-stringify@1.0.14
   markdown-it: 14.3.0
   picomatch: 4.0.5
   protobufjs: 7.6.5
@@ -3491,8 +3491,8 @@ importers:
         specifier: 2.1.0
         version: 2.1.0
       json-stable-stringify:
-        specifier: npm:@socketregistry/json-stable-stringify@1.0.13
-        version: '@socketregistry/json-stable-stringify@1.0.13'
+        specifier: npm:@socketregistry/json-stable-stringify@1.0.14
+        version: '@socketregistry/json-stable-stringify@1.0.14'
       tinybench:
         specifier: 5.0.1
         version: 5.0.1
@@ -3764,8 +3764,8 @@ importers:
         specifier: 1.1.5
         version: 1.1.5
       json-stable-stringify:
-        specifier: npm:@socketregistry/json-stable-stringify@1.0.13
-        version: '@socketregistry/json-stable-stringify@1.0.13'
+        specifier: npm:@socketregistry/json-stable-stringify@1.0.14
+        version: '@socketregistry/json-stable-stringify@1.0.14'
       jsonify:
         specifier: 0.0.1
         version: 0.0.1
@@ -4826,9 +4826,9 @@ packages:
     resolution: {integrity: sha512-l3wz0cknjyGlI2iCyZxp50FJhtUFXkdZR6CfUU7OfNxE7I4CRBdsvORLgV+JPwqQQErRO/CZgKsbDHefd3puYA==}
     engines: {node: '>=18'}
 
-  '@socketregistry/json-stable-stringify@1.0.13':
-    resolution: {integrity: sha512-sUsRuanSm/lR0Ugx9DYxRgZyUXpoAF8FWoPq9+mJwZQLn/9ce8OD5HemPiGB0jl0emljyWL4F58zDSTdjZZm3g==}
-    engines: {node: '>=18'}
+  '@socketregistry/json-stable-stringify@1.0.14':
+    resolution: {integrity: sha512-ykbeQpj5hlpM378udshcKJSyS0FMGL1o2bcAQd2lqXMnkDd0qfPXfV93JLWgiy8tlZP8MribUGZIH1gPpF4nqQ==}
+    engines: {node: '>=24'}
 
   '@socketregistry/packageurl-js@1.5.2':
     resolution: {integrity: sha512-j8plTfIjXEU8u2q4clv9njGqHFXQz0Ad4lscj2em3QcQlaWD/UHaQeYgyKlAiM6PowkEWMXFhVD7cgm1BzX6Sg==}
@@ -8831,7 +8831,7 @@ snapshots:
 
   '@socketregistry/is-unicode-supported@1.0.5': {}
 
-  '@socketregistry/json-stable-stringify@1.0.13': {}
+  '@socketregistry/json-stable-stringify@1.0.14': {}
 
   '@socketregistry/packageurl-js@1.5.2': {}
 
