@@ -13,7 +13,7 @@ metadata:
 
 Codify the agentic-migration pattern Salesforce reported in their _how engineering became agentic_ post: markdown rule files + a reference implementation + an autonomous build/fix/check/test loop + parallel worktree spawns + PR-review feedback rewritten back into the rules. The autonomous per-file loop runs as a `Workflow` - a `pipeline()` over the target files, one worktree-isolated agent per file streaming transform → build/fix/check/test. The wheelhouse already has the canonical-and-cascade shape this pattern depends on; this skill names the pattern so it stops being recreated ad-hoc per migration.
 
-🚨 **This skill is for mechanical migrations, not redesigns.** If you don't have a deterministic transformation that runs the same way on every target file, you don't have a rule-pack migration —-you have a refactor that wants human judgment per call site. Use the `refactor-cleaner` agent or hand-edit instead. Rule-packs assume "given input shape A, produce output shape B" with finite exception cases.
+🚨 **This skill is for mechanical migrations, not redesigns.** If you don't have a deterministic transformation that runs the same way on every target file, you don't have a rule-pack migration --you have a refactor that wants human judgment per call site. Use the `refactor-cleaner` agent or hand-edit instead. Rule-packs assume "given input shape A, produce output shape B" with finite exception cases.
 
 ## When to use
 

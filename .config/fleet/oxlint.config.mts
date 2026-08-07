@@ -139,7 +139,7 @@ export function resolveFleetJsPlugin(entry: string): string {
 }
 
 // Oxlint loads the config from this module's default export.
-// oxlint-disable-next-line socket/no-default-export -- oxlint loads the config
 // Wrapped in defineConfig() per oxlint's loader requirement (it rejects a
 // bare default export); defineConfig is an identity-shaped validator.
+// oxlint-disable-next-line socket/no-default-export -- oxlint loads the config
 export default defineConfig(config())

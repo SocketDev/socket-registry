@@ -89,8 +89,13 @@ export function defaultReadFile(filePath: string): string | undefined {
  * The reason is what makes these lines long, so a directive without one cannot
  * overflow for the reason this rule exists to catch.
  */
+// Not anchored to the line start, and `-line` is spelled out alongside
+// `-next-line`. A trailing `code() // oxlint-disable-line rule -- reason` is
+// the same directive with the same width problem, and the earlier
+// start-anchored pattern let it through: moving a long directive onto the code
+// line evaded the rule entirely rather than fixing anything.
 const DISABLE_WITH_REASON_RE =
-  /^\s*(?:\/\*|\/\/)\s*(?:eslint|oxlint)-disable(?:-next-line)?\s+\S+.*--\s*\S/
+  /(?:\/\*|\/\/)\s*(?:eslint|oxlint)-disable(?:-line|-next-line)?\s+\S+.*--\s*\S/
 
 /**
  * Whether `line`, exactly as authored, is a disable directive carrying a reason
@@ -99,11 +104,29 @@ const DISABLE_WITH_REASON_RE =
  * Pure and exported so the behavior is tested directly on strings. The rule
  * body only locates candidate lines; every judgment lives here.
  */
+/**
+ * True when a directive on `line` is being SHOWN rather than applied: a JSDoc
+ * continuation (` * ...`) inside a doc block, or one quoted inside backticks.
+ * Neither reaches the linter, so judging their width or wording would flag the
+ * documentation that explains the rule.
+ */
+export function isIllustratedDirective(line: string): boolean {
+  if (/^\s*\*/.test(line)) {
+    return true
+  }
+  const directiveAt = line.search(/(?:eslint|oxlint)-disable/)
+  return directiveAt !== -1 && line.slice(0, directiveAt).includes('`')
+}
+
 export function isOverlongDisableLine(
   line: string,
   limit: number = DEFAULT_PRINT_WIDTH,
 ): boolean {
-  if (!DISABLE_WITH_REASON_RE.test(line) || line.length <= limit) {
+  if (
+    isIllustratedDirective(line) ||
+    !DISABLE_WITH_REASON_RE.test(line) ||
+    line.length <= limit
+  ) {
     return false
   }
   // Only report what the author can act on. A directive naming several rules

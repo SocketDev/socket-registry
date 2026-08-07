@@ -25,7 +25,7 @@ Block examples:
 
 - `git commit -m "feat: thing
 
-  🤖 Generated with Claude"` —-robot-emoji tag, blocked.
+  🤖 Generated with Claude"` --robot-emoji tag, blocked.
 
 Allow examples:
 

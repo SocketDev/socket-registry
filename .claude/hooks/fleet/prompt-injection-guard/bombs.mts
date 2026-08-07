@@ -49,8 +49,8 @@ export interface BombScanOptions {
 // of these on one base.
 // The combining-mark ranges ARE the detector's subject; this class deliberately
 // matches stacked combining diacritics, which is exactly what the rule flags as
-// "misleading.".
-// oxlint-disable-next-line eslint/no-misleading-character-class -- the
+// "misleading".
+// oxlint-disable-next-line eslint/no-misleading-character-class -- the subject
 const ZALGO_RE = /[̀-ͯ҃-҉᪰-᫿᷀-᷿⃐-⃿︠-︯]{8,}/
 
 // Nested-quantifier patterns that backtrack catastrophically: `(a+)+`, `(.*)*`,

@@ -67,10 +67,9 @@ if (!url || !integrityArg || !destDir) {
 // call sites pass SRI directly.
 // composite-action helper runs on the raw runner before setup-node; no
 // node_modules, no module boundary worth exporting across.
-// oxlint-disable-next-line socket/export-top-level-functions -- action helper
 // every non-returning arm ends in process.exit(1); the analyzer cannot see the
 // never.
-// oxlint-disable-next-line typescript/consistent-return -- process.exit arms
+// oxlint-disable-next-line socket/export-top-level-functions, typescript/consistent-return -- action helper
 function parseIntegrity(s) {
   // Parse an SRI string: (1) the algorithm (sha256/384/512), (2) the base64
   // digest after the dash.
@@ -114,10 +113,9 @@ if (process.env.GITHUB_TOKEN) {
 // extract pipeline runs inside an async IIFE.
 // composite-action helper runs on the raw runner before setup-node; no
 // node_modules, no module boundary worth exporting across.
-// oxlint-disable-next-line socket/export-top-level-functions -- action helper
 // every non-returning arm ends in process.exit(1); the analyzer cannot see the
 // never.
-// oxlint-disable-next-line typescript/consistent-return -- process.exit arms
+// oxlint-disable-next-line socket/export-top-level-functions, typescript/consistent-return -- action helper
 async function main() {
   // pre-setup-node action; @socketsecurity/lib-stable not installed yet, only
   // built-in fetch is available.

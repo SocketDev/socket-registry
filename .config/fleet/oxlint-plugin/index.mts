@@ -17,6 +17,7 @@ import exportTopLevelFunctions from './fleet/export-top-level-functions/index.mt
 import exportedNameHasDomainWord from './fleet/exported-name-has-domain-word/index.mts'
 import guardContract from './fleet/guard-contract/index.mts'
 import inclusiveLanguage from './fleet/inclusive-language/index.mts'
+import lintDisablePrecedesCode from './fleet/lint-disable-precedes-code/index.mts'
 import maxCommentBlockLines from './fleet/max-comment-block-lines/index.mts'
 import maxFileLines from './fleet/max-file-lines/index.mts'
 import noAgentBrandAssumption from './fleet/no-agent-brand-assumption/index.mts'
@@ -54,6 +55,7 @@ import noProcessChdir from './fleet/no-process-chdir/index.mts'
 import noProcessCwdInScriptsHooks from './fleet/no-process-cwd-in-scripts-hooks/index.mts'
 import noPromiseRace from './fleet/no-promise-race/index.mts'
 import noPromiseRaceInLoop from './fleet/no-promise-race-in-loop/index.mts'
+import noRedundantSpreadFallback from './fleet/no-redundant-spread-fallback/index.mts'
 import noRequiredInOptionsBag from './fleet/no-required-in-options-bag/index.mts'
 import noRuntimeFeaturesBelowEngineFloor from './fleet/no-runtime-features-below-engine-floor/index.mts'
 import noSourceContentTests from './fleet/no-source-content-tests/index.mts'
@@ -65,6 +67,7 @@ import noStatusEmoji from './fleet/no-status-emoji/index.mts'
 import noStructuredClonePreferJson from './fleet/no-structured-clone-prefer-json/index.mts'
 import noSyncRmInTestLifecycle from './fleet/no-sync-rm-in-test-lifecycle/index.mts'
 import noTopLevelAwait from './fleet/no-top-level-await/index.mts'
+import noTruncatedLintDisableReason from './fleet/no-truncated-lint-disable-reason/index.mts'
 import noUnderscoreIdentifier from './fleet/no-underscore-identifier/index.mts'
 import noUseStrictInEsm from './fleet/no-use-strict-in-esm/index.mts'
 import noVitestEmptyTest from './fleet/no-vitest-empty-test/index.mts'
@@ -137,6 +140,7 @@ const plugin = {
     'exported-name-has-domain-word': exportedNameHasDomainWord,
     'guard-contract': guardContract,
     'inclusive-language': inclusiveLanguage,
+    'lint-disable-precedes-code': lintDisablePrecedesCode,
     'max-comment-block-lines': maxCommentBlockLines,
     'max-file-lines': maxFileLines,
     'no-agent-brand-assumption': noAgentBrandAssumption,
@@ -175,6 +179,7 @@ const plugin = {
     'no-process-cwd-in-scripts-hooks': noProcessCwdInScriptsHooks,
     'no-promise-race': noPromiseRace,
     'no-promise-race-in-loop': noPromiseRaceInLoop,
+    'no-redundant-spread-fallback': noRedundantSpreadFallback,
     'no-required-in-options-bag': noRequiredInOptionsBag,
     'no-runtime-features-below-engine-floor': noRuntimeFeaturesBelowEngineFloor,
     'no-source-content-tests': noSourceContentTests,
@@ -186,6 +191,7 @@ const plugin = {
     'no-structured-clone-prefer-json': noStructuredClonePreferJson,
     'no-sync-rm-in-test-lifecycle': noSyncRmInTestLifecycle,
     'no-top-level-await': noTopLevelAwait,
+    'no-truncated-lint-disable-reason': noTruncatedLintDisableReason,
     'no-underscore-identifier': noUnderscoreIdentifier,
     'no-use-strict-in-esm': noUseStrictInEsm,
     'no-vitest-empty-test': noVitestEmptyTest,

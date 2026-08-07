@@ -315,9 +315,9 @@ export function recordPath(
 ): ActorLedger {
   const { now, ttlMs, via } = { __proto__: null, ...config } as typeof config
   const base = existing ? pruneLedger(existing, { now, ttlMs }) : undefined
-  const paths: Record<string, number> = { ...(base?.paths ?? {}) }
+  const paths: Record<string, number> = { ...base?.paths }
   paths[normalizedPath] = now
-  const viaMap: Record<string, string> = { ...(base?.via ?? {}) }
+  const viaMap: Record<string, string> = { ...base?.via }
   if (via) {
     viaMap[normalizedPath] = via
   } else {

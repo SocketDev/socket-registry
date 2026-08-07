@@ -1,6 +1,3 @@
-// This doc block's Windows drive-letter examples are the canonical form, not a
-// Unix path.
-// oxlint-disable-next-line socket/personal-path-placeholders -- fixture
 /*
  * @file Per CLAUDE.md "Token hygiene → Personal-path
  *   placeholders" rule:
@@ -59,8 +56,8 @@ const PATTERNS = [
   {
     // Demonstrates the canonical Windows drive-letter placeholder form, not a
     // Unix path.
-    // oxlint-disable-next-line socket/personal-path-placeholders -- fixture
     // C:\Users\<USERNAME>\... or C:/Users/<USERNAME>/
+    // oxlint-disable-next-line socket/personal-path-placeholders -- fixture
     re: /([A-Za-z]:[\\/]Users[\\/])<([^>]+)>([\\/]|$)/,
     canonical: 'USERNAME',
     label: 'C:\\Users\\<USERNAME>\\',

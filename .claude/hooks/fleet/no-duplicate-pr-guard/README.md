@@ -9,15 +9,15 @@ against the same base**.
 - `gh pr create` from a branch that already has an open PR (no `--head` flag →
   head is the current branch).
 - `gh pr create --head <owner>:my-branch` where `my-branch` already has an open
-  PR (the owner prefix is stripped before the lookup).
-- `gh pr create --draft` — a draft duplicate is still a duplicate.
-- `gh pr create --repo <owner>/<repo>` — the lookup is re-pointed at the same
+  PR, because the owner prefix is stripped before the lookup.
+- `gh pr create --draft` - a draft duplicate is still a duplicate.
+- `gh pr create --repo <owner>/<repo>` - the lookup is re-pointed at the same
   explicit repo, so a cross-repo create is checked against the right PR list.
 
 The head is the explicit `--head` / `-H` value when present, otherwise the
 current branch of the command's effective directory (a leading `cd` / `git -C`
 is honored via the shared `git-cwd.mts` resolver). The base is the explicit
-`--base` / `-B` value, otherwise the repo's resolved default branch — so a
+`--base` / `-B` value, otherwise the repo's resolved default branch - so a
 genuinely different base is **not** treated as a duplicate.
 
 ## Why
@@ -29,7 +29,7 @@ splits the review across two threads, orphans the CI history on the loser, and
 wastes a reviewer's attention.
 
 The tail risk is what makes this a block rather than a nudge. Once two PRs exist
-for one branch, the natural cleanup is to close one — and **closing a PR is not
+for one branch, the natural cleanup is to close one - and **closing a PR is not
 reliably reversible**. GitHub can refuse the undo outright:
 
 ```
@@ -38,9 +38,9 @@ GraphQL: Could not open the pull request (reopenPullRequest)
 
 That happened on a live incident: an agent was told to *rework* an existing PR,
 closed a different PR instead, could not reopen it, and then started opening a
-fourth PR from a branch that already had an open one — all while a colleague was
+fourth PR from a branch that already had an open one - all while a colleague was
 blocked. The second half of that is mechanically checkable, so it is checked
-here. The first half (a close you cannot take back) is not something a hook can
+here. The first half, a close you cannot take back, is not something a hook can
 verify after the fact; treat "close" as a one-way door and prefer `gh pr edit`.
 
 ## False positives and hangs
@@ -59,8 +59,8 @@ Both failure modes were designed against explicitly:
 - **One probe, bounded, fail-open.** The `gh pr list` call carries a fixed 10s
   network timeout and is *not* run through `spawnTimeoutMs` (that helper scales
   LOCAL spawns for win32 and its own doc bars wrapping network calls). Any
-  failure — `gh` missing, unauthenticated, not a git repo, DNS blackout, timeout,
-  unparseable JSON — returns "no duplicate found" and the command proceeds. A
+  failure - `gh` missing, unauthenticated, not a git repo, DNS blackout, timeout,
+  unparseable JSON - returns "no duplicate found" and the command proceeds. A
   guard that blocks work because GitHub was slow is worse than the churn it
   prevents.
 
@@ -80,6 +80,6 @@ message.
 
 ## Exit codes
 
-- `2` — blocked: an open PR already exists for this head and base.
-- `0` — allowed (no duplicate, not a `gh pr create`, unresolvable state, a
+- `2` - blocked: an open PR already exists for this head and base.
+- `0` - allowed (no duplicate, not a `gh pr create`, unresolvable state, a
   failed lookup, or the bypass phrase is present).

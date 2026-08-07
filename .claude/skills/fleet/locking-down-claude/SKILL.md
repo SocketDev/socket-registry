@@ -13,7 +13,7 @@ metadata:
 
 ## First: prefer the lib helper - don't hand-roll the flags
 
-🚨 For Node scripts / hooks, use **`spawnAiAgent` from `@socketsecurity/lib-stable/ai/spawn`** with a tier from the `AI_PROFILE` ladder in `@socketsecurity/lib-stable/ai/profiles`. It enforces the four flags at the type level (`SpawnAiAgentOptions` requires `tools` / `disallow` / `permissionMode`), translates them per-agent (claude / codex / gemini / opencode), and owns `--no-session-persistence`, `--add-dir`, and the 529-overload retry. Hand-rolling a `spawn('claude', [...flags])` is how the flag set drifts —-and the `prefer-async-spawn` lint rule flags the raw spawn anyway.
+🚨 For Node scripts / hooks, use **`spawnAiAgent` from `@socketsecurity/lib-stable/ai/spawn`** with a tier from the `AI_PROFILE` ladder in `@socketsecurity/lib-stable/ai/profiles`. It enforces the four flags at the type level (`SpawnAiAgentOptions` requires `tools` / `disallow` / `permissionMode`), translates them per-agent (claude / codex / gemini / opencode), and owns `--no-session-persistence`, `--add-dir`, and the 529-overload retry. Hand-rolling a `spawn('claude', [...flags])` is how the flag set drifts --and the `prefer-async-spawn` lint rule flags the raw spawn anyway.
 
 ```ts
 import { AI_PROFILE } from '@socketsecurity/lib-stable/ai/profiles'
