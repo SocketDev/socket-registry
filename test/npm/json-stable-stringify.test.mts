@@ -171,5 +171,81 @@ describe(
         ).not.toThrow()
       })
     }
+
+    it('applies toJSON on the default path', () => {
+      expect(jsonStableStringifyModule(new Date(0))).toBe(
+        '"1970-01-01T00:00:00.000Z"',
+      )
+      expect(jsonStableStringifyModule({ d: new Date(0) })).toBe(
+        '{"d":"1970-01-01T00:00:00.000Z"}',
+      )
+      expect(jsonStableStringifyModule({ b: Buffer.from('hi') })).toBe(
+        '{"b":{"data":[104,105],"type":"Buffer"}}',
+      )
+    })
+
+    it('preserves an own __proto__ key', () => {
+      expect(
+        jsonStableStringifyModule(JSON.parse('{"a":1,"__proto__":{"p":true}}')),
+      ).toBe('{"__proto__":{"p":true},"a":1}')
+      expect(
+        jsonStableStringifyModule(
+          JSON.parse('{"a":1,"__proto__":{"p":true}}'),
+          { space: '  ' },
+        ),
+      ).toBe('{\n  "__proto__": {\n    "p": true\n  },\n  "a": 1\n}')
+    })
+
+    it('applies the replacer once per node with the holder as this', () => {
+      const inc = (_k: string, v: unknown) =>
+        typeof v === 'number' ? v + 1 : v
+      expect(
+        jsonStableStringifyModule({ a: { b: { c: 1 } } }, { replacer: inc }),
+      ).toBe('{"a":{"b":{"c":2}}}')
+      expect(
+        jsonStableStringifyModule({ a: { b: 1 } }, { replacer: inc }),
+      ).toBe(JSON.stringify({ a: { b: 1 } }, inc))
+
+      const holders: unknown[] = []
+      function capture(this: unknown, _k: string, v: unknown) {
+        holders.push(this)
+        return v
+      }
+      const obj = { x: 1 }
+      jsonStableStringifyModule(obj, { replacer: capture })
+      expect(holders[0]).toStrictEqual({ '': obj })
+      expect(holders[1]).toBe(obj)
+    })
+
+    it('sorts integer-like keys lexicographically like upstream', () => {
+      expect(jsonStableStringifyModule({ 10: 'a', 2: 'b' })).toBe(
+        '{"10":"a","2":"b"}',
+      )
+      expect(
+        jsonStableStringifyModule(
+          { 10: 'a', 2: 'b' },
+          {
+            cmp: (a: { key: string }, b: { key: string }) =>
+              b.key.localeCompare(a.key),
+          },
+        ),
+      ).toBe('{"2":"b","10":"a"}')
+    })
+
+    it('honors toJSON and __proto__ beyond the recursion limit', () => {
+      let deep: Record<string, unknown> = JSON.parse(
+        '{"__proto__":{"p":true},"d":null}',
+      )
+      deep['d'] = new Date(0)
+      const leaf = deep
+      for (let i = 0; i < 200_000; i += 1) {
+        deep = { a: deep }
+      }
+      const out = jsonStableStringifyModule(deep) as string
+      expect(out.endsWith('}'.repeat(200_001))).toBe(true)
+      expect(out).toContain('"d":"1970-01-01T00:00:00.000Z"')
+      expect(out).toContain('"__proto__":{"p":true}')
+      expect(JSON.stringify(leaf)).toContain('"__proto__":{"p":true}')
+    })
   },
 )
