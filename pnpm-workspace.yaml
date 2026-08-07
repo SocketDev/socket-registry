@@ -8,6 +8,8 @@ packages:
   - '.config/fleet/oxlint-plugin'
   - '.config/fleet/oxlint-plugin/fleet/*'
   - '.claude/hooks/fleet/*'
+  - '.claude/hooks/repo/*'
+  - '.config/repo/oxlint-plugin/*'
 
 # Packages allowed to run build scripts (pnpm v11 strictDepBuilds default).
 allowBuilds:
@@ -561,7 +563,9 @@ overrides:
   'css-tree': '3.2.1'
   'is-interactive': 'npm:@socketregistry/is-interactive@1.0.6'
   'is-unicode-supported': 'npm:@socketregistry/is-unicode-supported@1.0.5'
-  'json-stable-stringify': 'npm:@socketregistry/json-stable-stringify@1.0.14'
+  # 1.0.14 was pinned ahead of its publish and never landed on npm; 1.0.13 is
+  # the registry's latest, so the pin follows what actually shipped.
+  'json-stable-stringify': 'npm:@socketregistry/json-stable-stringify@1.0.13'
   # Dependabot transitive-advisory pin (soaked, semver-compatible).
   'markdown-it': '14.3.0'
   # Dedup: picomatch 2 (micromatch, via fast-glob -> globby ->
