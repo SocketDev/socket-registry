@@ -26,10 +26,10 @@ apply a patch, offer the patch:
 | Affordance | Surfaces | How a fix is offered |
 | --- | --- | --- |
 | `native-suggestion` | GitHub PR inline review comment | A ```suggestion block, committable in one click |
-| `fix-idea-label` | GitHub PR summary/body, GitHub issue, Linear | The `Fix idea 💡:` label |
+| `prose-suggestion` | GitHub PR summary/body, GitHub issue, Linear | The `Suggestion 💡:` label |
 | `prose-only` | Slack, Notion comment, commit body | One sentence; the surface renders little else |
 
-So `Fix idea 💡:` is the fallback for surfaces with no commit-a-patch
+So `Suggestion 💡:` is the fallback for surfaces with no commit-a-patch
 affordance, not the default everywhere. Describing in prose a change the reader
 could have committed in one click is strictly worse for them. The GitHub rows
 are verified; the Slack, Linear, and Notion rows encode documented product

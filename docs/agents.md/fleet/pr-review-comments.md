@@ -33,7 +33,7 @@ the author.
   wrapped in `<blockquote>` (opened on the line after `</summary>`, closed on
   the line before `</details>`) so the expanded content renders indented
   under its summary instead of flush with it.
-- **Suggested remediations are labeled `Fix idea 💡:`** - always with the bulb.
+- **Suggested remediations are labeled `Suggestion 💡:`** - always with the bulb.
 - **Smaller-items bullets carry their own circles.** Inside the trailing
   "Smaller items" fold, each bullet starts with its own `<abbr>`-wrapped
   circle, and the fold's summary circle matches the most severe bullet inside.
@@ -102,7 +102,7 @@ One-line intro: what was traced and the shape of the result.
 <blockquote>
 
 Mechanism first, then the step-by-step failure scenario, then
-Fix idea 💡: the concrete remediation.
+Suggestion 💡: the concrete remediation.
 
 </blockquote>
 </details>
