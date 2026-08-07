@@ -18,11 +18,6 @@ packages:
 # scripts. Declining is the safe default; running native build scripts from a
 # transitive dep is unnecessary attack surface here.
 allowBuilds:
-  # sdk 4.0.3 ships a `preinstall` bootstrap script in the published tarball;
-  # it is repo-setup tooling and is unneeded when consumed as a dep.
-  '@socketsecurity/sdk': false
-  # @swc/core native binding — vitiate's coverage-guided fuzz lane.
-  '@swc/core': true
   # Optional native addon for ssh2 crypto acceleration; JS fallback is fine.
   cpu-features: false
   # Ships prebuilt dist; its postinstall codegen isn't needed as a dependency.
@@ -34,10 +29,21 @@ allowBuilds:
   puppeteer: false
   # Native bindings are optional (cpu-features above); pure-JS paths suffice.
   ssh2: false
+  # sdk 4.0.3 ships a `preinstall` bootstrap script in the published tarball;
+  # it is repo-setup tooling and is unneeded when consumed as a dep.
+  '@socketsecurity/sdk': false
+  # @swc/core native binding — vitiate's coverage-guided fuzz lane.
+  '@swc/core': true
   # test/npm fixture transitive; postinstall only prints a message.
   es5-ext: true
   rolldown: true
 
+# pnpm 11's packageManager-version-check failure policy. `warn` lets the
+# install proceed with a mismatched pnpm (emitting a warning) rather than
+# hard-failing. `error` is the default when the field is absent — socket-lib
+# had `error` while the wheelhouse lacked the field, which blocked commits
+# under a dev pnpm that differed from the `packageManager` pin. `warn` keeps
+# the pin informational without blocking CI or local dev.
 pmOnFail: warn
 
 catalog:
@@ -47,7 +53,6 @@ catalog:
   # platform-binary optionalDependencies, despite the monorepo's internal
   # workspace layout. dtu-github-actions is its GitHub-Actions parser, pinned
   # explicitly (not left transitive) so its version is uniform fleet-wide.
-  '@anthropic-ai/claude-code': 2.1.220
   '@redwoodjs/agent-ci': 0.17.1
   '@ultrathink/acorn.rs.wasm': 0.1.1
   'brace-expansion': 5.0.9
@@ -85,12 +90,6 @@ catalog:
   '@types/semver': 7.7.1
   '@types/shell-quote': 1.7.5
   'compromise': 14.16.0
-  # comptime 0.1.0 — Zig-inspired build-time evaluation for Rolldown/Vite.
-  # Wraps comptime(() => expr) calls; the Rolldown plugin evaluates them at
-  # build time and replaces the call site with the serialized literal result.
-  # Use in rolldown.config.mts for any repo with a Rolldown build.
-  # published: 2026-05-07 (26 days, past 7-day soak)
-  'comptime': 0.1.0
   # fast-check — property-based testing for pure fleet-script logic (pin
   # derivation, version compare, config validation). Runs standalone in vitest.
   # published: 2026-07-08 (past 7-day soak). See .claude/skills/fleet/property-testing.
@@ -145,11 +144,8 @@ catalog:
   # @rolldown/binding-* + @oxc-project/types stay as soak-excluded
   # transitives (consumers depend on `rolldown` only).
   'regjsparser': 0.13.2
-  'rolldown': 1.2.3
-  'rolldown-plugin-dts': 0.28.0
   'semver': 7.8.5
   'shell-quote': 1.10.0
-  'svgo': 4.0.2
   'taze': 19.17.1
   # vite 8.0.16 swaps esbuild → rolldown natively (bundles rolldown
   # 1.0.2) and patches the <=8.0.15 advisories (GHSA-fx2h-pf6j-xcff
@@ -157,10 +153,7 @@ catalog:
   # override below pins every transitive `vite` (vitest, @vitest/*,
   # plugin authors) to it.
   'typescript': 7.0.2
-  'vite': 8.2.0
-  'vitiate': 0.3.1
   'vitest': 4.1.10
-  '@vitiate/core': 0.3.1
   '@vitest/coverage-v8': 4.1.10
   c8: 12.0.0
   'chrome-devtools-mcp': 1.6.0
@@ -168,6 +161,25 @@ catalog:
   # init script (see .config/fleet/playwright/).
   '@playwright/mcp': 0.0.78
   '@vitest/ui': 4.1.10
+  # agent-ci runs a repo's GitHub Actions workflows locally in Docker so a
+  # change can be validated before it's pushed (see the `agent-ci` skill).
+  # The published package is a self-contained Node CLI (`dist/cli.js`) — no
+  # platform-binary optionalDependencies, despite the monorepo's internal
+  # workspace layout. dtu-github-actions is its GitHub-Actions parser, pinned
+  # explicitly (not left transitive) so its version is uniform fleet-wide.
+  '@anthropic-ai/claude-code': 2.1.220
+  # comptime 0.1.0 — Zig-inspired build-time evaluation for Rolldown/Vite.
+  # Wraps comptime(() => expr) calls; the Rolldown plugin evaluates them at
+  # build time and replaces the call site with the serialized literal result.
+  # Use in rolldown.config.mts for any repo with a Rolldown build.
+  # published: 2026-05-07 (26 days, past 7-day soak)
+  'comptime': 0.1.0
+  'rolldown': 1.2.3
+  'rolldown-plugin-dts': 0.28.0
+  'svgo': 4.0.2
+  'vite': 8.2.0
+  'vitiate': 0.3.1
+  '@vitiate/core': 0.3.1
 
   'browserslist': 4.28.7
   'cacache': 20.0.4
