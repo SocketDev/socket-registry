@@ -1,4 +1,6 @@
-// oxlint-disable-next-line socket/personal-path-placeholders -- fixture: this doc block's Windows drive-letter examples are the canonical form, not a Unix path.
+// This doc block's Windows drive-letter examples are the canonical form, not a
+// Unix path.
+// oxlint-disable-next-line socket/personal-path-placeholders -- fixture
 /*
  * @file Per CLAUDE.md "Token hygiene → Personal-path
  *   placeholders" rule:
@@ -55,7 +57,9 @@ const PATTERNS = [
     label: '/home/<user>/',
   },
   {
-    // oxlint-disable-next-line socket/personal-path-placeholders -- fixture: demonstrates the canonical Windows drive-letter placeholder form, not a Unix path.
+    // Demonstrates the canonical Windows drive-letter placeholder form, not a
+    // Unix path.
+    // oxlint-disable-next-line socket/personal-path-placeholders -- fixture
     // C:\Users\<USERNAME>\... or C:/Users/<USERNAME>/
     re: /([A-Za-z]:[\\/]Users[\\/])<([^>]+)>([\\/]|$)/,
     canonical: 'USERNAME',
@@ -230,5 +234,6 @@ const rule = {
   },
 }
 
-// oxlint-disable-next-line socket/no-default-export -- oxlint plugin contract requires default-exported rule object.
+// Oxlint plugin contract requires default-exported rule object.
+// oxlint-disable-next-line socket/no-default-export -- oxlint plugin contract
 export default rule

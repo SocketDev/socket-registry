@@ -1,4 +1,5 @@
-/* oxlint-disable socket/no-npx-dlx -- this file IS the rule definition; the banned commands are lookup-table data, not real usage. */
+/* oxlint-disable socket/no-npx-dlx -- this file IS the rule definition */
+// The banned commands are lookup-table data, not real usage.
 
 /**
  * @file Per CLAUDE.md "Tooling" rule: 🚨 NEVER use `npx`, `pnpm dlx`, or `yarn
@@ -202,5 +203,6 @@ const rule = {
   },
 }
 
-// oxlint-disable-next-line socket/no-default-export -- oxlint plugin contract requires default-exported rule object.
+// Oxlint plugin contract requires default-exported rule object.
+// oxlint-disable-next-line socket/no-default-export -- oxlint plugin contract
 export default rule

@@ -631,7 +631,9 @@ export function pickBackend(
 }
 
 export function printHelp(): void {
-  // oxlint-disable-next-line socket/no-logger-newline-literal -- CLI help text is intentionally a single multi-line block; splitting would garble the columnar formatting users expect.
+  // CLI help text is intentionally a single multi-line block; splitting would
+  // garble the columnar formatting users expect.
+  // oxlint-disable-next-line socket/no-logger-newline-literal -- CLI help text
   logger.info(`Usage: node .claude/skills/reviewing-code/run.mts [options]
 
 Options:

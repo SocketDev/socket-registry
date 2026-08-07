@@ -23,9 +23,11 @@ export const PERSONAL_PATH_PLACEHOLDER_RE =
   /(?:\/Users\/<[^>]*>\/|\/home\/<[^>]*>\/|C:\\Users\\<[^>]*>\\|\/Users\/\$\{?[A-Z_]+\}?\/|\/home\/\$\{?[A-Z_]+\}?\/)/
 
 // Well-known CI / system home dirs whose "username" is a service account, not a
-// oxlint-disable-next-line socket/personal-path-placeholders -- `runner` is a known CI service account, not a personal leak.
+// `runner` is a known CI service account, not a personal leak.
+// oxlint-disable-next-line socket/personal-path-placeholders -- `runner`
 // person — so `/home/runner/...` (GitHub Actions), `/home/ubuntu/...` etc. are
-// oxlint-disable-next-line socket/personal-path-placeholders -- `runner` is a known CI service account, not a personal leak.
+// `runner` is a known CI service account, not a personal leak.
+// oxlint-disable-next-line socket/personal-path-placeholders -- `runner`
 // not personal leaks. gh-aw's compiled `.lock.yml` emits `/home/runner/work/...`
 // tool-cache mounts; those are correct, not a leak. Matched as the path's
 // username segment only.
@@ -35,7 +37,8 @@ export const KNOWN_NON_PERSONAL_PATH_RE =
 // True when a line is a PURE placeholder: it matches the placeholder shape AND
 // nothing real remains after stripping every placeholder. Such lines are
 // documentation, so the scanners skip them. A line whose only "personal" paths
-// oxlint-disable-next-line socket/personal-path-placeholders -- `runner` is a known CI service account, not a personal leak.
+// `runner` is a known CI service account, not a personal leak.
+// oxlint-disable-next-line socket/personal-path-placeholders -- `runner`
 // are well-known CI/system homes (e.g. /home/runner/) is also pure — those
 // usernames are service accounts, not people.
 export function isPurePlaceholder(line: string): boolean {

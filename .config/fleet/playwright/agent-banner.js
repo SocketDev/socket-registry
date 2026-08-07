@@ -33,7 +33,9 @@
       'background:#fde8f3;border:1px solid rgba(140,80,255,.35);' +
       'box-shadow:0 2px 6px rgba(0,0,0,.25);' +
       'font:700 15px/1.2 system-ui,sans-serif;letter-spacing:.06em;' +
-      'user-select:none}' +
+      'user-select:none;border:1px solid rgba(140,80,255,.35);' +
+      'color:inherit;text-align:center}' +
+      '.ribbon:focus-visible{outline:3px solid #6d28d9;outline-offset:2px}' +
       // The shield rides the ribbon's -45° tilt (no counter-rotation) so it
       // leans with the band instead of standing upright inside it. Oversized
       // against the band's height on purpose: it overhangs the ribbon edges
@@ -46,10 +48,11 @@
       '.label{background:linear-gradient(90deg,#8c50ff,#6d28d9);' +
       '-webkit-background-clip:text;background-clip:text;color:transparent}' +
       '</style>' +
-      '<div class="ribbon" title="Click to hide. This browser is driven by an agent through Playwright MCP.">' +
+      '<button type="button" class="ribbon" title="Click to hide" ' +
+      'aria-label="Agent driven by Playwright MCP. Activate to hide this banner.">' +
       SHIELD +
       '<span class="label">Agent driven by Playwright MCP</span>' +
-      '</div>'
+      '</button>'
     root.querySelector('.ribbon').addEventListener('click', () => host.remove())
     document.body.appendChild(host)
   }

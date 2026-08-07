@@ -115,6 +115,7 @@
     "socket/sort-regex-alternations": "error",
     "socket/sort-set-args": "error",
     "socket/sort-source-methods": "error",
+    "socket/terse-lint-disable-reason": "error",
     "socket/use-fleet-canonical-api-token-getter": "error",
     "eslint/curly": "error",
     "eslint/no-await-in-loop": "off",

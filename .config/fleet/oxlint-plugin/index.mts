@@ -119,6 +119,7 @@ import sortObjectLiteralProperties from './fleet/sort-object-literal-properties/
 import sortRegexAlternations from './fleet/sort-regex-alternations/index.mts'
 import sortSetArgs from './fleet/sort-set-args/index.mts'
 import sortSourceMethods from './fleet/sort-source-methods/index.mts'
+import terseLintDisableReason from './fleet/terse-lint-disable-reason/index.mts'
 import useFleetCanonicalApiTokenGetter from './fleet/use-fleet-canonical-api-token-getter/index.mts'
 
 /**
@@ -238,6 +239,7 @@ const plugin = {
     'sort-regex-alternations': sortRegexAlternations,
     'sort-set-args': sortSetArgs,
     'sort-source-methods': sortSourceMethods,
+    'terse-lint-disable-reason': terseLintDisableReason,
     'use-fleet-canonical-api-token-getter': useFleetCanonicalApiTokenGetter,
   },
 }
