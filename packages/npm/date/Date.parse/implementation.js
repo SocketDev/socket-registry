@@ -20,7 +20,7 @@ module.exports = !isDateParseDaysOfMonthBuggy(DateParse)
       // Branch order mirrors the ECMAScript grammar (4-digit year before signed
       // expanded year); reordering would change match priority.
       const yyyMmDdRegExp =
-        // socket-lint: allow regex-alternation-order
+        // oxlint-disable-next-line socket/sort-regex-alternations -- by spec
         /^(?<yyyy>\d{4}|[+-]\d{6})(?:-(?<mm>\d{2})(?:-(?<dd>\d{2}))?)?/
       // const yyyMmDdRegExp = new RegExp('^'
       //   + '(\\d{4}|[+-]\\d{6})' // four-digit year capture or sign + 6-digit expanded year
