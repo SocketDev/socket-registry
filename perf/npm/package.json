@@ -1,6 +1,6 @@
 {
-  "name": "perf-npm",
-  "version": "1.0.0",
+  "name": "socket-registry-perf-npm",
+  "version": "0.0.0",
   "private": true,
   "bin": {},
   "devDependencies": {
