@@ -140,6 +140,49 @@ function endMarker(style) {
   return '# </fleet>'
 }
 /**
+ * The open marker for the fetcher-owned `<fleet-pack>` gitignore region — the
+ * manifest-derived untrack entries live here, OUTSIDE the cascade's `<fleet>`
+ * region, so the cascade's block rewrite can never discard them (the defect
+ * that re-tracked every hydrated payload file on the next cascade). Hash form
+ * only: the region exists solely in `.gitignore`.
+ */
+function packBeginMarker() {
+  return '# <fleet-pack>'
+}
+/**
+ * The close marker for the fetcher-owned `<fleet-pack>` gitignore region.
+ */
+function packEndMarker() {
+  return '# </fleet-pack>'
+}
+/**
+ * Splice the fetcher-owned `<fleet-pack>` block into `target`. When the
+ * markers exist the whole region (markers inclusive) is REPLACED — that is
+ * what prunes a stale entry; the region is wholly fetcher-owned, so hand
+ * ignores belong outside it. When absent, the block is appended at end of
+ * file, after the cascade's `<fleet>` region and the member's `<repo>`
+ * wrapper, so the fleet splice's repo-region adjacency is never broken.
+ */
+function splicePackBlock(config) {
+  const { packBlock, target } = {
+    __proto__: null,
+    ...config,
+  }
+  const begin = packBeginMarker()
+  const end = packEndMarker()
+  const lines = target.split('\n')
+  const startIdx = lines.findIndex(l => l === begin)
+  const endIdx = lines.findIndex(l => l === end)
+  if (startIdx !== -1 && endIdx !== -1 && endIdx > startIdx) {
+    const before = lines.slice(0, startIdx)
+    const after = lines.slice(endIdx + 1)
+    return [...before, packBlock, ...after].join('\n')
+  }
+  const trimmed = target.replace(/\n+$/, '')
+  if (trimmed === '') return `${packBlock}\n`
+  return `${trimmed}\n\n${packBlock}\n`
+}
+/**
  * The transitional long-form tag, bare form — every existing fleet member's
  * CLAUDE.md / .gitignore / .gitattributes still carries this pre-rename.
  * spliceFleetBlock matches it alongside the short-tag form, so a
@@ -1446,39 +1489,104 @@ function extractFleetBlockLines(target) {
     .split('\n')
     .filter(line => line.trim() !== '')
 }
+function isLegacyFleetRegionUntrackEntry(line) {
+  if (line === '.agents/') return true
+  return (
+    line !== '' &&
+    !line.startsWith('#') &&
+    !line.startsWith('!') &&
+    !line.startsWith('/') &&
+    !line.includes('*') &&
+    !line.endsWith('/') &&
+    line.includes('/')
+  )
+}
 /**
- * Apply thin mode: write a fleet-managed `.gitignore` block carrying the
- * cascade's existing rules plus the wholly-fleet bundle untrack paths (see
- * fleetPackOwnedPaths) and `.agents/`, then untrack them from git so the fetch
- * action repopulates them going forward.
+ * Strip the old refresh's per-file untrack entries from INSIDE the `<fleet>`
+ * region — they live in the fetcher-owned `<fleet-pack>` region now. The
+ * cascade's own rules in the region are preserved untouched; a file with no
+ * fleet region is returned unchanged. One-time migration shape: once a member
+ * has been cleaned (or its cascade rewrote the block), this is a no-op.
  */
-function untrackFleetPackPaths(config) {
+function stripLegacyUntrackEntriesFromFleetBlock(target) {
+  const begin = beginMarker('hash')
+  const end = endMarker('hash')
+  const lines = target.split('\n')
+  const startIdx = lines.findIndex(l => l === begin)
+  const endIdx = lines.findIndex(l => l === end)
+  if (startIdx === -1 || endIdx === -1 || endIdx <= startIdx) return target
+  const body = lines
+    .slice(startIdx + 1, endIdx)
+    .filter(l => !isLegacyFleetRegionUntrackEntry(l))
+  return [
+    ...lines.slice(0, startIdx + 1),
+    ...body,
+    ...lines.slice(endIdx),
+  ].join('\n')
+}
+/**
+ * Write the fetcher-owned `<fleet-pack>` `.gitignore` region: `.agents/` (the
+ * regenerated agent mirror — dead weight in a thin consumer; the fetch
+ * repopulates it) plus the wholly-fleet bundle untrack paths (see
+ * fleetPackOwnedPaths). The region is REGENERATED from the manifest on every
+ * run — replaced whole, so a stale entry from an earlier pack is pruned
+ * instead of carried forward (the old append-only refresh accreted every
+ * prior line forever). Hand-added ignores belong outside the markers and are
+ * untouched, as is the cascade's `<fleet>` region — the two writers own
+ * disjoint regions, so neither can discard the other's rules. The dep-0
+ * bootstrap (`scripts/repo/bootstrap/`) is NOT listed: it ships via the
+ * manual cascade, never the release bundle, so it never enters this untrack
+ * set and stays tracked by default.
+ *
+ * This is the HALF that is safe to run unconditionally for a thin consumer. It
+ * only edits `.gitignore`; it never touches the git index, so a member whose
+ * payload is still tracked keeps every file it has committed (gitignore has no
+ * effect on tracked paths). The index-mutating half lives in
+ * untrackFleetPackPaths and stays behind an explicit `--thin`.
+ */
+function refreshFleetPackIgnores(config) {
   const { dest, manifest } = {
     __proto__: null,
     ...config,
   }
   const sortedRoots = fleetPackOwnedPaths(manifest)
   const gitignorePath = path.join(dest, '.gitignore')
-  const existing = existsSync(gitignorePath)
-    ? readFileSync(gitignorePath, 'utf8')
-    : ''
-  const priorBlockLines = extractFleetBlockLines(existing)
-  const untrackLines = ['.agents/', ...sortedRoots].filter(
-    line => !priorBlockLines.includes(line),
+  const migrated = stripLegacyUntrackEntriesFromFleetBlock(
+    existsSync(gitignorePath) ? readFileSync(gitignorePath, 'utf8') : '',
   )
-  const blockLines = [...priorBlockLines, ...untrackLines]
-  const fleetBlock = [
-    beginMarker('hash'),
-    ...blockLines,
-    endMarker('hash'),
+  const packBlock = [
+    packBeginMarker(),
+    '# Fleet-pack untrack set — managed by scripts/repo/bootstrap/fleet.mjs.',
+    '# REGENERATED from the release-bundle manifest on every hydrate; stale',
+    '# entries are pruned. Hand-added ignores belong OUTSIDE these markers.',
+    '.agents/',
+    ...sortedRoots,
+    packEndMarker(),
   ].join('\n')
-  const updated = spliceFleetBlock({
-    commentStyle: 'hash',
-    fleetBlock,
-    target: existing,
+  const updated = splicePackBlock({
+    packBlock,
+    target: migrated,
   })
   writeFileSync(gitignorePath, updated)
-  const rmTargets = ['.agents/', ...sortedRoots]
+}
+/**
+ * Apply thin mode: refresh the gitignore block (refreshFleetPackIgnores), then
+ * untrack those paths from git so the fetch action repopulates them going
+ * forward. The `git rm --cached` is the CONVERSION step and is destructive —
+ * it drops files from the index — so it stays behind an explicit `--thin` and
+ * is never inferred from repo state. socket-vscode is the case that forces the
+ * distinction: it carries a pinned `bundle.ref` AND 81 still-tracked payload
+ * files, so inferring the untrack from the pin alone would silently delete
+ * them from its index on the next ordinary hydrate.
+ */
+function untrackFleetPackPaths(config) {
+  const cfg = {
+    __proto__: null,
+    ...config,
+  }
+  const { dest, manifest } = cfg
+  refreshFleetPackIgnores(cfg)
+  const rmTargets = ['.agents/', ...fleetPackOwnedPaths(manifest)]
   if (rmTargets.length > 0)
     try {
       execFileSync(
@@ -2576,6 +2684,11 @@ async function installFleet(config) {
         dest,
         manifest,
       })
+    else if (readBundleRef(dest) !== void 0)
+      refreshFleetPackIgnores({
+        dest,
+        manifest,
+      })
     writeAppliedRef(dest, sourceRef)
     writeAppliedFiles(dest, Object.keys(manifest.files))
     const prunedTotal = prunedCount + tombstonedCount
@@ -2655,6 +2768,8 @@ export {
   mergeYamlKeyBlock,
   normalizeBundlePath,
   normalizeManifestEntryPath,
+  packBeginMarker,
+  packEndMarker,
   parseArgs,
   parseWwwAuthenticate,
   parseYamlEntryChunks,
@@ -2669,6 +2784,7 @@ export {
   readBundleRef,
   readManifest,
   readNoticeStore,
+  refreshFleetPackIgnores,
   removeTombstonedPaths,
   resolveLockStepState,
   resolveNewestRef,
@@ -2681,8 +2797,10 @@ export {
   sha256Hex,
   shouldShowNotice,
   spliceFleetBlock,
+  splicePackBlock,
   spliceYamlSeparatorRun,
   statusJson,
+  stripLegacyUntrackEntriesFromFleetBlock,
   tarExecutable,
   tarExtractArgs,
   tokenFromBody,

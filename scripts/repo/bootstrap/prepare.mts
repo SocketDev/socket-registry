@@ -140,12 +140,23 @@ export function log(message: string): void {
 }
 
 /**
- * Opportunistic passive update notice (update-notifier style). Runs the
- * read-only status verb capturing JSON; when it cheaply learns a newer release
- * exists it fires the throttled boxed notice on STDERR via the fetcher's own
- * notice machinery. Best-effort: any failure (offline, no gh) is swallowed so a
- * `pnpm install` never breaks on it. The notice NAMES the re-cascade. Honors
- * the throttle / CI-suppress / opt-out / NO_COLOR inside the fetcher.
+ * How long a release-freshness lookup stays good. Mirrors the fetcher's own
+ * notice throttle (24h) and shares its store, so the network call and the
+ * display are gated by ONE window instead of the call running every time and
+ * the display being throttled after the fact.
+ */
+const NOTICE_CHECK_TTL_MS = 864e5
+
+/**
+ * Opportunistic passive update notice (update-notifier style). When it cheaply
+ * learns a newer release exists it fires the throttled boxed notice on STDERR
+ * via the fetcher's own notice machinery. Best-effort: any failure (offline, no
+ * gh) is swallowed so a `pnpm install` never breaks on it. The notice NAMES the
+ * re-cascade.
+ *
+ * The CI-suppress, opt-out, and 24h throttle are checked BEFORE the GitHub
+ * lookup, not after it. This is a notice, not the release check: applying the
+ * bundle is `fetchBundle`'s job and runs on every install regardless.
  */
 export async function maybeNotifyUpdate(): Promise<void> {
   const fleet = path.join(HERE, 'fleet.mjs')
@@ -153,9 +164,16 @@ export async function maybeNotifyUpdate(): Promise<void> {
     return
   }
   try {
-    const { maybeShowUpdateNotice, readBundleConfig, resolveNewestRef } =
+    const {
+      UPDATE_NOTIFIER_OPT_OUT_ENV,
+      maybeShowUpdateNotice,
+      readBundleConfig,
+      readNoticeStore,
+      resolveNewestRef,
+    } =
       // oxlint-disable-next-line socket/no-dynamic-import-outside-bundle -- dep-0 bootstrap resolves the fetcher lazily; a static import would execute it on every prepare run
       (await import(pathToFileURL(fleet).href)) as {
+        UPDATE_NOTIFIER_OPT_OUT_ENV: string
         maybeShowUpdateNotice: (o: {
           dest: string
           updateAvailable: boolean
@@ -165,10 +183,40 @@ export async function maybeNotifyUpdate(): Promise<void> {
           ref: string | undefined
           cascadeSha: string | undefined
         }
+        readNoticeStore: (
+          dest: string,
+        ) =>
+          | { lastCheckMs: number; lastSeenRef: string | undefined }
+          | undefined
         resolveNewestRef: (repo: string) => string | undefined
       }
     const cfg = readBundleConfig(REPO_ROOT)
     if (!cfg.ref) {
+      return
+    }
+    // Gate the NETWORK CALL, not just the display. `resolveNewestRef` hits the
+    // GitHub API, and the CI-suppress / opt-out / 24h throttle inside
+    // `shouldShowNotice` ran AFTER it — so every `pnpm install`, in every CI
+    // job, paid for an API call whose result was then discarded. At fleet
+    // scale that is the shape that earns a rate limit.
+    //
+    // In CI and under the opt-out the notice can never print, so the call is
+    // pure waste and is skipped outright. Otherwise honor the same 24h window
+    // the display uses.
+    //
+    // The tradeoff is deliberate: a release cut inside the window is not
+    // NOTICED until the window closes. That costs a passive notice, never
+    // correctness, because APPLYING the bundle is `fetchBundle`'s job
+    // (`fleet.mjs --if-current`) and that still runs on every install, in CI
+    // and locally alike.
+    if (process.env['CI'] || process.env[UPDATE_NOTIFIER_OPT_OUT_ENV]) {
+      return
+    }
+    const store = readNoticeStore(REPO_ROOT)
+    if (
+      store !== undefined &&
+      Date.now() - store.lastCheckMs < NOTICE_CHECK_TTL_MS
+    ) {
       return
     }
     const repo = 'SocketDev/socket-wheelhouse'
@@ -279,6 +327,7 @@ export function tryRun(
 // while `process.argv[1]` keeps the path as invoked, so a bare URL equality
 // silently skips the CLI body under a symlinked invocation.
 if (isMainModule()) {
-  // socket-lint: allow top-level-await -- dep-0 ESM CLI run via node, never CJS-bundled
+  // Dep-0 ESM CLI run via node, never CJS-bundled.
+  // oxlint-disable-next-line socket/no-top-level-await -- dep-0 ESM CLI run
   process.exitCode = await runPrepare()
 }

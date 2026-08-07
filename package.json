@@ -88,7 +88,8 @@
     "npm:trust": "node scripts/fleet/publish-infra/npm/trust.mts",
     "npm:login": "node scripts/fleet/npm-web-auth.mts login",
     "npm:dispatch": "gh workflow run npm-publish-packages.yml -R SocketDev/socket-registry --ref main -f publish=true",
-    "fleet:status": "node scripts/repo/bootstrap/fleet.mjs --status"
+    "fleet:status": "node scripts/repo/bootstrap/fleet.mjs --status",
+    "preflight": "node scripts/fleet/preflight.mts"
   },
   "devDependencies": {
     "@babel/core": "catalog:",
