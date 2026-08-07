@@ -27,12 +27,12 @@
       ':host{position:fixed;top:0;left:0;z-index:2147483647;pointer-events:none}' +
       // Long enough that both ends run off-screen past the corner cut — a
       // band that stops short reads as a sticker, not a ribbon.
-      '.ribbon{position:fixed;top:64px;left:-140px;transform:rotate(-45deg);' +
+      '.ribbon{position:fixed;top:124px;left:-240px;transform:rotate(-45deg);' +
       'display:flex;align-items:center;justify-content:center;gap:3px;' +
-      'width:460px;padding:7px 0;pointer-events:auto;cursor:pointer;' +
+      'width:760px;padding:7px 0;pointer-events:auto;cursor:pointer;' +
       'background:#fde8f3;border:1px solid rgba(140,80,255,.35);' +
       'box-shadow:0 2px 6px rgba(0,0,0,.25);' +
-      'font:700 11px/1.2 system-ui,sans-serif;letter-spacing:.08em;' +
+      'font:700 15px/1.2 system-ui,sans-serif;letter-spacing:.06em;' +
       'user-select:none}' +
       // The shield rides the ribbon's -45° tilt (no counter-rotation) so it
       // leans with the band instead of standing upright inside it. Oversized
@@ -46,9 +46,9 @@
       '.label{background:linear-gradient(90deg,#8c50ff,#6d28d9);' +
       '-webkit-background-clip:text;background-clip:text;color:transparent}' +
       '</style>' +
-      '<div class="ribbon" title="Click to hide — this browser is agent-driven (Playwright MCP)">' +
+      '<div class="ribbon" title="Click to hide. This browser is driven by an agent through Playwright MCP.">' +
       SHIELD +
-      '<span class="label">AGENT CONTROLLED</span>' +
+      '<span class="label">Agent Driven by Playwright MCP</span>' +
       '</div>'
     root.querySelector('.ribbon').addEventListener('click', () => host.remove())
     document.body.appendChild(host)
