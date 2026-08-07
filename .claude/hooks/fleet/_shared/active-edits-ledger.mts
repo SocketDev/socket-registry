@@ -431,7 +431,9 @@ export function sweepStaleLedgers(
       }
       const fp = path.join(storeRoot, entry)
       try {
-        // oxlint-disable-next-line socket/prefer-exists-sync -- statSync for mtime, not just existence; we need the modification timestamp
+        // StatSync for mtime, not just existence; we need the modification
+        // timestamp.
+        // oxlint-disable-next-line socket/prefer-exists-sync -- statSync
         const stat = statSync(fp)
         if (now - stat.mtimeMs > ttlMs) {
           safeDeleteSync(fp)
@@ -466,7 +468,9 @@ export function listChildTranscriptMtimes(subagentsDir: string): number[] {
         continue
       }
       try {
-        // oxlint-disable-next-line socket/prefer-exists-sync -- statSync for mtime, not just existence; we need the modification timestamp
+        // StatSync for mtime, not just existence; we need the modification
+        // timestamp.
+        // oxlint-disable-next-line socket/prefer-exists-sync -- statSync
         out.push(statSync(path.join(subagentsDir, entry)).mtimeMs)
       } catch {
         // Fail-open per file.

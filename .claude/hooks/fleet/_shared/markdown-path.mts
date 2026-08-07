@@ -326,7 +326,8 @@ export function toRepoRelative(filePath: string): string {
   // socket-wheelhouse treats template/ as the effective repo root. Anchor on
   // the LAST `template/` segment so the carve-out holds for any checkout
   // location — `~/projects/<repo>`, a `/private/tmp` worktree, or CI's
-  // oxlint-disable-next-line socket/personal-path-placeholders -- `runner` is a known CI service account, not a personal leak.
+  // `runner` is a known CI service account, not a personal leak.
+  // oxlint-disable-next-line socket/personal-path-placeholders -- `runner`
   // `/home/runner/work/<repo>/<repo>/` — not only paths under `/projects/`.
   // The fleet-canonical content now lives under the `base/` archetype layer
   // (`template/base/...`), so peel that segment too: `template/base/CLAUDE.md`
