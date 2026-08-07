@@ -128,7 +128,8 @@ export async function computeIntegrityFromUrl(url: string): Promise<string> {
     await httpDownload(url, tmpFile, { retries: 2 })
     return await computeIntegrity(tmpFile)
   } finally {
-    // oxlint-disable-next-line socket/prefer-safe-delete -- finally cleanup with explicit catch
+    // Finally cleanup with explicit catch.
+    // oxlint-disable-next-line socket/prefer-safe-delete -- cleanup
     await fs.unlink(tmpFile).catch(() => {})
   }
 }

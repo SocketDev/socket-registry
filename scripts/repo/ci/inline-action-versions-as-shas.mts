@@ -189,7 +189,8 @@ export async function processFile(
   const changes: FileChange[] = []
 
   // Process in reverse order to maintain correct string positions.
-  // oxlint-disable-next-line socket/prefer-cached-for-loop -- iterates a reversed slice; cached-length form would lose the reverse pass.
+  // Iterates a reversed slice; cached-length form would lose the reverse pass.
+  // oxlint-disable-next-line socket/prefer-cached-for-loop -- reserved
   for (const stmt of usesStatements.slice().toReversed()) {
     const { fullMatch, indent, owner, ref: currentRef, repoPath } = stmt
 
@@ -209,7 +210,7 @@ export async function processFile(
     const { ref: originalRef, sha } = dep
     const newLine = `${indent}uses: ${owner}/${repoPath}@${sha} # ${originalRef}`
 
-    updatedContent = updatedContent.replace(fullMatch, newLine)
+    updatedContent = updatedContent.replace(fullMatch, () => newLine)
     changes.push({
       action: `${owner}/${repoPath}`,
       newLine,
@@ -329,7 +330,8 @@ async function main(): Promise<void> {
   }
 
   // Display changes.
-  // oxlint-disable-next-line socket/prefer-cached-for-loop -- destructured loop variable; cached-length rewrite would scatter the destructure.
+  // Destructured loop variable; cached-length rewrite would scatter it.
+  // oxlint-disable-next-line socket/prefer-cached-for-loop -- reserved
   for (const { changes, file } of processedFiles) {
     logger.error('')
     logger.info(`${path.relative(cwd, file)}:`)

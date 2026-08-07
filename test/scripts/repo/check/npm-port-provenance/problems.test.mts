@@ -61,7 +61,7 @@ describe('SHA mismatch', () => {
         pins: makePins(
           GITMODULES_TEXT.replace(
             `ref = ${PORTED_SHA}`,
-            `ref = ${'a'.repeat(40)}`,
+            () => `ref = ${'a'.repeat(40)}`,
           ),
         ),
       }),
@@ -77,7 +77,7 @@ describe('SHA mismatch', () => {
       whats(
         makeInput({
           readPortSource: () =>
-            PORT_HEADER_SOURCE.replaceAll(PORTED_SHA, 'b'.repeat(40)),
+            PORT_HEADER_SOURCE.replaceAll(PORTED_SHA, () => 'b'.repeat(40)),
         }),
       ),
     ).toContain(

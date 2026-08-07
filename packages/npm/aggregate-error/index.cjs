@@ -56,7 +56,7 @@ function desc(value, configurable = true, writable = true) {
 }
 
 function indentString(str, count = 1) {
-  return str.replace(/^(?!\s*$)/gm, ' '.repeat(count))
+  return str.replace(/^(?!\s*$)/gm, () => ' '.repeat(count))
 }
 
 // The %AggregateError.prototype% is a plain object

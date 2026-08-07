@@ -196,14 +196,17 @@ export async function waitForAccessPage(
   for (;;) {
     if (!navigated) {
       navigated = true
-      // eslint-disable-next-line no-await-in-loop -- one-shot: the ONLY navigation this wait ever performs.
+      // The ONLY navigation this wait ever performs.
+      // eslint-disable-next-line no-await-in-loop -- one-shot
       await page
         .goto(target.settingsUrl, { waitUntil: 'domcontentloaded' })
         .catch(() => {})
     }
-    // eslint-disable-next-line no-await-in-loop -- serial poll: one live page at a time.
+    // One live page at a time.
+    // eslint-disable-next-line no-await-in-loop -- serial poll
     await settleAccessPage(page)
-    // eslint-disable-next-line no-await-in-loop -- serial poll: one live page at a time.
+    // One live page at a time.
+    // eslint-disable-next-line no-await-in-loop -- serial poll
     const probe = await fetchJsonInPage(page, target.settingsUrl)
     const livePageUrl = page.url()
     // The page being polled must be the one holding this package's access URL.
@@ -223,7 +226,8 @@ export async function waitForAccessPage(
       pageUrl: livePageUrl,
       status: probe.status,
     })
-    // eslint-disable-next-line no-await-in-loop -- serial: the overlay tracks each reading in turn.
+    // The overlay tracks each reading in turn.
+    // eslint-disable-next-line no-await-in-loop -- serial
     await syncOperatorOverlay(page, readiness)
     if (readiness === 'ready') {
       // Cosmetic only, and only once the page is already settled: npm's
@@ -231,7 +235,8 @@ export async function waitForAccessPage(
       // Dismissing them is never a readiness signal — the payload already
       // decided that above — and a banner that refuses to close changes
       // nothing.
-      // eslint-disable-next-line no-await-in-loop -- one-shot on the way out of the wait.
+      // One-shot on the way out of the wait.
+      // eslint-disable-next-line no-await-in-loop -- one-shot
       await dismissSiteNotifications(page)
       return probe
     }
@@ -259,7 +264,8 @@ export async function waitForAccessPage(
       )
     }
     if (readiness === 'challenge' || readiness === 'two-factor') {
-      // eslint-disable-next-line no-await-in-loop -- serial pause while the operator clears the challenge, in place.
+      // Serial pause while the operator clears the challenge, in place.
+      // eslint-disable-next-line no-await-in-loop -- serial pause
       await pause({
         budgetMs,
         elapsedMs,
@@ -283,15 +289,18 @@ export async function waitForAccessPage(
       announced = true
       lastProgressMs = elapsedMs
       logger.warn(line)
-      // eslint-disable-next-line no-await-in-loop -- one-shot, inside the serial poll.
+      // One-shot, inside the serial poll.
+      // eslint-disable-next-line no-await-in-loop -- one-shot
       await page.bringToFront().catch(() => {})
     } else if (elapsedMs - lastProgressMs >= CHALLENGE_PROGRESS_INTERVAL_MS) {
       lastProgressMs = elapsedMs
       logger.log(line)
     }
-    // eslint-disable-next-line no-await-in-loop -- serial poll while the operator finishes signing in.
+    // Serial poll while the operator finishes signing in.
+    // eslint-disable-next-line no-await-in-loop -- serial poll
     await optIntoChallengeCooldown(page)
-    // eslint-disable-next-line no-await-in-loop -- serial poll interval; a person is at the keyboard.
+    // Serial poll interval; a person is at the keyboard.
+    // eslint-disable-next-line no-await-in-loop -- serial
     await sleep(pollMs)
   }
 }

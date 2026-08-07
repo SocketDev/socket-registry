@@ -94,7 +94,7 @@ describe('runNpmPortProvenanceCheck', () => {
     const root = makeScratchRepo({
       gitmodules: GITMODULES_TEXT.replace(
         `ref = ${PORTED_SHA}`,
-        `ref = ${'e'.repeat(40)}`,
+        () => `ref = ${'e'.repeat(40)}`,
       ),
     })
     await expect(

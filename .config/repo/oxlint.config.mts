@@ -23,7 +23,8 @@ import { defineConfig } from 'oxlint'
 
 import { config } from '../fleet/oxlint.config.mts'
 
-// oxlint-disable-next-line socket/no-default-export -- oxlint loads the config from this module's default export.
+// oxlint loads the config from this module's default export.
+// oxlint-disable-next-line socket/no-default-export -- config
 export default defineConfig(
   config({
     // Type-aware rules (the `--type-aware` tsgolint lane the fleet lint

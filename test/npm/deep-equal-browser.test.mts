@@ -149,13 +149,8 @@ describe(`${eco} > ${sockRegPkgName} (portable branch)`, { skip }, () => {
 
   describe('Sets', () => {
     it('equal and unequal sets', () => {
-      // intentionally unsorted to verify order-independent Set equality.
-      // intentionally unsorted to verify
-      // intentionally unsorted to
-      // intentionally unsorted to
-      // intentionally unsorted to
-      // intentionally unsorted to
-      // oxlint-disable-next-line socket/sort-set-args -- intentionally unsorted to
+      // Intentionally unsorted to verify order-independent equality.
+      // oxlint-disable-next-line socket/sort-set-args -- unsorted
       expect(loose(new Set([1, 2, 3]), new Set([3, 2, 1]))).toBe(true)
       expect(loose(new Set([1, 2]), new Set([1, 2, 3]))).toBe(false)
     })

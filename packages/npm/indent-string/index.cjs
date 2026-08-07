@@ -49,5 +49,5 @@ module.exports = function indentString(input, count, options) {
     return input
   }
   const regex = includeEmptyLines ? /^/gm : /^(?!\s*$)/gm
-  return input.replace(regex, indent.repeat(count))
+  return input.replace(regex, () => indent.repeat(count))
 }

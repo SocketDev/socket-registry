@@ -124,7 +124,8 @@ async function main(): Promise<void> {
   const socketDevActions = []
   const externalActions = []
 
-  // oxlint-disable-next-line socket/prefer-cached-for-loop -- iterates Map.values() (non-array iterable); cached-length would be incorrect.
+  // Iterates Map.values() (non-array iterable); cached-length would fail.
+  // oxlint-disable-next-line socket/prefer-cached-for-loop -- reserved
 
   for (const dep of allDependencies.values()) {
     if (dep.startsWith('SocketDev/')) {

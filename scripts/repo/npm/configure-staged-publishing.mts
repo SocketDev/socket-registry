@@ -129,7 +129,8 @@ export async function loadStagedReports(
   }
   const reports: StagedTrustReport[] = []
   for (let i = 0, { length } = roster; i < length; i += 1) {
-    // eslint-disable-next-line no-await-in-loop -- serial reads keep each registry error tied to its package.
+    // Serial reads keep each registry error tied to its package.
+    // eslint-disable-next-line no-await-in-loop -- serial
     reports.push(await readStagedTrust(roster[i]!))
   }
   return reports
@@ -193,7 +194,8 @@ export async function dumpAccessPayload(
         publishedVersionCount: 0,
         settingsUrl: buildPackageAccessUrl(packageNames[i]!),
       }
-      // eslint-disable-next-line no-await-in-loop -- one browser page, one package at a time.
+      // One browser page, one package at a time.
+      // eslint-disable-next-line no-await-in-loop -- serial
       const payload = await readSettingsPayload(session.page, target)
       logger.log('')
       logger.log(`Key tree for ${target.name} (no string values are printed):`)
@@ -396,7 +398,8 @@ export async function main(): Promise<void> {
         // Read the current binding BEFORE writing, so a package that is already
         // correct is skipped rather than re-submitted. The read waits out any
         // sign-in, one-time password, or challenge first.
-        // eslint-disable-next-line no-await-in-loop -- one browser page, one package at a time.
+        // One browser page, one package at a time.
+        // eslint-disable-next-line no-await-in-loop -- serial
         const payload = await readSettingsPayload(session.page, target)
         const reading = readTrustedPublisherState(payload)
         const state = decideStagedConfigurationState(reading)
@@ -423,7 +426,8 @@ export async function main(): Promise<void> {
         // The page is already sitting on this package's settled access page, so
         // the write drives the form where it stands. No navigation: a reload
         // here closes the form it is about to fill.
-        // eslint-disable-next-line no-await-in-loop -- one browser page, one package at a time.
+        // One browser page, one package at a time.
+        // eslint-disable-next-line no-await-in-loop -- serial
         await applyStagedPublishing(session.page, target, { state })
         logger.success(
           `${target.name}: ${state} done — bound to ${describeBinding(TARGET_BINDING)} with "${STAGE_PUBLISH_ACTION}" allowed and "${DIRECT_PUBLISH_ACTION}" cleared.`,

@@ -76,7 +76,8 @@ let ignoreGlobs: readonly string[] | undefined
 export function getIgnoreGlobs(): readonly string[] {
   if (ignoreGlobs === undefined) {
     ignoreGlobs = Object.freeze([
-      // oxlint-disable-next-line socket/sort-set-args -- spread + template strings, non-sortable
+      // Spread + template strings, non-sortable.
+      // oxlint-disable-next-line socket/sort-set-args -- reserved
       ...new Set([
         // Most of these ignored files can be included specifically if included in the
         // files globs. Exceptions to this are:

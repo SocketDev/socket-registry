@@ -70,9 +70,11 @@ function getLogSymbols() {
     logSymbolsCache = {
       error: colors.red(supported ? '✖' : '×'),
       info: colors.blue(supported ? 'ℹ' : 'i'),
-      // oxlint-disable-next-line socket/no-status-emoji -- Vendored upstream log symbol; published module shape must match.
+      // Vendored upstream log symbol; published module shape must match.
+      // oxlint-disable-next-line socket/no-status-emoji -- vendored
       success: colors.green(supported ? '✔' : '√'),
-      // oxlint-disable-next-line socket/no-status-emoji -- Vendored upstream log symbol; published module shape must match.
+      // Vendored upstream log symbol; published module shape must match.
+      // oxlint-disable-next-line socket/no-status-emoji -- vendored
       warning: colors.yellow(supported ? '⚠' : '‼'),
     }
   }

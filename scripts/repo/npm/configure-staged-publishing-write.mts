@@ -314,7 +314,8 @@ export async function saveTrustedPublisherInPlace(
   let opened = false
   for (let attempt = 1; attempt <= maxFormAttempts; attempt += 1) {
     try {
-      // eslint-disable-next-line no-await-in-loop -- at most two serial passes: the form and its single reopen.
+      // At most two serial passes: the form and its single reopen.
+      // eslint-disable-next-line no-await-in-loop -- serial
       const revealPath = await ensureFormOpen(page)
       logger.substep(
         `${cfg.label}: trusted-publisher form opened via ${revealPath}`,
@@ -323,24 +324,28 @@ export async function saveTrustedPublisherInPlace(
       // mid-fill surfaces as a locator failure below, which is where it is
       // handled — asking the page a question here is what let a pause reload
       // the form out from under the fill.
-      // eslint-disable-next-line no-await-in-loop -- serial: one live form at a time.
+      // One live form at a time.
+      // eslint-disable-next-line no-await-in-loop -- serial
       await fillTrustedPublisherForm(page, cfg.desired, {
         packageName: cfg.label,
         url: cfg.url,
       })
-      // eslint-disable-next-line no-await-in-loop -- serial: one live form at a time.
+      // One live form at a time.
+      // eslint-disable-next-line no-await-in-loop -- serial
       await clickPublisherSave(page)
       opened = true
       break
     } catch (e) {
-      // eslint-disable-next-line no-await-in-loop -- serial: the page is asked once, only on failure.
+      // The page is asked once, only on failure.
+      // eslint-disable-next-line no-await-in-loop -- serial
       if (attempt >= maxFormAttempts || !(await cfg.challengePresent())) {
         throw e
       }
       logger.warn(
         `${cfg.label}: a human-verification challenge interrupted the form. Waiting it out in place, then reopening the form once.`,
       )
-      // eslint-disable-next-line no-await-in-loop -- serial pause while the operator solves the challenge.
+      // Serial pause while the operator solves the challenge.
+      // eslint-disable-next-line no-await-in-loop -- serial pause
       await cfg.pause()
     }
   }
@@ -353,7 +358,8 @@ export async function saveTrustedPublisherInPlace(
   for (;;) {
     let payload: unknown
     try {
-      // eslint-disable-next-line no-await-in-loop -- serial poll while npm settles.
+      // Serial poll while npm settles.
+      // eslint-disable-next-line no-await-in-loop -- polling
       payload = await cfg.readPayload()
     } catch {
       payload = undefined

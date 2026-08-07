@@ -227,7 +227,8 @@ export async function readLocalNpmPackages(): Promise<LocalPackageEntry[]> {
     )
     let raw: string
     try {
-      // eslint-disable-next-line no-await-in-loop -- serial reads keep each parse error tied to its package.
+      // Serial reads keep each parse error tied to its package.
+      // eslint-disable-next-line no-await-in-loop -- serial
       raw = await readFile(pkgJsonPath, 'utf8')
     } catch (e) {
       if ((e as NodeJS.ErrnoException | undefined)?.code === 'ENOENT') {

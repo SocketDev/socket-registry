@@ -128,7 +128,8 @@ export async function dismissSiteNotifications(page: Page): Promise<number> {
         // Always the FIRST one: closing a banner removes it from the list, so
         // the remaining stack shifts down and an index-based walk would skip
         // every other notice.
-        // eslint-disable-next-line no-await-in-loop -- serial: each close mutates the list the next read sees.
+        // Each close mutates the list the next read sees.
+        // eslint-disable-next-line no-await-in-loop -- serial
         await buttons.first().click({ timeout: 2000 })
         closed += 1
       } catch {
@@ -159,7 +160,8 @@ export async function closeStrayBlankPages(page: Page): Promise<number> {
         continue
       }
       try {
-        // eslint-disable-next-line no-await-in-loop -- serial: one page closes at a time.
+        // One page closes at a time.
+        // eslint-disable-next-line no-await-in-loop -- serial
         await other.close()
         closed += 1
       } catch {}

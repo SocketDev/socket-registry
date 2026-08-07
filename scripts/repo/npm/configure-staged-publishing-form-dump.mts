@@ -188,7 +188,8 @@ export async function dumpFormStructure(
         publishedVersionCount: 0,
         settingsUrl: buildPackageAccessUrl(name),
       }
-      // eslint-disable-next-line no-await-in-loop -- one browser page, one package at a time.
+      // One browser page, one package at a time.
+      // eslint-disable-next-line no-await-in-loop -- serial
       await dumpOneFormStructure(session.page, target)
     }
   } finally {

@@ -199,7 +199,9 @@ async function walkUpstreamTree(
       const depName = depNames[i]!
       if (!seen.has(depName)) {
         seen.add(depName)
-        // oxlint-disable-next-line no-await-in-loop -- Sequential, memoized walk: each visit reuses the shared cache, so awaiting in order avoids duplicate registry fetches of shared micro-deps.
+        // Sequential, memoized walk: each visit reuses the shared cache, so
+        // awaiting in order avoids duplicate registry fetches of shared deps.
+        // oxlint-disable-next-line no-await-in-loop -- serial cache
         await visit(depName, deps[depName]!, level + 1)
       }
     }
@@ -369,7 +371,9 @@ async function main(): Promise<void> {
   const records: OverrideRecord[] = []
   for (const sockRegPkgName of names) {
     const origPkgName = resolveOriginalPackageName(sockRegPkgName)
-    // oxlint-disable-next-line no-await-in-loop -- Reads are local package.json files; sequential keeps the catalog order deterministic and the cost is trivial.
+    // Reads are local package.json files; sequential keeps catalog order
+    // deterministic and the cost is trivial.
+    // oxlint-disable-next-line no-await-in-loop -- serial local
     const overrideDeps = await readOverrideDeps(sockRegPkgName)
     records.push({
       sockRegPkgName,
