@@ -95,7 +95,7 @@ describe('runCli', () => {
         readStdin: async () => '👍 - resolved at head.',
       })
       expect(code).toBe(0)
-      expect(io.lines.at(-2)).toContain('x-wh-gate://fill?phrase=')
+      expect(io.lines.at(-2)).toContain('x-socketsecurity--fleet://copy?text=')
     } finally {
       if (saved === undefined) {
         delete process.env['FORCE_HYPERLINK']

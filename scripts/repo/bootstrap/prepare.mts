@@ -24,7 +24,11 @@
  *      surface grows. USAGE: node scripts/repo/bootstrap/prepare.mts
  */
 
-// oxlint-disable-next-line socket/prefer-spawn-over-execsync -- dep-0 bare-node fetcher (documented invariant: never imports in-repo socket-lib): shells out to pnpm via node:child_process, and execFileSync's throw-on-nonzero gates the reconcile step — the lib spawn wrapper (async, non-throwing) would re-plumb the error handling.
+// Dep-0 bare-node fetcher (documented invariant: never imports in-repo
+// socket-lib): shells out to pnpm via node:child_process, and execFileSync's
+// throw-on-nonzero gates the reconcile step — the lib spawn wrapper (async,
+// non-throwing) would re-plumb the error handling.
+// oxlint-disable-next-line socket/prefer-spawn-over-execsync -- dep-0 bare-node
 import { execFileSync } from 'node:child_process'
 import { existsSync, readFileSync, realpathSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
@@ -129,7 +133,9 @@ export function isMainModule(): boolean {
 }
 
 export function log(message: string): void {
-  // oxlint-disable-next-line socket/no-console-prefer-logger -- dep-0 bootstrap prepare doctor runs on a bare clone with no node_modules: cannot import the lib logger; console.log writes to STDOUT.
+  // Dep-0 bootstrap prepare doctor runs on a bare clone with no node_modules:
+  // cannot import the lib logger; console.log writes to STDOUT.
+  // oxlint-disable-next-line socket/no-console-prefer-logger -- dep-0 bootstrap
   console.log(`fleet-prepare: ${message}`)
 }
 
