@@ -133,6 +133,7 @@ async function getLicenseActions(pkgPath: string): Promise<TemplateAction[]> {
   }
   const actions: TemplateAction[] = []
   for await (const filepath of globStreamLicenses(pkgPath, {
+    ignoreOriginals: true,
     recursive: true,
   })) {
     actions.push([String(filepath), licenseData])
