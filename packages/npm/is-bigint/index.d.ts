@@ -1,2 +1,2 @@
-declare function isBigInt(value: unknown): value is bigint | bigint
+declare function isBigInt(value: unknown): value is bigint | BigInt
 export = isBigInt

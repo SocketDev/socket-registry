@@ -1,2 +1,2 @@
-declare function isNumber(value: unknown): value is number | number
+declare function isNumber(value: unknown): value is number | Number
 export = isNumber
