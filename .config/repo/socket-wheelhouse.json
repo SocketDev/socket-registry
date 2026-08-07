@@ -17,9 +17,7 @@
     "type": "js"
   },
   "release": {
-    "publishedPackages": [
-      "@socketsecurity/registry"
-    ],
+    "publishedPackages": ["@socketsecurity/registry"],
     "provenanceOrphanBaseline": [
       {
         "id": "@socketsecurity/registry@2.0.2",
