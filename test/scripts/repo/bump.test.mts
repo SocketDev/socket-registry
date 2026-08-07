@@ -32,7 +32,7 @@ const repoRoot = path.resolve(
 
 describe('bump overlay — subjectWiringError', () => {
   const goodRoot = {
-    name: '@socketregistry/monorepo',
+    name: 'socket-registry',
     private: true,
     publishConfig: { directory: 'registry' },
     version: '2.0.3',

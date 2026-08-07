@@ -3,7 +3,7 @@
  *   MONOREPO whose release subject is NOT the root manifest: the published
  *   package is `@socketsecurity/registry`, whose manifest lives at
  *   `registry/package.json` and whose changelog lives at
- *   `registry/CHANGELOG.md`. The private root — `@socketregistry/monorepo` —
+ *   `registry/CHANGELOG.md`. The private root — `socket-registry` —
  *   is never published. `publish-infra/npm/bump.mts` resolves this overlay
  *   ahead of the canonical `scripts/fleet/bump.mts` and invokes it with the
  *   same contract: `--write-only` writes the bumped files without committing —
