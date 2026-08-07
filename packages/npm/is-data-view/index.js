@@ -1,13 +1,15 @@
 'use strict'
 
-const getByteLength = Object.getOwnPropertyDescriptor(
+// The buffer getter requires the [[DataView]] internal slot but, unlike the
+// byteLength getter, does not throw for a detached or out-of-bounds view.
+const getBuffer = Object.getOwnPropertyDescriptor(
   DataView.prototype,
-  'byteLength',
+  'buffer',
 ).get
 
 module.exports = function isDataView(value) {
   try {
-    getByteLength.call(value)
+    getBuffer.call(value)
     return true
   } catch {}
   return false

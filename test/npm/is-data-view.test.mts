@@ -97,5 +97,19 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       const dv = new DataView(ab)
       expect(isDataView(dv)).toBe(true)
     })
+
+    it('returns true for a DataView over a detached ArrayBuffer', () => {
+      const ab = new ArrayBuffer(8)
+      const dv = new DataView(ab)
+      ab.transfer()
+      expect(isDataView(dv)).toBe(true)
+    })
+
+    it('returns true for a DataView out of bounds on a resizable ArrayBuffer', () => {
+      const rab = new ArrayBuffer(8, { maxByteLength: 16 })
+      const dv = new DataView(rab, 4)
+      rab.resize(2)
+      expect(isDataView(dv)).toBe(true)
+    })
   })
 })
