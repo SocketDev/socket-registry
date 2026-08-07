@@ -13,20 +13,22 @@ const attempters = [
   'Uint32Array',
   'BigInt64Array',
   'BigUint64Array',
-].map(name => {
-  const Ctor = globalThis[name]
-  const getter = Ctor.prototype.__lookupGetter__(Symbol.toStringTag)
-  const expected = getter.call(new Ctor())
-  return {
-    name,
-    check(value) {
-      try {
-        return getter.call(value) === expected
-      } catch {}
-      return false
-    },
-  }
-})
+]
+  .filter(name => typeof globalThis[name] === 'function')
+  .map(name => {
+    const Ctor = globalThis[name]
+    const getter = Ctor.prototype.__lookupGetter__(Symbol.toStringTag)
+    const expected = getter.call(new Ctor())
+    return {
+      name,
+      check(value) {
+        try {
+          return getter.call(value) === expected
+        } catch {}
+        return false
+      },
+    }
+  })
 
 const { length: attempts } = attempters
 
