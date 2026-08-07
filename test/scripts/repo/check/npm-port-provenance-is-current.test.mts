@@ -77,8 +77,9 @@ function makeScratchRepo(options?: ScratchRepoOptions | undefined): string {
 describe('runNpmPortProvenanceCheck', () => {
   afterEach(async () => {
     while (scratchRoots.length) {
-      // scratch dirs are removed one at a time so a slow unlink can't race the next test's mkdtemp.
-      // oxlint-disable-next-line no-await-in-loop -- scratch dirs are removed
+      // Scratch dirs are removed one at a time so a slow unlink can't race
+      // the next test's mkdtemp.
+      // oxlint-disable-next-line no-await-in-loop -- one unlink at a time
       await safeDelete(scratchRoots.pop()!)
     }
   })

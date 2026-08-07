@@ -42,8 +42,9 @@ function strict(a: unknown, b: unknown): boolean {
 }
 
 function makeArguments(): IArguments {
-  // isArguments needs a genuine arguments exotic object; a rest array is not one.
-  // oxlint-disable-next-line prefer-rest-params -- isArguments needs a genuine
+  // isArguments needs a genuine arguments exotic object; a rest array is not
+  // one.
+  // oxlint-disable-next-line prefer-rest-params -- needs a real arguments
   return arguments
 }
 
