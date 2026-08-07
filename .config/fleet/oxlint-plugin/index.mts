@@ -97,6 +97,7 @@ import preferNonCapturingGroup from './fleet/prefer-non-capturing-group/index.mt
 import preferNormalizePath from './fleet/prefer-normalize-path/index.mts'
 import preferOptionalChain from './fleet/prefer-optional-chain/index.mts'
 import preferPureCallForm from './fleet/prefer-pure-call-form/index.mts'
+import preferReplaceFunction from './fleet/prefer-replace-function/index.mts'
 import preferRepoRootDotCache from './fleet/prefer-repo-root-dot-cache/index.mts'
 import preferSafeDelete from './fleet/prefer-safe-delete/index.mts'
 import preferSeparateTypeImport from './fleet/prefer-separate-type-import/index.mts'
@@ -217,6 +218,7 @@ const plugin = {
     'prefer-normalize-path': preferNormalizePath,
     'prefer-optional-chain': preferOptionalChain,
     'prefer-pure-call-form': preferPureCallForm,
+    'prefer-replace-function': preferReplaceFunction,
     'prefer-repo-root-dot-cache': preferRepoRootDotCache,
     'prefer-safe-delete': preferSafeDelete,
     'prefer-separate-type-import': preferSeparateTypeImport,

@@ -93,6 +93,7 @@
     "socket/prefer-normalize-path": "error",
     "socket/prefer-optional-chain": "error",
     "socket/prefer-pure-call-form": "error",
+    "socket/prefer-replace-function": "error",
     "socket/prefer-repo-root-dot-cache": "error",
     "socket/prefer-safe-delete": "error",
     "socket/prefer-separate-type-import": "error",

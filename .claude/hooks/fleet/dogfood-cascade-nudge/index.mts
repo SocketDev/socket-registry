@@ -135,7 +135,7 @@ export function autoCascade(repoDir: string): {
     'node',
     ['scripts/repo/sync-scaffolding/cli.mts', '--target', '.', '--fix'],
     // null-proto options-bag idiom: `__proto__: null` keeps the options prototype-free but changes the literal's inferred type, so the double cast is required to pass it as SpawnSyncOptions.
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- null-proto
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- proto
     {
       __proto__: null,
       cwd: repoDir,

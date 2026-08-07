@@ -454,7 +454,7 @@ export async function appendVerificationSection(
   // similar, prepend the backend name for attribution.
   const titled = section.replace(
     /^## (Claude |Codex |Kimi |Opencode )?Verification\b/i,
-    `## ${capitalize(backend)} Verification`,
+    () => `## ${capitalize(backend)} Verification`,
   )
   const existing = await fs.readFile(reportPath, 'utf8')
   await fs.writeFile(
