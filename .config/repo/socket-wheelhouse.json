@@ -18,6 +18,7 @@
   },
   "release": {
     "publishedPackages": ["@socketsecurity/registry"],
+    "versionSource": "package.json",
     "provenanceOrphanBaseline": [
       {
         "id": "@socketsecurity/registry@2.0.2",
