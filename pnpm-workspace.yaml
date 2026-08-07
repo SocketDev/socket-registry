@@ -109,7 +109,7 @@ catalog:
   # accidentally"), so the catalog-drift automation skips it and this pin is
   # hand-aligned with the canonical fleet catalog; bump to the stabilized 15.x
   # when it ships.
-  'nock': 14.0.16
+  'nock': 14.0.17
   # npm-high-impact 1.13.0 — wooorm's high-impact npm package lists
   # (npmHighImpact + npmTopDependents + npmTopDownloads); the ecosystem-reach
   # input for scripts/fleet/measure-ecosystem-impact.mts, which ranks override
@@ -163,6 +163,23 @@ catalog:
   # init script (see .config/fleet/playwright/).
   '@playwright/mcp': 0.0.78
   '@vitest/ui': 4.1.10
+
+# pnpm `overrides` block — two purposes:
+#
+# 1. Force every transitive `vite` resolution to the catalog'd 8.0.13.
+#    Vitest 4.1.6 advertises support for `vite: ^6.0.0 || ^7.0.0 || ^8.0.0`,
+#    so the bump is compatible. The override is what actually removes
+#    esbuild from the install tree — without it, vitest would still
+#    resolve vite ^6.x.
+#
+# 2. Force every consumer of Socket's own packages to resolve through
+#    the catalog-pinned published versions. The `catalog:` form rewrites
+#    `workspace:*`, `^x.y.z`, and bare-version specs alike to the version
+#    in the default `catalog:` block above. This is the safety property
+#    that prevents accidental local-checkout resolution when a sibling
+#    repo is on disk: even if a downstream package declares
+#    `"@socketsecurity/lib": "workspace:*"`, pnpm rewrites it to the
+#    pinned npm version instead of a sibling working tree.
 
   # pnpm `overrides` block — two purposes:
   #
@@ -563,8 +580,6 @@ overrides:
   'css-tree': '3.2.1'
   'is-interactive': 'npm:@socketregistry/is-interactive@1.0.6'
   'is-unicode-supported': 'npm:@socketregistry/is-unicode-supported@1.0.5'
-  # 1.0.14 was pinned ahead of its publish and never landed on npm; 1.0.13 is
-  # the registry's latest, so the pin follows what actually shipped.
   'json-stable-stringify': 'npm:@socketregistry/json-stable-stringify@1.0.14'
   # Dependabot transitive-advisory pin (soaked, semver-compatible).
   'markdown-it': '14.3.0'

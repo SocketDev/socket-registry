@@ -23,7 +23,7 @@ catalog:
   '@playwright/mcp': 0.0.78
   '@redwoodjs/agent-ci': 0.17.1
   'dtu-github-actions': 0.17.1
-  '@shadscan/cli': 0.7.0
+  '@shadscan/cli': 0.8.0
   '@sinclair/typebox': 0.34.52
   # typebox 1.x — the unscoped rewrite of @sinclair/typebox. Both names are
   # pinned while the fleet migrates; the 0.x entry is deleted once no member
