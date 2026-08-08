@@ -98,7 +98,7 @@ export function formatResults(results: ValidationResult[]): {
       continue
     }
     if (!result.issues.length) {
-      logger.success(`✓ ${result.packageName}: All checks passed`)
+      logger.success(`${result.packageName}: All checks passed`)
       continue
     }
 
@@ -106,10 +106,10 @@ export function formatResults(results: ValidationResult[]): {
       const message = `${result.packageName}: ${issue.message}`
       if (issue.severity === 'error') {
         errors.push(message)
-        logger.error(`✗ ${message}`)
+        logger.fail(`${message}`)
       } else {
         warnings.push(message)
-        logger.warn(`⚠ ${message}`)
+        logger.warn(`${message}`)
       }
     }
   }
@@ -480,7 +480,7 @@ async function main(): Promise<void> {
     logger.warn(`${warnings.length} warning(s) found`)
   } else {
     logger.error('')
-    logger.success('✓ All packages validated successfully!')
+    logger.success('All packages validated successfully!')
   }
 }
 

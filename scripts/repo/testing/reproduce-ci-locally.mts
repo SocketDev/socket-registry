@@ -95,7 +95,7 @@ export async function runBuild(workDir: string) {
     return false
   }
 
-  logger.success('✓ Build passed')
+  logger.success('Build passed')
   return true
 }
 
@@ -144,7 +144,7 @@ export async function runInstall(workDir: string) {
     return false
   }
 
-  logger.success('✓ Installation passed')
+  logger.success('Installation passed')
   return true
 }
 
@@ -166,7 +166,7 @@ export async function runLint(workDir: string) {
     return false
   }
 
-  logger.success('✓ Linting passed')
+  logger.success('Linting passed')
   return true
 }
 
@@ -199,7 +199,7 @@ export async function runNpmPackageTests(workDir: string) {
     return false
   }
 
-  logger.success('✓ NPM package tests passed')
+  logger.success('NPM package tests passed')
   return true
 }
 
@@ -221,7 +221,7 @@ export async function runTypecheck(workDir: string) {
     return false
   }
 
-  logger.success('✓ Type checking passed')
+  logger.success('Type checking passed')
   return true
 }
 
@@ -243,7 +243,7 @@ export async function runUnitTests(workDir: string) {
     return false
   }
 
-  logger.success('✓ Unit tests passed')
+  logger.success('Unit tests passed')
   return true
 }
 
@@ -306,12 +306,12 @@ async function main(): Promise<void> {
     logger.error('')
     logger.info('=== CI Reproduction Summary ===')
     if (success) {
-      logger.success('✓ All CI checks passed locally!')
+      logger.success('All CI checks passed locally!')
       logger.info(
         'Your changes should pass CI (though real CI may have additional checks).',
       )
     } else {
-      logger.error('✗ Some CI checks failed locally')
+      logger.fail('Some CI checks failed locally')
       logger.info('Fix these issues before pushing to avoid CI failures.')
       process.exitCode = 1
     }
