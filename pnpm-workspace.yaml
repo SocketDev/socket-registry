@@ -237,7 +237,14 @@ catalog:
   '@inquirer/checkbox': 4.3.2
   '@inquirer/core': 10.3.2
   '@inquirer/prompts': 7.10.1
-  '@mdn/browser-compat-data': 7.3.17
+# @mdn/browser-compat-data 8.0.10 — MDN's feature-support tables including
+  # per-feature Node.js version_added; the runtime-floor input for
+  # scripts/repo/npm/gen-engines-floors.mts, which computes each override's
+  # true engines floor from the features its shipped code uses. Published
+  # 2026-08-06, inside the 7-day window; owner-authorized soak bypass so the
+  # floor audit runs on current data. Exact-pinned so a future version
+  # re-soaks; drop the exclusion once it clears (2026-08-13).
+  '@mdn/browser-compat-data': 8.0.10
   '@npmcli/package-json': 7.0.5
   '@npmcli/promise-spawn': 8.0.3
   '@types/fs-extra': 11.0.4
