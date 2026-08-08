@@ -86,4 +86,20 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     expect(() => SafeBuffer.alloc([1, 2, 3])).toThrow()
     expect(() => SafeBuffer.alloc({})).toThrow()
   })
+
+  it('module is callable like upstream majors 1-4', () => {
+    expect(typeof safeBufferModule).toBe('function')
+    expect(safeBufferModule('hey').toString()).toBe('hey')
+    expect(new safeBufferModule('hey').toString()).toBe('hey')
+    expect(safeBufferModule.Buffer).toBe(safeBufferModule)
+  })
+
+  it('module carries the node:buffer namespace like upstream 5.x', () => {
+    expect(typeof safeBufferModule.kMaxLength).toBe('number')
+    expect(typeof safeBufferModule.transcode).toBe('function')
+    expect(typeof safeBufferModule.constants).toBe('object')
+    expect(typeof safeBufferModule.INSPECT_MAX_BYTES).toBe('number')
+    expect(typeof safeBufferModule.Blob).toBe('function')
+    expect(safeBufferModule.SlowBuffer).toBeUndefined()
+  })
 })
