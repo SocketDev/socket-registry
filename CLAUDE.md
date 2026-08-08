@@ -86,6 +86,7 @@
 - 🚨 Module-scope functions use `function foo() {}` declarations, not arrow consts. [`sorting`](docs/agents.md/fleet/sorting.md)
 - 🚨 Every top-level `src/` symbol is exported; `typescript/no-explicit-any` is fleet-wide, never relaxed; `as any` is forbidden. [`export-and-no-any`](docs/agents.md/fleet/export-and-no-any.md)
 - An exported name carries a domain word; a bare single generic token (`create`/`parse`/`get`) is a grep-noise magnet. [`code-style`](docs/agents.md/fleet/code-style.md)
+- 🚨 Fixture names in tests are fake but DESCRIPTIVE (`example.js`, `/path/to/example`, `@example/module` - an empty npm scope), never single-letter placeholders; backlog burns down shrink-only. (`scripts/fleet/check/fixture-names-are-descriptive.mts`) [`code-style`](docs/agents.md/fleet/code-style.md)
 - 🚨 Soft cap 500 lines, hard cap 1000: the soft band (501–1000) MUST split; the hard-cap-only `max-file-lines` marker names a real `<category>: <reason>`. [`file-size`](docs/agents.md/fleet/file-size.md) [`max-file-lines-hard-cap-only`](docs/agents.md/fleet/max-file-lines-hard-cap-only.md)
 - 🚨 New lint rules default `"error"` with `fixable: 'code'`; oxlint + oxfmt only, no ESLint/Prettier/Biome. [`lint-rules`](docs/agents.md/fleet/lint-rules.md)
 - 🚨 The formatter runs BEFORE the linter: oxfmt owns final wrapping, so a line-counting rule measured on unformatted text never converges; leave headroom under a cap. [`format-before-lint`](docs/agents.md/fleet/format-before-lint.md)
