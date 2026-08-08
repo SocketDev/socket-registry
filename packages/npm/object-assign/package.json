@@ -26,8 +26,14 @@
     "./package.json": "./package.json",
     "./object-assign.js": "./index.js",
     "./object-assign": "./index.js",
-    "./*.js": "./*.js",
-    "./*": "./*.js"
+    "./*.js": {
+      "types": "./*.d.ts",
+      "default": "./*.js"
+    },
+    "./*": {
+      "types": "./*.d.ts",
+      "default": "./*.js"
+    }
   },
   "publishConfig": {
     "access": "public",

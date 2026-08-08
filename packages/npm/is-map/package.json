@@ -36,8 +36,14 @@
       "default": "./index.cjs"
     },
     "./package.json": "./package.json",
-    "./*.js": "./*.js",
-    "./*": "./*.js"
+    "./*.js": {
+      "types": "./*.d.ts",
+      "default": "./*.js"
+    },
+    "./*": {
+      "types": "./*.d.ts",
+      "default": "./*.js"
+    }
   },
   "publishConfig": {
     "access": "public",

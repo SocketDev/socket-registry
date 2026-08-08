@@ -34,8 +34,14 @@
     "./package.json": "./package.json",
     "./valid-symbol.js": "./validate-symbol.js",
     "./valid-symbol": "./validate-symbol.js",
-    "./*.js": "./*.js",
-    "./*": "./*.js"
+    "./*.js": {
+      "types": "./*.d.ts",
+      "default": "./*.js"
+    },
+    "./*": {
+      "types": "./*.d.ts",
+      "default": "./*.js"
+    }
   },
   "publishConfig": {
     "access": "public",

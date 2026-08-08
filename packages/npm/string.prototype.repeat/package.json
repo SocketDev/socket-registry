@@ -43,8 +43,14 @@
     "./repeat.js": "./auto.js",
     "./repeat": "./auto.js",
     "./getPolyfill": "./polyfill.js",
-    "./*.js": "./*.js",
-    "./*": "./*.js"
+    "./*.js": {
+      "types": "./*.d.ts",
+      "default": "./*.js"
+    },
+    "./*": {
+      "types": "./*.d.ts",
+      "default": "./*.js"
+    }
   },
   "publishConfig": {
     "access": "public",

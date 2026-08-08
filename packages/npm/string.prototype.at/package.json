@@ -42,8 +42,14 @@
     "./package.json": "./package.json",
     "./at.js": "./auto.js",
     "./at": "./auto.js",
-    "./*.js": "./*.js",
-    "./*": "./*.js"
+    "./*.js": {
+      "types": "./*.d.ts",
+      "default": "./*.js"
+    },
+    "./*": {
+      "types": "./*.d.ts",
+      "default": "./*.js"
+    }
   },
   "publishConfig": {
     "access": "public",

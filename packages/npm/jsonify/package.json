@@ -29,8 +29,14 @@
     "./lib/parse": "./lib/parse.js",
     "./lib/stringify.js": "./lib/stringify.js",
     "./lib/stringify": "./lib/stringify.js",
-    "./*.js": "./*.js",
-    "./*": "./*.js"
+    "./*.js": {
+      "types": "./*.d.ts",
+      "default": "./*.js"
+    },
+    "./*": {
+      "types": "./*.d.ts",
+      "default": "./*.js"
+    }
   },
   "publishConfig": {
     "access": "public",
