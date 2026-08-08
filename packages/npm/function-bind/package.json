@@ -27,7 +27,9 @@
       "types": "./implementation.d.ts",
       "default": "./implementation.js"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./*.js": "./*.js",
+    "./*": "./*.js"
   },
   "publishConfig": {
     "access": "public",

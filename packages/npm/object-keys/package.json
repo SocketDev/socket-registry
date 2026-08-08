@@ -31,7 +31,9 @@
       "types": "./isArguments.d.ts",
       "default": "./isArguments.js"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./*.js": "./*.js",
+    "./*": "./*.js"
   },
   "publishConfig": {
     "access": "public",

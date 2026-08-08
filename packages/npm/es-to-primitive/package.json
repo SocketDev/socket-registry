@@ -15,7 +15,8 @@
   },
   "files": [
     "*.d.ts",
-    "*.js"
+    "*.js",
+    "helpers/*.js"
   ],
   "sideEffects": false,
   "exports": {
@@ -35,7 +36,9 @@
       "types": "./es2015.d.ts",
       "default": "./es2015.js"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./*.js": "./*.js",
+    "./*": "./*.js"
   },
   "publishConfig": {
     "access": "public",
