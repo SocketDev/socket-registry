@@ -36,6 +36,9 @@
       "default": "./index.cjs"
     },
     "./package.json": "./package.json",
+    "./index.js": "./index.cjs",
+    "./index": "./index.cjs",
+    "./package": "./package.json",
     "./*.js": "./*.js",
     "./*": "./*.js"
   },

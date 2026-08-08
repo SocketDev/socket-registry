@@ -40,6 +40,8 @@
       "default": "./shim.js"
     },
     "./package.json": "./package.json",
+    "./fromcodepoint.js": "./auto.js",
+    "./fromcodepoint": "./auto.js",
     "./*.js": "./*.js",
     "./*": "./*.js"
   },

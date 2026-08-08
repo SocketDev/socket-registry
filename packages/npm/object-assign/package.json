@@ -24,6 +24,8 @@
       "default": "./index.js"
     },
     "./package.json": "./package.json",
+    "./object-assign.js": "./index.js",
+    "./object-assign": "./index.js",
     "./*.js": "./*.js",
     "./*": "./*.js"
   },

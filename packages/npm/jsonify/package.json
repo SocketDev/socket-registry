@@ -15,7 +15,8 @@
   },
   "files": [
     "*.d.ts",
-    "*.js"
+    "*.js",
+    "lib/*.js"
   ],
   "sideEffects": false,
   "exports": {
@@ -24,6 +25,10 @@
       "default": "./index.js"
     },
     "./package.json": "./package.json",
+    "./lib/parse.js": "./lib/parse.js",
+    "./lib/parse": "./lib/parse.js",
+    "./lib/stringify.js": "./lib/stringify.js",
+    "./lib/stringify": "./lib/stringify.js",
     "./*.js": "./*.js",
     "./*": "./*.js"
   },

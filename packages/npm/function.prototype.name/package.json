@@ -15,7 +15,8 @@
   },
   "files": [
     "*.d.ts",
-    "*.js"
+    "*.js",
+    "helpers/*.js"
   ],
   "sideEffects": false,
   "exports": {

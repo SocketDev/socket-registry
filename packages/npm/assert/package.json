@@ -35,7 +35,9 @@
     "./package.json": "./package.json",
     "./assert.js": "./index.cjs",
     "./build/assert.js": "./package/build/assert.js",
-    "./build/*": "./package/build/*",
+    "./build/*": "./package/build/*.js",
+    "./assert": "./index.cjs",
+    "./build/*.js": "./package/build/*.js",
     "./*.js": "./*.js",
     "./*": "./*.js"
   },

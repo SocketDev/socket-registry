@@ -40,6 +40,8 @@
       "default": "./shim.js"
     },
     "./package.json": "./package.json",
+    "./array-of.js": "./index.js",
+    "./array-of": "./index.js",
     "./*.js": "./*.js",
     "./*": "./*.js"
   },

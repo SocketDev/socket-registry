@@ -40,6 +40,8 @@
       "default": "./shim.js"
     },
     "./package.json": "./package.json",
+    "./startswith.js": "./auto.js",
+    "./startswith": "./auto.js",
     "./*.js": "./*.js",
     "./*": "./*.js"
   },

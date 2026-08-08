@@ -40,6 +40,9 @@
       "default": "./shim.js"
     },
     "./package.json": "./package.json",
+    "./repeat.js": "./auto.js",
+    "./repeat": "./auto.js",
+    "./getPolyfill": "./polyfill.js",
     "./*.js": "./*.js",
     "./*": "./*.js"
   },

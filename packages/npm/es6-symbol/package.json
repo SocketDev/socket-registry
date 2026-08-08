@@ -32,6 +32,8 @@
       "default": "./polyfill.js"
     },
     "./package.json": "./package.json",
+    "./valid-symbol.js": "./validate-symbol.js",
+    "./valid-symbol": "./validate-symbol.js",
     "./*.js": "./*.js",
     "./*": "./*.js"
   },

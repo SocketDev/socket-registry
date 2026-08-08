@@ -27,6 +27,7 @@
     "./array-flatten.js": "./index.js",
     "./dist/index.js": "./index.js",
     "./dist/index": "./index.js",
+    "./array-flatten": "./index.js",
     "./*.js": "./*.js",
     "./*": "./*.js"
   },

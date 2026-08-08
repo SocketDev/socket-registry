@@ -40,6 +40,8 @@
       "default": "./shim.js"
     },
     "./package.json": "./package.json",
+    "./endswith.js": "./auto.js",
+    "./endswith": "./auto.js",
     "./*.js": "./*.js",
     "./*": "./*.js"
   },
