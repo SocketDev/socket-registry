@@ -55,7 +55,7 @@ function nodeVersionOf(entry: unknown): string | undefined {
 }
 
 function builtinsEntry(dotted: string): unknown {
-  let node: unknown = bcd.javascript.builtins
+  let node: unknown = bcd.javascript['builtins']
   const parts = dotted.split('.')
   for (let i = 0, { length } = parts; i < length; i += 1) {
     if (!node || typeof node !== 'object') {
@@ -249,7 +249,7 @@ export function detectFileFeatures(rawSource: string): DetectedFeature[] {
   // signal, so only names whose OLDEST owner is post-ES5 count, and the
   // contribution is the max across owners so the floor never understates. A
   // member referenced as a quoted string is feature-detected access.
-  const protoOwners = bcd.javascript.builtins as Record<string, unknown>
+  const protoOwners = bcd.javascript['builtins'] as Record<string, unknown>
   const ownerNames = Object.keys(protoOwners)
   for (const match of source.matchAll(PROTO_MEMBER_RE)) {
     const member = match[1]!
