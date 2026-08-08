@@ -1,3 +1,2 @@
-/// <reference types="node" />
-import { isGeneratorFunction } from 'node:util/types'
+declare function isGeneratorFunction(fn: unknown): fn is GeneratorFunction
 export = isGeneratorFunction

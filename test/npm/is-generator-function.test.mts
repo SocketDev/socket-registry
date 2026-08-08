@@ -11,6 +11,7 @@ import { setupNpmPackageTest } from '../util/npm-package-helper.mts'
 const {
   eco,
   module: isGeneratorFunction,
+  pkgPath,
   skip,
   sockRegPkgName,
 } = setupNpmPackageTest(import.meta.url)
@@ -96,6 +97,24 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       if (genFunc) {
         expect(isGeneratorFunction(genFunc)).toBe(true)
       }
+    })
+  })
+
+  describe('node lane (index.cjs) carries the same upstream contract', () => {
+    const isGeneratorFunctionCjs = require(`${pkgPath}/index.cjs`)
+
+    it('excludes async generator functions on both lanes', () => {
+      expect(isGeneratorFunction(async function* () {})).toBe(false)
+      expect(isGeneratorFunctionCjs(async function* () {})).toBe(false)
+    })
+
+    it('detects generator functions', () => {
+      expect(isGeneratorFunctionCjs(function* () {})).toBe(true)
+    })
+
+    it('rejects plain and async functions', () => {
+      expect(isGeneratorFunctionCjs(function () {})).toBe(false)
+      expect(isGeneratorFunctionCjs(async function () {})).toBe(false)
     })
   })
 })
