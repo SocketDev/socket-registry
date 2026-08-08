@@ -106,6 +106,9 @@ function collectLaneDivergences(repoRoot: string): LaneDivergence[] {
   const pkgNames = readdirSync(npmRoot).toSorted()
   for (let n = 0, { length } = pkgNames; n < length; n += 1) {
     const pkgName = pkgNames[n]
+    if (pkgName === undefined) {
+      continue
+    }
     const jsPath = path.join(npmRoot, pkgName, 'index.js')
     const cjsPath = path.join(npmRoot, pkgName, 'index.cjs')
     if (!existsSync(jsPath) || !existsSync(cjsPath)) {
@@ -149,7 +152,8 @@ export function runOverrideLanesCheck(
   repoRoot: string,
   options?: OverrideLanesCheckOptions | undefined,
 ): number {
-  const { quiet = false } = { __proto__: null, ...options }
+  const opts = { __proto__: null, ...options } as OverrideLanesCheckOptions
+  const quiet = opts.quiet === true
   const divergences = collectLaneDivergences(repoRoot)
   if (divergences.length === 0) {
     if (!quiet) {
