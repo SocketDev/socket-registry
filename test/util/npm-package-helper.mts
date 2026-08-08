@@ -185,7 +185,7 @@ function createDualLaneCompare(
       const shadowOutcome = callLane(shadow, thisArg, args)
       if (!outcomesAgree(primaryOutcome, shadowOutcome)) {
         throw new Error(
-          `packages/npm/${pkgName}: entry lanes disagree. Saw: ${primaryLabel} ${laneOutcome(primaryOutcome)}, ${shadowLabel} ${laneOutcome(shadowOutcome)}. Wanted: identical outcomes on every input. Fix: fork the divergent lane to match the upstream contract (see scripts/repo/check/override-lanes-agree.mts).`,
+          `packages/npm/${pkgName}: entry lanes disagree. Saw: ${primaryLabel} ${laneOutcome(primaryOutcome)}, ${shadowLabel} ${laneOutcome(shadowOutcome)}. Wanted: identical outcomes on every input. Fix: fork the divergent lane to match the upstream contract (see scripts/repo/check/override-lanes-match.mts).`,
         )
       }
       if (primaryOutcome.threw) {

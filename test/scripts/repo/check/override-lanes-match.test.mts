@@ -21,7 +21,7 @@ import {
   buildProbeBattery,
   collectLaneDivergences,
   runOverrideLanesCheck,
-} from '../../../../scripts/repo/check/override-lanes-agree.mts'
+} from '../../../../scripts/repo/check/override-lanes-match.mts'
 
 const REPO_ROOT = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -50,7 +50,7 @@ afterAll(async () => {
   }
 })
 
-describe('scripts/repo/check/override-lanes-agree', () => {
+describe('scripts/repo/check/override-lanes-match', () => {
   describe('probe battery', () => {
     it('carries every input class that exposed a real lane bug', () => {
       const labels = new Set(buildProbeBattery().map(([label]) => label))

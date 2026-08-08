@@ -11,7 +11,7 @@
  *   never a straight alias. This gate requires both lanes of every dual-lane
  *   override and compares them across a same-realm probe battery; any
  *   disagreement is an exit-1 failure naming the package, the probe, and
- *   both verdicts. Usage: node scripts/repo/check/override-lanes-agree.mts
+ *   both verdicts. Usage: node scripts/repo/check/override-lanes-match.mts
  *   [--quiet]
  */
 
@@ -235,14 +235,14 @@ export function runOverrideLanesCheck(
   if (report.divergences.length === 0) {
     if (!quiet) {
       logger.success(
-        `override-lanes-agree: ${report.packagesCompared} dual-lane overrides agree on behavior and name (${report.upstreamNamesChecked} names checked against the pinned upstream, ${report.upstreamNamesUnavailable} lane-vs-lane only - no loadable upstream copy on disk).`,
+        `override-lanes-match: ${report.packagesCompared} dual-lane overrides agree on behavior and name (${report.upstreamNamesChecked} names checked against the pinned upstream, ${report.upstreamNamesUnavailable} lane-vs-lane only - no loadable upstream copy on disk).`,
       )
     }
     return 0
   }
   logger.fail(
     [
-      'override-lanes-agree: an override ships different behavior or name per entry lane.',
+      'override-lanes-match: an override ships different behavior or name per entry lane.',
       '',
       ...report.divergences.map(
         d =>
@@ -253,7 +253,7 @@ export function runOverrideLanesCheck(
       '  exported function name; when a Node built-in covers only part of it,',
       '  fork inside the cjs lane instead of aliasing the built-in.',
       '  Fix: adjust the divergent lane until the upstream suite passes on',
-      '  both, then re-run: node scripts/repo/check/override-lanes-agree.mts',
+      '  both, then re-run: node scripts/repo/check/override-lanes-match.mts',
     ].join('\n'),
   )
   return 1
