@@ -6,8 +6,8 @@
     "localAssist": true
   },
   "bundle": {
-    "ref": "fleet-pack-51363ca7a069ad9b79f3250b8961b81fc6834d4c",
-    "cascadeSha": "51363ca7a069ad9b79f3250b8961b81fc6834d4c"
+    "ref": "fleet-pack-bea278ffbb962c1f53b05582259ca242a019e31c",
+    "cascadeSha": "bea278ffbb962c1f53b05582259ca242a019e31c"
   },
   "repo": {
     "type": "mono"
