@@ -168,11 +168,11 @@ function outcomesAgree(a: LaneOutcome, b: LaneOutcome): boolean {
   }
 }
 
-// Differential wrapper for dual-lane overrides: every suite call runs BOTH
+// Dual-lane compare for dual-lane overrides: every suite call runs BOTH
 // entry lanes and throws when they disagree, so the whole ported suite gates
 // index.js and index.cjs at once. The consumer-resolved entry stays the
 // primary: its return value, name, and properties are what the suite sees.
-function createLaneMirror(
+function createDualLaneCompare(
   pkgName: string,
   primary: (...args: unknown[]) => unknown,
   primaryLabel: string,
@@ -196,8 +196,9 @@ function createLaneMirror(
   })
 }
 
-// Load the override the way a consumer would, then mirror the sibling lane in
-// when the package ships both index.js and index.cjs so suites test both.
+// Load the override the way a consumer would, then compare the sibling lane
+// on every call when the package ships both index.js and index.cjs so suites
+// test both.
 function loadOverrideModule(pkgPath: string, pkgName: string): unknown {
   const entry = resolveOverrideEntry(pkgPath)
   const module: unknown = require(entry)
@@ -218,7 +219,7 @@ function loadOverrideModule(pkgPath: string, pkgName: string): unknown {
     return module
   }
   const primaryLabel = path.basename(shadowPath === jsPath ? cjsPath : jsPath)
-  return createLaneMirror(
+  return createDualLaneCompare(
     pkgName,
     module as (...args: unknown[]) => unknown,
     primaryLabel,
