@@ -27,7 +27,9 @@
       "types": "./shams.d.ts",
       "default": "./shams.js"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./*.js": "./*.js",
+    "./*": "./*.js"
   },
   "publishConfig": {
     "access": "public",

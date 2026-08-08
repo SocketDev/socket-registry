@@ -303,7 +303,7 @@ class YoctoSpinner {
 
   #lineCount(text) {
     const width = this.#stream.columns ?? defaultTtyColumns
-    const lines = stripVTControlCharacters(text).split('\n')
+    const lines = stripVTControlCharacters(text).split(/\r?\n/)
 
     let lineCount = 0
     for (let i = 0, { length } = lines; i < length; i += 1) {

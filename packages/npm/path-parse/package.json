@@ -25,7 +25,9 @@
         "default": "./index.js"
       }
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./*.js": "./*.js",
+    "./*": "./*.js"
   },
   "publishConfig": {
     "access": "public",

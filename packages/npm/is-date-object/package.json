@@ -35,7 +35,9 @@
       "types": "./index.d.cts",
       "default": "./index.cjs"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./*.js": "./*.js",
+    "./*": "./*.js"
   },
   "publishConfig": {
     "access": "public",

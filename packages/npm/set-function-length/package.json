@@ -27,7 +27,9 @@
       "types": "./env.d.ts",
       "default": "./env.js"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./*.js": "./*.js",
+    "./*": "./*.js"
   },
   "publishConfig": {
     "access": "public",

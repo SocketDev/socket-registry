@@ -37,7 +37,9 @@
       "default": "./index.cjs"
     },
     "./core.json": "./core.json",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./*.js": "./*.js",
+    "./*": "./*.js"
   },
   "publishConfig": {
     "access": "public",

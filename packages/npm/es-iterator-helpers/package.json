@@ -406,7 +406,9 @@
       "types": "./Iterator.prototype.toArray/shim.d.ts",
       "default": "./Iterator.prototype.toArray/shim.js"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./*.js": "./*.js",
+    "./*": "./*.js"
   },
   "publishConfig": {
     "access": "public",

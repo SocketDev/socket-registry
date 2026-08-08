@@ -41,7 +41,9 @@
       "types": "./shim.d.ts",
       "default": "./shim.js"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./*.js": "./*.js",
+    "./*": "./*.js"
   },
   "publishConfig": {
     "access": "public",

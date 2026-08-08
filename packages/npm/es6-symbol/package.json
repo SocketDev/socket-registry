@@ -31,7 +31,9 @@
       "types": "./polyfill.d.ts",
       "default": "./polyfill.js"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./*.js": "./*.js",
+    "./*": "./*.js"
   },
   "publishConfig": {
     "access": "public",

@@ -311,7 +311,9 @@
       "types": "./Date.parse/shim.d.ts",
       "default": "./Date.parse/shim.js"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./*.js": "./*.js",
+    "./*": "./*.js"
   },
   "publishConfig": {
     "access": "public",

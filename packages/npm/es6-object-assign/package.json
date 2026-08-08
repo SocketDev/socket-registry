@@ -27,7 +27,9 @@
       "types": "./auto.d.ts",
       "default": "./auto.js"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./*.js": "./*.js",
+    "./*": "./*.js"
   },
   "publishConfig": {
     "access": "public",

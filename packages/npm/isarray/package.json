@@ -45,7 +45,9 @@
       "types": "./index.d.mts",
       "default": "./index.mjs"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./*.js": "./*.js",
+    "./*": "./*.js"
   },
   "publishConfig": {
     "access": "public",
