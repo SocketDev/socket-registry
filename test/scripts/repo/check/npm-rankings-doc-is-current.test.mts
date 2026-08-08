@@ -9,6 +9,7 @@
 
 import { describe, expect, it } from 'vitest'
 
+import { normalizeMarkdownTables } from '../../../../scripts/repo/check/npm-rankings-doc-is-current.mts'
 import {
   collectOverrideRankings,
   renderHighImpactRankings,
@@ -51,6 +52,23 @@ describe('scripts/repo/npm/gen-high-impact-rankings', () => {
     const names = ['gamma', 'alpha', 'beta']
     expect(renderHighImpactRankings(DATA, names)).toBe(
       renderHighImpactRankings(DATA, names),
+    )
+  })
+
+  it('normalizes formatter-padded tables to compact form', () => {
+    const padded = [
+      '| Rank | Package |',
+      '| --------------: | :------ |',
+      '| 1    | `alpha` |',
+      'prose | untouched',
+    ].join('\n')
+    expect(normalizeMarkdownTables(padded)).toBe(
+      [
+        '| Rank | Package |',
+        '| ---: | :--- |',
+        '| 1 | `alpha` |',
+        'prose | untouched',
+      ].join('\n'),
     )
   })
 })

@@ -31,6 +31,29 @@ export interface RankingsDocCheckOptions {
   quiet?: boolean | undefined
 }
 
+// The markdown formatter pads pipe-table columns after generation, so a raw
+// byte-compare of render vs committed doc never converges (format-before-lint:
+// the formatter owns final wrapping). Comparing with table whitespace
+// collapsed keeps the gate about CONTENT while the formatter keeps styling.
+export function normalizeMarkdownTables(text: string): string {
+  return text
+    .split('\n')
+    .map(line => {
+      if (!line.startsWith('|')) {
+        return line
+      }
+      const spaced = line.replace(/\s*\|\s*/g, ' | ').trim()
+      // Delimiter cells stretch to column width under the formatter; collapse
+      // any dash run to three so alignment, not width, is what compares.
+      return spaced.replace(
+        /(^|\| )(:?)-+(:?)(?= \||$)/g,
+        (_m, lead: string, left: string, right: string) =>
+          `${lead}${left}---${right}`,
+      )
+    })
+    .join('\n')
+}
+
 export async function runRankingsDocCheck(
   options?: RankingsDocCheckOptions | undefined,
 ): Promise<number> {
@@ -56,7 +79,10 @@ export async function runRankingsDocCheck(
   const actual = existsSync(RANKINGS_DOC_PATH)
     ? readFileSync(RANKINGS_DOC_PATH, 'utf8')
     : undefined
-  if (actual === expected) {
+  if (
+    actual !== undefined &&
+    normalizeMarkdownTables(actual) === normalizeMarkdownTables(expected)
+  ) {
     if (!quiet) {
       logger.success(
         `npm-rankings-doc-is-current: ${relDoc} matches npm-high-impact ${manifest.version}.`,
