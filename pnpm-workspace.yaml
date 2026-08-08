@@ -237,7 +237,7 @@ catalog:
   '@inquirer/checkbox': 4.3.2
   '@inquirer/core': 10.3.2
   '@inquirer/prompts': 7.10.1
-# @mdn/browser-compat-data 8.0.10 — MDN's feature-support tables including
+  # @mdn/browser-compat-data 8.0.10 — MDN's feature-support tables including
   # per-feature Node.js version_added; the runtime-floor input for
   # scripts/repo/npm/gen-engines-floors.mts, which computes each override's
   # true engines floor from the features its shipped code uses. Published

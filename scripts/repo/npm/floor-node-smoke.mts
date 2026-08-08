@@ -208,7 +208,10 @@ async function main(): Promise<void> {
 
 // Entrypoint-guarded: floor-node-pin-matches-engines (check --all) imports
 // FLOOR_NODE_VERSION from this module, which must not trigger a download.
-if (process.argv[1] && import.meta.url === `file://${process.argv[1]}`) {
+if (
+  process.argv[1] &&
+  import.meta.url === pathToFileURL(process.argv[1]).href
+) {
   main().catch((e: unknown) => {
     logger.error(e)
     process.exitCode = 1
