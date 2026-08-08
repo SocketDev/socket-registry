@@ -24,6 +24,9 @@
       "default": "./index.js"
     },
     "./package.json": "./package.json",
+    "./array-flatten.js": "./index.js",
+    "./dist/index.js": "./index.js",
+    "./dist/index": "./index.js",
     "./*.js": "./*.js",
     "./*": "./*.js"
   },
