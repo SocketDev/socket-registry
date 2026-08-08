@@ -1,4 +1,9 @@
 'use strict'
 
-const nodeUtilTypes = /*@__PURE__*/ require('node:util/types')
-module.exports = nodeUtilTypes.isSharedArrayBuffer
+const {
+  isSharedArrayBuffer: nodeIsSharedArrayBuffer,
+} = /*@__PURE__*/ require('node:util/types')
+
+module.exports = function isSharedArrayBuffer(value) {
+  return nodeIsSharedArrayBuffer(value)
+}

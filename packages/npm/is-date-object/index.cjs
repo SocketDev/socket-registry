@@ -1,4 +1,7 @@
 'use strict'
 
-const nodeUtilTypes = /*@__PURE__*/ require('node:util/types')
-module.exports = nodeUtilTypes.isDate
+const { isDate: nodeIsDate } = /*@__PURE__*/ require('node:util/types')
+
+module.exports = function isDateObject(value) {
+  return nodeIsDate(value)
+}

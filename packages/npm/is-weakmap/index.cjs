@@ -1,4 +1,7 @@
 'use strict'
 
-const nodeUtilTypes = /*@__PURE__*/ require('node:util/types')
-module.exports = nodeUtilTypes.isWeakMap
+const { isWeakMap: nodeIsWeakMap } = /*@__PURE__*/ require('node:util/types')
+
+module.exports = function isWeakMap(value) {
+  return nodeIsWeakMap(value)
+}

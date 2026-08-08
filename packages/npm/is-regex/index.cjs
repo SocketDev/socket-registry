@@ -1,4 +1,7 @@
 'use strict'
 
-const nodeUtilTypes = /*@__PURE__*/ require('node:util/types')
-module.exports = nodeUtilTypes.isRegExp
+const { isRegExp: nodeIsRegExp } = /*@__PURE__*/ require('node:util/types')
+
+module.exports = function isRegex(value) {
+  return nodeIsRegExp(value)
+}

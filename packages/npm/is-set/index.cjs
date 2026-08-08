@@ -1,4 +1,7 @@
 'use strict'
 
-const nodeUtilTypes = /*@__PURE__*/ require('node:util/types')
-module.exports = nodeUtilTypes.isSet
+const { isSet: nodeIsSet } = /*@__PURE__*/ require('node:util/types')
+
+module.exports = function isSet(value) {
+  return nodeIsSet(value)
+}

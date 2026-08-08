@@ -1,4 +1,7 @@
 'use strict'
 
-const nodeUtilTypes = /*@__PURE__*/ require('node:util/types')
-module.exports = nodeUtilTypes.isMap
+const { isMap: nodeIsMap } = /*@__PURE__*/ require('node:util/types')
+
+module.exports = function isMap(value) {
+  return nodeIsMap(value)
+}
