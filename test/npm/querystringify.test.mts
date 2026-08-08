@@ -130,5 +130,29 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       expect(typeof obj).toBe('object')
       expect(Object.keys(obj).length).toBe(0)
     })
+
+    it('decodes exactly once, matching upstream', () => {
+      expect(qs.parse('a=%2520')).toEqual({ a: '%20' })
+    })
+
+    it('drops the whole pair when the value fails to decode', () => {
+      expect(Object.keys(qs.parse('a=%')).length).toBe(0)
+    })
+  })
+
+  describe('upstream encoding parity', () => {
+    it('encodes spaces as %20, never +', () => {
+      expect(qs.stringify({ q: 'a b' })).toBe('q=a%20b')
+    })
+
+    it("leaves ' ( ) * ~ unencoded like encodeURIComponent", () => {
+      expect(qs.stringify({ q: "it's (a) *test*~" })).toBe(
+        "q=it's%20(a)%20*test*~",
+      )
+    })
+
+    it('drops a pair whose value cannot encode', () => {
+      expect(qs.stringify({ a: '\uD800' })).toBe('')
+    })
   })
 })
