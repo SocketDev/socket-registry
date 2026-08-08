@@ -22,11 +22,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { gunzipSync } from 'node:zlib'
 
-import {
-  httpJson,
-  httpRequest,
-  HttpResponseError,
-} from '@socketsecurity/lib-stable/http-request'
+import { httpJson, httpRequest } from '@socketsecurity/lib-stable/http-request'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { resolveOriginalPackageName } from '@socketsecurity/lib-stable/packages/normalize'
 import { pEach } from '@socketsecurity/lib-stable/promises/iterate'
@@ -236,25 +232,16 @@ async function auditOverride(pkgDir: string): Promise<SurfaceGap[]> {
     if (!tarballUrl) {
       continue
     }
-    let body: Buffer
-    try {
-      const res = await httpRequest(tarballUrl)
-      if (res.status === 404) {
-        // A tarball the registry itself cannot serve is uninstallable by any
-        // consumer, so it carries no surface to cover.
-        continue
-      }
-      if (!res.ok) {
-        throw new Error(`GET ${tarballUrl} failed: HTTP ${res.status}`)
-      }
-      body = Buffer.from(await res.arrayBuffer())
-    } catch (e) {
-      if (e instanceof HttpResponseError && e.status === 404) {
-        continue
-      }
-      throw e
+    const res = await httpRequest(tarballUrl)
+    if (res.status === 404) {
+      // A tarball the registry itself cannot serve is uninstallable by any
+      // consumer, so it carries no surface to cover.
+      continue
     }
-    const files = listTarballFiles(body)
+    if (!res.ok) {
+      throw new Error(`GET ${tarballUrl} failed: HTTP ${res.status}`)
+    }
+    const files = listTarballFiles(Buffer.from(await res.arrayBuffer()))
     const legal = legalSubpathsFor(files, meta?.exports)
     gaps.push(...findSurfaceGaps(pkgDir, upstreamName, major, version, legal))
   }
