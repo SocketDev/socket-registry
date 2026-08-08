@@ -1429,6 +1429,7 @@ pnpm-debug.log
 .claude/hooks/fleet/target-arch-env-guard/package.json
 .claude/hooks/fleet/target-arch-env-guard/tsconfig.json
 .claude/hooks/fleet/test-env-scrub-order-guard/index.mts
+.claude/hooks/fleet/test-network-pattern-nudge/index.mts
 .claude/hooks/fleet/test-platform-coverage-nudge/index.mts
 .claude/hooks/fleet/test-script-defers-guard/README.md
 .claude/hooks/fleet/test-script-defers-guard/index.mts
@@ -2232,6 +2233,7 @@ scripts/fleet/_shared/check-steps-release.mts
 scripts/fleet/_shared/check-steps.mts
 scripts/fleet/_shared/dispatch-scan.mts
 scripts/fleet/_shared/fixer-lock.mts
+scripts/fleet/_shared/fixture-names.mts
 scripts/fleet/_shared/fleet-canonical-splice.mts
 scripts/fleet/_shared/fleet-membership.mts
 scripts/fleet/_shared/fleet-source-present.mts
@@ -2415,6 +2417,7 @@ scripts/fleet/check/external-tools-are-declared-once.mts
 scripts/fleet/check/external-tools-are-valid.mts
 scripts/fleet/check/external-tools-match-wheelhouse.mts
 scripts/fleet/check/fable-spawns-have-opus-fallback.mts
+scripts/fleet/check/fixture-names-are-descriptive.mts
 scripts/fleet/check/fleet-pack-ci-files-are-tracked.mts
 scripts/fleet/check/fleet-pack-workflow-payloads-are-fetchable.mts
 scripts/fleet/check/fleet-soak-exclude-parity.mts
@@ -2595,6 +2598,8 @@ scripts/fleet/consolidate-reports.mts
 scripts/fleet/constants/bot-identity.mts
 scripts/fleet/constants/brew-tap-pins.mts
 scripts/fleet/constants/catalog-holds.mts
+scripts/fleet/constants/fixture-name-burn-down.json
+scripts/fleet/constants/fixture-name-burn-down.mts
 scripts/fleet/constants/generated-globs.mts
 scripts/fleet/constants/model-pricing.json
 scripts/fleet/constants/npm-registry.mts

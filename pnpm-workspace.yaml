@@ -345,11 +345,6 @@ minimumReleaseAgeExclude:
   # markdownlint-cli2 0.23.1's vulnerable 5.2.1 exact-pin. Soak bypassed per
   # the high-severity security exception; exact-pinned so a future version
   # re-soaks.
-  # @mdn/browser-compat-data 8.0.10 — owner-authorized bypass so the engines
-  # floor audit runs on current compat data. Exact-pinned so a future
-  # version re-soaks.
-  # published: 2026-08-06 | removable: 2026-08-13
-  - '@mdn/browser-compat-data@8.0.10'
   # published: 2026-08-04 | removable: 2026-08-11
   - '@socketsecurity/lib@6.5.3'
   # published: 2026-08-03 | removable: 2026-08-10
@@ -466,6 +461,27 @@ minimumReleaseAgeExclude:
   - 'oxlint@1.77.0'
   # published: 2026-08-05 | removable: 2026-08-12
   - 'rolldown@1.2.3'
+  # vite 8.1.0 — dev dep (vitest's bundler). 8.1 adds experimental.bundledDev
+  # (NOT adopted — experimental, and the fleet runs stable-only). Published
+  # within the 7-day soak; exact-pinned so a future 8.1.1 still soaks.
+  # taze 19.16.0 — the dep updater itself; forced ahead of the soak by owner
+  # directive so the regenerated single-registry patch (patchedDependencies)
+  # tracks the current release. Exact-pinned so a future version re-soaks.
+  # shadscan 0.2.0 — deterministic UI audits for shadcn apps, used by the
+  # design skills; forced ahead of the soak by owner directive. Exact-pinned
+  # so a future version re-soaks.
+  # verkit — new dev-only transitive of taze 19.16.0 (same owner directive);
+  # exact-pinned so future versions re-soak.
+  # js-yaml 5.2.2 — HIGH security fix, GHSA-pm4m-ph32-ghv5: exponential parse
+  # time in flow collections. The canonical overrides entry forces it past
+  # markdownlint-cli2 0.23.1's vulnerable 5.2.1 exact-pin. Soak bypassed per
+  # the high-severity security exception; exact-pinned so a future version
+  # re-soaks.
+  # @mdn/browser-compat-data 8.0.10 — owner-authorized bypass so the engines
+  # floor audit runs on current compat data. Exact-pinned so a future
+  # version re-soaks.
+  # published: 2026-08-06 | removable: 2026-08-13
+  - '@mdn/browser-compat-data@8.0.10'
 
 # Refuse transitive (sub-) deps declared via git/tarball/local-tarball
 # specs. Direct git deps in this repo are still allowed; this only
