@@ -1,0 +1,138 @@
+{
+  "//": [
+    "Documented deviations for override-surface-covers-upstream-majors: the",
+    "upstream subpaths an override deliberately does NOT serve. Every entry",
+    "names its reason; the check treats a matching gap as accepted instead of",
+    "red. Patterns use a single trailing '*'. Grow this file only with a",
+    "reasoned entry - an alias or a real file is always preferred when the",
+    "subpath is genuine consumer API."
+  ],
+  "@hyrious/bun.lockb": [
+    {
+      "pattern": "./dist/*",
+      "reason": "upstream build-output tree; the exports map serves the parse API"
+    }
+  ],
+  "abab": [
+    {
+      "pattern": "./lib/*",
+      "reason": "internal implementation split of the deprecated upstream; the public atob/btoa surface is served at the root"
+    }
+  ],
+  "array-flatten": [
+    {
+      "pattern": "./dist.es2015/*",
+      "reason": "upstream v3 build-output tree; the served entry covers the API"
+    },
+    {
+      "pattern": "./dist/index.spec*",
+      "reason": "upstream ships its spec file inside dist; test code is not consumer surface"
+    }
+  ],
+  "array.from": [
+    {
+      "pattern": "./detect*",
+      "reason": "internal feature-detection module of the 0.x line"
+    }
+  ],
+  "array.of": [
+    {
+      "pattern": "./detect*",
+      "reason": "internal feature-detection module of the 0.x line"
+    }
+  ],
+  "deep-equal": [
+    {
+      "pattern": "./lib/*",
+      "reason": "0.x/1.x internal helpers; the public API is the root function"
+    },
+    {
+      "pattern": "./assert*",
+      "reason": "2.x vendored assert internals, never documented API"
+    }
+  ],
+  "es-iterator-helpers": [
+    {
+      "pattern": "./Iterator.prototype.chunks*",
+      "reason": "upstream method family not yet ported; tracked follow-up"
+    },
+    {
+      "pattern": "./Iterator.prototype.includes*",
+      "reason": "upstream method family not yet ported; tracked follow-up"
+    },
+    {
+      "pattern": "./Iterator.prototype.join*",
+      "reason": "upstream method family not yet ported; tracked follow-up"
+    },
+    {
+      "pattern": "./Iterator.prototype.windows*",
+      "reason": "upstream method family not yet ported; tracked follow-up"
+    }
+  ],
+  "es6-object-assign": [
+    {
+      "pattern": "./dist/*",
+      "reason": "browser build outputs; the module entry covers the API"
+    }
+  ],
+  "es6-symbol": [
+    {
+      "pattern": "./lib/private/*",
+      "reason": "upstream-private setup modules, named private by upstream itself"
+    }
+  ],
+  "globalthis": [
+    {
+      "pattern": "./implementation.browser*",
+      "reason": "browser-condition build twin; the node implementation is served"
+    }
+  ],
+  "has": [
+    {
+      "pattern": "./Gruntfile*",
+      "reason": "upstream build scaffolding shipped in old tarballs"
+    },
+    {
+      "pattern": "./src/*",
+      "reason": "pre-build source tree of old tarballs; the built entry is served"
+    }
+  ],
+  "indent-string": [
+    {
+      "pattern": "./cli*",
+      "reason": "v1/v2 shipped a CLI binary module; the override is library-only"
+    }
+  ],
+  "is-array-buffer": [
+    {
+      "pattern": "./dist/*",
+      "reason": "browser/esm build outputs of the 0.x-2.x line"
+    },
+    {
+      "pattern": "./src/*",
+      "reason": "pre-build source tree of the 0.x-2.x line"
+    },
+    {
+      "pattern": "./index.esm*",
+      "reason": "esm build twin of the 0.x-2.x line; the exports map serves ESM"
+    }
+  ],
+  "isarray": [
+    {
+      "pattern": "./build/*",
+      "reason": "upstream build scaffolding shipped in old tarballs"
+    }
+  ],
+  "object.assign": [
+    {
+      "pattern": "./dist/browser*",
+      "reason": "browser build output; the module entry covers the API"
+    }
+  ],
+  "string.prototype.matchall": [
+    {
+      "pattern": "./helpers/*",
+      "reason": "internal iterator helpers of majors 1-3; the public regexp-matchall pair is served at the root"
+    }
+  ]
+}
