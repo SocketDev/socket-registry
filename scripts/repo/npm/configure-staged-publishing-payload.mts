@@ -20,7 +20,7 @@
  *   shape" back into "enter your authenticator code".
  */
 
-import { OIDC_PERMISSION_ACTIONS } from '../../fleet/publish-infra/npm/access-context-schema.mts'
+import { OIDC_PERMISSION_ACTIONS } from '../../fleet/registry-infra/npm/access-context-schema.mts'
 
 /**
  * The action token npm uses for a staged publish in the trusted publisher's

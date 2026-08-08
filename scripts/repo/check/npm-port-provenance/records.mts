@@ -246,7 +246,7 @@ export function sortReleaseTags(tags: readonly string[]): string[] {
  */
 export function parseLsRemoteTags(lsRemoteOutput: string): string[] {
   const seen = new Set<string>()
-  const lines = lsRemoteOutput.split('\n')
+  const lines = lsRemoteOutput.split(/\r?\n/)
   for (let i = 0, { length } = lines; i < length; i += 1) {
     const m = LS_REMOTE_TAG_RE.exec(lines[i]!.trim())
     if (m) {

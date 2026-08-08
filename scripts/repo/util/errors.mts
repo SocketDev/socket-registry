@@ -6,7 +6,7 @@
  * Extract concise error information from stderr.
  */
 function extractErrorInfo(stderr: string): string {
-  const lines = stderr.split('\n')
+  const lines = stderr.split(/\r?\n/)
   const result: string[] = []
 
   // Find the main error message.
@@ -38,14 +38,14 @@ function extractErrorInfo(stderr: string): string {
 
   return result.length
     ? result.join('\n')
-    : stderr.split('\n').slice(0, 3).join('\n')
+    : stderr.split(/\r?\n/).slice(0, 3).join('\n')
 }
 
 /**
  * Extract concise npm error from stderr.
  */
 function extractNpmError(stderr: string): string {
-  const lines = stderr.split('\n')
+  const lines = stderr.split(/\r?\n/)
   const errorLines: string[] = []
 
   for (let i = 0, { length } = lines; i < length; i += 1) {

@@ -11,7 +11,7 @@ import { describe, expect, test } from 'vitest'
 
 import { verifyStagedPayload } from '../../../scripts/repo/npm/configure-staged-publishing-write.mts'
 
-import type { TrustedPublisherDesired } from '../../../scripts/fleet/publish-infra/npm/trusted-publisher-plan.mts'
+import type { TrustedPublisherDesired } from '../../../scripts/fleet/registry-infra/npm/trusted-publisher-plan.mts'
 
 const DESIRED: TrustedPublisherDesired = {
   allowNpmPublish: false,

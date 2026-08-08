@@ -78,7 +78,7 @@ export async function gitLsRemoteTags(
     cwd: ROOT_PATH,
   })
   const refs = new Map<string, string>()
-  const lines = String(result.stdout).split('\n')
+  const lines = String(result.stdout).split(/\r?\n/)
   for (let i = 0, { length } = lines; i < length; i += 1) {
     const [sha, ref] = lines[i]!.split('\t')
     if (sha && ref?.startsWith('refs/tags/')) {

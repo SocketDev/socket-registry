@@ -35,7 +35,7 @@ export async function extractDependenciesWithStructure(
   const dependencyMatch = content.match(/^# Dependencies:\n((?:#.+\n)+)/m)
   const dependencyBlock = dependencyMatch?.[1]
   if (dependencyBlock !== undefined) {
-    const lines = dependencyBlock.split('\n')
+    const lines = dependencyBlock.split(/\r?\n/)
     let currentParent: StructuredDependency | undefined
 
     for (let i = 0, { length } = lines; i < length; i += 1) {

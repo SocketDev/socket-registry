@@ -28,9 +28,9 @@ import { sleep } from '@socketsecurity/lib-stable/promises/timers'
 
 import type { Page } from 'playwright-core'
 
-import { ensureFormOpen } from '../../fleet/publish-infra/npm/trusted-publisher-page.mts'
+import { ensureFormOpen } from '../../fleet/registry-infra/npm/trusted-publisher-page.mts'
 
-import type { TrustedPublisherDesired } from '../../fleet/publish-infra/npm/trusted-publisher-plan.mts'
+import type { TrustedPublisherDesired } from '../../fleet/registry-infra/npm/trusted-publisher-plan.mts'
 import { formatUnresolvedActionControl } from './configure-staged-publishing-controls-report.mts'
 import {
   collectActionControlCandidates,

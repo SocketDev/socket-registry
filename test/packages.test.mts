@@ -183,14 +183,27 @@ for (let i = 0, { length } = ecosystems; i < length; i += 1) {
         if (entryExports) {
           it('file exists for every "export" entry of package.json', () => {
             expect(isObject(entryExports)).toBe(true)
-            for (const filePath of getExportFilePaths(entryExports)) {
-              expect(existsSync(path.join(pkgPath, filePath))).toBe(true)
+            // Pattern entries ("./*.js") are resolved per request, never
+            // literal files; the exports-surface suite gates their targets.
+            const literalPaths = getExportFilePaths(entryExports).filter(
+              p => !p.includes('*'),
+            )
+            for (
+              let k = 0, { length: pathCount } = literalPaths;
+              k < pathCount;
+              k += 1
+            ) {
+              expect(existsSync(path.join(pkgPath, literalPaths[k]!))).toBe(
+                true,
+              )
             }
           })
 
           it('should have a .d.ts file for every .js file', () => {
-            // Get all file paths from exports.
-            const allFilePaths = getExportFilePaths(entryExports) as string[]
+            // Get all file paths from exports, skipping per-request patterns.
+            const allFilePaths = (
+              getExportFilePaths(entryExports) as string[]
+            ).filter(p => !p.includes('*'))
             const jsFilePaths = allFilePaths.filter(s => /\.[cm]?js$/.test(s))
             const typeFilePaths = allFilePaths.filter(s =>
               /\.d\.[cm]?ts$/.test(s),

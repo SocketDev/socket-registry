@@ -62,7 +62,7 @@ export function getGitIgnorePatterns(): string[] {
     const gitignorePath = path.join(ROOT_PATH, '.gitignore')
     const content = readFileSync(gitignorePath, 'utf8')
     gitIgnorePatterns = content
-      .split('\n')
+      .split(/\r?\n/)
       .map(line => line.trim())
       .filter(line => line && !line.startsWith('#'))
   }

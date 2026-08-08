@@ -11,7 +11,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 const uploadNpmPackage = vi.fn()
 
 vi.mock(
-  import('../../../scripts/fleet/publish-infra/npm/publish-command.mts'),
+  import('../../../scripts/fleet/registry-infra/npm/publish-command.mts'),
   () => ({
     uploadNpmPackage: (...args: unknown[]) => uploadNpmPackage(...args),
   }),

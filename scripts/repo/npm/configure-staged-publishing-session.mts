@@ -50,7 +50,7 @@ import {
   MILLISECONDS_PER_SECOND,
 } from '@socketsecurity/lib-stable/constants/time'
 
-import { classifyStagedFetch } from '../../fleet/publish-infra/npm/staged-browser-parse.mts'
+import { classifyStagedFetch } from '../../fleet/registry-infra/npm/staged-browser-parse.mts'
 import {
   hasHumanVerificationMarkers,
   hasSettingsPayloadMarkers,

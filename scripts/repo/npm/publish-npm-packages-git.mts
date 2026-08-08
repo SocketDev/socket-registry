@@ -51,7 +51,7 @@ export async function checkoutCommit(
     throw new Error(
       `Refusing to reset a dirty worktree for the publish checkout.\n` +
         `  Where: this checkout, moving to ${sha}.\n` +
-        `  Saw vs wanted: ${dirty.split('\n').length} uncommitted change(s); wanted a clean worktree, because the checkout starts with \`git reset --hard\` and would discard them permanently (fleet checkouts are shared with parallel sessions).\n` +
+        `  Saw vs wanted: ${dirty.split(/\r?\n/).length} uncommitted change(s); wanted a clean worktree, because the checkout starts with \`git reset --hard\` and would discard them permanently (fleet checkouts are shared with parallel sessions).\n` +
         `  Fix: commit or move the changes, then re-run — or pass --dry-run to preview the publish flow without touching the worktree.`,
     )
   }
@@ -109,7 +109,7 @@ export async function findVersionBumpCommits() {
   ])
 
   const commits = []
-  const lines = result.stdout.trim().split('\n')
+  const lines = result.stdout.trim().split(/\r?\n/)
 
   for (let i = 0, { length } = lines; i < length; i += 1) {
     const line = lines[i]

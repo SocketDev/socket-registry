@@ -2,7 +2,7 @@
  * @file The LOCAL lane of the family publish: dispatch the
  *   `npm-publish-packages.yml` workflow and watch the run it starts.
  *   Nothing here uploads. The fleet allows exactly one npm upload invocation,
- *   `scripts/fleet/publish-infra/npm/publish-command.mts`, and it must run
+ *   `scripts/fleet/registry-infra/npm/publish-command.mts`, and it must run
  *   where the trusted-publishing identity lives — a GitHub Actions job with
  *   `id-token: write`. An operator machine has no OIDC token, so a local
  *   upload either fails or silently falls back to a long-lived token; the

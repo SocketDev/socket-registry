@@ -37,7 +37,7 @@ export interface RankingsDocCheckOptions {
 // collapsed keeps the gate about CONTENT while the formatter keeps styling.
 export function normalizeMarkdownTables(text: string): string {
   return text
-    .split('\n')
+    .split(/\r?\n/)
     .map(line => {
       if (!line.startsWith('|')) {
         return line

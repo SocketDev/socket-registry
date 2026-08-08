@@ -189,7 +189,7 @@ async function main(): Promise<void> {
       imported += 1
     } else {
       failures.push(
-        `${dirent.name}: ${String(run.stderr).trim().split('\n')[0]}`,
+        `${dirent.name}: ${String(run.stderr).trim().split(/\r?\n/)[0]}`,
       )
     }
   }

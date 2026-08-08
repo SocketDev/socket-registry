@@ -324,7 +324,7 @@ describe('formatStagedTrustProblem', () => {
         { staged: false, version: '1.0.8' },
       ]),
     })
-    const lines = formatStagedTrustProblem(report).split('\n')
+    const lines = formatStagedTrustProblem(report).split(/\r?\n/)
     expect(lines[0]).toMatch(/^What: /)
     expect(lines[1]).toMatch(/^Where: /)
     expect(lines[2]).toMatch(/^Saw: /)

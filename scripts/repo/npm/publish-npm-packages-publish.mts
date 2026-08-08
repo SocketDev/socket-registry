@@ -4,20 +4,19 @@
  *   over a package list, and a batched `pnpm stage approve` loop that refreshes
  *   the 2FA OTP as it walks hundreds of staged packages. Split out of
  *   publish-npm-packages.mts so that orchestrator stays under the file-size
- *   soft cap.
- *   The upload itself is NOT here. Every package's bytes go up through the one
- *   fleet-owned invocation, `uploadNpmPackage` in
- *   `scripts/fleet/publish-infra/npm/publish-command.mts`, which owns the argv,
- *   the provenance decision, and the trusted-publishing auth posture. What this
- *   file owns is the part that is genuinely per-repo: publish order, retry
- *   policy, and how an approve batch refreshes its OTP.
- *   Same staged shape as the fleet-canonical `scripts/fleet/publish.mts`: CI
- *   uploads via OIDC (`--staged`), a human promotes via 2FA (`--approve`). This
- *   monorepo publishes hundreds of packages per wave, so the approve step
- *   batches `pnpm stage approve` calls under one OTP and re-prompts before the
- *   ~30s TOTP window can expire mid-batch. The canonical script instead offers
- *   a one-shot multi-select, which is built for a single package.
- *   Failure recording, formatting, and the exit code live one file over, in
+ *   soft cap. The upload itself is NOT here. Every package's bytes go up
+ *   through the one fleet-owned invocation, `uploadNpmPackage` in
+ *   `scripts/fleet/registry-infra/npm/publish-command.mts`, which owns the
+ *   argv, the provenance decision, and the trusted-publishing auth posture.
+ *   What this file owns is the part that is genuinely per-repo: publish order,
+ *   retry policy, and how an approve batch refreshes its OTP. Same staged shape
+ *   as the fleet-canonical `scripts/fleet/publish.mts`: CI uploads via OIDC
+ *   (`--staged`), a human promotes via 2FA (`--approve`). This monorepo
+ *   publishes hundreds of packages per wave, so the approve step batches `pnpm
+ *   stage approve` calls under one OTP and re-prompts before the ~30s TOTP
+ *   window can expire mid-batch. The canonical script instead offers a one-shot
+ *   multi-select, which is built for a single package. Failure recording,
+ *   formatting, and the exit code live one file over, in
  *   publish-npm-packages-failures.mts.
  */
 
@@ -36,9 +35,9 @@ import {
 } from './publish-npm-packages-failures.mts'
 import type { PublishState } from './publish-npm-packages-failures.mts'
 import { extractNpmError } from '../util/errors.mts'
-import { uploadNpmPackage } from '../../fleet/publish-infra/npm/publish-command.mts'
-import { listStagedPackages } from '../../fleet/publish-infra/npm/shared.mts'
-import type { StageListEntry } from '../../fleet/publish-infra/npm/shared.mts'
+import { uploadNpmPackage } from '../../fleet/registry-infra/npm/publish-command.mts'
+import { listStagedPackages } from '../../fleet/registry-infra/npm/shared.mts'
+import type { StageListEntry } from '../../fleet/registry-infra/npm/shared.mts'
 import { isAlreadyPublished, runInherit } from '../../fleet/publish-shared.mts'
 
 const logger = getDefaultLogger()

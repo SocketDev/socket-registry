@@ -24,7 +24,7 @@ import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
 import type { Page } from 'playwright-core'
 
-import { ensureFormOpen } from '../../fleet/publish-infra/npm/trusted-publisher-page.mts'
+import { ensureFormOpen } from '../../fleet/registry-infra/npm/trusted-publisher-page.mts'
 
 import {
   openNpmSettingsSession,

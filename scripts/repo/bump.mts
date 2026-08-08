@@ -62,7 +62,7 @@ import {
 } from '../fleet/lib/changelog.mts'
 import { describeAnchor } from '../fleet/lib/release-anchor.mts'
 import { REPO_ROOT } from '../fleet/paths.mts'
-import { runCapture } from '../fleet/publish-infra/shared.mts'
+import { runCapture } from '../fleet/registry-infra/shared.mts'
 import {
   deriveSubjectRelease,
   preparedVersionFrom,

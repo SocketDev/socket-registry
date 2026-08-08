@@ -23,7 +23,7 @@ import { REPO_ROOT } from '../../fleet/paths.mts'
 import {
   fetchLatestPublishedVersionChecked,
   fetchRegistryReleaseState,
-} from '../../fleet/publish-infra/npm/registry.mts'
+} from '../../fleet/registry-infra/npm/registry.mts'
 
 import type {
   ReleaseDerivation,

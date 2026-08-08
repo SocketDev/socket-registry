@@ -73,7 +73,7 @@ export function filterRelativeToRoot(
 ): string[] {
   return stdout
     .trim()
-    .split('\n')
+    .split(/\r?\n/)
     .filter(Boolean)
     .filter(file => existsSync(path.join(gitRoot, file)))
 }

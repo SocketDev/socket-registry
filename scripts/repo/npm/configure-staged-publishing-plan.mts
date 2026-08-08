@@ -23,7 +23,7 @@ import {
   classifyStagedFetch,
   isCloudflareChallenge,
   looksLikeHtmlBody,
-} from '../../fleet/publish-infra/npm/staged-browser-parse.mts'
+} from '../../fleet/registry-infra/npm/staged-browser-parse.mts'
 import {
   bindingMatchesTarget,
   decideStagedConfigurationState,
@@ -82,7 +82,7 @@ import {
   WAIT_FOR_OPERATOR_MS,
 } from './configure-staged-publishing-session.mts'
 
-import type { StagedFetchState } from '../../fleet/publish-infra/npm/staged-browser-parse.mts'
+import type { StagedFetchState } from '../../fleet/registry-infra/npm/staged-browser-parse.mts'
 import type { StagedTrustReport } from './check-trusted-packages-staged.mts'
 import type { StagedConfigurationState } from './configure-staged-publishing-binding.mts'
 import type {

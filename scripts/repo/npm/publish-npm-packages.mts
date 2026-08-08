@@ -11,7 +11,7 @@
  *     run (publish-npm-packages-dispatch.mts). Nothing uploads from here. There
  *     is no local upload path and no `--force` that reaches one. The fleet
  *     allows exactly one npm upload invocation,
- *     `scripts/fleet/publish-infra/npm/publish-command.mts`, and it must run
+ *     `scripts/fleet/registry-infra/npm/publish-command.mts`, and it must run
  *     where the trusted-publishing identity lives.
  */
 

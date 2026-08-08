@@ -368,7 +368,7 @@ describe('operator-facing messages', () => {
       readiness: 'sign-in',
       url: ACCESS_URL,
     })
-    const lines = block.split('\n')
+    const lines = block.split(/\r?\n/)
     expect(lines[0]).toMatch(/^What: /)
     expect(lines[1]).toMatch(/^Where: /)
     expect(lines[2]).toMatch(/^Saw: /)

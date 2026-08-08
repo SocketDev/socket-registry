@@ -33,10 +33,19 @@
       }
     },
     "./package.json": "./package.json",
-    "./assert.js": "./index.cjs",
-    "./build/assert.js": "./package/build/assert.js",
+    "./assert.js": {
+      "types": "./assert.d.ts",
+      "default": "./index.cjs"
+    },
+    "./build/assert.js": {
+      "types": "./assert.d.ts",
+      "default": "./package/build/assert.js"
+    },
     "./build/*": "./package/build/*.js",
-    "./assert": "./index.cjs",
+    "./assert": {
+      "types": "./assert.d.ts",
+      "default": "./index.cjs"
+    },
     "./build/*.js": "./package/build/*.js",
     "./*.js": "./*.js",
     "./*": "./*.js"

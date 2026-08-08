@@ -3,35 +3,36 @@
  *   half, isolated from the CLI so the pure planning layer in
  *   `./configure-staged-publishing-plan.mts` stays testable without a browser.
  *   Session handling mirrors
- *   `scripts/fleet/publish-infra/npm/staged-browser-read.mts`: a durable Chrome
- *   profile the operator signs into ONCE, in the window. No login is scripted,
- *   so no password, OTP, or session cookie ever passes through this process.
- *   The only auth signal read here is npm's own `/-/whoami`, and the only auth
- *   failure reported is "signed out". Cloudflare human-verification is expected
- *   and handled by PAUSING for the operator rather than retrying, since a blind
- *   retry ladder against a bot challenge earns a rate limit. Each poll prints
- *   how long the run has waited and how long remains, so the wait is visible
- *   rather than a silent hang, and nothing is written while a challenge is
- *   outstanding. A signed-in session is NOT the same as a readable page, which
- *   is why every read goes through {@link waitForAccessPage} first. `/-/whoami`
- *   can answer with the username while npmjs still serves the sign-in /
- *   one-time-password interstitial for the access page, and that interstitial
- *   comes back through the spiferack fetch as HTTP 200 JSON. Reading it as a
- *   payload is how a package the operator was still signing in for got reported
- *   `unreadable`. So the wait polls until the page is authenticated AND settled
- *   on the access URL, and it never navigates while the operator holds the
- *   window — a `goto` mid-wait would wipe a half-typed one-time password.
- *   NOTHING here navigates after that first `goto`, and that is the module's
- *   load-bearing invariant rather than a nicety. A reload closed the
- *   trusted-publisher form on a live run, and the rapid reload traffic PROVOKED
- *   the very Cloudflare challenges it was pausing for. The pause is the fleet's
- *   `pauseForChallenge`, called directly. This module used to hand-copy it to
- *   strip its `goto`; the fleet pause now waits in place itself, so the copy
- *   only stopped the challenge rhythm's later fixes — the holding screen, the
- *   rerun hint, the injectable clock — from reaching this repo. The write still
- *   goes through `./configure-staged-publishing-write.mts` rather than the
- *   fleet's `driveVerifiedSave`, which DOES still re-navigate on every attempt:
- *   it opens the form once and treats an in-place RE-READ as the arbiter of
+ *   `scripts/fleet/registry-infra/npm/staged-browser-read.mts`: a durable
+ *   Chrome profile the operator signs into ONCE, in the window. No login is
+ *   scripted, so no password, OTP, or session cookie ever passes through this
+ *   process. The only auth signal read here is npm's own `/-/whoami`, and the
+ *   only auth failure reported is "signed out". Cloudflare human-verification
+ *   is expected and handled by PAUSING for the operator rather than retrying,
+ *   since a blind retry ladder against a bot challenge earns a rate limit. Each
+ *   poll prints how long the run has waited and how long remains, so the wait
+ *   is visible rather than a silent hang, and nothing is written while a
+ *   challenge is outstanding. A signed-in session is NOT the same as a readable
+ *   page, which is why every read goes through {@link waitForAccessPage} first.
+ *   `/-/whoami` can answer with the username while npmjs still serves the
+ *   sign-in / one-time-password interstitial for the access page, and that
+ *   interstitial comes back through the spiferack fetch as HTTP 200 JSON.
+ *   Reading it as a payload is how a package the operator was still signing in
+ *   for got reported `unreadable`. So the wait polls until the page is
+ *   authenticated AND settled on the access URL, and it never navigates while
+ *   the operator holds the window — a `goto` mid-wait would wipe a half-typed
+ *   one-time password. NOTHING here navigates after that first `goto`, and that
+ *   is the module's load-bearing invariant rather than a nicety. A reload
+ *   closed the trusted-publisher form on a live run, and the rapid reload
+ *   traffic PROVOKED the very Cloudflare challenges it was pausing for. The
+ *   pause is the fleet's `pauseForChallenge`, called directly. This module used
+ *   to hand-copy it to strip its `goto`; the fleet pause now waits in place
+ *   itself, so the copy only stopped the challenge rhythm's later fixes — the
+ *   holding screen, the rerun hint, the injectable clock — from reaching this
+ *   repo. The write still goes through
+ *   `./configure-staged-publishing-write.mts` rather than the fleet's
+ *   `driveVerifiedSave`, which DOES still re-navigate on every attempt: it
+ *   opens the form once and treats an in-place RE-READ as the arbiter of
  *   success rather than the click. During a REAL challenge or two-factor
  *   step-up the Socket shield is injected into the page as an
  *   operator-attention cue. It is best-effort garnish: `pointer-events: none`
@@ -52,12 +53,12 @@ import {
   openNpmBrowserSession,
   optIntoChallengeCooldown,
   pauseForChallenge,
-} from '../../fleet/publish-infra/npm/browser-session.mts'
+} from '../../fleet/registry-infra/npm/browser-session.mts'
 
 export { DEFAULT_PROFILE_DIR }
-import { CHALLENGE_PROGRESS_INTERVAL_MS } from '../../fleet/publish-infra/npm/challenge-gate.mts'
+import { CHALLENGE_PROGRESS_INTERVAL_MS } from '../../fleet/registry-infra/npm/challenge-gate.mts'
 
-import type { TrustedPublisherDesired } from '../../fleet/publish-infra/npm/trusted-publisher-plan.mts'
+import type { TrustedPublisherDesired } from '../../fleet/registry-infra/npm/trusted-publisher-plan.mts'
 import {
   classifyAccessPageReadiness,
   formatBindingWriteFailure,
@@ -465,7 +466,7 @@ export interface NpmSettingsSession {
 /**
  * Launch headed Chrome on the durable profile and wait for a signed-in
  * session, delegating to the fleet's one sanctioned launch in
- * `scripts/fleet/publish-infra/npm/browser-session.mts` so every npm browser
+ * `scripts/fleet/registry-infra/npm/browser-session.mts` so every npm browser
  * tool shares a single launch shape and profile.
  */
 export async function openNpmSettingsSession(

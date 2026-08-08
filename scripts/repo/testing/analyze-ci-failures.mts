@@ -193,7 +193,7 @@ const FAILURE_PATTERNS: Record<string, FailurePatternDef> = {
  * Analyze log content for failure patterns.
  */
 export function analyzeLog(logContent: string): Failure[] {
-  const lines = logContent.split('\n')
+  const lines = logContent.split(/\r?\n/)
   const failures: Failure[] = []
   let currentPackage: string | undefined
 

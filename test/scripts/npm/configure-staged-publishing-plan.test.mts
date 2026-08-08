@@ -317,7 +317,7 @@ describe('operator-facing messages', () => {
       ],
       state: 'create',
       target: target!,
-    }).split('\n')
+    }).split(/\r?\n/)
     expect(lines[0]).toMatch(/^What: /)
     expect(lines[1]).toMatch(/^Where: /)
     expect(lines[2]).toMatch(/^Saw: /)
@@ -336,7 +336,7 @@ describe('operator-facing messages', () => {
           'https://www.npmjs.com/package/@socketregistry/date/access',
       },
       'npm answered HTTP 500.',
-    ).split('\n')
+    ).split(/\r?\n/)
     expect(lines[0]).toMatch(/^What: /)
     expect(lines[1]).toMatch(/^Where: /)
     expect(lines[2]).toMatch(/^Saw: /)

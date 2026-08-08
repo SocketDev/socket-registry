@@ -60,7 +60,7 @@ export function extractDependencies(content: string): Dependency[] {
   if (!block) {
     return dependencies
   }
-  const lines = block.split('\n')
+  const lines = block.split(/\r?\n/)
   for (let i = 0, { length } = lines; i < length; i += 1) {
     const line = lines[i]
     if (!line) {

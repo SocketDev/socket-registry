@@ -216,7 +216,7 @@ describe('direct-publish clearing evidence', () => {
       publishedVersionCount: 0,
       settingsUrl:
         'https://www.npmjs.com/package/@socketregistry/nothing/access',
-    }).split('\n')
+    }).split(/\r?\n/)
     expect(lines[0]).toMatch(/^What: /)
     expect(lines[1]).toMatch(/^Where: /)
     expect(lines[2]).toMatch(/^Saw: /)
