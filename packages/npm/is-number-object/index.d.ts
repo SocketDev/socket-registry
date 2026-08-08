@@ -1,2 +1,2 @@
-declare function isNumber(value: unknown): value is number | Number
-export = isNumber
+declare function isNumberObject(value: unknown): value is number | Number
+export = isNumberObject

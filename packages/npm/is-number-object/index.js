@@ -2,7 +2,7 @@
 
 const { valueOf: numValueOf } = Number.prototype
 
-module.exports = function isNumber(value) {
+module.exports = function isNumberObject(value) {
   if (typeof value === 'number') {
     return true
   }
