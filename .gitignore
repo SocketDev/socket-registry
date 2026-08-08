@@ -2321,10 +2321,6 @@ scripts/fleet/backup-branches/unique-content.mts
 scripts/fleet/build-hook-bundle.mts
 scripts/fleet/build-hook-snapshot.mts
 scripts/fleet/build-infra/lib/external-tools-schema.json
-scripts/fleet/build-infra/lib/release-checksums/consumer.mts
-scripts/fleet/build-infra/lib/release-checksums/core.mts
-scripts/fleet/build-infra/lib/release-checksums/producer.mts
-scripts/fleet/build-infra/release-assets.schema.json
 scripts/fleet/build-oxlint-bundle.mts
 scripts/fleet/build-snapshot-launcher.mts
 scripts/fleet/bump.mts
@@ -2624,7 +2620,6 @@ scripts/fleet/cover/runner.mts
 scripts/fleet/cover/rust-lane.mts
 scripts/fleet/cover/scratch-isolation.mts
 scripts/fleet/crate-release-sha.mts
-scripts/fleet/create-release.mts
 scripts/fleet/cross-cli/fleet-fork-detect.mts
 scripts/fleet/cross-cli/pretooluse-hook.mts
 scripts/fleet/depot-ci.mts
