@@ -99,10 +99,57 @@ function probeVerdict(fn: (value: unknown) => unknown, input: unknown): string {
   }
 }
 
-function collectLaneDivergences(repoRoot: string): LaneDivergence[] {
+export interface LaneComparisonReport {
+  divergences: LaneDivergence[]
+  packagesCompared: number
+  upstreamNamesChecked: number
+  upstreamNamesUnavailable: number
+}
+
+// Resolve the pinned upstream package's export from the repo's own install
+// tree. A registry-semver .pnpm dir is the pin of record; a missing or
+// unloadable copy returns undefined and the caller reports the skip.
+function resolveUpstreamExport(
+  repoRoot: string,
+  pkgName: string,
+): unknown | undefined {
+  const pnpmRoot = path.join(repoRoot, 'node_modules', '.pnpm')
+  if (!existsSync(pnpmRoot)) {
+    return undefined
+  }
+  const prefix = `${pkgName}@`
+  const dirs = readdirSync(pnpmRoot)
+  let upstreamDir: string | undefined
+  for (let i = 0, { length } = dirs; i < length; i += 1) {
+    const dir = dirs[i]
+    if (
+      dir !== undefined &&
+      dir.startsWith(prefix) &&
+      /^\d/.test(dir.slice(prefix.length))
+    ) {
+      upstreamDir = dir
+      break
+    }
+  }
+  if (upstreamDir === undefined) {
+    return undefined
+  }
+  try {
+    return requireCjs(
+      path.join(pnpmRoot, upstreamDir, 'node_modules', pkgName),
+    ) as unknown
+  } catch {
+    return undefined
+  }
+}
+
+export function collectLaneDivergences(repoRoot: string): LaneComparisonReport {
   const battery = buildProbeBattery()
   const npmRoot = path.join(repoRoot, 'packages', 'npm')
   const divergences: LaneDivergence[] = []
+  let packagesCompared = 0
+  let upstreamNamesChecked = 0
+  let upstreamNamesUnavailable = 0
   const pkgNames = readdirSync(npmRoot).toSorted()
   for (let n = 0, { length } = pkgNames; n < length; n += 1) {
     const pkgName = pkgNames[n]
@@ -114,6 +161,7 @@ function collectLaneDivergences(repoRoot: string): LaneDivergence[] {
     if (!existsSync(jsPath) || !existsSync(cjsPath)) {
       continue
     }
+    packagesCompared += 1
     const jsLane: unknown = requireCjs(jsPath)
     const cjsLane: unknown = requireCjs(cjsPath)
     if (typeof jsLane !== 'function' || typeof cjsLane !== 'function') {
@@ -126,6 +174,30 @@ function collectLaneDivergences(repoRoot: string): LaneDivergence[] {
         })
       }
       continue
+    }
+    // The exported name is part of the contract: upstream names the function
+    // after the module, and both lanes must carry that name.
+    const upstream = resolveUpstreamExport(repoRoot, pkgName)
+    if (typeof upstream === 'function' && upstream.name !== '') {
+      upstreamNamesChecked += 1
+      if (jsLane.name !== upstream.name || cjsLane.name !== upstream.name) {
+        divergences.push({
+          cjsVerdict: JSON.stringify(cjsLane.name),
+          jsVerdict: JSON.stringify(jsLane.name),
+          pkgName,
+          probeLabel: `exported function name (upstream ${JSON.stringify(upstream.name)})`,
+        })
+      }
+    } else {
+      upstreamNamesUnavailable += 1
+      if (jsLane.name !== cjsLane.name) {
+        divergences.push({
+          cjsVerdict: JSON.stringify(cjsLane.name),
+          jsVerdict: JSON.stringify(jsLane.name),
+          pkgName,
+          probeLabel: 'exported function name',
+        })
+      }
     }
     for (const [probeLabel, input] of battery) {
       const jsVerdict = probeVerdict(
@@ -141,7 +213,12 @@ function collectLaneDivergences(repoRoot: string): LaneDivergence[] {
       }
     }
   }
-  return divergences
+  return {
+    divergences,
+    packagesCompared,
+    upstreamNamesChecked,
+    upstreamNamesUnavailable,
+  }
 }
 
 /**
@@ -154,25 +231,27 @@ export function runOverrideLanesCheck(
 ): number {
   const opts = { __proto__: null, ...options } as OverrideLanesCheckOptions
   const quiet = opts.quiet === true
-  const divergences = collectLaneDivergences(repoRoot)
-  if (divergences.length === 0) {
+  const report = collectLaneDivergences(repoRoot)
+  if (report.divergences.length === 0) {
     if (!quiet) {
-      logger.success('override-lanes-agree: every dual-lane override agrees.')
+      logger.success(
+        `override-lanes-agree: ${report.packagesCompared} dual-lane overrides agree on behavior and name (${report.upstreamNamesChecked} names checked against the pinned upstream, ${report.upstreamNamesUnavailable} lane-vs-lane only - no loadable upstream copy on disk).`,
+      )
     }
     return 0
   }
   logger.fail(
     [
-      'override-lanes-agree: an override ships different behavior per entry lane.',
+      'override-lanes-agree: an override ships different behavior or name per entry lane.',
       '',
-      ...divergences.map(
+      ...report.divergences.map(
         d =>
           `  packages/npm/${d.pkgName}: probe "${d.probeLabel}" - index.js says ${d.jsVerdict}, index.cjs says ${d.cjsVerdict}.`,
       ),
       '',
-      '  Wanted: both lanes implement the upstream contract; when a Node',
-      '  built-in covers only part of it, fork inside the cjs lane instead of',
-      '  aliasing the built-in.',
+      '  Wanted: both lanes implement the upstream contract, including the',
+      '  exported function name; when a Node built-in covers only part of it,',
+      '  fork inside the cjs lane instead of aliasing the built-in.',
       '  Fix: adjust the divergent lane until the upstream suite passes on',
       '  both, then re-run: node scripts/repo/check/override-lanes-agree.mts',
     ].join('\n'),
