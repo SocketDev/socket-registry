@@ -91,7 +91,7 @@
     "preflight": "node scripts/fleet/preflight.mts",
     "npm:auth:browser": "node scripts/fleet/npm-auth-browser.mts",
     "npm:auth:cli": "node scripts/fleet/npm-auth-cli.mts",
-    "gh:login": "node scripts/fleet/gh-login.mts"
+    "gh:auth": "node scripts/fleet/gh-auth.mts"
   },
   "devDependencies": {
     "@babel/core": "catalog:",
