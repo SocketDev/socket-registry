@@ -345,6 +345,11 @@ minimumReleaseAgeExclude:
   # markdownlint-cli2 0.23.1's vulnerable 5.2.1 exact-pin. Soak bypassed per
   # the high-severity security exception; exact-pinned so a future version
   # re-soaks.
+  # @mdn/browser-compat-data 8.0.10 — owner-authorized bypass so the engines
+  # floor audit runs on current compat data. Exact-pinned so a future
+  # version re-soaks.
+  # published: 2026-08-06 | removable: 2026-08-13
+  - '@mdn/browser-compat-data@8.0.10'
   # published: 2026-08-04 | removable: 2026-08-11
   - '@socketsecurity/lib@6.5.3'
   # published: 2026-08-03 | removable: 2026-08-10
