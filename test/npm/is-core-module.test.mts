@@ -85,8 +85,10 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   })
 
   describe('nodeVersion parameter (node export)', () => {
-    it('throws because the node export delegates to node:module isBuiltin', () => {
-      expect(() => isCore('fs', '20.0.0')).toThrow(TypeError)
+    it('answers version queries via the portable data table', () => {
+      expect(isCore('fs', '20.0.0')).toBe(true)
+      expect(isCore('_stream_readable', '20.0.0')).toBe(true)
+      expect(isCore('_stream_readable', '26.0.0')).toBe(false)
     })
   })
 

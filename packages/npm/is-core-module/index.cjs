@@ -1,13 +1,14 @@
 'use strict'
 
-const nodeModule = /*@__PURE__*/ require('node:module')
-const isBuiltin = nodeModule.isBuiltin
+const { isBuiltin } = /*@__PURE__*/ require('node:module')
+// node:module.isBuiltin has no version knowledge; explicit nodeVersion
+// queries fork to the portable data-table implementation so the node lane
+// carries the full upstream contract instead of refusing part of it.
+const portableIsCore = /*@__PURE__*/ require('./index.js')
 
 module.exports = function isCore(moduleName, nodeVersion) {
-  if (typeof nodeVersion === 'string') {
-    throw new TypeError(
-      'nodeVersion parameter not supported.\nPlease report this error to https://github.com/SocketDev/socket-registry/issues.',
-    )
+  if (nodeVersion !== undefined) {
+    return portableIsCore(moduleName, nodeVersion)
   }
   // Upstream looks the name up as a property key, so ToPropertyKey coercion
   // (and any throw it raises) is part of the contract; module.isBuiltin
