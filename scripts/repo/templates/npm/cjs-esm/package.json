@@ -25,6 +25,10 @@
   "exports": {
     ".": {
       "node": {
+        "require": {
+          "types": "./index.d.cts",
+          "default": "./index.cjs"
+        },
         "module-sync": {
           "types": "./index.d.mts",
           "default": "./index.js"
