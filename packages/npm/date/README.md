@@ -48,3 +48,7 @@ pnpm install @socketregistry/date
 ## Requirements
 
 Node >= `18`
+
+## Upstream compatibility
+
+This override serves upstream `^2`. Upstream 1.x is an unrelated ES5 date shim (Date.ISO side effects); only the es-shims 2.x collection is replaced.

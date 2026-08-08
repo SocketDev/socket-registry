@@ -48,3 +48,7 @@ pnpm install @socketregistry/promise.any
 ## Requirements
 
 Node >= `18`
+
+## Upstream compatibility
+
+This override serves upstream `>=1`. Upstream 0.x is a different package (first-successful-promise, non-AggregateError rejection); only the es-shims majors are replaced.

@@ -37,6 +37,7 @@
   "socket": {
     "categories": [
       "cleanup"
-    ]
+    ],
+    "upstreamCompatRange": "^2"
   }
 }

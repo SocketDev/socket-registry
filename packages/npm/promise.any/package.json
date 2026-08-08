@@ -53,6 +53,7 @@
   "socket": {
     "categories": [
       "cleanup"
-    ]
+    ],
+    "upstreamCompatRange": ">=1"
   }
 }

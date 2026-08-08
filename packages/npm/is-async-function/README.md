@@ -48,3 +48,7 @@ pnpm install @socketregistry/is-async-function
 ## Requirements
 
 Node >= `24`
+
+## Upstream compatibility
+
+This override serves upstream `^2`. Upstream 0.x/1.x is a different package (a callback-name heuristic by another author); its semantics invert this brand check, so those majors are not replaced.
