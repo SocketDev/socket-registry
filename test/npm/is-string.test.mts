@@ -1,17 +1,25 @@
 /**
  * @file Tests for @socketregistry/is-string npm package override.
  */
+import { describe } from 'vitest'
+
 import {
   createInvalidValuesExcluding,
   createTypeCheckerTests,
 } from '../util/type-checker-helper.mts'
 
-const isString = require('../../packages/npm/is-string')
+// The exports map serves index.js by default and index.cjs under the node
+// condition, so both lanes carry the upstream contract and both are gated.
+for (const lane of ['index.js', 'index.cjs']) {
+  const isString = require(`../../packages/npm/is-string/${lane}`)
 
-createTypeCheckerTests({
-  checkerFn: isString,
-  invalidValues: createInvalidValuesExcluding(['string']),
-  toStringTagTests: true,
-  typeName: 'String',
-  validValues: ['foo', Object('foo')],
-})
+  describe(`${lane} lane`, () => {
+    createTypeCheckerTests({
+      checkerFn: isString,
+      invalidValues: createInvalidValuesExcluding(['string']),
+      toStringTagTests: true,
+      typeName: 'String',
+      validValues: ['foo', Object('foo')],
+    })
+  })
+}

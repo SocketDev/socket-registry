@@ -3,6 +3,7 @@
  *   packages/npm/ without installing.
  */
 
+import { existsSync } from 'node:fs'
 import path from 'node:path'
 
 import { NPM, NPM_PACKAGES_PATH } from '../../scripts/repo/constants/paths.mts'
@@ -109,6 +110,123 @@ function resolveExportCondition(node: unknown): string | undefined {
   return undefined
 }
 
+// Render one lane's outcome for the divergence error: the thrown error's
+// constructor, or the returned value.
+function laneOutcome(outcome: LaneOutcome): string {
+  if (outcome.threw) {
+    return `threw ${outcome.error instanceof Error ? outcome.error.constructor.name : 'a non-Error'}`
+  }
+  const { value } = outcome
+  if (value !== null && typeof value === 'object') {
+    try {
+      return `returned ${JSON.stringify(value)}`
+    } catch {
+      return 'returned an unserializable object'
+    }
+  }
+  return `returned ${String(value)}`
+}
+
+interface LaneOutcome {
+  error?: unknown | undefined
+  threw: boolean
+  value?: unknown | undefined
+}
+
+function callLane(
+  lane: (...args: unknown[]) => unknown,
+  thisArg: unknown,
+  args: unknown[],
+): LaneOutcome {
+  try {
+    return { threw: false, value: Reflect.apply(lane, thisArg, args) }
+  } catch (e) {
+    return { error: e, threw: true }
+  }
+}
+
+function outcomesAgree(a: LaneOutcome, b: LaneOutcome): boolean {
+  // Both throwing counts as agreement; error text may legitimately differ.
+  if (a.threw || b.threw) {
+    return a.threw === b.threw
+  }
+  if (Object.is(a.value, b.value)) {
+    return true
+  }
+  const bothObjects =
+    a.value !== null &&
+    typeof a.value === 'object' &&
+    b.value !== null &&
+    typeof b.value === 'object'
+  if (!bothObjects) {
+    return false
+  }
+  try {
+    return JSON.stringify(a.value) === JSON.stringify(b.value)
+  } catch {
+    return false
+  }
+}
+
+// Differential wrapper for dual-lane overrides: every suite call runs BOTH
+// entry lanes and throws when they disagree, so the whole ported suite gates
+// index.js and index.cjs at once. The consumer-resolved entry stays the
+// primary: its return value, name, and properties are what the suite sees.
+function createLaneMirror(
+  pkgName: string,
+  primary: (...args: unknown[]) => unknown,
+  primaryLabel: string,
+  shadow: (...args: unknown[]) => unknown,
+  shadowLabel: string,
+): unknown {
+  return new Proxy(primary, {
+    apply(target, thisArg, args: unknown[]) {
+      const primaryOutcome = callLane(target, thisArg, args)
+      const shadowOutcome = callLane(shadow, thisArg, args)
+      if (!outcomesAgree(primaryOutcome, shadowOutcome)) {
+        throw new Error(
+          `packages/npm/${pkgName}: entry lanes disagree. Saw: ${primaryLabel} ${laneOutcome(primaryOutcome)}, ${shadowLabel} ${laneOutcome(shadowOutcome)}. Wanted: identical outcomes on every input. Fix: fork the divergent lane to match the upstream contract (see scripts/repo/check/override-lanes-agree.mts).`,
+        )
+      }
+      if (primaryOutcome.threw) {
+        throw primaryOutcome.error
+      }
+      return primaryOutcome.value
+    },
+  })
+}
+
+// Load the override the way a consumer would, then mirror the sibling lane in
+// when the package ships both index.js and index.cjs so suites test both.
+function loadOverrideModule(pkgPath: string, pkgName: string): unknown {
+  const entry = resolveOverrideEntry(pkgPath)
+  const module: unknown = require(entry)
+  const jsPath = path.join(pkgPath, 'index.js')
+  const cjsPath = path.join(pkgPath, 'index.cjs')
+  if (!existsSync(jsPath) || !existsSync(cjsPath)) {
+    return module
+  }
+  const resolvedEntry = path.resolve(entry)
+  const shadowPath = resolvedEntry === path.resolve(cjsPath) ? jsPath : cjsPath
+  let shadow: unknown
+  try {
+    shadow = require(shadowPath)
+  } catch {
+    return module
+  }
+  if (typeof module !== 'function' || typeof shadow !== 'function') {
+    return module
+  }
+  const primaryLabel = path.basename(shadowPath === jsPath ? cjsPath : jsPath)
+  return createLaneMirror(
+    pkgName,
+    module as (...args: unknown[]) => unknown,
+    primaryLabel,
+    shadow as (...args: unknown[]) => unknown,
+    path.basename(shadowPath),
+  )
+}
+
 /**
  * Sets up an NPM package test by loading the module from packages/npm/.
  */
@@ -126,7 +244,7 @@ export function setupNpmPackageTest(
 
   if (!skip) {
     try {
-      module = require(resolveOverrideEntry(pkgPath))
+      module = loadOverrideModule(pkgPath, sockRegPkgName)
     } catch {
       return {
         eco,
