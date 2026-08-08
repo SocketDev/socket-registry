@@ -3073,6 +3073,8 @@ importers:
 
   .config/fleet/oxlint-plugin/fleet/no-literal-control-char: {}
 
+  .config/fleet/oxlint-plugin/fleet/no-logger-glyph-prefix: {}
+
   .config/fleet/oxlint-plugin/fleet/no-logger-newline-literal: {}
 
   .config/fleet/oxlint-plugin/fleet/no-malformed-bypass-marker: {}
