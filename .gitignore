@@ -1816,6 +1816,8 @@ pnpm-debug.log
 .config/fleet/oxlint-plugin/fleet/no-lib-barrel-import/package.json
 .config/fleet/oxlint-plugin/fleet/no-literal-control-char/index.mts
 .config/fleet/oxlint-plugin/fleet/no-literal-control-char/package.json
+.config/fleet/oxlint-plugin/fleet/no-logger-glyph-prefix/index.mts
+.config/fleet/oxlint-plugin/fleet/no-logger-glyph-prefix/package.json
 .config/fleet/oxlint-plugin/fleet/no-logger-newline-literal/index.mts
 .config/fleet/oxlint-plugin/fleet/no-logger-newline-literal/package.json
 .config/fleet/oxlint-plugin/fleet/no-malformed-bypass-marker/index.mts
@@ -2463,6 +2465,7 @@ scripts/fleet/check/native-sources-are-doctrine-clean.mts
 scripts/fleet/check/native-tests-are-network-off.mts
 scripts/fleet/check/node-modules-symlink-is-ignored.mts
 scripts/fleet/check/npm-package-page-is-visible.mts
+scripts/fleet/check/npm-packages-are-bot-co-owned.mts
 scripts/fleet/check/odai-legs-are-switched-on.mts
 scripts/fleet/check/oxlint-plugin-loads.mts
 scripts/fleet/check/pack-bytes-have-no-private-refs.mts
@@ -2807,6 +2810,7 @@ scripts/fleet/publish-infra/npm/trusted-publisher-browser.mts
 scripts/fleet/publish-infra/npm/trusted-publisher-page.mts
 scripts/fleet/publish-infra/npm/trusted-publisher-parse.mts
 scripts/fleet/publish-infra/npm/trusted-publisher-plan.mts
+scripts/fleet/publish-infra/npm/web-auth-batch.mts
 scripts/fleet/publish-infra/npm/workspace-plan.mts
 scripts/fleet/publish-infra/npm/workspace.mts
 scripts/fleet/publish-infra/pin-readme.mts
