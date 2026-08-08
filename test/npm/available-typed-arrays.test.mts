@@ -31,4 +31,26 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       true,
     )
   })
+
+  it('reports every typed array the runtime actually has', () => {
+    const arrays = availableTypedArrays()
+    for (const name of [
+      'Float16Array',
+      'Float32Array',
+      'Float64Array',
+      'Int8Array',
+      'Int16Array',
+      'Int32Array',
+      'Uint8Array',
+      'Uint8ClampedArray',
+      'Uint16Array',
+      'Uint32Array',
+      'BigInt64Array',
+      'BigUint64Array',
+    ]) {
+      expect(arrays.includes(name)).toBe(
+        typeof (globalThis as Record<string, unknown>)[name] === 'function',
+      )
+    }
+  })
 })
