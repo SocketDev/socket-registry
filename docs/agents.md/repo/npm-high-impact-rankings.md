@@ -1,0 +1,190 @@
+# packages/npm overrides ranked by npm-high-impact
+
+Generated 2026-07-29 from npm-high-impact 1.13.0 (workspace devDependency,
+catalog-pinned). The package publishes three lists: `npmHighImpact`
+(17,338 packages, the union of the two lists below with the
+downloads-ranked portion first), `npmTopDownloads`
+(15,916 packages by weekly downloads), and `npmTopDependents`
+(4,687 packages by dependent count, sourced from ecosyste.ms).
+
+Method: each `packages/npm/<dir>` directory names the upstream package it
+overrides (`scope__name` maps to `@scope/name`); rank is the package's
+1-based position in each list.
+
+## Headline
+
+- 117 of 131 overrides (89.3%) appear in `npmHighImpact`.
+- 3 rank in the top 100, 40 in the top 500, and 74 in the
+  top 1,000 of the 17,338-package list.
+- Every listed override qualifies through download volume (its
+  `npmHighImpact` rank equals its `npmTopDownloads` rank);
+  62 also chart in `npmTopDependents`.
+- The highest-impact override is `safe-buffer` at rank 37 - the top
+  0.2% of the list.
+
+## Top 15 by dependent count
+
+Dependent rank is position in `npmTopDependents` (4,687 packages).
+
+| Dependents rank | Package | Impact rank |
+| ---: | --- | ---: |
+| 314 | `object-assign` | 137 |
+| 399 | `assert` | 2034 |
+| 842 | `function-bind` | 105 |
+| 865 | `safe-buffer` | 37 |
+| 894 | `deep-equal` | 1535 |
+| 1280 | `has` | 2009 |
+| 1450 | `object.assign` | 412 |
+| 1453 | `path-parse` | 184 |
+| 1510 | `isarray` | 51 |
+| 1531 | `json-stable-stringify` | 2267 |
+| 1617 | `indent-string` | 275 |
+| 1636 | `is-core-module` | 166 |
+| 1733 | `safer-buffer` | 179 |
+| 1868 | `object-keys` | 413 |
+| 1895 | `has-symbols` | 133 |
+
+## All 117 listed overrides
+
+Sorted by `npmHighImpact` rank. A dash means the package does not chart
+in `npmTopDependents`.
+
+| Impact rank | Package | Dependents rank |
+| ---: | --- | ---: |
+| 37 | `safe-buffer` | 865 |
+| 51 | `isarray` | 1510 |
+| 68 | `hasown` | - |
+| 105 | `function-bind` | 842 |
+| 133 | `has-symbols` | 1895 |
+| 134 | `es-define-property` | - |
+| 135 | `gopd` | - |
+| 137 | `object-assign` | 314 |
+| 166 | `is-core-module` | 1636 |
+| 179 | `safer-buffer` | 1733 |
+| 184 | `path-parse` | 1453 |
+| 219 | `has-tostringtag` | 2988 |
+| 231 | `es-set-tostringtag` | - |
+| 275 | `indent-string` | 1617 |
+| 347 | `has-property-descriptors` | 3280 |
+| 364 | `which-typed-array` | - |
+| 368 | `side-channel` | 2420 |
+| 391 | `for-each` | 4054 |
+| 396 | `is-unicode-supported` | 3103 |
+| 402 | `is-regex` | 2183 |
+| 412 | `object.assign` | 1450 |
+| 413 | `object-keys` | 1868 |
+| 425 | `available-typed-arrays` | 2802 |
+| 427 | `is-typed-array` | - |
+| 428 | `safe-regex-test` | - |
+| 436 | `set-function-length` | - |
+| 444 | `define-properties` | 1899 |
+| 445 | `is-generator-function` | - |
+| 446 | `regexp.prototype.flags` | 2780 |
+| 471 | `internal-slot` | 3047 |
+| 472 | `string.prototype.trimend` | 2785 |
+| 477 | `is-number-object` | 2955 |
+| 480 | `string.prototype.trimstart` | 2809 |
+| 484 | `globalthis` | 4643 |
+| 485 | `which-boxed-primitive` | 3051 |
+| 492 | `is-symbol` | 2408 |
+| 496 | `get-symbol-description` | 3384 |
+| 497 | `is-shared-array-buffer` | 3358 |
+| 498 | `functions-have-names` | 3134 |
+| 499 | `array-buffer-byte-length` | 3339 |
+| 503 | `function.prototype.name` | 3650 |
+| 504 | `is-bigint` | 3012 |
+| 505 | `is-string` | 2334 |
+| 508 | `is-date-object` | 2269 |
+| 531 | `is-array-buffer` | - |
+| 532 | `safe-array-concat` | - |
+| 539 | `typed-array-length` | - |
+| 540 | `typed-array-byte-offset` | - |
+| 545 | `is-weakset` | - |
+| 546 | `is-boolean-object` | 2951 |
+| 556 | `typed-array-buffer` | - |
+| 559 | `arraybuffer.prototype.slice` | 4076 |
+| 561 | `has-proto` | - |
+| 567 | `is-weakref` | 3452 |
+| 583 | `is-negative-zero` | 2525 |
+| 584 | `unbox-primitive` | 3115 |
+| 588 | `is-set` | - |
+| 595 | `which-collection` | - |
+| 601 | `is-map` | - |
+| 626 | `string.prototype.trim` | - |
+| 630 | `array-includes` | 1994 |
+| 640 | `typed-array-byte-length` | - |
+| 660 | `is-weakmap` | - |
+| 661 | `reflect.getprototypeof` | - |
+| 682 | `object.values` | 2250 |
+| 698 | `array.prototype.flatmap` | 2192 |
+| 702 | `array.prototype.flat` | 2494 |
+| 746 | `aggregate-error` | 2184 |
+| 753 | `object.entries` | 2547 |
+| 756 | `is-interactive` | 3779 |
+| 768 | `object.fromentries` | 3219 |
+| 778 | `array-flatten` | 2449 |
+| 892 | `string.prototype.matchall` | 3244 |
+| 997 | `array.prototype.findlastindex` | - |
+| 1028 | `es-iterator-helpers` | - |
+| 1042 | `querystringify` | - |
+| 1065 | `object.groupby` | - |
+| 1090 | `array.prototype.tosorted` | 3453 |
+| 1112 | `string.prototype.repeat` | - |
+| 1144 | `iterator.prototype` | - |
+| 1168 | `array.prototype.findlast` | - |
+| 1259 | `is-arguments` | 3636 |
+| 1385 | `typedarray` | 2983 |
+| 1481 | `abab` | 2998 |
+| 1535 | `deep-equal` | 894 |
+| 1570 | `object-is` | - |
+| 2009 | `has` | 1280 |
+| 2034 | `assert` | 399 |
+| 2267 | `json-stable-stringify` | 1531 |
+| 2320 | `jsonify` | - |
+| 2377 | `es-get-iterator` | - |
+| 2391 | `string.prototype.includes` | - |
+| 2394 | `es6-symbol` | 4427 |
+| 2575 | `is-nan` | - |
+| 2779 | `object.getownpropertydescriptors` | - |
+| 2795 | `harmony-reflect` | - |
+| 2873 | `number-is-nan` | 4416 |
+| 2997 | `util.promisify` | 3234 |
+| 3189 | `array.prototype.reduce` | - |
+| 3832 | `string.prototype.padend` | - |
+| 3948 | `object.hasown` | 4560 |
+| 4014 | `yocto-spinner` | - |
+| 4924 | `es-aggregate-error` | - |
+| 6157 | `string.prototype.codepointat` | - |
+| 6220 | `typedarray.prototype.slice` | - |
+| 6604 | `array.prototype.map` | - |
+| 6723 | `es6-object-assign` | - |
+| 6877 | `promise.allsettled` | - |
+| 6913 | `array.prototype.filter` | - |
+| 7181 | `array.prototype.find` | - |
+| 7329 | `string.fromcodepoint` | - |
+| 7675 | `array.prototype.toreversed` | - |
+| 8012 | `asynciterator.prototype` | - |
+| 8017 | `string.prototype.padstart` | - |
+| 9313 | `string.prototype.trimright` | - |
+| 9350 | `string.prototype.trimleft` | - |
+| 9954 | `reflect.ownkeys` | - |
+
+## Not listed (14)
+
+These overrides fall below the download and dependent thresholds of every
+npm-high-impact list - mostly low-traffic es-shims polyfills:
+
+- `@hyrious/bun.lockb`
+- `array.from`
+- `array.of`
+- `array.prototype.at`
+- `array.prototype.every`
+- `array.prototype.foreach`
+- `date`
+- `object.getprototypeof`
+- `promise.any`
+- `string.prototype.at`
+- `string.prototype.endswith`
+- `string.prototype.replaceall`
+- `string.prototype.split`
+- `string.prototype.startswith`

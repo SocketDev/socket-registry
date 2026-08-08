@@ -49,6 +49,20 @@ candidate-plus-overridden root set.
 **Rule:** record the root set with every result and refuse to compare runs
 that used different ones.
 
+## Research record
+
+The measured research behind the current override selection lives beside this
+doc:
+
+- [`npm-high-impact-rankings.md`](npm-high-impact-rankings.md) - every
+  existing override ranked by npm-high-impact position and dependent count
+  (117 of 131 chart; `safe-buffer` at rank 37 leads).
+- [`npm-override-candidates.md`](npm-override-candidates.md) - the candidate
+  research that chose the wave-1 ports: top-1,000 impact and dependent pools,
+  transitive-closure resolution of 5,328 packages, the tiered candidate
+  tables, and the measured wave-1 correction that exposed the clique trap
+  above.
+
 ## Related
 
 - `scripts/repo/npm/survey-override-deps.mts` - the offline-first survey of existing
