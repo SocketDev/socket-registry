@@ -18,7 +18,11 @@ for.
 
 All eight wave-1 predicates are now ported. Re-running the cut simulation
 against the SAME root set as the original run shows the plumbing did NOT
-collapse:
+collapse: the claim below - that porting the leaf predicates kills the
+plumbing without porting it - is FALSE. Real reduction, but ~a third, not
+~all.
+
+<details><summary><b>The re-measured cut table and clique analysis</b> - cuts land at 0-43% because the plumbing is a mutually-reinforcing clique</summary>
 
 | Plumbing          | After the 131 overrides | After wave 1 | Cut |
 | ----------------- | ----------------------: | -----------: | --: |
@@ -28,9 +32,6 @@ collapse:
 | `math-intrinsics` |                      19 |           13 | 32% |
 | `dunder-proto`    |                      21 |           15 | 29% |
 | `call-bind`       |                       2 |            2 |  0% |
-
-The claim below - that porting the leaf predicates kills the plumbing
-without porting it - is FALSE. Real reduction, but ~a third, not ~all.
 
 **Why.** The plumbing packages are largely each other's gateways. After the
 cut, the top surviving routes to `get-intrinsic` are `get-intrinsic` itself
@@ -48,6 +49,8 @@ early re-run reported `get-intrinsic` 31→25 purely because it walked every
 cached package instead of the original root set. Always record the root set
 with the result.
 
+</details>
+
 ## Superseded framing: consumer simplification already cuts most of Tier 1
 
 A cleanup override REMOVES the subtree under the package it replaces, so
@@ -55,7 +58,9 @@ the plumbing below an overridden consumer never installs. Simulating the
 existing 131 overrides against the dependency graph (zero out every
 overridden package's deps, re-check reachability from the top-package
 roots) shows the es-family plumbing is already mostly dead in a fully
-overridden tree:
+overridden tree.
+
+<details><summary><b>The simulated-cut table and surviving residue</b> - 88-100% of roots lose the plumbing; a small predicate clique keeps the rest alive</summary>
 
 | Plumbing                                         | Roots reaching it before | After |  Cut |
 | ------------------------------------------------ | -----------------------: | ----: | ---: |
@@ -80,6 +85,8 @@ the existing 131 - kills the plumbing without ever porting it. The Tier 1
 table below is therefore a list of what the residue runs through, not a
 list of packages to port directly.
 
+</details>
+
 By contrast, the Tier 2/3 candidates are 0% cut by the simulation
 (`readable-stream`, `string_decoder`, `resolve`, `qs`, `form-data` - their
 consumers are unportable-scale packages like `express`, `axios`,
@@ -91,6 +98,8 @@ The registry already ships this family's leaves (`function-bind`, `gopd`,
 `hasown`, `has-symbols`, `es-define-property`, `side-channel`,
 `set-function-length`, the `is-*` predicates). These sit one level up, so
 each port collapses a chain whose bottom is already Socket-hardened.
+
+<details><summary><b>The 17-candidate Tier 1 table</b> - impact, dependents, closure, and covered counts per package</summary>
 
 | Package                                              |  Impact | Dependents | Closure |  Covered |
 | ---------------------------------------------------- | ------: | ---------: | ------: | -------: |
@@ -111,6 +120,8 @@ each port collapses a chain whose bottom is already Socket-hardened.
 | `stop-iteration-iterator`                            |     673 |          - |      19 |        7 |
 | `is-data-view`                                       |     677 |          - |      24 |       12 |
 | `own-keys`                                           |     685 |          - |      16 |        7 |
+
+</details>
 
 `get-intrinsic` is the keystone: it sits under `call-bind`, `call-bound`,
 `side-channel-*`, `qs`, and most of `es-abstract`. `which-builtin-type` is

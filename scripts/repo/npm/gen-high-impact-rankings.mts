@@ -167,12 +167,16 @@ export function renderHighImpactRankings(
     'Sorted by `npmHighImpact` rank. A dash means the package does not chart',
     'in `npmTopDependents`.',
     '',
+    `<details><summary><b>The full ${listed.length}-row ranking table</b> - impact rank, package, dependents rank</summary>`,
+    '',
     '| Impact rank | Package | Dependents rank |',
     '| ---: | --- | ---: |',
     ...listed.map(
       r =>
         `| ${formatCell(r.impactRank)} | \`${r.name}\` | ${formatCell(r.dependentsRank)} |`,
     ),
+    '',
+    '</details>',
     '',
   ]
   return lines.join('\n')
