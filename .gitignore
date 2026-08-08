@@ -2656,6 +2656,7 @@ scripts/fleet/gen/package-exports.mts
 scripts/fleet/gen/repo-map.mts
 scripts/fleet/get-green.mts
 scripts/fleet/gh-heartbeat.mts
+scripts/fleet/gh-login.mts
 scripts/fleet/git-partial-submodule.mts
 scripts/fleet/git-partial-submodule/commands.mts
 scripts/fleet/git-partial-submodule/internal.mts
