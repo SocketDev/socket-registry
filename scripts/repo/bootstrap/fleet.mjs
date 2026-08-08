@@ -355,6 +355,33 @@ function readBundleRef(dest) {
   }
 }
 /**
+ * The member's build shape — `build.from` / `build.type` in its wheelhouse
+ * settings file. Drives the manifest's shape-scoped file groups: a group is
+ * placed only for shapes that ship it. Undefined fields on an absent or
+ * malformed config read as "shape unknown", which the filter treats as
+ * ship-everything so a config problem can never withhold payload.
+ */
+function readBuildShape(dest) {
+  const p = resolveSettingsPath(dest)
+  if (!p)
+    return {
+      from: void 0,
+      type: void 0,
+    }
+  try {
+    const json = JSON.parse(readFileSync(p, 'utf8'))
+    return {
+      from: json.build?.from,
+      type: json.build?.type,
+    }
+  } catch {
+    return {
+      from: void 0,
+      type: void 0,
+    }
+  }
+}
+/**
  * Read the member's full pinned `bundle` block (ref + cascadeSha) from the
  * wheelhouse settings file. The lock-step verify + the `fleet:status` verb need
  * BOTH halves — `readBundleRef` returns only the ref for the fetch default.
@@ -1430,6 +1457,42 @@ function wirePackageJson(dest) {
 }
 function normalizeManifestEntryPath(entry) {
   return normalizeBundlePath(entry.path)
+}
+/**
+ * Drop the manifest's shape-scoped files that the member's build shape does
+ * not ship, so every downstream consumer (placement, prune, ignore refresh,
+ * applied-files record) sees one consistent, member-effective file set. The
+ * matcher mirrors releaseChecksumFiles in sync-scaffolding/repo-shape.mts;
+ * the group DATA is stamped by make-release-bundle from that one source.
+ * Fail-open: no stamped groups, or an unknown shape (absent/malformed member
+ * config), returns the manifest untouched — a config problem must never
+ * withhold payload.
+ */
+function filterManifestForShape(manifest, shape) {
+  const groups = manifest.shapeScopedFiles
+  if (!groups?.length || shape.from === void 0) return manifest
+  const excluded = /* @__PURE__ */ new Set()
+  for (let i = 0, { length } = groups; i < length; i += 1) {
+    const group = groups[i]
+    if (
+      !group.ship.some(
+        cond =>
+          cond.from === shape.from &&
+          (cond.types === void 0 ||
+            (shape.type !== void 0 && cond.types.includes(shape.type))),
+      )
+    )
+      for (let j = 0, { length: flen } = group.files; j < flen; j += 1)
+        excluded.add(normalizeBundlePath(group.files[j]))
+  }
+  if (!excluded.size) return manifest
+  const files = {}
+  for (const { 0: rel, 1: hash } of Object.entries(manifest.files))
+    if (!excluded.has(normalizeBundlePath(rel))) files[rel] = hash
+  return {
+    ...manifest,
+    files,
+  }
 }
 /**
  * Compute the gitignore entries for thin mode — the wholly-fleet files that the
@@ -2652,21 +2715,25 @@ async function installFleet(config) {
         return 1
       }
     }
-    const fileCount = Object.keys(manifest.files).length
+    const memberManifest = filterManifestForShape(
+      manifest,
+      readBuildShape(dest),
+    )
+    const fileCount = Object.keys(memberManifest.files).length
     const segmentCount =
-      (manifest.segments?.length ?? 0) +
-      (manifest.settingsSegment === void 0 ? 0 : 1)
+      (memberManifest.segments?.length ?? 0) +
+      (memberManifest.settingsSegment === void 0 ? 0 : 1)
     if (cfg.dryRun) {
       logger.log(
         `install-fleet: [dry-run] ${fileCount} file(s) + ${segmentCount} segment(s) verified for ${sourceRef} (template ${manifest.templateSha}). Would write into ${dest}.`,
       )
       return 0
     }
-    const installResult = installFiles(filesDir, dest, manifest)
+    const installResult = installFiles(filesDir, dest, memberManifest)
     untrackGeneratedOutputs(dest, manifest.generatedPaths)
     const prunedCount = pruneStaleFleetFiles(
       dest,
-      manifest,
+      memberManifest,
       readAppliedFiles(dest),
     )
     const movedCount = applyMovedPaths(dest, manifest)
@@ -2680,15 +2747,15 @@ async function installFleet(config) {
     if (cfg.thin)
       untrackFleetPackPaths({
         dest,
-        manifest,
+        manifest: memberManifest,
       })
     else if (readBundleRef(dest) !== void 0)
       refreshFleetPackIgnores({
         dest,
-        manifest,
+        manifest: memberManifest,
       })
     writeAppliedRef(dest, sourceRef)
-    writeAppliedFiles(dest, Object.keys(manifest.files))
+    writeAppliedFiles(dest, Object.keys(memberManifest.files))
     const prunedTotal = prunedCount + tombstonedCount
     const movedNote = movedCount > 0 ? `, moved ${movedCount}` : ''
     const prunedNote =
@@ -2743,6 +2810,7 @@ export {
   fetchBlob,
   fetchBundleSource,
   fetchOciManifest,
+  filterManifestForShape,
   firstHeader,
   fleetPackOwnedPaths,
   formatLockStepError,
@@ -2782,6 +2850,7 @@ export {
   pullFleetBundleTarball,
   readAppliedFiles,
   readAppliedRef,
+  readBuildShape,
   readBundleConfig,
   readBundleRef,
   readManifest,

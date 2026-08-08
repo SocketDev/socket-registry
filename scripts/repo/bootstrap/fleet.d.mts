@@ -164,6 +164,18 @@ interface BundleConfig {
   readonly ref: string | undefined;
   readonly cascadeSha: string | undefined;
 }
+interface MemberBuildShape {
+  readonly from: string | undefined;
+  readonly type: string | undefined;
+}
+/**
+ * The member's build shape — `build.from` / `build.type` in its wheelhouse
+ * settings file. Drives the manifest's shape-scoped file groups: a group is
+ * placed only for shapes that ship it. Undefined fields on an absent or
+ * malformed config read as "shape unknown", which the filter treats as
+ * ship-everything so a config problem can never withhold payload.
+ */
+declare function readBuildShape(dest: string): MemberBuildShape;
 /**
  * Read the member's full pinned `bundle` block (ref + cascadeSha) from the
  * wheelhouse settings file. The lock-step verify + the `fleet:status` verb need
@@ -466,7 +478,28 @@ interface FleetFileManifest {
   settingsSegment?: {
     path: string;
   } | undefined;
+  shapeScopedFiles?: ReadonlyArray<{
+    files: readonly string[];
+    ship: ReadonlyArray<{
+      from: string;
+      types?: readonly string[] | undefined;
+    }>;
+  }> | undefined;
 }
+/**
+ * Drop the manifest's shape-scoped files that the member's build shape does
+ * not ship, so every downstream consumer (placement, prune, ignore refresh,
+ * applied-files record) sees one consistent, member-effective file set. The
+ * matcher mirrors releaseChecksumFiles in sync-scaffolding/repo-shape.mts;
+ * the group DATA is stamped by make-release-bundle from that one source.
+ * Fail-open: no stamped groups, or an unknown shape (absent/malformed member
+ * config), returns the manifest untouched — a config problem must never
+ * withhold payload.
+ */
+declare function filterManifestForShape<T extends FleetFileManifest>(manifest: T, shape: {
+  from: string | undefined;
+  type: string | undefined;
+}): T;
 /**
  * Compute the gitignore entries for thin mode — the wholly-fleet files that the
  * download/fetch action supplies, so they need not be git-tracked. Hybrid paths
@@ -821,4 +854,4 @@ declare function runStatus(config: InstallConfig): number;
 declare function installFleet(config: InstallConfig): Promise<number>;
 declare function isMainModule(): boolean;
 //#endregion
-export { AuthChallenge, BundleConfig, BundleFetchFn, BundleManifest, ERR_BUNDLE_BEHIND_LOCAL, ERR_LOCKSTEP_MISMATCH, FLEET_STATUS_SCRIPT, FetchedBundle, FetchedFiles, FleetCommentStyle, FleetFileManifest, GHCR_HOST, GhcrHttpGetFn, GhcrHttpOptions, GhcrHttpResponse, InstallConfig, InstallFilesResult, LockStepConfig, LockStepErrorParts, LockStepInputs, LockStepState, LockStepStateName, MANIFEST_ACCEPT, MergeWorkspaceConfig, NoticeDecisionInputs, NoticeStore, OciLayer, OciManifest, PREPARE_FETCH, PullBundleConfig, RefValidation, SETTINGS_CANDIDATES, SYNC_FLEET_SCRIPT, SegmentEntry, SettingsSegmentEntry, SpliceConfig, TarExtractConfig, UPDATE_NOTIFIER_OPT_OUT_ENV, UntrackFleetPackConfig, WorkspaceSegmentEntry, YamlEntryBody, YamlEntryChunk, YamlKeyBlock, applyMovedPaths, assertLockStep, beginMarker, computeSha256, endMarker, errorMessage, extractFleetBlockLines, extractManifestFromTarball, fetchBlob, fetchBundleSource, fetchOciManifest, firstHeader, fleetPackOwnedPaths, formatLockStepError, formatUpdateNotice, getGhcrToken, ghReleaseFetchBundle, ghcrBundleRepo, ghcrFetchBundle, ghcrTokenUrl, httpGet, installFiles, installFleet, installSegments, installSettingsSegment, installWorkspaceSegment, isBundleBehindLocalTemplate, isMainModule, legacyBeginMarker, legacyEndMarker, legacyTagBeginMarker, legacyTagEndMarker, lockStepExitCode, maybeShowUpdateNotice, mergeWorkspaceYaml, mergeYamlKeyBlock, normalizeBundlePath, normalizeManifestEntryPath, packBeginMarker, packEndMarker, parseArgs, parseWwwAuthenticate, parseYamlEntryChunks, parseYamlKeyBlocks, pickBundleLayer, printStatusReport, pruneStaleFleetFiles, pullFleetBundleTarball, readAppliedFiles, readAppliedRef, readBundleConfig, readBundleRef, readManifest, readNoticeStore, refreshFleetPackIgnores, removeTombstonedPaths, resolveLockStepState, resolveNewestRef, resolveReleaseTemplateSha, resolveRepoRoot, resolveSettingsPath, run, runStatus, segmentFileName, sha256Hex, shouldShowNotice, spliceFleetBlock, splicePackBlock, spliceYamlSeparatorRun, statusJson, stripLegacyUntrackEntriesFromFleetBlock, tarExecutable, tarExtractArgs, tokenFromBody, untrackFleetPackPaths, untrackGeneratedOutputs, validateBundleBlock, validateCascadeSha, validateRef, verifyBundleFiles, verifySegments, wirePackageJson, writeAppliedFiles, writeAppliedRef, writeNoticeStore };
+export { AuthChallenge, BundleConfig, BundleFetchFn, BundleManifest, ERR_BUNDLE_BEHIND_LOCAL, ERR_LOCKSTEP_MISMATCH, FLEET_STATUS_SCRIPT, FetchedBundle, FetchedFiles, FleetCommentStyle, FleetFileManifest, GHCR_HOST, GhcrHttpGetFn, GhcrHttpOptions, GhcrHttpResponse, InstallConfig, InstallFilesResult, LockStepConfig, LockStepErrorParts, LockStepInputs, LockStepState, LockStepStateName, MANIFEST_ACCEPT, MemberBuildShape, MergeWorkspaceConfig, NoticeDecisionInputs, NoticeStore, OciLayer, OciManifest, PREPARE_FETCH, PullBundleConfig, RefValidation, SETTINGS_CANDIDATES, SYNC_FLEET_SCRIPT, SegmentEntry, SettingsSegmentEntry, SpliceConfig, TarExtractConfig, UPDATE_NOTIFIER_OPT_OUT_ENV, UntrackFleetPackConfig, WorkspaceSegmentEntry, YamlEntryBody, YamlEntryChunk, YamlKeyBlock, applyMovedPaths, assertLockStep, beginMarker, computeSha256, endMarker, errorMessage, extractFleetBlockLines, extractManifestFromTarball, fetchBlob, fetchBundleSource, fetchOciManifest, filterManifestForShape, firstHeader, fleetPackOwnedPaths, formatLockStepError, formatUpdateNotice, getGhcrToken, ghReleaseFetchBundle, ghcrBundleRepo, ghcrFetchBundle, ghcrTokenUrl, httpGet, installFiles, installFleet, installSegments, installSettingsSegment, installWorkspaceSegment, isBundleBehindLocalTemplate, isMainModule, legacyBeginMarker, legacyEndMarker, legacyTagBeginMarker, legacyTagEndMarker, lockStepExitCode, maybeShowUpdateNotice, mergeWorkspaceYaml, mergeYamlKeyBlock, normalizeBundlePath, normalizeManifestEntryPath, packBeginMarker, packEndMarker, parseArgs, parseWwwAuthenticate, parseYamlEntryChunks, parseYamlKeyBlocks, pickBundleLayer, printStatusReport, pruneStaleFleetFiles, pullFleetBundleTarball, readAppliedFiles, readAppliedRef, readBuildShape, readBundleConfig, readBundleRef, readManifest, readNoticeStore, refreshFleetPackIgnores, removeTombstonedPaths, resolveLockStepState, resolveNewestRef, resolveReleaseTemplateSha, resolveRepoRoot, resolveSettingsPath, run, runStatus, segmentFileName, sha256Hex, shouldShowNotice, spliceFleetBlock, splicePackBlock, spliceYamlSeparatorRun, statusJson, stripLegacyUntrackEntriesFromFleetBlock, tarExecutable, tarExtractArgs, tokenFromBody, untrackFleetPackPaths, untrackGeneratedOutputs, validateBundleBlock, validateCascadeSha, validateRef, verifyBundleFiles, verifySegments, wirePackageJson, writeAppliedFiles, writeAppliedRef, writeNoticeStore };
