@@ -42,4 +42,12 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     expect(Array.isArray(aggregateError.errors)).toBe(true)
     expect(aggregateError.errors.length).toBe(0)
   })
+
+  it('instances are iterable like upstream majors 1-3', () => {
+    const err = new AggregateError([new Error('one'), 'two'])
+    const spread = [...err]
+    expect(spread.length).toBe(2)
+    expect(spread[0]).toBeInstanceOf(Error)
+    expect(spread).toEqual(err.errors)
+  })
 })

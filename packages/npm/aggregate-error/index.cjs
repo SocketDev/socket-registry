@@ -40,10 +40,21 @@ function AggregateErrorLike(errors, message) {
   // The function call AggregateError(…) is equivalent to the object creation
   // expression new AggregateError(…) with the same arguments.
   // https://tc39.es/ecma262/#sec-aggregate-error-constructor
-  return new AggregateErrorCtor(
+  const err = new AggregateErrorCtor(
     errorObjs,
     `\n${indentString(stacks.join('\n'), 4)}`,
   )
+  // Upstream majors 1-3 made instances iterable over their errors; the native
+  // AggregateError is not, so carry the union on the instance.
+  Object.defineProperty(err, Symbol.iterator, {
+    __proto__: null,
+    configurable: true,
+    value: function* errorsIterator() {
+      yield* this.errors
+    },
+    writable: true,
+  })
+  return err
 }
 
 function desc(value, configurable = true, writable = true) {

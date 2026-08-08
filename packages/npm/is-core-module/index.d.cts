@@ -1,3 +1,2 @@
-/// <reference types="node" />
-import { isBuiltin as isCore } from 'node:module'
+declare function isCore(moduleName: string, nodeVersion?: string): boolean
 export = isCore

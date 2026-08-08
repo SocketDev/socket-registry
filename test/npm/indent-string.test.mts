@@ -55,4 +55,12 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     const result = indentString('line1\n\nline3', 2)
     expect(result).toBe('  line1\n\n  line3')
   })
+
+  it('defaults count to 1 like every upstream major', () => {
+    expect(indentString('a\nb')).toBe(' a\n b')
+  })
+
+  it('supports the v1/v2 two-arg (input, indent) form', () => {
+    expect(indentString('a', '>')).toBe('>a')
+  })
 })

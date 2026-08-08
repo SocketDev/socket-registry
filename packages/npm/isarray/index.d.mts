@@ -1,2 +1,2 @@
 declare const isArray: typeof Array.isArray
-export { isArray }
+export default isArray

@@ -147,5 +147,17 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       expect(clone !== array).toBe(true)
       expect(clone).toEqual(array)
     })
+
+    it('accepts one-arg array-likes like v1', () => {
+      function grab() {
+        // eslint-disable-next-line prefer-rest-params
+        return arguments
+      }
+      expect(flattenLegacy(grab(1, [2], 3))).toEqual([1, 2, 3])
+    })
+
+    it('still rejects non-array-likes like v2', () => {
+      expect(() => flattenLegacy({})).toThrow(TypeError)
+    })
   })
 })

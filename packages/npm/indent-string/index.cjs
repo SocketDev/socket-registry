@@ -11,6 +11,13 @@ module.exports = function indentString(input, count, options) {
     indent = count
     count = options
   } else if (
+    // v1/v2 two-arg form: indentString(input, indent) with count of 1.
+    typeof count === 'string' &&
+    options === undefined
+  ) {
+    indent = count
+    count = 1
+  } else if (
     // isV3: indentString(input, count, indent)
     typeof count === 'number' &&
     typeof options === 'string'
@@ -29,6 +36,10 @@ module.exports = function indentString(input, count, options) {
     throw new TypeError(
       `Expected \`input\` to be a \`string\`, got \`${typeof input}\``,
     )
+  }
+  if (count === undefined) {
+    // Every upstream major defaults count to 1.
+    count = 1
   }
   if (typeof count !== 'number') {
     throw new TypeError(

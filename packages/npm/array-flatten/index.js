@@ -50,7 +50,14 @@ function flattenLegacy(arr) {
   const depth = isV1Api
     ? (arguments[1] ?? Number.POSITIVE_INFINITY)
     : Number.POSITIVE_INFINITY
-  if (!isV1Api && !ArrayIsArray(arr)) {
+  if (
+    !isV1Api &&
+    !ArrayIsArray(arr) &&
+    // v1 accepted array-likes such as arguments objects; v2 introduced the
+    // throw. Keep the throw only for true non-array-likes so both call shapes
+    // keep working.
+    (arr === null || typeof arr !== 'object' || typeof arr.length !== 'number')
+  ) {
     throw new TypeErrorCtor('Expected value to be an array')
   }
   return ArrayIsArray(arr) ? arr.flat(depth) : flattenFromDepth(arr, depth)
