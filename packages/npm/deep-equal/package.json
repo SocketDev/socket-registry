@@ -36,8 +36,14 @@
       "default": "./index.cjs"
     },
     "./package.json": "./package.json",
-    "./index.js": "./index.cjs",
-    "./index": "./index.cjs",
+    "./index.js": {
+      "types": "./index.d.cts",
+      "default": "./index.cjs"
+    },
+    "./index": {
+      "types": "./index.d.cts",
+      "default": "./index.cjs"
+    },
     "./package": "./package.json",
     "./*.js": {
       "types": "./*.d.ts",

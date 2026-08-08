@@ -40,8 +40,14 @@
       "default": "./shim.js"
     },
     "./package.json": "./package.json",
-    "./at.js": "./auto.js",
-    "./at": "./auto.js",
+    "./at.js": {
+      "types": "./auto.d.ts",
+      "default": "./auto.js"
+    },
+    "./at": {
+      "types": "./auto.d.ts",
+      "default": "./auto.js"
+    },
     "./*.js": {
       "types": "./*.d.ts",
       "default": "./*.js"

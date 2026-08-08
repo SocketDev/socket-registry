@@ -40,8 +40,14 @@
       "default": "./shim.js"
     },
     "./package.json": "./package.json",
-    "./endswith.js": "./auto.js",
-    "./endswith": "./auto.js",
+    "./endswith.js": {
+      "types": "./auto.d.ts",
+      "default": "./auto.js"
+    },
+    "./endswith": {
+      "types": "./auto.d.ts",
+      "default": "./auto.js"
+    },
     "./*.js": {
       "types": "./*.d.ts",
       "default": "./*.js"

@@ -40,9 +40,18 @@
       "default": "./shim.js"
     },
     "./package.json": "./package.json",
-    "./repeat.js": "./auto.js",
-    "./repeat": "./auto.js",
-    "./getPolyfill": "./polyfill.js",
+    "./repeat.js": {
+      "types": "./auto.d.ts",
+      "default": "./auto.js"
+    },
+    "./repeat": {
+      "types": "./auto.d.ts",
+      "default": "./auto.js"
+    },
+    "./getPolyfill": {
+      "types": "./polyfill.d.ts",
+      "default": "./polyfill.js"
+    },
     "./*.js": {
       "types": "./*.d.ts",
       "default": "./*.js"

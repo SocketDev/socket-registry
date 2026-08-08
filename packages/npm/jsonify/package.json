@@ -16,6 +16,7 @@
   "files": [
     "*.d.ts",
     "*.js",
+    "lib/*.d.ts",
     "lib/*.js"
   ],
   "sideEffects": false,
@@ -25,10 +26,22 @@
       "default": "./index.js"
     },
     "./package.json": "./package.json",
-    "./lib/parse.js": "./lib/parse.js",
-    "./lib/parse": "./lib/parse.js",
-    "./lib/stringify.js": "./lib/stringify.js",
-    "./lib/stringify": "./lib/stringify.js",
+    "./lib/parse.js": {
+      "types": "./lib/parse.d.ts",
+      "default": "./lib/parse.js"
+    },
+    "./lib/parse": {
+      "types": "./lib/parse.d.ts",
+      "default": "./lib/parse.js"
+    },
+    "./lib/stringify.js": {
+      "types": "./lib/stringify.d.ts",
+      "default": "./lib/stringify.js"
+    },
+    "./lib/stringify": {
+      "types": "./lib/stringify.d.ts",
+      "default": "./lib/stringify.js"
+    },
     "./*.js": {
       "types": "./*.d.ts",
       "default": "./*.js"

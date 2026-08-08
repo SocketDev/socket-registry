@@ -57,11 +57,11 @@
     "./index.d.mts": "./index.d.mts",
     "./package.json": "./package.json",
     "./*.js": {
-      "types": "./*.d.ts",
+      "types": "./*.d.mts",
       "default": "./*.js"
     },
     "./*": {
-      "types": "./*.d.ts",
+      "types": "./*.d.mts",
       "default": "./*.js"
     }
   },

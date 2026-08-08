@@ -24,8 +24,14 @@
       "default": "./index.js"
     },
     "./package.json": "./package.json",
-    "./object-assign.js": "./index.js",
-    "./object-assign": "./index.js",
+    "./object-assign.js": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
+    "./object-assign": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
     "./*.js": {
       "types": "./*.d.ts",
       "default": "./*.js"

@@ -40,8 +40,14 @@
       "default": "./shim.js"
     },
     "./package.json": "./package.json",
-    "./fromcodepoint.js": "./auto.js",
-    "./fromcodepoint": "./auto.js",
+    "./fromcodepoint.js": {
+      "types": "./auto.d.ts",
+      "default": "./auto.js"
+    },
+    "./fromcodepoint": {
+      "types": "./auto.d.ts",
+      "default": "./auto.js"
+    },
     "./*.js": {
       "types": "./*.d.ts",
       "default": "./*.js"

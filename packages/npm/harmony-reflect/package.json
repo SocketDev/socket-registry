@@ -24,8 +24,14 @@
       "default": "./index.js"
     },
     "./package.json": "./package.json",
-    "./reflect.js": "./index.js",
-    "./reflect": "./index.js",
+    "./reflect.js": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
+    "./reflect": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
     "./*.js": {
       "types": "./*.d.ts",
       "default": "./*.js"

@@ -40,8 +40,14 @@
       "default": "./shim.js"
     },
     "./package.json": "./package.json",
-    "./array-of.js": "./index.js",
-    "./array-of": "./index.js",
+    "./array-of.js": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
+    "./array-of": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
     "./*.js": {
       "types": "./*.d.ts",
       "default": "./*.js"

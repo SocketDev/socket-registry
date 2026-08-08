@@ -24,8 +24,14 @@
       "default": "./index.js"
     },
     "./package.json": "./package.json",
-    "./gOPD.js": "./index.js",
-    "./gOPD": "./index.js",
+    "./gOPD.js": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
+    "./gOPD": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
     "./*.js": {
       "types": "./*.d.ts",
       "default": "./*.js"

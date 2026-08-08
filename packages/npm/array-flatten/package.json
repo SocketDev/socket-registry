@@ -24,10 +24,22 @@
       "default": "./index.js"
     },
     "./package.json": "./package.json",
-    "./array-flatten.js": "./index.js",
-    "./dist/index.js": "./index.js",
-    "./dist/index": "./index.js",
-    "./array-flatten": "./index.js",
+    "./array-flatten.js": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
+    "./dist/index.js": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
+    "./dist/index": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
+    "./array-flatten": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
     "./*.js": {
       "types": "./*.d.ts",
       "default": "./*.js"
