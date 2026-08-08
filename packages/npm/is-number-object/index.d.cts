@@ -1,3 +1,3 @@
-/// <reference types="node" />
-import { isNumberObject } from 'node:util/types'
-export = isNumberObject
+// oxlint-disable-next-line typescript/no-wrapper-object-types -- the runtime returns true for boxed Number objects, matching upstream is-number-object's `number | Number` predicate; the autofix downgrade to `number | number` is what this guards against.
+declare function isNumber(value: unknown): value is number | Number
+export = isNumber
