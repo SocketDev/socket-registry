@@ -328,6 +328,7 @@ pnpm-debug.log
 .claude/hooks/fleet/_shared/benign-untracking.mts
 .claude/hooks/fleet/_shared/branch-switch.mts
 .claude/hooks/fleet/_shared/brew-supply-chain.mts
+.claude/hooks/fleet/_shared/builtin-module.mts
 .claude/hooks/fleet/_shared/bypass.mts
 .claude/hooks/fleet/_shared/cdn-allowlist.mts
 .claude/hooks/fleet/_shared/commit-command.mts
@@ -990,6 +991,9 @@ pnpm-debug.log
 .claude/hooks/fleet/no-private-repo-leak-guard/package.json
 .claude/hooks/fleet/no-private-repo-leak-guard/roster.mts
 .claude/hooks/fleet/no-private-repo-leak-guard/tsconfig.json
+.claude/hooks/fleet/no-raw-gh-auth-login-guard/README.md
+.claude/hooks/fleet/no-raw-gh-auth-login-guard/index.mts
+.claude/hooks/fleet/no-raw-gh-auth-login-guard/package.json
 .claude/hooks/fleet/no-registry-mutation-in-repo-script-nudge/README.md
 .claude/hooks/fleet/no-registry-mutation-in-repo-script-nudge/index.mts
 .claude/hooks/fleet/no-registry-mutation-in-repo-script-nudge/package.json
@@ -1800,6 +1804,8 @@ pnpm-debug.log
 .config/fleet/oxlint-plugin/fleet/no-default-export/package.json
 .config/fleet/oxlint-plugin/fleet/no-deprecation/index.mts
 .config/fleet/oxlint-plugin/fleet/no-deprecation/package.json
+.config/fleet/oxlint-plugin/fleet/no-dynamic-import-in-snapshot-hook/index.mts
+.config/fleet/oxlint-plugin/fleet/no-dynamic-import-in-snapshot-hook/package.json
 .config/fleet/oxlint-plugin/fleet/no-dynamic-import-outside-bundle/index.mts
 .config/fleet/oxlint-plugin/fleet/no-dynamic-import-outside-bundle/package.json
 .config/fleet/oxlint-plugin/fleet/no-eslint-biome-config-ref/index.mts
