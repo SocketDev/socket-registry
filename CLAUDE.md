@@ -53,6 +53,7 @@
 - 🚨 Never open a PR from the default branch; `gh pr create` hard-blocks when the PR head or cwd checkout is the default. [`commit-cadence-format`](docs/agents.md/fleet/commit-cadence-format.md)
 - 🚨 Never set `"rule-name": "off"`/`"warn"` in an oxlint config; fix the code instead. [`no-disable-lint-rule`](docs/agents.md/fleet/no-disable-lint-rule.md)
 - 🚨 Fleet hooks are rolldown-bundled into `.claude/hooks/fleet/_dist/fleet-pack.cjs`; rebuild after touching a bundled source. [`hook-bundle`](docs/agents.md/fleet/hook-bundle.md)
+- 🚨 A snapshotted hook NEVER uses dynamic `import()` - it throws at runtime and the dispatcher swallows it; use `process.getBuiltinModule('node:x')`, else mark the hook `@dispatch-snapshot-exclude`. `FLEET_HOOK_DEBUG=1` surfaces a swallowed hook error. [`hook-bundle`](docs/agents.md/fleet/hook-bundle.md)
 - 🚨 A vendored/build-copied dir (`upstream/`, `pkg-node/`, `*-bundled`/`*-vendored`) is untracked-by-default; check `.gitignore` first. [`untracked-by-default`](docs/agents.md/fleet/untracked-by-default.md)
 - 🚨 Never write runtime or per-checkout state into the tracked tree; consolidate into one store. [`runtime-state-and-caches`](docs/agents.md/fleet/runtime-state-and-caches.md) <!-- enforcement: off-machine - needs VFS instrumentation -->
 - 🚨 Bypassing a hook needs the user to type `Allow <X> bypass` verbatim; the `bypass` word is optional only for low-risk guards. [`bypass-phrases`](docs/agents.md/fleet/bypass-phrases.md)
