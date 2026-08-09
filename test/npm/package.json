@@ -1,5 +1,5 @@
 {
-  "name": "socket-registry-test-npm",
+  "name": "local-test-npm",
   "version": "0.0.0",
   "private": true,
   "workspaces": [
