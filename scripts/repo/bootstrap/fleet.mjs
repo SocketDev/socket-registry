@@ -183,41 +183,42 @@ function splicePackBlock(config) {
   return `${trimmed}\n\n${packBlock}\n`
 }
 /**
- * The transitional long-form tag, bare form — every existing fleet member's
- * CLAUDE.md / .gitignore / .gitattributes still carries this pre-rename.
- * spliceFleetBlock matches it alongside the short-tag form, so a
- * not-yet-recascaded member is still found and re-spliced in one pass.
+ * Every balanced fleet block in `lines`, in document order. Each open marker
+ * pairs with the NEXT close marker after it, and the scan resumes past that
+ * close — so a file carrying several stacked blocks reports one span per block
+ * rather than one span swallowing them all. An unclosed trailing open marker
+ * yields no span: an unbalanced file is left for a human, never half-rewritten.
  */
-function legacyTagBeginMarker(style) {
-  if (style === 'html') return '<!-- <fleet-canonical> -->'
-  if (style === 'slash') return '// <fleet-canonical>'
-  return '# <fleet-canonical>'
-}
-function legacyTagEndMarker(style) {
-  if (style === 'html') return '<!-- </fleet-canonical> -->'
-  if (style === 'slash') return '// </fleet-canonical>'
-  return '# </fleet-canonical>'
-}
-/**
- * Returns the BEGIN/END keyword marker form (long-form tag) for a style — an
- * older transition, predating the short-tag rename. spliceFleetBlock matches
- * it alongside the bare-tag forms, so a file carrying any of the three forms
- * is re-spliced in one pass.
- */
-function legacyBeginMarker(style) {
-  if (style === 'html') return '<!-- BEGIN <fleet-canonical> -->'
-  if (style === 'slash') return '// BEGIN <fleet-canonical>'
-  return '# BEGIN <fleet-canonical>'
-}
-function legacyEndMarker(style) {
-  if (style === 'html') return '<!-- END </fleet-canonical> -->'
-  if (style === 'slash') return '// END </fleet-canonical>'
-  return '# END </fleet-canonical>'
+function findFleetBlockSpans(lines, commentStyle) {
+  const begin = beginMarker(commentStyle)
+  const end = endMarker(commentStyle)
+  const spans = []
+  for (let i = 0, { length } = lines; i < length; i += 1) {
+    if (lines[i] !== begin) continue
+    let close = -1
+    for (let j = i + 1; j < length; j += 1)
+      if (lines[j] === end) {
+        close = j
+        break
+      }
+    if (close === -1) break
+    spans.push({
+      end: close,
+      start: i,
+    })
+    i = close
+  }
+  return spans
 }
 /**
  * Splice the canonical fleet block into `target`. If `target` already contains
- * the open/close markers (short-tag bare, long-form tag bare, or legacy
- * BEGIN/END form), the content between them (markers inclusive) is replaced.
+ * the open/close markers, the content between them (markers inclusive) is
+ * replaced. A file carrying SEVERAL stacked blocks collapses to one: the first
+ * is replaced with `fleetBlock` and every later one is deleted, so a member
+ * whose file grew a second managed region ends up with one region instead of a
+ * growing stack. Content outside the matched blocks is preserved
+ * byte-for-byte, except that removing a block sandwiched between blank lines
+ * drops one of them rather than leaving a doubled blank.
  * If markers are absent:
  * - `html` style (CLAUDE.md, README): insert before the first level-2 heading
  * (`## `) with i > 0, or append at end.
@@ -228,23 +229,21 @@ function spliceFleetBlock(config) {
     __proto__: null,
     ...config,
   }
-  const begin = beginMarker(commentStyle)
-  const end = endMarker(commentStyle)
-  const legacyTag0 = legacyTagBeginMarker(commentStyle)
-  const legacyTag1 = legacyTagEndMarker(commentStyle)
-  const legacy0 = legacyBeginMarker(commentStyle)
-  const legacy1 = legacyEndMarker(commentStyle)
   const lines = target.split('\n')
-  const startIdx = lines.findIndex(
-    l => l === begin || l === legacyTag0 || l === legacy0,
-  )
-  const endIdx = lines.findIndex(
-    l => l === end || l === legacyTag1 || l === legacy1,
-  )
-  if (startIdx !== -1 && endIdx !== -1 && endIdx > startIdx) {
-    const before = lines.slice(0, startIdx)
-    const after = lines.slice(endIdx + 1)
-    return [...before, fleetBlock, ...after].join('\n')
+  const spans = findFleetBlockSpans(lines, commentStyle)
+  const anchor = spans[0]
+  if (anchor !== void 0) {
+    const out = [...lines.slice(0, anchor.start), fleetBlock]
+    let cursor = anchor.end + 1
+    for (let i = 1, { length } = spans; i < length; i += 1) {
+      const span = spans[i]
+      const between = lines.slice(cursor, span.start)
+      if (between.at(-1) === '' && lines[span.end + 1] === '') between.pop()
+      out.push(...between)
+      cursor = span.end + 1
+    }
+    out.push(...lines.slice(cursor))
+    return out.join('\n')
   }
   if (commentStyle === 'html') {
     let insertIdx = lines.length
@@ -339,7 +338,6 @@ function resolveSettingsPath(dest) {
 }
 const APPLIED_MARKER = '.cache/fleet/socket-wheelhouse/bundle-applied'
 const APPLIED_FILES_MARKER = '.cache/fleet/socket-wheelhouse/applied-files'
-const LEGACY_APPLIED_MARKER = '.config/fleet/.bundle-applied'
 /**
  * Default bundle ref for a member — `bundle.ref` in its wheelhouse settings
  * file. Lets install-fleet (and the prepare/CI wires) omit an explicit --ref so
@@ -438,8 +436,6 @@ function writeAppliedRef(dest, ref) {
   const p = path.join(dest, APPLIED_MARKER)
   mkdirSync(path.dirname(p), { recursive: true })
   writeFileSync(p, `${ref}\n`)
-  const legacy = path.join(dest, LEGACY_APPLIED_MARKER)
-  if (existsSync(legacy)) rm(legacy)
 }
 
 //#endregion
@@ -2811,6 +2807,7 @@ export {
   fetchBundleSource,
   fetchOciManifest,
   filterManifestForShape,
+  findFleetBlockSpans,
   firstHeader,
   fleetPackOwnedPaths,
   formatLockStepError,
@@ -2828,10 +2825,6 @@ export {
   installWorkspaceSegment,
   isBundleBehindLocalTemplate,
   isMainModule,
-  legacyBeginMarker,
-  legacyEndMarker,
-  legacyTagBeginMarker,
-  legacyTagEndMarker,
   lockStepExitCode,
   maybeShowUpdateNotice,
   mergeWorkspaceYaml,
