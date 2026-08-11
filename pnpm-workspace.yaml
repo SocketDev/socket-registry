@@ -145,6 +145,7 @@ catalog:
   # @rolldown/binding-* + @oxc-project/types stay as soak-excluded
   # transitives (consumers depend on `rolldown` only).
   'regjsparser': 0.13.2
+  'rolldown': 1.2.3
   'semver': 7.8.5
   'shell-quote': 1.10.0
   'taze': 19.17.1
@@ -175,7 +176,6 @@ catalog:
   # Use in rolldown.config.mts for any repo with a Rolldown build.
   # published: 2026-05-07 (26 days, past 7-day soak)
   'comptime': 0.1.0
-  'rolldown': 1.2.3
   'rolldown-plugin-dts': 0.28.0
   'svgo': 4.0.2
   'vite': 8.2.0

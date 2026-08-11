@@ -1068,6 +1068,7 @@ pnpm-debug.log
 .claude/hooks/fleet/no-tsx-guard/index.mts
 .claude/hooks/fleet/no-tsx-guard/package.json
 .claude/hooks/fleet/no-tsx-guard/tsconfig.json
+.claude/hooks/fleet/no-unasked-non-fleet-pr-guard/index.mts
 .claude/hooks/fleet/no-underscore-ident-guard/README.md
 .claude/hooks/fleet/no-underscore-ident-guard/index.mts
 .claude/hooks/fleet/no-underscore-ident-guard/package.json
@@ -1709,6 +1710,11 @@ pnpm-debug.log
 .claude/skills/fleet/prose/references/phrases.md
 .claude/skills/fleet/prose/references/structures.md
 .claude/skills/fleet/pushing/SKILL.md
+.claude/skills/fleet/recording-ui-walkthroughs/SKILL.md
+.claude/skills/fleet/recording-ui-walkthroughs/mocking-vendor-screens.md
+.claude/skills/fleet/recording-ui-walkthroughs/npm-mockup.mts
+.claude/skills/fleet/recording-ui-walkthroughs/profiles/npm-create-token.json
+.claude/skills/fleet/recording-ui-walkthroughs/record-walkthrough.mts
 .claude/skills/fleet/refreshing-history/SKILL.md
 .claude/skills/fleet/refreshing-history/run.mts
 .claude/skills/fleet/releasing-a-package/SKILL.md
@@ -2105,6 +2111,7 @@ pnpm-debug.log
 .git-hooks/pre-commit
 .git-hooks/pre-push
 .github/agent-ci.Dockerfile
+.github/zizmor.yml
 .kimi-code/mcp.json
 .mcp.json
 assets/badge-follow-bluesky.svg
@@ -2272,6 +2279,7 @@ scripts/fleet/_shared/fleet-canonical-splice.mts
 scripts/fleet/_shared/fleet-membership.mts
 scripts/fleet/_shared/fleet-source-present.mts
 scripts/fleet/_shared/format-scope.mts
+scripts/fleet/_shared/ghcr-package.mts
 scripts/fleet/_shared/git-mutex.mts
 scripts/fleet/_shared/git-porcelain.mts
 scripts/fleet/_shared/github-raw-url.mts
@@ -2296,6 +2304,7 @@ scripts/fleet/_shared/pack-structure.mts
 scripts/fleet/_shared/pinned-ref.mts
 scripts/fleet/_shared/playwright-law.mts
 scripts/fleet/_shared/pnpm-lockfile.mts
+scripts/fleet/_shared/poll-with-decay.mts
 scripts/fleet/_shared/pr-body-law.mts
 scripts/fleet/_shared/process-lifecycle.mts
 scripts/fleet/_shared/prose-em-dash.mts
@@ -2314,6 +2323,9 @@ scripts/fleet/_shared/scope-flags.mts
 scripts/fleet/_shared/security-posture-law.mts
 scripts/fleet/_shared/security-posture-probe.mts
 scripts/fleet/_shared/spawn-env-scan.mts
+scripts/fleet/_shared/spend-report-html.mts
+scripts/fleet/_shared/spend-report-path.mts
+scripts/fleet/_shared/swift-targets.mts
 scripts/fleet/_shared/tar-executable.mts
 scripts/fleet/_shared/template-payload-scope.mts
 scripts/fleet/_shared/terminal-link.mts
@@ -2411,6 +2423,7 @@ scripts/fleet/check/claude-md-citations-resolve.mts
 scripts/fleet/check/claude-md-repo-section-is-a-bullet-index.mts
 scripts/fleet/check/claude-md-rules-are-enforced.mts
 scripts/fleet/check/claude-md-rules-are-informative.mts
+scripts/fleet/check/claude-settings-fleet-markers-are-short.mts
 scripts/fleet/check/comment-markers-are-honeypot-inert.mts
 scripts/fleet/check/commits-are-signed.mts
 scripts/fleet/check/commits-have-no-ai-attribution.mts
@@ -2529,6 +2542,7 @@ scripts/fleet/check/paths/scan-workflow.mts
 scripts/fleet/check/paths/state.mts
 scripts/fleet/check/paths/types.mts
 scripts/fleet/check/paths/walk.mts
+scripts/fleet/check/payload-importers-are-preserved.mts
 scripts/fleet/check/pinned-labels-match-shas.mts
 scripts/fleet/check/platform-tails-match-naming-domain.mts
 scripts/fleet/check/playwright-launches-are-sanctioned.mts
@@ -2683,10 +2697,12 @@ scripts/fleet/fetch-fleet-pack.mts
 scripts/fleet/fix-cpp.mts
 scripts/fleet/fix-go.mts
 scripts/fleet/fix-rust.mts
+scripts/fleet/fix-swift.mts
 scripts/fleet/fix.mts
 scripts/fleet/fmt-cpp.mts
 scripts/fleet/fmt-go.mts
 scripts/fleet/fmt-rust.mts
+scripts/fleet/fmt-swift.mts
 scripts/fleet/format.mts
 scripts/fleet/fsync-dist.mts
 scripts/fleet/gen/agents-skills-mirror.mts
@@ -2778,6 +2794,7 @@ scripts/fleet/lint-github-settings/types.mts
 scripts/fleet/lint-go.mts
 scripts/fleet/lint-pr-comment.mts
 scripts/fleet/lint-rust.mts
+scripts/fleet/lint-swift.mts
 scripts/fleet/lint.mts
 scripts/fleet/lockstep-emit-mirror-globs.mts
 scripts/fleet/lockstep-emit-schema.mts
@@ -2816,6 +2833,7 @@ scripts/fleet/pre-push-gate.mts
 scripts/fleet/preflight.mts
 scripts/fleet/prepare.mts
 scripts/fleet/prune-actions-caches.mts
+scripts/fleet/prune-fleet-pack-releases.mts
 scripts/fleet/prune-workflow-runs.mts
 scripts/fleet/publish-pipeline.mts
 scripts/fleet/publish-shared.mts
@@ -2992,6 +3010,7 @@ scripts/fleet/socket-wheelhouse-schema/policy.mts
 scripts/fleet/socket-wheelhouse-schema/testing.mts
 scripts/fleet/socket-wheelhouse-schema/tooling.mts
 scripts/fleet/source-pricing-feed.mts
+scripts/fleet/spend-report.mts
 scripts/fleet/spend-statusline.mts
 scripts/fleet/strip-ai-tags.mts
 scripts/fleet/sync-gh-aw-action-pins.mts
