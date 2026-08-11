@@ -2110,7 +2110,6 @@ pnpm-debug.log
 .git-hooks/pre-commit
 .git-hooks/pre-push
 .github/agent-ci.Dockerfile
-.github/zizmor.yml
 .kimi-code/mcp.json
 .mcp.json
 assets/badge-follow-bluesky.svg
