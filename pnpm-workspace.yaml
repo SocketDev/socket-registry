@@ -580,6 +580,14 @@ saveExact: true
 managePackageManagerVersions: false
 
 patchedDependencies:
+  # Published 6.7.0 requires two things it never declares: its own alias
+  # `@socketsecurity/lib-stable/...` from five dist files, and bare `semver`
+  # from dist/external/npm-pack.js in 13 places. Both resolved only on pnpm
+  # hoisting and broke the moment a global virtual store took the hoist
+  # directory off the resolution path. The patch points each at what the
+  # package already ships. Remove it when the catalog pin moves to a release
+  # carrying the source fixes.
+  '@socketsecurity/lib@6.7.0': patches/@socketsecurity__lib@6.7.0.patch
   # default-export interop (managed by socket-wheelhouse sync; do not edit):
   # v10's ESM build ships named exports only, so `import minimatch from
   # 'minimatch'` throws "does not provide an export named default". That is
