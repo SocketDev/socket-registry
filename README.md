@@ -2,14 +2,14 @@
 
 [![Socket Badge](https://socket.dev/api/badge/npm/package/@socketsecurity/registry)](https://socket.dev/npm/package/@socketsecurity/registry)
 [![CI](https://github.com/SocketDev/socket-registry/actions/workflows/ci.yml/badge.svg)](https://github.com/SocketDev/socket-registry/actions/workflows/ci.yml)
-<img src="https://raw.githubusercontent.com/SocketDev/socket-registry/HEAD/assets/repo/badges/coverage.svg" width="97" height="20" alt="Coverage" />
+<img src="https://raw.githubusercontent.com/SocketDev/socket-registry/HEAD/assets/repo/coverage.svg" width="97" height="20" alt="Coverage" />
 
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 [![Follow @socket.dev on Bluesky](https://img.shields.io/badge/Follow-@socket.dev-1DA1F2?style=social&logo=bluesky)](https://bsky.app/profile/socket.dev)
 
 Optimized package overrides for [Socket Optimize](https://socket.dev/features/optimize).
 
-<img src="https://raw.githubusercontent.com/SocketDev/socket-registry/HEAD/assets/socket-optimize-hero.png" height="272px" width="576px" alt="socket optimize">
+<img src="https://raw.githubusercontent.com/SocketDev/socket-registry/HEAD/assets/repo/socket-optimize-hero.png" height="272px" width="576px" alt="socket optimize">
 
 `@socketregistry` is the monorepo behind [Socket Optimize](https://socket.dev/features/optimize) - a curated set of drop-in npm package replacements that reduce dependencies, modernize APIs, improve performance, and patch known CVEs without breaking compatibility. Every override passes the original package's own test suite, ships with TypeScript types, and stays MIT-compatible. The registry exists so `socket optimize` has something authoritative to swap in.
 
@@ -59,7 +59,7 @@ All overrides in this registry:
 - Work seamlessly with CommonJS and ESM
 - Retain original licenses and are MIT compatible
 - Include
-  <a href="https://www.typescriptlang.org/"><img src="https://raw.githubusercontent.com/SocketDev/socket-registry/HEAD/assets/ts.svg" height="20px" title="This package contains built-in TypeScript declarations" alt="TypeScript icon, indicating that this package has built-in type declarations"></a>
+  <a href="https://www.typescriptlang.org/"><img src="https://raw.githubusercontent.com/SocketDev/socket-registry/HEAD/assets/repo/ts.svg" height="20px" title="This package contains built-in TypeScript declarations" alt="TypeScript icon, indicating that this package has built-in type declarations"></a>
   TypeScript definitions
 - Support current and [LTS](https://nodejs.org/en/about/previous-releases) Node versions
 
