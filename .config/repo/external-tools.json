@@ -47,55 +47,56 @@
       ],
       "description": "Fast, disk space efficient package manager",
       "repository": "github:pnpm/pnpm",
-      "version": "11.20.0",
-      "soakBypass": {
-        "published": "2026-08-03",
-        "removable": "2026-08-10",
-        "version": "11.20.0"
-      },
-      "release": "asset",
+      "version": "11.21.0",
       "platforms": {
         "darwin-arm64": {
           "asset": "pnpm-darwin-arm64.tar.gz",
-          "integrity": "sha512-3ox43Vw8fYSoRZhR92ish7Jt7plCdTFUJc/JbI1gdechbfl6tTg4/NVapzEG8ruKAViwMq0xXte3OzfB3wCxZg=="
+          "integrity": "sha512-l2jFPzHUG5Q23s94DgKV76erfg0vVhwG4CdKZCHkRSfct8LTWu1oLtH8WJqb84Eg5ZIy5BTMfyY+APoeLuTm0Q=="
         },
         "darwin-x64": {
-          "asset": "pnpm-11.20.0.tgz",
-          "integrity": "sha512-mm8zCpW2ZEbqCI+vFSFAWooB8H/ecSTMmVjf7VLUu0NnN+ZbCPhfN7Rvy6N1CSVYrFEmK4FoRLIvY0Bu0Wa/7g=="
+          "asset": "pnpm-11.21.0.tgz",
+          "integrity": "sha512-UhcFvOaJkk6scvWjWHEi82JonvZXHlW6gAdv1jfBETLs/62ib61Op5xIW/3b/T1aKlsFgFp36JPeceyKbMo7sQ=="
         },
         "linux-arm64": {
           "asset": "pnpm-linux-arm64.tar.gz",
-          "integrity": "sha512-+XqPn1raDqeOE9mfKX6CjPOYBiqQpaUhWX7CJv6I2PRjlXdGiWHqKhEaHELmBRx3iUHSctFV3eIGumBwc/OVNw=="
+          "integrity": "sha512-thFUlWeQIphtc8AkfTm0FPhMSyMVYOdrA2XqpJit+OEeMStRhqvF6i4yPs5k06UiVLvIFkOQszCVoyjZmezzsg=="
         },
         "linux-arm64-musl": {
           "asset": "pnpm-linux-arm64-musl.tar.gz",
-          "integrity": "sha512-uy38eCPmeGbn8BOkkq9ZaT5s0tVollsAPmwjj0sItluq1hXyFipdPAhV8I2V6hXiAVRpMfLgYFtoMQssx1622w=="
+          "integrity": "sha512-bbFyhWWvphDpll91+ddNT/fk588DAJwpLqFkUTfZ4FxYFFUkgZ2YCifOFPTEZWIV+Zsa8EPojyA2hQoXnbMxXg=="
         },
         "linux-x64": {
           "asset": "pnpm-linux-x64.tar.gz",
-          "integrity": "sha512-cSwNCOth2fSGu6boYrhJIidKMj7maAO+MbJoQ+H1qxhSMZOwkE5LGnhzJhFoRjXe3uJTNaVwEWYya0E1YvKG7A=="
+          "integrity": "sha512-B8OLLdn1CEgvoo2oH1RYIJ1tiiSsUNQcbeTlGytCbPsrwvLo+lVM7as3/yphexA8D/WSiiWLZXAa89t0G1lNgg=="
         },
         "linux-x64-musl": {
           "asset": "pnpm-linux-x64-musl.tar.gz",
-          "integrity": "sha512-Ua5x4k4xR9Fq2wco0z0bigSJZ0+xzn9r/vSkBZ9Z4o0h6bl4y/2B7BVYdGZeqD5ulTFKsgzpWz+0ihXpNdUIEg=="
+          "integrity": "sha512-cBovlI9TaTK2RjCae2HO9u41Z1novo55EPrBJbxKGnL1Gy8nHGdwUI+BlKMSvN6eLDSn55UX7vGJCBXfJHEZLw=="
         },
-        "win-arm64": {
+        "win32-arm64": {
           "asset": "pnpm-win32-arm64.zip",
-          "integrity": "sha512-eb8gM+gNPSr31ZS5kooT9OLjA+THmUGUQVtjCp7O9MYX2tKpnXFcsiJVy0UveqoJVMqhlJZV1wsspUV0obJ1ig=="
+          "integrity": "sha512-a7x1RBGuoqNXh3K9iA4HLbuN9QNJRnxazJ5Njf748u26Lm9j6D26Y2esi5ewhAOkkb8GTM8lcVDRwU2Ui/+H8Q=="
         },
-        "win-x64": {
+        "win32-x64": {
           "asset": "pnpm-win32-x64.zip",
-          "integrity": "sha512-Lpc1lzGdjMwaDKESMkhKVsJSNr3/76l5zJSKfKYP3LhofTEu4kKJxXsQwbI7OHpDPmyVveNr1PUwiZ8PkzznOA=="
+          "integrity": "sha512-FFyPTtPoRjRCSEpSVhcbe1AW4Bq/e6Sm3TXewVsvr/sNjRBszNooNEwPehQq7rD3ecUb0oqjul0iBtwmb16njw=="
         }
-      }
+      },
+      "origin": "gh-asset"
     },
     "rust": {
-      "notes": [
-        "Rust toolchain — required by socket-btm's Node 26+ build to link the temporal_rs Rust crate that backs Temporal. Per Node BUILDING.md \"Building Node.js with Temporal support\": rustc/cargo >= 1.82 with LLVM >= 19. The minimum is what configure.py asserts at build time; downstream consumers (CI runners + local dev machines) typically have a newer stable toolchain via rustup, which is fine. Unlike pnpm/sfw/zizmor this entry has no per-platform integrity — Rust is installed via rustup or a runner-image preinstall, not by downloading a single tarball. Workflows install it via `dtolnay/rust-toolchain@stable` (CI) or `rustup default stable` (local).",
-        "Floor: rustc/cargo >= 1.82.0 with LLVM >= 19 (components: rustc, cargo). Installed via rustup or the runner toolcache, so this entry carries no release/platforms shape."
+      "description": "The Rust toolchain channel. Installed via setup:rust (rustup + rust-toolchain.toml), not a release-asset download. The derived pin keeps the external-tools version in sync with rust-toolchain.toml so a bump here bumps the pin.",
+      "version": "nightly-2026-08-08",
+      "derived": [
+        "rust-toolchain.toml#toolchain.channel"
       ],
-      "description": "Rust toolchain — required for Node 26+ Temporal support",
-      "repository": "rust-lang/rust"
+      "notes": [
+        "Added for the perry statusline build (perry is Rust+LLVM, needs the toolchain).",
+        "The toolchain is installed by setup:rust (rustup reads rust-toolchain.toml). This entry is a declaration + derived pin, not a release-asset download (like git).",
+        "TEMPORARY nightly pin: revert to stable (1.98) once Cargo stabilizes the soak feature — the derived pin will then point at the stable channel."
+      ],
+      "origin": "manager",
+      "manager": "rustup"
     },
     "sfw-enterprise": {
       "notes": [
@@ -103,40 +104,40 @@
         "Installed when SOCKET_API_KEY (or SOCKET_API_TOKEN) is set; otherwise the free flavor (sfw-free) is used. The two flavors share a version and install to the same `sfw` binary name."
       ],
       "description": "Socket Firewall (enterprise tier) — package manager command wrapper",
-      "version": "1.13.1",
+      "version": "1.15.0",
       "repository": "github:SocketDev/firewall-release",
       "binaryName": "sfw",
-      "release": "asset",
       "platforms": {
         "darwin-arm64": {
           "asset": "sfw-macos-arm64",
-          "integrity": "sha512-ZDy2C6leKyTHZFvcZZpG2eQqVzs7buk+Hs92fkaMYME829QzyxdGQVVgwEVaGJpedGdUvhksKKcvT9IynI1kxg=="
+          "integrity": "sha512-JmNdVTAULB0f+oRaNBFd3h0KdU1zP7e/ERGPppQdIHn2/CHROknyKndPzzkbGdKN/AIsSrSfW1c2v6v+eVc2Sw=="
         },
         "darwin-x64": {
           "asset": "sfw-macos-x86_64",
-          "integrity": "sha512-cm76we0sn7kqPOya/ZGQpPyhjRDyFT5lHigeT5Qso+QaPL6Cmwi0FVs2L7l63j+WR/9eYPU1WjjGOto5NbWsEQ=="
+          "integrity": "sha512-3+3IJI3EwV9WcwNwisXmzQn0x5ThLGJDR6b+B/tAn1dlqJcRRdYIqp4ZG/cy5xD04ewLqMAOncGc0qGswx7NRQ=="
         },
         "linux-arm64": {
           "asset": "sfw-linux-arm64",
-          "integrity": "sha512-9qPi3mobBfyq1k+pD2GDG0tZkhy16f7FXE9oGiwmwPvy5PXwnlzqEXnYld3qGsKIVwNhunev/If26oROTHbrHA=="
+          "integrity": "sha512-owLh6ODQTwObU+mV8XToR/qoYvIlPtUJ2Vqzcwb7+bXER544pgt7nN5o+YllWZOSyTmzjNfLALrhONEb0FGt5A=="
         },
         "linux-arm64-musl": {
           "asset": "sfw-musl-linux-arm64",
-          "integrity": "sha512-/xdisbXTp44v7GFBUkgtxyxfzS28gjnU7MdGPqrb0q6i8EvQYoqnuG8DCN88ybJouU3RYLwagO3o/5EgS/4cWw=="
+          "integrity": "sha512-kcwkTTc2/YzYJv354GKWxIc6mhAGWZkuJKFpp2OrERw8YNM1eNzQLAhJgaGZoVGtXHnSe+h896GRnsUjbEinmA=="
         },
         "linux-x64": {
           "asset": "sfw-linux-x86_64",
-          "integrity": "sha512-lu9h8UzDZt34gdCEVHBGW6goE1Ayykq413EovV5B4nG7jBK27mI0GQstzVbWXA3wWaweT39PehXGtVpdqIDGSA=="
+          "integrity": "sha512-pPxU6AJDTHX4NDfX31rvmUiFNOob/s+kv3XvUaH7QQvpRfyPJEuuxzkPyOTgqgyf0RSePOedG7kRPijH4T/QLQ=="
         },
         "linux-x64-musl": {
           "asset": "sfw-musl-linux-x86_64",
-          "integrity": "sha512-R1f7/2OoX9WWeW+mGroHVjO1TtUDF5cxokUIi6qPs4hpNvvI+NFK7dgxFOc16dP+qhY0fz8ZNxz5CBgSiZKteA=="
+          "integrity": "sha512-N/b4w/zKYPYSy42D+8HgwieHs3JfGdFQvXHZhGJ2L4hi2QMJy5TVt3dHWQ7XYyxqvZQAOEQiwIR0pu9G1AwnKg=="
         },
-        "win-x64": {
+        "win32-x64": {
           "asset": "sfw-windows-x86_64.exe",
-          "integrity": "sha512-URZXauIsdUT12E2KTc4sfsxRmJm7nRJzAgM+IYGX4Xq+X0cl/eAbH5SpYIJKpsnW9csSztW9ceyPhlM+f3neIQ=="
+          "integrity": "sha512-ag9R+AyD4PisdQFSEER06R3IyzSSwqZABFkhONd48ycB0oVTvX5imP//3aZ2j6DaQxCPj0ooSXo4lI8P5XS53g=="
         }
-      }
+      },
+      "origin": "gh-asset"
     },
     "sfw-free": {
       "notes": [
@@ -144,40 +145,40 @@
         "Installed when neither SOCKET_API_KEY nor SOCKET_API_TOKEN is set; the enterprise flavor (sfw-enterprise) is selected when one of those is present. The two flavors share a version and install to the same `sfw` binary name."
       ],
       "description": "Socket Firewall (free tier) — package manager command wrapper",
-      "version": "1.13.1",
+      "version": "1.15.0",
       "repository": "github:SocketDev/sfw-free",
       "binaryName": "sfw",
-      "release": "asset",
       "platforms": {
         "darwin-arm64": {
           "asset": "sfw-free-macos-arm64",
-          "integrity": "sha512-T6wBOJGdRVSI8577lGqRNzNd6Q+1vqKyaqGgOA8G4M5MU2vcsUnXuJTgP2MMZjUqROSXUlFL0mHguuxXT2QadQ=="
+          "integrity": "sha512-gLeor4y8eeJeQBJ/pLhcsWXG+ntx0sCM6s/MrKtW1uANKjhOwiQBNR5Hw8d1gRhjRuW4R2cPENdjk121sOFQag=="
         },
         "darwin-x64": {
           "asset": "sfw-free-macos-x86_64",
-          "integrity": "sha512-4G/AIY5UGU81wcepDKErY5u0nY85D8UM9nXTEPv8CR2rOV/s4IcmrkxywwZ3ipejHVQB7QmCVt0/SsqWglGikw=="
+          "integrity": "sha512-ZW7jS8+Tg0+ZRWzYbSIZ82LiehytQHNbmYQ3X8FeLJQmg8AY8denDCAIPtJ8+haKeX/7a3AIkpaC8jgBHwGv6Q=="
         },
         "linux-arm64": {
           "asset": "sfw-free-linux-arm64",
-          "integrity": "sha512-FYRYR52SL+KKFldW4ogYOUnTH5OSqvtXwzGFeWi0W2x+75KZcPiGzWBbhMmh0f5QtgYLV+4qdREgmKCBEayNtA=="
+          "integrity": "sha512-BmdfsTfIJDigVv3ImnmZ+/Ktj54kYn8rhNIDJhFkp0X9VeNeJaFteLYrPYox2SQ3hq++qvLfbnPJnuCDRCEdlA=="
         },
         "linux-arm64-musl": {
           "asset": "sfw-free-musl-linux-arm64",
-          "integrity": "sha512-5a5VXzMmda9baCHqcNYnFm/Y71BB589IzXlrfXapEJfxMdqs2Dwdubn84TPMgGDRaErxsuYzP1Fe/cNHPZRMnA=="
+          "integrity": "sha512-yEUwhNyRAGCgSQpRk5Avxk8ZWrYixzKXn7MjC5Fd93DfPTA2QGl0ijsIK334XaiWSuA5FLcmn4gZhVd4YSosAQ=="
         },
         "linux-x64": {
           "asset": "sfw-free-linux-x86_64",
-          "integrity": "sha512-waLrsPG2a7EOv0XuvXDQZGgCZ4MTtOfZh8TmGbM6gn2B6Nh6HI+15jaoKdAS9wgdTyIqTuqU+O+NtVYd+kuFaA=="
+          "integrity": "sha512-PcvpMzR28A0BpUHvHB3chzakWAyGmFSsCuu5zhenAxs0RTF8AlQHJLWnOxBWkK54U+kv50HhbqnjiYMZ9KnUDw=="
         },
         "linux-x64-musl": {
           "asset": "sfw-free-musl-linux-x86_64",
-          "integrity": "sha512-BYmolBjZVlXPmj7ilM8CP99EJTcOIha0SFAN6b9z1oc6tQvRsTYjoYKwB18X7kKwcx1jomdOYrEuW9+0t0LrkA=="
+          "integrity": "sha512-UzJeP11VcqrKcauaLPQR9v1PGb8U19Kli7+Oskbetf+cO5oIrNFd+/zQsUG4hJ6GtLvz0H5FTDNiAQZkg0MhrA=="
         },
-        "win-x64": {
+        "win32-x64": {
           "asset": "sfw-free-windows-x86_64.exe",
-          "integrity": "sha512-YYnfwR6M/PHo72LSyKtpY3bAUG4F4ckToJqGx5Fkz4rwg1+48hkxuBaF3hdxHUdHPkfO5grDyoNgXGe7FojGcg=="
+          "integrity": "sha512-nWSLEwbh2NNHVMHSCc8tc95Je+XGm988EF0pXCz0X2QRoXw3ytydqfU5TFHue4xHinh5F9fGbiNywtLOMnKmgg=="
         }
-      }
+      },
+      "origin": "gh-asset"
     },
     "skillspector": {
       "notes": "NVIDIA/skillspector has no releases or semver tags — pinned to a commit SHA on main. version is the 8-char short SHA; versionDate is the committer date of that SHA (ISO 8601). Installed via the pinned uv project under .claude/hooks/fleet/setup-security-tools/skillspector (uv sync --locked).",
@@ -191,7 +192,6 @@
       "description": "GitHub Actions security linter — audits .github/ for workflow-injection / credential-leak patterns.",
       "version": "1.29.0",
       "repository": "github:zizmorcore/zizmor",
-      "release": "asset",
       "notes": [
         "Required: CI (blocks merges on medium+ findings)",
         "Installed by the setup-and-install composite; SRI-verified (sha512) per platform"
@@ -213,7 +213,7 @@
           "asset": "zizmor-x86_64-unknown-linux-gnu.tar.gz",
           "integrity": "sha512-+ud35oavU/AEGqKoNZVg8b/dwuFuKM/TfujGmXomnV3mScdhmavrkiNpx/9vUbQ+htk7eYfK2nRStzIVWA19KA=="
         },
-        "win-x64": {
+        "win32-x64": {
           "asset": "zizmor-x86_64-pc-windows-msvc.zip",
           "integrity": "sha512-r6YP+e2GsOklaxEf9JHrixkeR0NNkVAaMGcvwLxkt1JlYJpxFizH/LzhcsMmPSrLkELf6LNB2JL8hpDa5dBAww=="
         }
@@ -222,7 +222,8 @@
         "published": "2026-08-01",
         "removable": "2026-08-08",
         "version": "1.29.0"
-      }
+      },
+      "origin": "gh-asset"
     }
   }
 }
