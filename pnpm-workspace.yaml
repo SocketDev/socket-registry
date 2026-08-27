@@ -380,15 +380,6 @@ minimumReleaseAgeExclude:
 # can't silently widen the trust boundary.
 blockExoticSubdeps: true
 
-# Proceed with a node_modules purge WITHOUT an interactive confirm. The fleet
-# runs pnpm non-interactively everywhere (skills, scripts, hooks, agents, CI) —
-# no TTY. pnpm's default ABORTS a purge for lack of a TTY
-# (ERR_PNPM_ABORTED_REMOVE_MODULES_DIR_NO_TTY), wedging any commit whose
-# pre-commit re-checks deps after a workspace/.npmrc change. Purging
-# node_modules is safe (gitignored + regenerable). Unlike CI=true this does NOT
-# force a frozen lockfile; CI keeps owning frozen-vs-update policy.
-confirmModulesPurge: false
-
 # pnpm `overrides` block — two purposes:
 #
 # 1. Force every transitive `vite` resolution to the catalog'd 8.0.13.
@@ -544,14 +535,6 @@ enablePrePostScripts: true
 # Pin exact versions on `pnpm add`. Catalog and overrides should
 # also be exact pins (5.24.0, not ^5.24.0).
 saveExact: true
-
-# Opt out of pnpm's packageManager-version self-check. CI installs pnpm from
-# its native bin via the shared setup workflow, not corepack, so the runner's
-# pnpm legitimately differs from the `packageManager` pin (which is
-# informational, not a version to enforce). Without this, pnpm hard-fails
-# ("This project is configured to use <pin> ... your current pnpm is <run>")
-# the moment the runner's pnpm differs from the pin.
-managePackageManagerVersions: false
 
 patchedDependencies:
   # Published 6.7.0 requires two things it never declares: its own alias
