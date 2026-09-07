@@ -82,3 +82,11 @@ pnpm install    make-npm-override    Fill TODOs + Test
 ## License
 
 MIT
+
+<div align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/SocketDev/socket-registry/HEAD/assets/fleet/socket-combomark-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/SocketDev/socket-registry/HEAD/assets/fleet/socket-combomark-light.svg">
+    <img width="320" height="91" alt="Socket" src="https://raw.githubusercontent.com/SocketDev/socket-registry/HEAD/assets/fleet/socket-combomark-light.svg">
+  </picture>
+</div>
