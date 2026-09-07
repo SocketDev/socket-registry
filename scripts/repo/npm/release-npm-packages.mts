@@ -31,9 +31,9 @@ import {
   SOCKET_REGISTRY_SCOPE,
 } from '../constants/paths.mts'
 import { getNpmPackageNames } from '../constants/testing.mts'
-import { isMainModule } from '../../fleet/_shared/is-main-module.mts'
-import { runMain } from '../../fleet/_shared/run-main.mts'
-import type { ScriptMeta } from '../../fleet/_shared/run-main.mts'
+import { isMainModule } from '../../fleet/process/is-main-module.mts'
+import { runMain } from '../../fleet/process/run-main.mts'
+import type { ScriptMeta } from '../../fleet/process/run-main.mts'
 import {
   getLocalPackageFileHashes,
   getRemotePackageFileHashes,

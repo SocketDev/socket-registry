@@ -23,7 +23,7 @@ import { resolveOriginalPackageName } from '@socketsecurity/lib-stable/packages/
 // oxlint-disable-next-line socket/prefer-lib-versions-over-semver -- semver is the catalogued devDependency scripts use for range math.
 import semver from 'semver'
 
-import { isMainModule } from '../../fleet/_shared/is-main-module.mts'
+import { isMainModule } from '../../fleet/process/is-main-module.mts'
 import { NPM_PACKAGES_PATH } from '../constants/paths.mts'
 
 const logger = getDefaultLogger()

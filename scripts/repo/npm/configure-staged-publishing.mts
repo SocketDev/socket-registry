@@ -55,7 +55,7 @@ import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { sleep } from '@socketsecurity/lib-stable/promises/timers'
 
-import { isMainModule } from '../../fleet/_shared/is-main-module.mts'
+import { isMainModule } from '../../fleet/process/is-main-module.mts'
 import {
   loadStagedRoster,
   readStagedTrust,

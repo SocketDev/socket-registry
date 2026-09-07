@@ -10,7 +10,7 @@ import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { errorStack } from '@socketsecurity/lib-stable/errors/stack'
 import { httpText } from '@socketsecurity/lib-stable/http-request'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
-import { isMainModule } from '../../fleet/_shared/is-main-module.mts'
+import { isMainModule } from '../../fleet/process/is-main-module.mts'
 
 const logger = getDefaultLogger()
 

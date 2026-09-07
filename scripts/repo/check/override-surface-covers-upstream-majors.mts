@@ -28,7 +28,7 @@ import { resolveOriginalPackageName } from '@socketsecurity/lib-stable/packages/
 import { pEach } from '@socketsecurity/lib-stable/promises/iterate'
 import semver from 'semver'
 
-import { isMainModule } from '../../fleet/_shared/is-main-module.mts'
+import { isMainModule } from '../../fleet/process/is-main-module.mts'
 import { NPM_PACKAGES_PATH } from '../constants/paths.mts'
 import { resolveExportsSubpath } from '../util/exports-resolver.mts'
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'

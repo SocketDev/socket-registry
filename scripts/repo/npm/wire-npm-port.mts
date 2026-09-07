@@ -27,7 +27,7 @@ import { naturalCompare } from '@socketsecurity/lib-stable/sorts/natural'
 // oxlint-disable-next-line socket/prefer-lib-versions-over-semver -- dev dep
 import semver from 'semver'
 
-import { isMainModule } from '../../fleet/_shared/is-main-module.mts'
+import { isMainModule } from '../../fleet/process/is-main-module.mts'
 import { NPM_PACKAGES_PATH, ROOT_PATH } from '../constants/paths.mts'
 
 const logger = getDefaultLogger()

@@ -29,7 +29,7 @@ import { pEach } from '@socketsecurity/lib-stable/promises/iterate'
 import { naturalCompare } from '@socketsecurity/lib-stable/sorts/natural'
 import { UTF8 } from '@socketsecurity/lib-stable/constants/encoding'
 
-import { isMainModule } from '../../fleet/_shared/is-main-module.mts'
+import { isMainModule } from '../../fleet/process/is-main-module.mts'
 import { DEFAULT_CONCURRENCY } from '../constants/core.mts'
 import { getNpmPackageNames } from '../constants/testing.mts'
 import { NPM_PACKAGES_PATH, ROOT_PATH } from '../constants/paths.mts'

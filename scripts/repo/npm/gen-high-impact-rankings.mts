@@ -18,7 +18,7 @@ import process from 'node:process'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { resolveOriginalPackageName } from '@socketsecurity/lib-stable/packages/normalize'
 
-import { isMainModule } from '../../fleet/_shared/is-main-module.mts'
+import { isMainModule } from '../../fleet/process/is-main-module.mts'
 import { NPM_PACKAGES_PATH, ROOT_PATH } from '../constants/paths.mts'
 
 const logger = getDefaultLogger()

@@ -13,7 +13,7 @@ import fastGlob from 'fast-glob'
 
 const logger = getDefaultLogger()
 
-import { isMainModule } from '../fleet/_shared/is-main-module.mts'
+import { isMainModule } from '../fleet/process/is-main-module.mts'
 import { PERF_NPM_PATH } from './constants/paths.mts'
 
 async function main(): Promise<void> {

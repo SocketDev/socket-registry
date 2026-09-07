@@ -23,7 +23,7 @@ import { open } from 'out-url'
 // oxlint-disable-next-line socket/prefer-lib-versions-over-semver -- @socketsecurity/lib-stable has no ./external/semver export at the pinned version; semver is a devDependency (scripts/tests only, not bundled).
 import semver from 'semver'
 import { UTF8 } from '@socketsecurity/lib-stable/constants/encoding'
-import { isMainModule } from '../../fleet/_shared/is-main-module.mts'
+import { isMainModule } from '../../fleet/process/is-main-module.mts'
 import { ESNEXT } from '../constants/core.mts'
 import { LOG_SYMBOLS } from '@socketsecurity/lib-stable/logger/symbols'
 import { fetchPackageManifest } from '@socketsecurity/lib-stable/packages/manifest'

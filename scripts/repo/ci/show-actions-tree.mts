@@ -7,7 +7,7 @@ import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
-import { isMainModule } from '../../fleet/_shared/is-main-module.mts'
+import { isMainModule } from '../../fleet/process/is-main-module.mts'
 import { REPO_ROOT } from '../../fleet/paths.mts'
 import {
   ROOT_DOT_GITHUB_ACTIONS_PATH,

@@ -9,7 +9,7 @@ import { NODE_MODULES_GLOB_RECURSIVE } from '@socketsecurity/lib-stable/paths/di
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { deleteAsync as del } from 'del'
 import fastGlob from 'fast-glob'
-import { isMainModule } from '../../fleet/_shared/is-main-module.mts'
+import { isMainModule } from '../../fleet/process/is-main-module.mts'
 import { ROOT_PATH } from '../constants/paths.mts'
 import { isDirEmptySync } from '@socketsecurity/lib-stable/fs/inspect'
 

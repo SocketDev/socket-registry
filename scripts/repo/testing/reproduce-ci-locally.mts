@@ -13,7 +13,7 @@ import spawnModule from '@socketsecurity/lib-stable/process/spawn/child'
 import { deleteAsync as del } from 'del'
 import process from 'node:process'
 
-import { isMainModule } from '../../fleet/_shared/is-main-module.mts'
+import { isMainModule } from '../../fleet/process/is-main-module.mts'
 import { ROOT_PATH } from '../constants/paths.mts'
 
 const { parseArgs } = parseArgsModule

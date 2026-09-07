@@ -11,7 +11,7 @@ import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
 const logger = getDefaultLogger()
 
-import { isMainModule } from '../../fleet/_shared/is-main-module.mts'
+import { isMainModule } from '../../fleet/process/is-main-module.mts'
 import {
   NPM_PACKAGES_PATH,
   NPM_TEMPLATES_README_PATH,

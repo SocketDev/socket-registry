@@ -18,9 +18,9 @@
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
 import { getEnv } from '../constants/env.mts'
-import { isMainModule } from '../../fleet/_shared/is-main-module.mts'
-import { runMain } from '../../fleet/_shared/run-main.mts'
-import type { ScriptMeta } from '../../fleet/_shared/run-main.mts'
+import { isMainModule } from '../../fleet/process/is-main-module.mts'
+import { runMain } from '../../fleet/process/run-main.mts'
+import type { ScriptMeta } from '../../fleet/process/run-main.mts'
 import {
   approveFlag,
   cliArgs,

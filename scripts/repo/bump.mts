@@ -42,7 +42,7 @@ import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { gt } from '@socketsecurity/lib-stable/versions/compare'
 
-import { isMainModule } from '../fleet/_shared/is-main-module.mts'
+import { isMainModule } from '../fleet/process/is-main-module.mts'
 import {
   changelogHasVersionSection,
   insertChangelogSection,
