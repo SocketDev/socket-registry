@@ -99,6 +99,7 @@ export async function readLicenses(
   for await (const license of transform(
     stream,
     async (filepath: string) => ({
+      __proto__: null,
       name: path.basename(filepath),
       content: await fs.readFile(filepath, UTF8),
     }),
