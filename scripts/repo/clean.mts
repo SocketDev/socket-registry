@@ -80,6 +80,52 @@ export async function cleanDirectories(
   return 0
 }
 
+export interface CleanSelection {
+  all?: boolean | undefined
+  cache?: boolean | undefined
+  coverage?: boolean | undefined
+  dist?: boolean | undefined
+  modules?: boolean | undefined
+  types?: boolean | undefined
+}
+
+export function selectCleanTasks(options: CleanSelection): CleanTask[] {
+  const selection = { __proto__: null, ...options }
+  const cleanAll =
+    selection.all ||
+    (!selection.cache &&
+      !selection.coverage &&
+      !selection.dist &&
+      !selection.types &&
+      !selection.modules)
+
+  const tasks = []
+
+  // Build task list
+  if (cleanAll || selection.cache) {
+    tasks.push({ name: 'cache', pattern: '**/.cache' })
+  }
+
+  if (cleanAll || selection.coverage) {
+    tasks.push({ name: 'coverage', pattern: 'coverage' })
+  }
+
+  if (cleanAll || selection.dist) {
+    tasks.push({
+      name: 'dist',
+      patterns: ['dist', '*.tsbuildinfo', '.tsbuildinfo'],
+    })
+  } else if (selection.types) {
+    tasks.push({ name: 'dist/types', patterns: ['dist/types'] })
+  }
+
+  if (selection.modules) {
+    tasks.push({ name: 'node_modules', pattern: '**/node_modules' })
+  }
+
+  return tasks
+}
+
 async function main(): Promise<void> {
   try {
     // Parse arguments
@@ -167,38 +213,7 @@ async function main(): Promise<void> {
 
     const quiet = isQuiet(values)
 
-    // Determine what to clean
-    const cleanAll =
-      values.all ||
-      (!values.cache &&
-        !values.coverage &&
-        !values.dist &&
-        !values.types &&
-        !values.modules)
-
-    const tasks = []
-
-    // Build task list
-    if (cleanAll || values.cache) {
-      tasks.push({ name: 'cache', pattern: '**/.cache' })
-    }
-
-    if (cleanAll || values.coverage) {
-      tasks.push({ name: 'coverage', pattern: 'coverage' })
-    }
-
-    if (cleanAll || values.dist) {
-      tasks.push({
-        name: 'dist',
-        patterns: ['dist', '*.tsbuildinfo', '.tsbuildinfo'],
-      })
-    } else if (values.types) {
-      tasks.push({ name: 'dist/types', patterns: ['dist/types'] })
-    }
-
-    if (values.modules) {
-      tasks.push({ name: 'node_modules', pattern: '**/node_modules' })
-    }
+    const tasks = selectCleanTasks(values)
 
     // Check if there's anything to clean
     if (!tasks.length) {
