@@ -284,6 +284,33 @@ class YoctoSpinner {
     this.#onRenderFrame = options.onRenderFrame
   }
 
+  #advanceFrame() {
+    // Ensure we only update the spinner frame at the wanted interval,
+    // even if the frame method is called more often.
+    const now = Date.now()
+    let frameAdvanced = false
+    if (
+      this.#currentFrame === -1 ||
+      now - this.#lastSpinnerFrameTime >= this.#spinner.interval
+    ) {
+      frameAdvanced = true
+      this.#currentFrame = ++this.#currentFrame % getFrameCount(this.#spinner)
+      this.#lastSpinnerFrameTime = now
+    }
+
+    // Call frame update callback if provided.
+    // This allows external shimmer logic to advance in sync with renders.
+    // Set flag to prevent nested renders from text updates.
+    if (frameAdvanced && typeof this.#onFrameUpdate === 'function') {
+      this.#skipRender = true
+      try {
+        this.#onFrameUpdate()
+      } finally {
+        this.#skipRender = false
+      }
+    }
+  }
+
   #exitHandler(signal) {
     if (this.isSpinning) {
       this.stop()
@@ -320,30 +347,7 @@ class YoctoSpinner {
       return
     }
 
-    // Ensure we only update the spinner frame at the wanted interval,
-    // even if the frame method is called more often.
-    const now = Date.now()
-    let frameAdvanced = false
-    if (
-      this.#currentFrame === -1 ||
-      now - this.#lastSpinnerFrameTime >= this.#spinner.interval
-    ) {
-      frameAdvanced = true
-      this.#currentFrame = ++this.#currentFrame % getFrameCount(this.#spinner)
-      this.#lastSpinnerFrameTime = now
-    }
-
-    // Call frame update callback if provided.
-    // This allows external shimmer logic to advance in sync with renders.
-    // Set flag to prevent nested renders from text updates.
-    if (frameAdvanced && typeof this.#onFrameUpdate === 'function') {
-      this.#skipRender = true
-      try {
-        this.#onFrameUpdate()
-      } finally {
-        this.#skipRender = false
-      }
-    }
+    this.#advanceFrame()
 
     const colors = getYoctocolors()
     // Support both color names and RGB tuples

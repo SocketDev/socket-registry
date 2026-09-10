@@ -2,13 +2,16 @@
  * @file Tests for yocto-spinner NPM package override.
  */
 
-import { describe, expect, it } from 'vitest'
+import path from 'node:path'
+
+import { describe, expect, it, vi } from 'vitest'
 
 import { setupNpmPackageTest } from '../util/npm-package.mts'
 
 const {
   eco,
   module: yoctoSpinner,
+  pkgPath,
   skip,
   sockRegPkgName,
 } = setupNpmPackageTest(import.meta.url)
@@ -107,5 +110,44 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
     expect(result).toBe(spinner)
     spinner.stop()
+  })
+
+  it('advances frames at the interval and suppresses callback-triggered rendering', () => {
+    const createSpinner = require(path.join(pkgPath, 'index.cjs'))
+    const writes: string[] = []
+    const onFrameUpdate = vi.fn(() => {
+      spinner.text = 'callback text'
+    })
+    const onRenderFrame = vi.fn(
+      (frame: string, text: string) => `${frame}:${text}`,
+    )
+    const clock = vi.spyOn(Date, 'now').mockReturnValue(1000)
+    const spinner = createSpinner({
+      onFrameUpdate,
+      onRenderFrame,
+      spinner: { frames: ['first', 'second'], interval: 100 },
+      stream: { isTTY: false, write: (text: string) => writes.push(text) },
+      text: 'initial',
+    })
+    try {
+      spinner.start()
+      expect(writes).toStrictEqual(['first:callback text\n'])
+      expect(onFrameUpdate).toHaveBeenCalledTimes(1)
+      clock.mockReturnValue(1099)
+      spinner.text = 'manual text'
+      expect(onFrameUpdate).toHaveBeenCalledTimes(1)
+      expect(writes.at(-1)).toBe('first:manual text\n')
+      clock.mockReturnValue(1100)
+      spinner.text = 'next text'
+      expect(onFrameUpdate).toHaveBeenCalledTimes(2)
+      expect(onRenderFrame).toHaveBeenCalledTimes(3)
+      expect(writes.at(-1)).toBe('second:callback text\n')
+      spinner.stop()
+      spinner.text = 'stopped text'
+      expect(onRenderFrame).toHaveBeenCalledTimes(3)
+    } finally {
+      spinner.stop()
+      clock.mockRestore()
+    }
   })
 })
