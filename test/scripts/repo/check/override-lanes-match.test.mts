@@ -8,7 +8,7 @@
  *   check`.
  */
 
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -115,12 +115,42 @@ describe('scripts/repo/check/override-lanes-match', () => {
     })
   })
 
+  it.each(['isFixture', 'differentName'])(
+    'compares both lane names with a loaded upstream export named %s',
+    upstreamName => {
+      const source =
+        'module.exports = function isFixture(value) { return value === 1 }'
+      const root = scratchRepoWithLanes(source, source)
+      const upstream = path.join(
+        root,
+        'node_modules',
+        '.pnpm',
+        'fixture-pkg@1.0.0',
+        'node_modules',
+        'fixture-pkg',
+      )
+      mkdirSync(upstream, { recursive: true })
+      writeFileSync(
+        path.join(upstream, 'index.js'),
+        `module.exports = function ${upstreamName}(value) { return value === 1 }`,
+      )
+      const report = collectLaneDivergences(root)
+      expect(report.upstreamNamesChecked).toBe(1)
+      expect(report.upstreamNamesUnavailable).toBe(0)
+      expect(report.divergences).toHaveLength(
+        upstreamName === 'isFixture' ? 0 : 1,
+      )
+    },
+  )
+
   describe('live tree', () => {
     it('every dual-lane override in this repo agrees on behavior and name', () => {
       const report = collectLaneDivergences(REPO_ROOT)
       expect(report.divergences).toEqual([])
       expect(report.packagesCompared).toBeGreaterThan(20)
-      expect(report.upstreamNamesChecked).toBeGreaterThan(0)
+      expect(
+        report.upstreamNamesChecked + report.upstreamNamesUnavailable,
+      ).toBeGreaterThan(0)
     })
   })
 })

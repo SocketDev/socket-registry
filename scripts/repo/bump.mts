@@ -38,28 +38,30 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 
-import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
+import { parseArgs } from './util/parse-args.mts'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { gt } from '@socketsecurity/lib-stable/versions/compare'
 
 import { isMainModule } from '../fleet/process/is-main-module.mts'
+import { replaceVersion } from '../fleet/bump/manifest-write.mts'
 import {
-  changelogHasVersionSection,
-  insertChangelogSection,
-  replaceVersion,
-} from '../fleet/bump/changelog-sections.mts'
+  changelogCommitBumpLevel,
+  changelogVersionHint,
+  nextChangelogVersion,
+} from '../fleet/changelog/commits.mts'
 import {
-  bumpLevelFor,
   changelogHeading,
-  computeNextVersion,
-  generateChangelogSection,
-  promoteUnreleased,
-  repoBaseUrl,
-  sectionHasEntries,
+  changelogSectionHasEntries,
+  composeChangelogSectionFromCommits,
+  promoteChangelogUnreleasedSection,
   UNRELEASED_HEADING,
-  versionHintFrom,
   withChangelogEntry,
-} from '../fleet/lib/changelog.mts'
+} from '../fleet/changelog/compose.mts'
+import { changelogRepoUrl } from '../fleet/changelog/links.mts'
+import {
+  hasChangelogVersionSection,
+  insertChangelogVersionSection,
+} from '../fleet/changelog/sections.mts'
 import { describeAnchor } from '../fleet/lib/release-anchor.mts'
 import { REPO_ROOT } from '../fleet/paths.mts'
 import { runCapture } from '../fleet/registry-infra/shared.mts'
@@ -73,7 +75,7 @@ import {
   subjectWiringError,
 } from './util/bump-subject.mts'
 
-import type { BumpLevel } from '../fleet/lib/changelog.mts'
+import type { BumpLevel } from '../fleet/changelog/commits.mts'
 
 export {
   deriveSubjectRelease,
@@ -151,7 +153,7 @@ async function main(): Promise<void> {
   // `X.Y.Z-prerelease` hint, then a PREPARED RELEASE — manifest ahead of base
   // with its changelog section already committed — then the commit-type
   // heuristic. MAJOR is never derived.
-  const hinted = versionHintFrom(pkg.version)
+  const hinted = changelogVersionHint(pkg.version)
   const prepared = preparedVersionFrom({
     base,
     changelog: existingChangelog,
@@ -206,7 +208,7 @@ async function main(): Promise<void> {
         `already carries its section — releasing as ${prepared}.`,
     )
   } else {
-    level = bumpLevelFor(commits)
+    level = changelogCommitBumpLevel(commits)
     if (level === 'major') {
       logger.fail(
         `Breaking commit(s) found since ${describeAnchor(anchor)} — a MAJOR ` +
@@ -228,7 +230,7 @@ async function main(): Promise<void> {
     return
   }
 
-  const nextVersion = namedVersion ?? computeNextVersion(base, level)
+  const nextVersion = namedVersion ?? nextChangelogVersion(base, level)
   const repositoryUrl =
     typeof pkg.repository === 'string' ? pkg.repository : pkg.repository?.url
   const date = new Date().toISOString().slice(0, 10)
@@ -236,7 +238,7 @@ async function main(): Promise<void> {
   // Bump-exactly-once re-entry: the subject already carries the section and
   // the version. The only thing possibly left is the root version mirror —
   // complete it instead of failing, so a half-synced tree self-heals.
-  if (changelogHasVersionSection(existingChangelog, nextVersion)) {
+  if (hasChangelogVersionSection(existingChangelog, nextVersion)) {
     if (pkg.version === nextVersion) {
       if (rootPkg.version === nextVersion) {
         logger.success(
@@ -301,20 +303,23 @@ async function main(): Promise<void> {
   const versionHeading = changelogHeading(
     nextVersion,
     date,
-    repoBaseUrl(repositoryUrl),
+    changelogRepoUrl(repositoryUrl),
   )
-  const promoted = promoteUnreleased(existingChangelog, versionHeading)
+  const promoted = promoteChangelogUnreleasedSection(
+    existingChangelog,
+    versionHeading,
+  )
   let section = promoted
     ? promoted.section
-    : generateChangelogSection({
+    : composeChangelogSectionFromCommits({
         commits,
         date,
-        repoUrl: repoBaseUrl(repositoryUrl),
+        repoUrl: changelogRepoUrl(repositoryUrl),
         version: nextVersion,
       })
   const baseChangelog = promoted ? promoted.changelog : existingChangelog
 
-  if (!sectionHasEntries(section)) {
+  if (!changelogSectionHasEntries(section)) {
     if (typeof emptyChangelogEntry === 'string' && emptyChangelogEntry.trim()) {
       section = withChangelogEntry(section, emptyChangelogEntry.trim())
       logger.warn(
@@ -360,7 +365,10 @@ async function main(): Promise<void> {
     path.join(rootPath, SUBJECT_MANIFEST_PATH),
     replaceVersion(pkgRaw, nextVersion),
   )
-  writeFileSync(changelogPath, insertChangelogSection(baseChangelog, section))
+  writeFileSync(
+    changelogPath,
+    insertChangelogVersionSection(baseChangelog, section),
+  )
   // Root version mirror — see the file header's deviation 2.
   writeFileSync(
     path.join(rootPath, 'package.json'),

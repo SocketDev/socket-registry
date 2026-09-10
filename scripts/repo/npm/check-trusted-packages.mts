@@ -15,7 +15,7 @@
 import os from 'node:os'
 import process from 'node:process'
 
-import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
+import { parseArgs } from '../util/parse-args.mts'
 import { COLUMN_LIMIT } from '@socketsecurity/lib-stable/constants/sentinels'
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'

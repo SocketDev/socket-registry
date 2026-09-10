@@ -149,7 +149,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
 
     it('accepts one-arg array-likes like v1', () => {
-      function grab() {
+      function grab(...values: unknown[]) {
+        void values
         // eslint-disable-next-line prefer-rest-params
         return arguments
       }

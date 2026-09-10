@@ -21,7 +21,7 @@ import {
   SUBJECT_MANIFEST_PATH,
   SUBJECT_NAME,
   subjectWiringError,
-} from '../../../scripts/repo/bump.mts'
+} from '../../../scripts/repo/util/bump-subject-decisions.mts'
 
 const repoRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),

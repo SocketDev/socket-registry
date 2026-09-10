@@ -6,8 +6,8 @@
     "localAssist": true
   },
   "bundle": {
-    "ref": "fleet-pack-34b047176c416cd46f1919ad0bba35a0bb7b84b3",
-    "cascadeSha": "34b047176c416cd46f1919ad0bba35a0bb7b84b3"
+    "ref": "fleet-pack-bd99fdd3d6a1735d0a060e3df6fd177e62efda4e",
+    "cascadeSha": "bd99fdd3d6a1735d0a060e3df6fd177e62efda4e"
   },
   "repo": {
     "type": "mono"
@@ -29,5 +29,22 @@
         "reason": "Attested commit 5bf88a0b has no v2.0.1 or bare 2.0.1 tag on origin at all. Same frozen-history shape as 2.0.2."
       }
     ]
+  },
+  "coverage": {
+    "include": [
+      "registry/src/**/*.{ts,mts,cts}",
+      "packages/npm/**/*.{js,cjs,mjs}"
+    ]
+  },
+  "vitest": {
+    "lanes": {
+      "mid": [
+        "test/packages.test.mts",
+        "test/helpers/**/*.test.mts",
+        "test/scripts/repo/check/override-lanes-match.test.mts",
+        "test/fleet/integration/**/*.test.mts"
+      ],
+      "slow": ["test/fleet/e2e/**/*.test.mts"]
+    }
   }
 }

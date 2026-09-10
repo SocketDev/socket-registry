@@ -26,7 +26,6 @@ import {
   isOperatorSignInUrl,
   isTwoFactorEscalationPayload,
   permitsDirectPublish,
-  permitsStagedPublish,
   planStagedConfiguration,
   readTrustedPublisherState,
   TARGET_ENVIRONMENT_NAME,
@@ -331,6 +330,7 @@ describe('operator-facing messages', () => {
     const lines = formatUnreadableSettings(
       {
         latestVersion: '1.0.8',
+        publishedVersionCount: 1,
         name: '@socketregistry/date',
         settingsUrl:
           'https://www.npmjs.com/package/@socketregistry/date/access',

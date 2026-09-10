@@ -25,7 +25,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   })
 
   it('calling has on null throws TypeError', () => {
-    expect(() => has(undefined, 'throws')).toThrow(TypeError)
+    // oxlint-disable-next-line socket/prefer-undefined-over-null -- null is the contract input.
+    expect(() => has(null, 'throws')).toThrow(TypeError)
   })
 
   it('calling has on undefined throws TypeError', () => {

@@ -4,18 +4,33 @@
  *   https://github.com/es-shims/Array.prototype.toSorted/blob/850c48e17f4eeffd1eaeff5898b083916224dfef/test/tests.js.
  */
 
+import path from 'node:path'
 import { describe, expect, it } from 'vitest'
+import { createNpmFallbackLoader } from '../util/npm-fallback.mts'
 
 import { setupNpmPackageTest } from '../util/npm-package-helper.mts'
 
 const {
   eco,
-  module: toSorted,
+  module: publicModule,
+  pkgPath,
   skip,
   sockRegPkgName,
 } = setupNpmPackageTest(import.meta.url)
 
-describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
+const loadFallback = createNpmFallbackLoader({
+  disabledPaths: ['Array.prototype.toSorted'],
+})
+const implementation = skip
+  ? publicModule
+  : loadFallback(path.join(pkgPath, 'implementation.js'))
+
+describe.each([
+  ['public', publicModule],
+  ['fallback', Function.prototype.call.bind(implementation)],
+])(`${eco} > ${sockRegPkgName} > %s`, { skip }, (variant, toSorted) => {
+  const expectedRangeError =
+    variant === 'fallback' ? loadFallback.errors.RangeError : RangeError
   it('sorts an array', () => {
     const nums = [2, 1, 3]
     const result = toSorted(nums)
@@ -145,7 +160,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
         4_294_967_296: 4_294_967_296,
         length: Math.pow(2, 32),
       }
-      expect(() => toSorted(arrayLike)).toThrow(RangeError)
+      expect(() => toSorted(arrayLike)).toThrow(expectedRangeError)
     })
   })
 

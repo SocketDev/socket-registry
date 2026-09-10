@@ -4,18 +4,33 @@
  *   https://github.com/es-shims/Array.prototype.toReversed/blob/dae18065b74fb98686ddfb5462294963c4310600/test/tests.js.
  */
 
+import path from 'node:path'
 import { describe, expect, it } from 'vitest'
+import { createNpmFallbackLoader } from '../util/npm-fallback.mts'
 
 import { setupNpmPackageTest } from '../util/npm-package-helper.mts'
 
 const {
   eco,
-  module: toReversed,
+  module: publicModule,
+  pkgPath,
   skip,
   sockRegPkgName,
 } = setupNpmPackageTest(import.meta.url)
 
-describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
+const loadFallback = createNpmFallbackLoader({
+  disabledPaths: ['Array.prototype.toReversed'],
+})
+const implementation = skip
+  ? publicModule
+  : loadFallback(path.join(pkgPath, 'implementation.js'))
+
+describe.each([
+  ['public', publicModule],
+  ['fallback', Function.prototype.call.bind(implementation)],
+])(`${eco} > ${sockRegPkgName} > %s`, { skip }, (variant, toReversed) => {
+  const expectedRangeError =
+    variant === 'fallback' ? loadFallback.errors.RangeError : RangeError
   it('reverses an array', () => {
     const three = [1, 2, 3]
     const result = toReversed(three)
@@ -67,7 +82,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
         4_294_967_296: 4_294_967_296,
         length: Math.pow(2, 32),
       }
-      expect(() => toReversed(arrayLike)).toThrow(RangeError)
+      expect(() => toReversed(arrayLike)).toThrow(expectedRangeError)
     })
   })
 

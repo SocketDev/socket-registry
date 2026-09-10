@@ -37,7 +37,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   })
 
   it('first item as null is not the concat receiver', () => {
-    expect(safeConcat(undefined, 1, 2)).toEqual([undefined, 1, 2])
+    // oxlint-disable-next-line socket/prefer-undefined-over-null -- null is the contract input.
+    expect(safeConcat(null, 1, 2)).toEqual([null, 1, 2])
   })
 
   it('ignores nonArray .constructor on first item', () => {

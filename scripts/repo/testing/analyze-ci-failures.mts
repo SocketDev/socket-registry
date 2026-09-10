@@ -5,7 +5,7 @@
 import { promises as fs } from 'node:fs'
 import process from 'node:process'
 
-import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
+import { parseArgs } from '../util/parse-args.mts'
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { errorStack } from '@socketsecurity/lib-stable/errors/stack'
 import { httpText } from '@socketsecurity/lib-stable/http-request'

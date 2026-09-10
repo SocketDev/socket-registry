@@ -30,7 +30,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
 
     it('null is null', () => {
-      expect(is(undefined, undefined)).toBe(true)
+      // oxlint-disable-next-line socket/prefer-undefined-over-null -- null is the contract input.
+      expect(is(null, null)).toBe(true)
     })
 
     it('true is true', () => {

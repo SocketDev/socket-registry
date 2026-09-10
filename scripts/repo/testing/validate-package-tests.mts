@@ -6,7 +6,7 @@
 import { existsSync, promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import parseArgsModule from '@socketsecurity/lib-stable/argv/parse'
+import { parseArgs } from '../util/parse-args.mts'
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import promisesModule from '@socketsecurity/lib-stable/promises/iterate'
@@ -25,7 +25,6 @@ interface CliArgs {
   fix: boolean
 }
 
-const { parseArgs } = parseArgsModule
 const logger = getDefaultLogger()
 const { spawn } = spawnModule
 const { pEach } = promisesModule

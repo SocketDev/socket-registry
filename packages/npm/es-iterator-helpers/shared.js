@@ -59,6 +59,7 @@ const IteratorHelperPrototype = ObjectCreate(IteratorPrototype, {
       }
       // Step 2: If state is completed, return CreateIteratorResultObject(undefined, true).
       if (getSlot(this, SLOT_GENERATOR_STATE) === GENERATOR_STATE_COMPLETED) {
+        // oxlint-disable-next-line socket/returned-object-null-proto -- CreateIteratorResultObject requires an ordinary object.
         return { value: undefined, done: true }
       }
       // Step 3: Assert: state is either suspended-start or suspended-yield.
@@ -109,12 +110,14 @@ const IteratorHelperPrototype = ObjectCreate(IteratorPrototype, {
       // Step 4: If the generator is suspended-start, mark it as completed and
       // return a completed result.
       if (generatorState === GENERATOR_STATE_COMPLETED) {
+        // oxlint-disable-next-line socket/returned-object-null-proto -- CreateIteratorResultObject requires an ordinary object.
         return { value: undefined, done: true }
       }
       try {
         // Step 4.c: Close the underlying iterator and complete the generator.
         iteratorClose(underlyingIterator, undefined)
         setSlot(this, SLOT_GENERATOR_STATE, GENERATOR_STATE_COMPLETED)
+        // oxlint-disable-next-line socket/returned-object-null-proto -- CreateIteratorResultObject requires an ordinary object.
         return { value: undefined, done: true }
       } catch (error) {
         // Step 6: If an abrupt completion occurs, set the generator to completed
@@ -176,6 +179,7 @@ const WrapForValidIteratorPrototype = ObjectCreate(IteratorPrototype, {
       // Step 6: If returnMethod is undefined, then
       if (returnMethod === undefined) {
         // Step 6.a: Return CreateIteratorResultObject(undefined, true).
+        // oxlint-disable-next-line socket/returned-object-null-proto -- CreateIteratorResultObject requires an ordinary object.
         return { value: undefined, done: true }
       }
       // Step 7: Return Call(returnMethod, iterator).
@@ -232,6 +236,7 @@ function getIteratorDirect(obj) {
   // Step 2: Let iteratorRecord be the Iterator Record
   // { [[Iterator]]: obj, [[NextMethod]]: nextMethod, [[Done]]: false }.
   // Step 3: Return iteratorRecord.
+  // oxlint-disable-next-line socket/returned-object-null-proto -- Preserve the published getIteratorDirect return shape.
   return { next: obj.next, iterator: obj, done: false }
 }
 
@@ -343,13 +348,27 @@ function iteratorClose(iterator, completion) {
 
 // Based on https://tc39.es/proposal-joint-iteration/#sec-closeall.
 function iteratorCloseAll(openIters, completion) {
+  let abrupt = arguments.length > 1
   // Step 1: For each element iter of openIters, in reverse List order, do
   for (let i = openIters.length - 1; i >= 0; i -= 1) {
     // Step 1.a: Set completion to Completion(IteratorClose(iter, completion)).
-    iteratorClose(openIters[i], completion)
+    const record = openIters[i]
+    if (record === null) {
+      continue
+    }
+    // oxlint-disable-next-line socket/prefer-undefined-over-null -- null marks a closed Iterator Record.
+    openIters[i] = null
+    try {
+      iteratorClose(record.iterator, completion)
+    } catch (error) {
+      if (!abrupt) {
+        completion = error
+        abrupt = true
+      }
+    }
   }
   // Step 2: Return ? completion.
-  if (completion) {
+  if (abrupt) {
     throw completion
   }
 }
@@ -360,26 +379,18 @@ function iteratorZip(iters, mode, padding, finishResults = v => v) {
   const { length: iterCount } = iters
   // Step 2: Let openIters be a copy of iters.
   const openIters = [...iters]
+  let completed = false
   // Step 3: Define the generator closure.
   const generator = {
     next() {
       // Step 3.a: If iterCount = 0, return { value: undefined, done: true }.
-      if (iterCount === 0) {
+      if (completed || iterCount === 0) {
+        // oxlint-disable-next-line socket/returned-object-null-proto -- CreateIteratorResultObject requires an ordinary object.
         return { value: undefined, done: true }
       }
       // Step 3.b.i: Let results be a new empty list.
       const results = []
-      // Step 3.b.ii: Assert: openIters is not empty.
-      let allNull = true
-      for (let i = 0, { length } = openIters; i < length; i += 1) {
-        if (openIters[i] !== null) {
-          allNull = false
-          break
-        }
-      }
-      if (allNull) {
-        return { value: undefined, done: true }
-      }
+      let hasValue = false
       // Step 3.b.iii: For each integer i such that 0 ≤ i < iterCount, in ascending order, do.
       for (let i = 0; i < iterCount; i += 1) {
         const iter = openIters[i]
@@ -406,16 +417,27 @@ function iteratorZip(iters, mode, padding, finishResults = v => v) {
             // oxlint-disable-next-line socket/prefer-undefined-over-null -- null is the spec sentinel
             openIters[i] = null
             if (mode === 'shortest') {
+              completed = true
+              iteratorCloseAll(openIters)
               // Step 3.b.iii.3.d.ii: Return { value: undefined, done: true } in "shortest" mode.
+              // oxlint-disable-next-line socket/returned-object-null-proto -- CreateIteratorResultObject requires an ordinary object.
+              return { value: undefined, done: true }
+            }
+            if (mode === 'strict') {
+              completed = true
+              validateIteratorZipLengths(openIters, i, hasValue)
+              // oxlint-disable-next-line socket/returned-object-null-proto -- CreateIteratorResultObject requires an ordinary object.
               return { value: undefined, done: true }
             }
             // Step 3.b.iii.3.d.iv: Let result be padding[i].
             results.push(padding[i])
           } else {
             // Step 3.b.iii.3.c: Set result to the value.
+            hasValue = true
             results.push(next.value)
           }
         } catch (e) {
+          completed = true
           // Step 3.b.iii.3.b.i: Remove iter from openIters on abrupt completion.
           // null is the spec sentinel for a removed iterator (see the `=== null` checks above).
           // oxlint-disable-next-line socket/prefer-undefined-over-null -- null is the spec sentinel
@@ -423,14 +445,24 @@ function iteratorZip(iters, mode, padding, finishResults = v => v) {
           return iteratorCloseAll(openIters, e)
         }
       }
+      if (!hasValue) {
+        completed = true
+        // oxlint-disable-next-line socket/returned-object-null-proto -- CreateIteratorResultObject requires an ordinary object.
+        return { value: undefined, done: true }
+      }
       // Step 3.b.iv: Set results to finishResults(results).
       const finalizedResults = finishResults(results)
       // Step 3.b.v: Yield the finalized results.
+      // oxlint-disable-next-line socket/returned-object-null-proto -- CreateIteratorResultObject requires an ordinary object.
       return { value: finalizedResults, done: false }
     },
     return() {
       // Step 3.b.vi: Close all iterators when the zip iterator is terminated.
-      iteratorCloseAll(openIters)
+      if (!completed) {
+        completed = true
+        iteratorCloseAll(openIters)
+      }
+      // oxlint-disable-next-line socket/returned-object-null-proto -- CreateIteratorResultObject requires an ordinary object.
       return { value: undefined, done: true }
     },
     [SymbolIterator]() {
@@ -492,6 +524,24 @@ function toIntegerOrInfinity(value) {
   }
   // Step 5: Return truncate(number).
   return MathTrunc(num)
+}
+
+function validateIteratorZipLengths(openIters, index, hasValue) {
+  if (hasValue) {
+    throw new TypeErrorCtor('Iterator lengths must match')
+  }
+  for (
+    let remaining = index + 1;
+    remaining < openIters.length;
+    remaining += 1
+  ) {
+    const other = openIters[remaining]
+    if (!ReflectApply(other.next, other.iterator, []).done) {
+      throw new TypeErrorCtor('Iterator lengths must match')
+    }
+    // oxlint-disable-next-line socket/prefer-undefined-over-null -- null marks an exhausted Iterator Record.
+    openIters[remaining] = null
+  }
 }
 
 module.exports = {

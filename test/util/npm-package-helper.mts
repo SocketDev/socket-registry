@@ -22,7 +22,7 @@ interface SetupNpmPackageTestResult {
 }
 
 // Callable, property-accessible no-op returned for `module` when the package
-// test is skipped (or the override fails to load). Some specs evaluate the
+// test is intentionally skipped. Some specs evaluate the
 // module at describe-time — e.g. `describe('…', { skip: !hasPropertyDescriptors() })`
 // — before any `skip`-gated `it`. Handing back `undefined` there throws
 // "x is not a function" and crashes the whole suite instead of skipping it.
@@ -209,12 +209,7 @@ function loadOverrideModule(pkgPath: string, pkgName: string): unknown {
   }
   const resolvedEntry = path.resolve(entry)
   const shadowPath = resolvedEntry === path.resolve(cjsPath) ? jsPath : cjsPath
-  let shadow: unknown
-  try {
-    shadow = require(shadowPath)
-  } catch {
-    return module
-  }
+  const shadow: unknown = require(shadowPath)
   if (typeof module !== 'function' || typeof shadow !== 'function') {
     return module
   }
@@ -244,17 +239,7 @@ export function setupNpmPackageTest(
   let module: any = SKIPPED_MODULE_STUB
 
   if (!skip) {
-    try {
-      module = loadOverrideModule(pkgPath, sockRegPkgName)
-    } catch {
-      return {
-        eco,
-        module: SKIPPED_MODULE_STUB,
-        pkgPath,
-        skip: true,
-        sockRegPkgName,
-      }
-    }
+    module = loadOverrideModule(pkgPath, sockRegPkgName)
   }
 
   return { eco, module, pkgPath, skip, sockRegPkgName }

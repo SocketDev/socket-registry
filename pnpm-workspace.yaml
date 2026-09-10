@@ -50,6 +50,8 @@ allowBuilds:
 pmOnFail: warn
 
 catalog:
+  '@bcoe/v8-coverage': 1.0.2
+  ast-v8-to-istanbul: 1.0.5
   '@mdn/browser-compat-data': 8.1.0
   # run-local-ci (bin: local-ci, formerly published as @redwoodjs/agent-ci)
   # runs a repo's GitHub Actions workflows locally in Docker so a change can
@@ -220,7 +222,6 @@ catalog:
   'streaming-iterables': 8.0.1
   'tar': 7.5.22
   'trash': 10.1.1
-  'type-coverage': 2.30.1
   'typescript-eslint': 8.65.0
   'update-browserslist-db': 1.2.3
   'validate-npm-package-name': 6.0.2
