@@ -19,6 +19,7 @@ import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { resolveOriginalPackageName } from '@socketsecurity/lib-stable/packages/normalize'
 
 import { isMainModule } from '../../fleet/process/is-main-module.mts'
+import { runMain } from '../../fleet/process/run-main.mts'
 import {
   NPM_HIGH_IMPACT_MANIFEST_PATH,
   NPM_PACKAGES_PATH,
@@ -204,9 +205,17 @@ async function main(): Promise<void> {
 
 /* c8 ignore start - entrypoint guard; the pure legs are covered directly. */
 if (isMainModule(import.meta.url)) {
-  main().catch((e: unknown) => {
-    logger.fail(`gen-high-impact-rankings failed: ${String(e)}`)
-    process.exitCode = 1
-  })
+  runMain(
+    async () => {
+      await main().catch((e: unknown) => {
+        logger.fail(`gen-high-impact-rankings failed: ${String(e)}`)
+        process.exitCode = 1
+      })
+    },
+    {
+      describe: 'generates npm impact rankings',
+      help: 'Usage: node scripts/repo/npm/gen-high-impact-rankings.mts [options]\n--write  Write the rankings document',
+    },
+  )
 }
 /* c8 ignore stop */

@@ -6,6 +6,7 @@ import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { readPackageJson } from '@socketsecurity/lib-stable/packages/read'
 
 import { isMainModule } from '../../fleet/process/is-main-module.mts'
+import { runMain } from '../../fleet/process/run-main.mts'
 import { PACKAGE_DEFAULT_NODE_RANGE } from '../constants/node.mts'
 import { ROOT_PACKAGE_JSON_PATH } from '../constants/paths.mts'
 
@@ -35,8 +36,16 @@ async function main(): Promise<void> {
 }
 
 if (isMainModule(import.meta.url)) {
-  main().catch((e: unknown) => {
-    logger.error(e)
-    process.exitCode = 1
-  })
+  runMain(
+    async () => {
+      await main().catch((e: unknown) => {
+        logger.error(e)
+        process.exitCode = 1
+      })
+    },
+    {
+      describe: 'updates the root Node.js engine range',
+      help: 'Usage: node scripts/repo/npm/update-package-json.mts',
+    },
+  )
 }

@@ -30,6 +30,7 @@ import { naturalCompare } from '@socketsecurity/lib-stable/sorts/natural'
 import { UTF8 } from '@socketsecurity/lib-stable/constants/encoding'
 
 import { isMainModule } from '../../fleet/process/is-main-module.mts'
+import { runMain } from '../../fleet/process/run-main.mts'
 import { DEFAULT_CONCURRENCY } from '../constants/core.mts'
 import { getNpmPackageNames } from '../constants/testing.mts'
 import { NPM_PACKAGES_PATH, ROOT_PATH } from '../constants/paths.mts'
@@ -433,8 +434,16 @@ async function main(): Promise<void> {
 }
 
 if (isMainModule(import.meta.url)) {
-  main().catch((e: unknown) => {
-    logger.error(e)
-    process.exitCode = 1
-  })
+  runMain(
+    async () => {
+      await main().catch((e: unknown) => {
+        logger.error(e)
+        process.exitCode = 1
+      })
+    },
+    {
+      describe: 'surveys override dependency coverage',
+      help: 'Usage: node scripts/repo/npm/survey-override-deps.mts [options]\n--offline  Use cached metadata\n--target <name>  Select an override\n--top <count>  Limit results\n--upstream  Include upstream dependencies\n--transitive  Include transitive dependencies',
+    },
+  )
 }

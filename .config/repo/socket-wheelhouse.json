@@ -59,7 +59,13 @@
         "test/scripts/repo/npm/configure-staged-publishing.test.mts",
         "test/scripts/repo/npm/make-npm-override.test.mts",
         "test/scripts/repo/npm/set-npm-package-access.test.mts",
-        "test/scripts/repo/npm/wire-npm-port.test.mts"
+        "test/scripts/repo/npm/wire-npm-port.test.mts",
+        "test/scripts/repo/npm/gen-high-impact-rankings.test.mts",
+        "test/scripts/repo/npm/survey-override-deps.test.mts",
+        "test/scripts/repo/npm/update-npm-package-json.test.mts",
+        "test/scripts/repo/npm/update-package-json.test.mts",
+        "test/scripts/repo/npm/run-vitest-npm.test.mts",
+        "test/scripts/repo/npm/release-npm-packages.test.mts"
       ],
       "slow": ["test/fleet/e2e/**/*.test.mts"]
     }

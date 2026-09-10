@@ -10,6 +10,7 @@ import { trimLeadingDotSlash } from '@socketsecurity/lib-stable/paths/normalize'
 import { pluralize } from '@socketsecurity/lib-stable/words/pluralize'
 import fastGlob from 'fast-glob'
 import { isMainModule } from '../../fleet/process/is-main-module.mts'
+import { runMain } from '../../fleet/process/run-main.mts'
 import { getNpmPackageNames } from '../constants/testing.mts'
 import { PACKAGE_DEFAULT_NODE_RANGE } from '../constants/node.mts'
 import { createPackageJson } from '@socketsecurity/lib-stable/packages/manifest'
@@ -113,8 +114,16 @@ async function main(): Promise<void> {
 }
 
 if (isMainModule(import.meta.url)) {
-  main().catch((e: unknown) => {
-    logger.error(e)
-    process.exitCode = 1
-  })
+  runMain(
+    async () => {
+      await main().catch((e: unknown) => {
+        logger.error(e)
+        process.exitCode = 1
+      })
+    },
+    {
+      describe: 'updates registry package manifests',
+      help: 'Usage: node scripts/repo/npm/update-npm-package-json.mts',
+    },
+  )
 }
