@@ -156,7 +156,7 @@ export async function processFile(
   options: { dryRun?: boolean | undefined },
 ): Promise<ProcessFileResult> {
   const opts = { __proto__: null, ...options } as typeof options
-  const { dryRun } = opts
+  const { dryRun = false } = opts
   const content = await fs.readFile(filePath, 'utf8')
   const dependencies = extractDependencies(content)
 
@@ -289,10 +289,10 @@ export async function collectActionReferenceFiles(
 function printActionReferenceChanges(
   processedFiles: Array<{ changes: FileChange[]; file: string }>,
   cwd: string,
-  options: { dryRun: boolean },
+  options?: { dryRun?: boolean },
 ): void {
   const opts = { __proto__: null, ...options }
-  const { dryRun } = opts
+  const { dryRun = false } = opts
   // Display changes.
   // Destructured loop variable; cached-length rewrite would scatter it.
   // oxlint-disable-next-line socket/prefer-cached-for-loop -- reserved
