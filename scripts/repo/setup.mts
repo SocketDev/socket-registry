@@ -97,8 +97,10 @@ export function isProcessAlive(pid: number): boolean {
 
 export async function acquireLock(
   lockPath: string,
-  timeoutMs: number = 120_000,
+  options?: { timeoutMs?: number | undefined } | undefined,
 ): Promise<() => Promise<void>> {
+  const opts = { __proto__: null, ...options }
+  const { timeoutMs = 120_000 } = opts
   await mkdir(path.dirname(lockPath), { recursive: true })
   const start = Date.now()
   while (Date.now() - start < timeoutMs) {
