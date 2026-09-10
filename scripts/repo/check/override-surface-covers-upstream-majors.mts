@@ -45,15 +45,19 @@ interface DeviationEntry {
 
 // The documented not-served subpaths live beside this check, per the
 // allowlist-in-a-config-file convention.
-const DEVIATIONS: Record<string, DeviationEntry[]> = JSON.parse(
-  readFileSync(
-    path.join(import.meta.dirname, 'override-surface-deviations.json'),
-    'utf8',
+const DEVIATIONS = new Map(
+  Object.entries<DeviationEntry[]>(
+    JSON.parse(
+      readFileSync(
+        path.join(import.meta.dirname, 'override-surface-deviations.json'),
+        'utf8',
+      ),
+    ),
   ),
 )
 
 export function isDeviated(pkgName: string, subpath: string): boolean {
-  const entries = DEVIATIONS[pkgName]
+  const entries = DEVIATIONS.get(pkgName)
   if (!Array.isArray(entries)) {
     return false
   }
@@ -124,7 +128,7 @@ export function legalSubpathsFor(
   files: readonly string[],
   upstreamExports: unknown,
 ): string[] {
-  if (upstreamExports && typeof upstreamExports === 'object') {
+  if (typeof upstreamExports === 'object' && upstreamExports !== null) {
     return Object.keys(upstreamExports as Record<string, unknown>).filter(
       key => key.startsWith('.') && !key.includes('*'),
     )
