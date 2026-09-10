@@ -50,8 +50,6 @@ allowBuilds:
 pmOnFail: warn
 
 catalog:
-  '@bcoe/v8-coverage': 1.0.2
-  ast-v8-to-istanbul: 1.0.5
   '@mdn/browser-compat-data': 8.1.0
   # run-local-ci (bin: local-ci, formerly published as @redwoodjs/agent-ci)
   # runs a repo's GitHub Actions workflows locally in Docker so a change can
@@ -159,15 +157,17 @@ catalog:
   # high, GHSA-v6wh-96g9-6wx3 medium). Tracked here so the pnpm
   # override below pins every transitive `vite` (vitest, @vitest/*,
   # plugin authors) to it.
-  'typescript': 7.0.2
+  'typescript': 7.1.0-dev.20260901.1
   'vitest': 5.0.0
   '@vitest/coverage-v8': 5.0.0
-  c8: 12.0.0
+  '@bcoe/v8-coverage': 1.0.2
+  ast-v8-to-istanbul: 1.0.5
   'chrome-devtools-mcp': 1.8.0
   # Playwright MCP server — agent-driven browsing with the fleet agent-banner
   # init script (see .config/fleet/playwright/).
   '@playwright/mcp': 0.0.79
   '@vitest/ui': 5.0.0
+  c8: 12.0.0
   # agent-ci runs a repo's GitHub Actions workflows locally in Docker so a
   # change can be validated before it's pushed (see the `agent-ci` skill).
   # The published package is a self-contained Node CLI (`dist/cli.js`) — no
@@ -292,6 +292,52 @@ minimumReleaseAgeExclude:
   - '@mdn/browser-compat-data@8.1.0'
   # published: 2026-09-04 | removable: 2026-09-11
   - pnpm@12.3.4
+  # published: 2026-09-02 | removable: 2026-09-09
+  - '@rolldown/binding-android-arm-eabi@1.2.7'
+  # published: 2026-09-02 | removable: 2026-09-09
+  - '@rolldown/binding-android-arm64@1.2.7'
+  # published: 2026-09-02 | removable: 2026-09-09
+  - '@rolldown/binding-darwin-arm64@1.2.7'
+  # published: 2026-09-02 | removable: 2026-09-09
+  - '@rolldown/binding-darwin-x64@1.2.7'
+  # published: 2026-09-02 | removable: 2026-09-09
+  - '@rolldown/binding-freebsd-x64@1.2.7'
+  # published: 2026-09-02 | removable: 2026-09-09
+  - '@rolldown/binding-linux-arm-gnueabihf@1.2.7'
+  # published: 2026-09-02 | removable: 2026-09-09
+  - '@rolldown/binding-linux-arm64-gnu@1.2.7'
+  # published: 2026-09-02 | removable: 2026-09-09
+  - '@rolldown/binding-linux-arm64-musl@1.2.7'
+  # published: 2026-09-02 | removable: 2026-09-09
+  - '@rolldown/binding-linux-ppc64-gnu@1.2.7'
+  # published: 2026-09-02 | removable: 2026-09-09
+  - '@rolldown/binding-linux-s390x-gnu@1.2.7'
+  # published: 2026-09-02 | removable: 2026-09-09
+  - '@rolldown/binding-linux-x64-gnu@1.2.7'
+  # published: 2026-09-02 | removable: 2026-09-09
+  - '@rolldown/binding-linux-x64-musl@1.2.7'
+  # published: 2026-09-02 | removable: 2026-09-09
+  - '@rolldown/binding-openharmony-arm64@1.2.7'
+  # published: 2026-09-02 | removable: 2026-09-09
+  - '@rolldown/binding-win32-arm64-msvc@1.2.7'
+  # published: 2026-09-02 | removable: 2026-09-09
+  - '@rolldown/binding-win32-x64-msvc@1.2.7'
+  # published: 2026-09-03 | removable: 2026-09-10
+  - '@vitest/coverage-v8@5.0.0'
+  # published: 2026-09-03 | removable: 2026-09-10
+  - '@vitest/mocker@5.0.0'
+  # published: 2026-09-03 | removable: 2026-09-10
+  - '@vitest/pretty-format@5.0.0'
+  # published: 2026-09-03 | removable: 2026-09-10
+  - '@vitest/spy@5.0.0'
+  # published: 2026-09-03 | removable: 2026-09-10
+  - '@vitest/ui@5.0.0'
+  # published: 2026-09-03 | removable: 2026-09-10
+  - '@vitest/utils@5.0.0'
+  # published: 2026-09-02 | removable: 2026-09-09
+  - rolldown@1.2.7
+  # published: 2026-09-03 | removable: 2026-09-10
+  - vitest@5.0.0
   # published: 2026-09-01 | removable: 2026-09-08
   - '@oxc-project/types@0.148.0'
   # published: 2026-09-01 | removable: 2026-09-08
@@ -370,56 +416,10 @@ minimumReleaseAgeExclude:
   - '@oxlint/binding-win32-ia32-msvc@1.81.0'
   # published: 2026-09-01 | removable: 2026-09-08
   - '@oxlint/binding-win32-x64-msvc@1.81.0'
-  # published: 2026-09-02 | removable: 2026-09-09
-  - '@rolldown/binding-android-arm-eabi@1.2.7'
-  # published: 2026-09-02 | removable: 2026-09-09
-  - '@rolldown/binding-android-arm64@1.2.7'
-  # published: 2026-09-02 | removable: 2026-09-09
-  - '@rolldown/binding-darwin-arm64@1.2.7'
-  # published: 2026-09-02 | removable: 2026-09-09
-  - '@rolldown/binding-darwin-x64@1.2.7'
-  # published: 2026-09-02 | removable: 2026-09-09
-  - '@rolldown/binding-freebsd-x64@1.2.7'
-  # published: 2026-09-02 | removable: 2026-09-09
-  - '@rolldown/binding-linux-arm-gnueabihf@1.2.7'
-  # published: 2026-09-02 | removable: 2026-09-09
-  - '@rolldown/binding-linux-arm64-gnu@1.2.7'
-  # published: 2026-09-02 | removable: 2026-09-09
-  - '@rolldown/binding-linux-arm64-musl@1.2.7'
-  # published: 2026-09-02 | removable: 2026-09-09
-  - '@rolldown/binding-linux-ppc64-gnu@1.2.7'
-  # published: 2026-09-02 | removable: 2026-09-09
-  - '@rolldown/binding-linux-s390x-gnu@1.2.7'
-  # published: 2026-09-02 | removable: 2026-09-09
-  - '@rolldown/binding-linux-x64-gnu@1.2.7'
-  # published: 2026-09-02 | removable: 2026-09-09
-  - '@rolldown/binding-linux-x64-musl@1.2.7'
-  # published: 2026-09-02 | removable: 2026-09-09
-  - '@rolldown/binding-openharmony-arm64@1.2.7'
-  # published: 2026-09-02 | removable: 2026-09-09
-  - '@rolldown/binding-win32-arm64-msvc@1.2.7'
-  # published: 2026-09-02 | removable: 2026-09-09
-  - '@rolldown/binding-win32-x64-msvc@1.2.7'
-  # published: 2026-09-03 | removable: 2026-09-10
-  - '@vitest/coverage-v8@5.0.0'
-  # published: 2026-09-03 | removable: 2026-09-10
-  - '@vitest/mocker@5.0.0'
-  # published: 2026-09-03 | removable: 2026-09-10
-  - '@vitest/pretty-format@5.0.0'
-  # published: 2026-09-03 | removable: 2026-09-10
-  - '@vitest/spy@5.0.0'
-  # published: 2026-09-03 | removable: 2026-09-10
-  - '@vitest/ui@5.0.0'
-  # published: 2026-09-03 | removable: 2026-09-10
-  - '@vitest/utils@5.0.0'
   # published: 2026-09-01 | removable: 2026-09-08
   - oxfmt@0.66.0
   # published: 2026-09-01 | removable: 2026-09-08
   - oxlint@1.81.0
-  # published: 2026-09-02 | removable: 2026-09-09
-  - rolldown@1.2.7
-  # published: 2026-09-03 | removable: 2026-09-10
-  - vitest@5.0.0
   - 'sfw'
   - 'socket'
   - 'sdxgen'
@@ -465,7 +465,7 @@ overrides:
   '@socketsecurity/lib': 'catalog:'
   '@socketsecurity/registry': 'catalog:'
   '@socketsecurity/sdk': 'catalog:'
-  '@swc/core': '1.16.1'
+  '@swc/core': '1.15.41'
   'brace-expansion@>=4': '5.0.9'
   'chalk@>=5': '5.6.2'
   'es-define-property': 'npm:@socketregistry/es-define-property@1.0.7'
