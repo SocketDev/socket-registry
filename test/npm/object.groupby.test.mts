@@ -4,22 +4,37 @@
  *   https://github.com/es-shims/Object.groupBy/blob/fa1c331c346bc6e852a06d0f8fd7093be25846ab/test/tests.js.
  */
 
+import path from 'node:path'
 import { describe, expect, it } from 'vitest'
+import { createNpmFallbackLoader } from '../util/npm-fallback.mts'
 
 import { setupNpmPackageTest } from '../util/npm-package-helper.mts'
 
 const {
   eco,
-  module: groupBy,
+  module: publicModule,
+  pkgPath,
   skip,
   sockRegPkgName,
 } = setupNpmPackageTest(import.meta.url)
 
-describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
+const loadFallback = createNpmFallbackLoader({
+  disabledPaths: ['Object.groupBy'],
+})
+const implementation = skip
+  ? publicModule
+  : loadFallback(path.join(pkgPath, 'implementation.js'))
+
+describe.each([
+  ['public', publicModule],
+  ['fallback', implementation],
+])(`${eco} > ${sockRegPkgName} > %s`, { skip }, (variant, groupBy) => {
+  const expectedTypeError =
+    variant === 'fallback' ? loadFallback.errors.TypeError : TypeError
   describe('callback function', () => {
     it('throws for non-function callbacks', () => {
       const nonFunctions = [
-        undefined,
+        null,
         undefined,
         true,
         false,
@@ -35,7 +50,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       ]
       for (let i = 0, { length } = nonFunctions; i < length; i += 1) {
         const nonFunction = nonFunctions[i]
-        expect(() => groupBy([], nonFunction)).toThrow(TypeError)
+        expect(() => groupBy([], nonFunction)).toThrow(expectedTypeError)
       }
     })
   })

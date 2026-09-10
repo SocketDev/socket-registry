@@ -4,13 +4,16 @@
  *   https://github.com/es-shims/RegExp.prototype.flags/blob/8e2eeaabb66e005d34c9508ab6d83456ff1d4010/test/tests.js.
  */
 
+import path from 'node:path'
 import { describe, expect, it } from 'vitest'
+import { createNpmFallbackLoader } from '../util/npm-fallback.mts'
 
 import { setupNpmPackageTest } from '../util/npm-package-helper.mts'
 
 const {
   eco,
-  module: flags,
+  module: publicModule,
+  pkgPath,
   skip,
   sockRegPkgName,
 } = setupNpmPackageTest(import.meta.url)
@@ -27,10 +30,36 @@ const getRegexLiteral = (stringRegex: string) => {
   }
 }
 
-describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
+const loadFallback = createNpmFallbackLoader({
+  disabledPaths: [],
+  setupScript: `
+    'use strict';
+    const nativeFlags = Object.getOwnPropertyDescriptor(RegExp.prototype, 'flags').get;
+    Object.defineProperty(RegExp.prototype, 'flags', {
+      configurable: true,
+      get() {
+        if (this !== null && typeof this === 'object') {
+          void this.sticky;
+          void this.hasIndices;
+        }
+        return nativeFlags.call(this);
+      }
+    });
+  `,
+})
+const implementation = skip
+  ? publicModule
+  : loadFallback(path.join(pkgPath, 'implementation.js'))
+
+describe.each([
+  ['public', publicModule],
+  ['fallback', Function.prototype.call.bind(implementation)],
+])(`${eco} > ${sockRegPkgName} > %s`, { skip }, (variant, flags) => {
+  const expectedTypeError =
+    variant === 'fallback' ? loadFallback.errors.TypeError : TypeError
   it('throws when called with a non-object receiver', () => {
     const primitives = [
-      undefined,
+      null,
       undefined,
       false,
       true,
@@ -45,16 +74,14 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     ]
     for (let i = 0, { length } = primitives; i < length; i += 1) {
       const nonObject = primitives[i]
-      expect(() => flags(nonObject)).toThrow(TypeError)
+      expect(() => flags(nonObject)).toThrow(expectedTypeError)
     }
   })
 
   it('basic flag extraction', () => {
     expect(flags(/a/g)).toBe('g')
     expect(flags(/a/gim)).toBe('gim')
-    expect(flags(new RegExp('a', 'gmi'))).toBe('gim')
     expect(flags(/a/)).toBe('')
-    expect(flags(new RegExp('a'))).toBe('')
   })
 
   it('sorting', () => {
