@@ -88,7 +88,12 @@ export function requirePackageJson(pkgPath: string) {
       `Invalid package.json: missing name/version. Where: "${pkgPath}". Fix: ensure the package.json declares both "name" and "version".`,
     )
   }
-  return { name: pkgJson.name, path: pkgPath, version: pkgJson.version }
+  return {
+    __proto__: null,
+    name: pkgJson.name,
+    path: pkgPath,
+    version: pkgJson.version,
+  }
 }
 
 /**
@@ -133,6 +138,86 @@ export async function publishAtCommit(
   const fails: string[] = []
   const failures: PublishFailure[] = []
   const skipped: string[] = []
+  const { registryPackage, npmPackages } = getCommitPackages(distTag, {
+    skipNpmPackages,
+  })
+
+  const allPackages = [...npmPackages, registryPackage].filter(pkg =>
+    matchesOnlyFilter(onlyFilter, pkg.name, { printName: pkg.printName }),
+  )
+  if (onlyFilter.size) {
+    logger.log(
+      `Filtered to ${allPackages.length} ${pluralize('package', { count: allPackages.length })} by --only ${only}`,
+    )
+  }
+
+  const packagesToPublish = await selectPackagesToPublish(
+    allPackages,
+    registryPackage,
+    { forceRegistry },
+    skipped,
+  )
+
+  if (!packagesToPublish.length) {
+    logger.log('No packages to publish at this commit')
+    const result = { __proto__: null, fails, failures, skipped }
+    return result
+  }
+
+  logger.log('')
+  logger.log(
+    `Publishing ${packagesToPublish.length} ${pluralize('package', { count: packagesToPublish.length })}...`,
+  )
+  logger.log('')
+
+  // Separate registry package from other packages.
+  const registryPkgToPublish = packagesToPublish.find(
+    pkg => pkg.name === registryPackage.name,
+  )
+  const otherPackagesToPublish = packagesToPublish.filter(
+    pkg => pkg.name !== registryPackage.name,
+  )
+
+  // ONE state object for the whole commit: a fresh `{ fails, skipped }` per
+  // call would drop the per-package failure detail recorded into it.
+  const state: PublishState = { fails, failures, skipped }
+
+  // Publish non-registry packages first.
+  if (otherPackagesToPublish.length > 0) {
+    await publishPackages(otherPackagesToPublish, state, { dryRun })
+  }
+
+  // Update manifest.json with latest published versions before publishing registry.
+  if (registryPkgToPublish && !fails.includes(registryPkgToPublish.printName)) {
+    await refreshRegistryManifest(dryRun)
+
+    // Publish registry package last.
+    await publishPackages([registryPkgToPublish], state, { dryRun })
+  }
+
+  if (fails.length) {
+    const msg = `Unable to publish ${fails.length} ${pluralize('package', { count: fails.length })}:`
+    const msgList = joinAnd(fails)
+    const separator = msg.length + msgList.length > COLUMN_LIMIT ? '\n' : ' '
+    logger.warn(`${msg}${separator}${msgList}`)
+  }
+
+  if (skipped.length) {
+    logger.log(
+      `Skipped ${skipped.length} ${pluralize('package', { count: skipped.length })}`,
+    )
+  }
+
+  const result = { __proto__: null, fails, failures, skipped }
+  return result
+}
+
+function getCommitPackages(
+  distTag: string,
+  options: { skipNpmPackages?: boolean | undefined },
+) {
+  const opts = { __proto__: null, ...options }
+  const { skipNpmPackages = false } = opts
   // Registry package comes last - publish after all other packages.
   const registryPkgJson = requirePackageJson(REGISTRY_PKG_PATH)
   const registryPackage = packageData({
@@ -161,15 +246,17 @@ export async function publishAtCommit(
         })
       })
 
-  const allPackages = [...npmPackages, registryPackage].filter(pkg =>
-    matchesOnlyFilter(onlyFilter, pkg.name, { printName: pkg.printName }),
-  )
-  if (onlyFilter.size) {
-    logger.log(
-      `Filtered to ${allPackages.length} ${pluralize('package', { count: allPackages.length })} by --only ${only}`,
-    )
-  }
+  return { __proto__: null, registryPackage, npmPackages }
+}
 
+async function selectPackagesToPublish(
+  allPackages: PackageData[],
+  registryPackage: PackageData,
+  options: { forceRegistry?: boolean | undefined },
+  skipped: string[],
+): Promise<PackageData[]> {
+  const opts = { __proto__: null, ...options }
+  const { forceRegistry = false } = opts
   // Filter packages to only publish those with bumped versions.
   const packagesToPublish = []
   // A package npm still holds at the 0.0.0 name-reservation placeholder is
@@ -220,92 +307,47 @@ export async function publishAtCommit(
     )
   }
 
-  if (!packagesToPublish.length) {
-    logger.log('No packages to publish at this commit')
-    return { fails, failures, skipped }
-  }
+  return packagesToPublish
+}
 
-  logger.log('')
-  logger.log(
-    `Publishing ${packagesToPublish.length} ${pluralize('package', { count: packagesToPublish.length })}...`,
-  )
-  logger.log('')
-
-  // Separate registry package from other packages.
-  const registryPkgToPublish = packagesToPublish.find(
-    pkg => pkg.name === registryPackage.name,
-  )
-  const otherPackagesToPublish = packagesToPublish.filter(
-    pkg => pkg.name !== registryPackage.name,
-  )
-
-  // ONE state object for the whole commit: a fresh `{ fails, skipped }` per
-  // call would drop the per-package failure detail recorded into it.
-  const state: PublishState = { fails, failures, skipped }
-
-  // Publish non-registry packages first.
-  if (otherPackagesToPublish.length > 0) {
-    await publishPackages(otherPackagesToPublish, state, { dryRun })
-  }
-
-  // Update manifest.json with latest published versions before publishing registry.
-  if (registryPkgToPublish && !fails.includes(registryPkgToPublish.printName)) {
-    // A dry run previews the flow; rewriting and committing manifest.json
-    // would mutate a worktree the operator asked us not to touch.
-    if (dryRun) {
-      logger.log(
-        '[dry-run] Skipping the manifest.json refresh and its commit; the worktree stays untouched.',
-      )
-    } else {
-      await spawn(
-        process.execPath,
-        ['scripts/repo/npm/update-manifest.mts', '--force'],
-        {
-          shell: WIN32,
-        },
-      )
-    }
-
-    // Commit manifest changes if there are any.
-    const changedFiles = dryRun ? [] : await getChangedFiles()
-    const manifestPath = 'registry/manifest.json'
-    const manifestChanged = changedFiles.includes(manifestPath)
-
-    if (manifestChanged) {
-      logger.log('')
-      logger.log(
-        'Updating and committing manifest.json with latest npm versions…',
-      )
-      await spawn('git', ['config', 'user.name', 'Socket Bot'])
-      await spawn('git', [
-        'config',
-        'user.email',
-        '94589996+socket-bot@users.noreply.github.com',
-      ])
-      await spawn('git', ['add', manifestPath])
-      await spawn('git', [
-        'commit',
-        '-m',
-        'Update manifest.json with latest npm versions',
-      ])
-    }
-
-    // Publish registry package last.
-    await publishPackages([registryPkgToPublish], state, { dryRun })
-  }
-
-  if (fails.length) {
-    const msg = `Unable to publish ${fails.length} ${pluralize('package', { count: fails.length })}:`
-    const msgList = joinAnd(fails)
-    const separator = msg.length + msgList.length > COLUMN_LIMIT ? '\n' : ' '
-    logger.warn(`${msg}${separator}${msgList}`)
-  }
-
-  if (skipped.length) {
+async function refreshRegistryManifest(dryRun: boolean): Promise<void> {
+  // A dry run previews the flow; rewriting and committing manifest.json
+  // would mutate a worktree the operator asked us not to touch.
+  if (dryRun) {
     logger.log(
-      `Skipped ${skipped.length} ${pluralize('package', { count: skipped.length })}`,
+      '[dry-run] Skipping the manifest.json refresh and its commit; the worktree stays untouched.',
+    )
+  } else {
+    await spawn(
+      process.execPath,
+      ['scripts/repo/npm/update-manifest.mts', '--force'],
+      {
+        shell: WIN32,
+      },
     )
   }
 
-  return { fails, failures, skipped }
+  // Commit manifest changes if there are any.
+  const changedFiles = dryRun ? [] : await getChangedFiles()
+  const manifestPath = 'registry/manifest.json'
+  const manifestChanged = changedFiles.includes(manifestPath)
+
+  if (manifestChanged) {
+    logger.log('')
+    logger.log(
+      'Updating and committing manifest.json with latest npm versions…',
+    )
+    await spawn('git', ['config', 'user.name', 'Socket Bot'])
+    await spawn('git', [
+      'config',
+      'user.email',
+      '94589996+socket-bot@users.noreply.github.com',
+    ])
+    await spawn('git', ['add', manifestPath])
+    await spawn('git', [
+      'commit',
+      '-m',
+      'Update manifest.json with latest npm versions',
+    ])
+  }
 }
