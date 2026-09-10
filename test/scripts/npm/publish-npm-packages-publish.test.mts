@@ -7,6 +7,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
+import type { PublishState } from '../../../scripts/repo/npm/publish-npm-packages-failures.mts'
 
 const uploadNpmPackage = vi.fn()
 
@@ -35,7 +36,7 @@ describe('stagePublish tag defaulting', () => {
   test('an empty tag never reaches npm', async () => {
     const { stagePublish } =
       await import('../../../scripts/repo/npm/publish-npm-packages-publish.mts')
-    const state = { fails: [] as string[], failures: [] }
+    const state: PublishState = { fails: [], failures: [] }
     await stagePublish(
       { path: '/tmp/pkg', printName: '@socketregistry/own-keys', tag: '' },
       state,
@@ -66,7 +67,7 @@ describe('stagePublish tag defaulting', () => {
     })
     const { stagePublish } =
       await import('../../../scripts/repo/npm/publish-npm-packages-publish.mts')
-    const state = { fails: [] as string[], failures: [] }
+    const state: PublishState = { fails: [], failures: [] }
     await stagePublish(
       { path: '/tmp/pkg', printName: '@socketregistry/own-keys' },
       state,
@@ -74,7 +75,7 @@ describe('stagePublish tag defaulting', () => {
     )
     expect(uploadNpmPackage).toHaveBeenCalledTimes(1)
     expect(state.fails).toEqual(['@socketregistry/own-keys'])
-    expect(state.failures[0]!.message).toContain(
+    expect(state.failures?.[0]?.message).toContain(
       'https://www.npmjs.com/package/@socketregistry/own-keys/access',
     )
   })
@@ -88,7 +89,7 @@ describe('stagePublish tag defaulting', () => {
     })
     const { stagePublish } =
       await import('../../../scripts/repo/npm/publish-npm-packages-publish.mts')
-    const state = { fails: [] as string[], failures: [] }
+    const state: PublishState = { fails: [], failures: [] }
     await stagePublish(
       { path: '/tmp/pkg', printName: '@socketregistry/own-keys' },
       state,
@@ -96,7 +97,7 @@ describe('stagePublish tag defaulting', () => {
     )
     expect(uploadNpmPackage).toHaveBeenCalledTimes(2)
     expect(state.fails).toEqual(['@socketregistry/own-keys'])
-    expect(state.failures[0]!.message).toContain('under tag "latest"')
+    expect(state.failures?.[0]?.message).toContain('under tag "latest"')
   })
 
   test('a dry run stages nothing at all', async () => {

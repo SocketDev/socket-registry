@@ -9,7 +9,6 @@ vi.mock(
   import('../../scripts/repo/constants/paths.mts'),
   async importOriginal => ({
     ...(await importOriginal()),
-    NPM: 'npm',
     get NPM_PACKAGES_PATH() {
       return fixture.root
     },
