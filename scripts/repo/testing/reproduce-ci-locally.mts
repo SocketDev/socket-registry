@@ -14,6 +14,7 @@ import { deleteAsync as del } from 'del'
 import process from 'node:process'
 
 import { isMainModule } from '../../fleet/process/is-main-module.mts'
+import { runMain } from '../../fleet/process/run-main.mts'
 import { ROOT_PATH } from '../constants/paths.mts'
 
 const logger = getDefaultLogger()
@@ -334,11 +335,19 @@ async function main(): Promise<void> {
 }
 
 if (isMainModule(import.meta.url)) {
-  main().catch((e: unknown) => {
-    logger.error(`Fatal error: ${errorMessage(e)}`)
-    if (cliArgs.verbose) {
-      logger.error(errorStack(e))
-    }
-    process.exitCode = 1
-  })
+  runMain(
+    async () => {
+      await main().catch((e: unknown) => {
+        logger.error(`Fatal error: ${errorMessage(e)}`)
+        if (cliArgs.verbose) {
+          logger.error(errorStack(e))
+        }
+        process.exitCode = 1
+      })
+    },
+    {
+      describe: 'reproduces registry CI in a temporary checkout',
+      help: 'Usage: pnpm validate-ci [options]\n--package <name>  Select packages\n--skip-build  Skip the build\n--skip-install  Skip installation\n--keep-temp  Keep the temporary checkout\n--verbose  Show detailed results',
+    },
+  )
 }

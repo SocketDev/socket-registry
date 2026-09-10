@@ -15,7 +15,10 @@ import { deleteAsync as del } from 'del'
 import fastGlob from 'fast-glob'
 import process from 'node:process'
 
+import type { ValidationIssue, ValidationResult } from './types.mts'
+export type { ValidationIssue, ValidationResult } from './types.mts'
 import { isMainModule } from '../../fleet/process/is-main-module.mts'
+import { runMain } from '../../fleet/process/run-main.mts'
 import { NPM_PACKAGES_PATH } from '../constants/paths.mts'
 
 interface CliArgs {
@@ -59,19 +62,6 @@ const VALIDATION_CHECKS = {
   MODULE_RESOLUTION: 'module-resolution',
   PACKAGE_JSON: 'package-json',
   TEST_FILES: 'test-files',
-}
-
-export interface ValidationIssue {
-  type: string
-  severity: string
-  message: string
-}
-
-export interface ValidationResult {
-  packageName: string
-  issues: ValidationIssue[]
-  hasErrors: boolean
-  hasWarnings: boolean
 }
 
 function issueRecorder(
@@ -484,11 +474,19 @@ async function main(): Promise<void> {
 }
 
 if (isMainModule(import.meta.url)) {
-  main().catch((e: unknown) => {
-    logger.error(`Validation failed: ${errorMessage(e)}`)
-    if (cliArgs.verbose) {
-      logger.error(e instanceof Error ? e.stack : errorMessage(e))
-    }
-    process.exitCode = 1
-  })
+  runMain(
+    async () => {
+      await main().catch((e: unknown) => {
+        logger.error(`Validation failed: ${errorMessage(e)}`)
+        if (cliArgs.verbose) {
+          logger.error(e instanceof Error ? e.stack : errorMessage(e))
+        }
+        process.exitCode = 1
+      })
+    },
+    {
+      describe: 'validates registry package tests',
+      help: 'Usage: pnpm validate-packages [options]\n--package <name>  Select packages\n--concurrency <count>  Set validation concurrency\n--fix  Apply supported fixes\n--verbose  Show detailed results',
+    },
+  )
 }

@@ -10,7 +10,15 @@ import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { errorStack } from '@socketsecurity/lib-stable/errors/stack'
 import { httpText } from '@socketsecurity/lib-stable/http-request'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
+import type {
+  CategoryRecommendation,
+  Failure,
+  FailurePatternDef,
+  PackageRecommendation,
+  Recommendation,
+} from './types.mts'
 import { isMainModule } from '../../fleet/process/is-main-module.mts'
+import { runMain } from '../../fleet/process/run-main.mts'
 
 const logger = getDefaultLogger()
 
@@ -35,45 +43,6 @@ const { values: cliArgs } = parseArgs<CliArgsValues>({
   },
   strict: false,
 })
-
-interface FailureDetails {
-  [key: string]: string
-}
-
-interface FailurePatternDef {
-  pattern: RegExp
-  category: string
-  severity: 'error' | 'warning'
-  extract?: ((match: RegExpMatchArray) => FailureDetails) | undefined
-  suggestions: string[]
-}
-
-interface Failure {
-  type: string
-  category: string
-  severity: string
-  line: string
-  package: string | undefined
-  suggestions: string[]
-  details?: FailureDetails | undefined
-}
-
-interface CategoryRecommendation {
-  level: 'category'
-  category: string
-  count: number
-  suggestions: string[]
-}
-
-interface PackageRecommendation {
-  level: 'package'
-  package: string
-  count: number
-  issues: Array<{ category: string; details: FailureDetails | undefined }>
-  actions: string[]
-}
-
-type Recommendation = CategoryRecommendation | PackageRecommendation
 
 interface GroupedFailures {
   byCategory: Record<string, Failure[]>
@@ -489,8 +458,16 @@ async function main(): Promise<void> {
 }
 
 if (isMainModule(import.meta.url)) {
-  main().catch((e: unknown) => {
-    logger.error(e)
-    process.exitCode = 1
-  })
+  runMain(
+    async () => {
+      await main().catch((e: unknown) => {
+        logger.error(e)
+        process.exitCode = 1
+      })
+    },
+    {
+      describe: 'analyzes CI failure logs',
+      help: 'Usage: pnpm analyze-ci-failures [options]\n--log-file <path>  Read a local log\n--log-url <url>  Read a remote log\n--verbose  Show detailed results',
+    },
+  )
 }

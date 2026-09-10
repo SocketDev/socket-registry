@@ -65,7 +65,11 @@
         "test/scripts/repo/npm/update-npm-package-json.test.mts",
         "test/scripts/repo/npm/update-package-json.test.mts",
         "test/scripts/repo/npm/run-vitest-npm.test.mts",
-        "test/scripts/repo/npm/release-npm-packages.test.mts"
+        "test/scripts/repo/npm/release-npm-packages.test.mts",
+        "test/scripts/repo/testing/analyze-ci-failures.test.mts",
+        "test/scripts/repo/testing/reproduce-ci-locally.test.mts",
+        "test/scripts/repo/testing/validate-package-tests.test.mts",
+        "test/scripts/repo/bootstrap/fetch-session.test.mts"
       ],
       "slow": ["test/fleet/e2e/**/*.test.mts"]
     }
