@@ -170,6 +170,46 @@ export async function collectFormDomSnapshot(
       let captured = 0
       let truncated = false
 
+      const readSelectOptions = (el: DomElement, tag: string) =>
+        tag === 'select' && el.options
+          ? Array.from(el.options).map(option => ({
+              __proto__: null,
+              label: (option.label ?? '').slice(0, args.maxText),
+              selected: option.selected,
+              value: option.value,
+            }))
+          : undefined
+
+      const readElementText = (
+        el: DomElement,
+        tag: string,
+        elementChildren: ArrayLike<DomElement>,
+      ): string | undefined =>
+        elementChildren.length === 0 ||
+        tag === 'label' ||
+        tag === 'legend' ||
+        tag === 'button' ||
+        tag === 'summary'
+          ? readText(el)
+          : undefined
+
+      const describeChildren = (
+        elementChildren: ArrayLike<DomElement>,
+        depth: number,
+        children: Array<FormDomSnapshot['roots'][number]>,
+      ): void => {
+        if (depth + 1 < args.maxDepth) {
+          for (let i = 0, { length } = elementChildren; i < length; i += 1) {
+            const child = describe(elementChildren[i]!, depth + 1)
+            if (child) {
+              children.push(child)
+            }
+          }
+        } else if (elementChildren.length) {
+          truncated = true
+        }
+      }
+
       const describe = (
         el: DomElement,
         depth: number,
@@ -190,28 +230,10 @@ export async function collectFormDomSnapshot(
         const isField =
           tag === 'input' || tag === 'select' || tag === 'textarea'
         const type = (el.type ?? '').toLowerCase()
-        const selectOptions =
-          tag === 'select' && el.options
-            ? Array.from(el.options).map(option => ({
-                label: (option.label ?? '').slice(0, args.maxText),
-                selected: option.selected,
-                value: option.value,
-              }))
-            : undefined
+        const selectOptions = readSelectOptions(el, tag)
         const children: Array<FormDomSnapshot['roots'][number]> = []
         const elementChildren = el.children
-        // Only recurse while there is depth budget left. A leaf's text is the
-        // useful part; a deep subtree of styling wrappers is not.
-        if (depth + 1 < args.maxDepth) {
-          for (let i = 0, { length } = elementChildren; i < length; i += 1) {
-            const child = describe(elementChildren[i]!, depth + 1)
-            if (child) {
-              children.push(child)
-            }
-          }
-        } else if (elementChildren.length) {
-          truncated = true
-        }
+        describeChildren(elementChildren, depth, children)
         return {
           attributes,
           checked:
@@ -223,16 +245,7 @@ export async function collectFormDomSnapshot(
           propertyValue: isField ? el.value : undefined,
           rendered: isRendered(el),
           tag,
-          // Text is carried for elements with no element children — a leaf's
-          // own copy — and for the tags that name a control.
-          text:
-            elementChildren.length === 0 ||
-            tag === 'label' ||
-            tag === 'legend' ||
-            tag === 'button' ||
-            tag === 'summary'
-              ? readText(el)
-              : undefined,
+          text: readElementText(el, tag, elementChildren),
         }
       }
 
