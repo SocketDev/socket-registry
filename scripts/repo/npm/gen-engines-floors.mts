@@ -182,33 +182,10 @@ export function stripComments(source: string): string {
     .replace(/(^|[^:'"\\])\/\/[^\n]*/g, '$1')
 }
 
-export function detectFileFeatures(rawSource: string): DetectedFeature[] {
-  const source = stripComments(rawSource)
-  const out = new Map<string, DetectedFeature>()
-  function add(detected: DetectedFeature): void {
-    const existing = out.get(detected.feature)
-    if (!existing || (existing.guarded && !detected.guarded)) {
-      out.set(detected.feature, detected)
-    }
-  }
-
-  for (let i = 0, { length } = SYNTAX_FEATURES; i < length; i += 1) {
-    const { bcdPath, feature, pattern } = SYNTAX_FEATURES[i]!
-    if (pattern.test(source)) {
-      const version = syntaxVersion(bcdPath)
-      if (version) {
-        add({ feature, guarded: false, version })
-      }
-    }
-  }
-
-  for (let i = 0, { length } = NODE_API_FEATURES; i < length; i += 1) {
-    const { feature, pattern, version } = NODE_API_FEATURES[i]!
-    if (pattern.test(source)) {
-      add({ feature, guarded: false, version })
-    }
-  }
-
+function collectGlobalFeatures(
+  source: string,
+  add: (feature: DetectedFeature) => void,
+): void {
   for (const match of source.matchAll(GLOBAL_TOKEN_RE)) {
     const token = match[1]!
     const version = nodeVersionOf(builtinsEntry(token))
@@ -230,21 +207,12 @@ export function detectFileFeatures(rawSource: string): DetectedFeature[] {
       add({ feature: token, guarded: isGuarded(source, token), version })
     }
   }
+}
 
-  for (const match of source.matchAll(STATIC_MEMBER_RE)) {
-    const owner = match[1]!
-    const member = match[2]!
-    const version = nodeVersionOf(builtinsEntry(`${owner}.${member}`))
-    if (version) {
-      add({
-        feature: `${owner}.${member}`,
-        guarded:
-          isGuarded(source, `${owner}.${member}`) || isGuarded(source, member),
-        version,
-      })
-    }
-  }
-
+function collectInstanceFeatures(
+  source: string,
+  add: (feature: DetectedFeature) => void,
+): void {
   // Instance members: the receiver is unknown statically. A name any
   // ES5-era builtin already owns (filter, map, slice) carries no floor
   // signal, so only names whose OLDEST owner is post-ES5 count, and the
@@ -284,6 +252,52 @@ export function detectFileFeatures(rawSource: string): DetectedFeature[] {
       })
     }
   }
+}
+
+export function detectFileFeatures(rawSource: string): DetectedFeature[] {
+  const source = stripComments(rawSource)
+  const out = new Map<string, DetectedFeature>()
+  function add(detected: DetectedFeature): void {
+    const existing = out.get(detected.feature)
+    if (!existing || (existing.guarded && !detected.guarded)) {
+      out.set(detected.feature, detected)
+    }
+  }
+
+  for (let i = 0, { length } = SYNTAX_FEATURES; i < length; i += 1) {
+    const { bcdPath, feature, pattern } = SYNTAX_FEATURES[i]!
+    if (pattern.test(source)) {
+      const version = syntaxVersion(bcdPath)
+      if (version) {
+        add({ feature, guarded: false, version })
+      }
+    }
+  }
+
+  for (let i = 0, { length } = NODE_API_FEATURES; i < length; i += 1) {
+    const { feature, pattern, version } = NODE_API_FEATURES[i]!
+    if (pattern.test(source)) {
+      add({ feature, guarded: false, version })
+    }
+  }
+
+  collectGlobalFeatures(source, add)
+
+  for (const match of source.matchAll(STATIC_MEMBER_RE)) {
+    const owner = match[1]!
+    const member = match[2]!
+    const version = nodeVersionOf(builtinsEntry(`${owner}.${member}`))
+    if (version) {
+      add({
+        feature: `${owner}.${member}`,
+        guarded:
+          isGuarded(source, `${owner}.${member}`) || isGuarded(source, member),
+        version,
+      })
+    }
+  }
+
+  collectInstanceFeatures(source, add)
 
   return [...out.values()]
 }
@@ -329,7 +343,11 @@ export function computeOverrideFloor(pkgDir: string): OverrideFloor {
   return { features: [...features.values()], floor, pkgName }
 }
 
-export function auditAllOverrides(only?: string | undefined): OverrideFloor[] {
+export function auditAllOverrides(
+  options?: { only?: string | undefined } | undefined,
+): OverrideFloor[] {
+  const opts = { __proto__: null, ...options }
+  const { only } = opts
   const dirs = readdirSync(NPM_PACKAGES_PATH)
     .toSorted()
     .filter(d => !only || resolveOriginalPackageName(d) === only)
@@ -344,7 +362,7 @@ function main(): void {
   const onlyIndex = process.argv.indexOf('--only')
   const only = onlyIndex === -1 ? undefined : process.argv[onlyIndex + 1]
   const write = process.argv.includes('--write')
-  const results = auditAllOverrides(only)
+  const results = auditAllOverrides({ only })
   const byFloor = new Map<string, string[]>()
   for (let i = 0, { length } = results; i < length; i += 1) {
     const { floor, pkgName } = results[i]!
