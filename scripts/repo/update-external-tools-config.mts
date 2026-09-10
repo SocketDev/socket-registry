@@ -92,8 +92,21 @@ const toolSchema = Type.Object(
 
 const rootConfigSchema = Type.Record(Type.String(), toolSchema)
 
-export type PlatformEntry = Static<typeof platformEntrySchema>
+export type ToolPlatforms = Static<typeof platformsSchema>
 export type RootConfig = Static<typeof rootConfigSchema>
+
+export function getToolFlavors(
+  toolConfig: RootConfig[string],
+): Array<{ key: 'free' | 'enterprise' }> {
+  const flavors: Array<{ key: 'free' | 'enterprise' }> = []
+  if (toolConfig.free?.platforms) {
+    flavors.push({ key: 'free' })
+  }
+  if (toolConfig.enterprise?.platforms) {
+    flavors.push({ key: 'enterprise' })
+  }
+  return flavors
+}
 
 export interface UpdateResult {
   tool: string

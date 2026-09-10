@@ -38,9 +38,10 @@ import {
   readConfig,
   writeConfig,
 } from './update-external-tools-config.mts'
+import { getToolFlavors } from './update-external-tools-config.mts'
 import type {
-  PlatformEntry,
   RootConfig,
+  ToolPlatforms,
   UpdateResult,
 } from './update-external-tools-config.mts'
 import {
@@ -130,10 +131,10 @@ export async function recomputePlatforms(
   label: string,
   repo: string,
   release: GhRelease,
-  platforms: Record<string, PlatformEntry>,
+  platforms: ToolPlatforms,
   versions?: { npmPackage: string; oldVersion: string; newVersion: string },
-): Promise<Record<string, PlatformEntry>> {
-  const newPlatforms: Record<string, PlatformEntry> = {}
+): Promise<ToolPlatforms> {
+  const newPlatforms: ToolPlatforms = {}
   for (const [platform, entry] of Object.entries(platforms)) {
     // npm-tarball pin (`<pkg>-<version>.tgz`): the registry artifact, not a GH
     // release asset (e.g. pnpm darwin-x64, which ships the npm JS tarball run
@@ -208,13 +209,7 @@ export async function updateTool(
   // `enterprise` flavors. Each flavor carries its own `repository`
   // and `platforms`; only `version` is shared at the top level.
   // Single-flavor tools carry `repository` + `platforms` at the top.
-  const flavors: Array<{ key: 'free' | 'enterprise' }> = []
-  if (toolConfig.free?.platforms) {
-    flavors.push({ key: 'free' })
-  }
-  if (toolConfig.enterprise?.platforms) {
-    flavors.push({ key: 'enterprise' })
-  }
+  const flavors = getToolFlavors(toolConfig)
   const isMultiFlavor = flavors.length > 0
 
   // All tracked tools follow the stable release channel. pnpm 11 used

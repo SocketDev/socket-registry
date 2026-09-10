@@ -10,9 +10,10 @@
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
+import { getToolFlavors } from './update-external-tools-config.mts'
 import type {
-  PlatformEntry,
   RootConfig,
+  ToolPlatforms,
   UpdateResult,
 } from './update-external-tools-config.mts'
 import { ownerAndNameFromRepository } from './update-external-tools-config.mts'
@@ -39,10 +40,10 @@ async function migratePlatforms(
   repo: string,
   npmPackage: string,
   release: GhRelease,
-  platforms: Record<string, PlatformEntry>,
+  platforms: ToolPlatforms,
   failures: MigrateFailure[],
-): Promise<Record<string, PlatformEntry>> {
-  const out: Record<string, PlatformEntry> = {}
+): Promise<ToolPlatforms> {
+  const out: ToolPlatforms = {}
   for (const [platform, entry] of Object.entries(platforms)) {
     const assetName = entry.asset
     // An npm tarball pin (`<pkg>-<version>.tgz`) is the registry artifact, not a
@@ -87,13 +88,7 @@ export async function migrateTool(
       reason: 'not an asset tool',
     }
   }
-  const flavors: Array<{ key: 'free' | 'enterprise' }> = []
-  if (toolConfig.free?.platforms) {
-    flavors.push({ key: 'free' })
-  }
-  if (toolConfig.enterprise?.platforms) {
-    flavors.push({ key: 'enterprise' })
-  }
+  const flavors = getToolFlavors(toolConfig)
   const version = toolConfig.version
   if (!version) {
     return {
