@@ -12,7 +12,7 @@ import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { isMainModule } from '../fleet/process/is-main-module.mts'
 import { runMain } from '../fleet/process/run-main.mts'
 import { runCommand } from '../fleet/util/run-command.mts'
-import { REGISTRY_PKG_PATH } from './constants/paths.mts'
+import { ROOT_PATH } from './constants/paths.mts'
 
 const logger = getDefaultLogger()
 
@@ -20,18 +20,23 @@ const logger = getDefaultLogger()
 const args = process.argv.slice(2)
 const quiet = args.some(arg => ['--quiet', '--silent', '-q'].includes(arg))
 
-async function main(): Promise<void> {
-  // Build the @socketsecurity/registry-stable package.
-  // This is required before running tests that import from it.
-  // Pass all arguments through to the registry build script.
-  const buildArgs = ['run', 'build']
-  if (args.length > 0) {
-    buildArgs.push('--', ...args)
+export async function runRegistryBuild(buildFlags: string[]): Promise<number> {
+  const buildArgs = ['--filter', '@socketsecurity/registry', 'run', 'build']
+  if (buildFlags.length > 0) {
+    buildArgs.push('--', ...buildFlags)
   }
-
-  const exitCode = await runCommand('pnpm', buildArgs, {
-    cwd: REGISTRY_PKG_PATH,
+  return await runCommand('pnpm', buildArgs, {
+    cwd: ROOT_PATH,
+    env: {
+      ...process.env,
+      // Fleet setup owns the verified manager; builds must not refresh its lock entry.
+      pnpm_config_pm_on_fail: 'ignore',
+    },
   })
+}
+
+async function main(): Promise<void> {
+  const exitCode = await runRegistryBuild(args)
 
   if (exitCode !== 0) {
     if (!quiet) {

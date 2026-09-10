@@ -30,6 +30,15 @@ const rootPath = path.resolve(
   '..',
 )
 
+function buildProcessOptions() {
+  return {
+    __proto__: null,
+    cwd: rootPath,
+    shell: process.platform === 'win32',
+    env: { ...process.env, pnpm_config_pm_on_fail: 'ignore' },
+  }
+}
+
 interface BuildOptions {
   analyze?: boolean | undefined
   quiet?: boolean | undefined
@@ -50,10 +59,7 @@ export async function buildSource(options: BuildOptions = {}) {
       {
         args: ['exec', 'del-cli', 'dist', '**/*.tsbuildinfo', '--', '--quiet'],
         command: 'pnpm',
-        options: {
-          cwd: rootPath,
-          shell: process.platform === 'win32',
-        },
+        options: buildProcessOptions(),
       },
     ])
     if (exitCode !== 0) {
@@ -109,20 +115,14 @@ export async function buildTypes(options: BuildOptions = {}) {
     commands.push({
       args: ['exec', 'del-cli', '**/*.tsbuildinfo', '--', '--quiet'],
       command: 'pnpm',
-      options: {
-        cwd: rootPath,
-        shell: process.platform === 'win32',
-      },
+      options: buildProcessOptions(),
     })
   }
 
   commands.push({
     args: ['exec', 'tsgo', '--project', 'tsconfig.dts.json'],
     command: 'pnpm',
-    options: {
-      cwd: rootPath,
-      shell: process.platform === 'win32',
-    },
+    options: buildProcessOptions(),
   })
 
   const exitCode = await runSequence(commands)
@@ -274,10 +274,7 @@ async function runFullBuild(options: BuildOptions & { needed: boolean }) {
     {
       args: ['exec', 'del-cli', 'dist', '**/*.tsbuildinfo', '--', '--quiet'],
       command: 'pnpm',
-      options: {
-        cwd: rootPath,
-        shell: process.platform === 'win32',
-      },
+      options: buildProcessOptions(),
     },
   ])
   if (exitCode !== 0) {
@@ -434,7 +431,7 @@ async function main() {
       return
     }
 
-    const quiet = Boolean(values.quiet || values.silent || values.q)
+    const quiet = Boolean(values.quiet || values.silent || values['q'])
     const verbose = Boolean(values['verbose'])
     const analyze = Boolean(values['analyze'])
 
