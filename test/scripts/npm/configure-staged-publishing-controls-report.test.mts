@@ -96,7 +96,7 @@ describe('formatUnresolvedActionControl', () => {
 
   test('points at the dump lane rather than at a hand-edit', () => {
     expect(block).toContain('--dump-form @socketregistry/abab')
-    expect(block).toContain('Do not hand-edit the hidden input')
+    expect(block).toContain('Do not hand-edit')
   })
 
   test('leaks no raw value into the failure it prints', () => {

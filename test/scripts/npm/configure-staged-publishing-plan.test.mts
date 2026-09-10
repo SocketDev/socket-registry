@@ -236,7 +236,7 @@ describe('classifyStagedFetch', () => {
 
 describe('operator-facing messages', () => {
   test('a dry-run plan entry names the state, the unknown current binding, and the target', () => {
-    const [target] = planStagedConfiguration([
+    const { 0: target } = planStagedConfiguration([
       reportOf('@socketregistry/own-keys', 'not-staged', '0.0.0'),
     ])
     const block = formatStagedPlanLine({
@@ -256,7 +256,7 @@ describe('operator-facing messages', () => {
   })
 
   test('a rebind plan entry names the binding npm reports today', () => {
-    const [target] = planStagedConfiguration([
+    const { 0: target } = planStagedConfiguration([
       reportOf('@socketregistry/abab', 'not-staged', '1.0.9'),
     ])
     const reading = readTrustedPublisherState(
@@ -277,7 +277,7 @@ describe('operator-facing messages', () => {
     // A package whose ONLY defect is the extra direct grant has the same
     // binding, workflow, and environment as a correct one. The two grant lines
     // side by side are the only thing that shows the difference at a glance.
-    const [target] = planStagedConfiguration([
+    const { 0: target } = planStagedConfiguration([
       reportOf('@socketregistry/abab', 'not-staged', '1.0.9'),
     ])
     const reading = readTrustedPublisherState(
@@ -292,13 +292,19 @@ describe('operator-facing messages', () => {
       target: target!,
     })
     expect(block).toContain('state:   narrow')
-    expect(block).toContain('grants:  npm publish, npm stage publish')
+    const grants = block
+      .split(/\r?\n/)
+      .map(line => line.trim())
+      .find(line => line.startsWith('grants:'))
+      ?.replace(/^grants:\s*/, '')
+      .split(', ')
+    expect(grants).toEqual(['npm publish', 'npm stage publish'])
     expect(block).toContain('wanted:  npm stage publish')
   })
 
   test('a dry-run entry says the grants are unknown rather than none', () => {
     // No page was read, so "(none)" would be a claim the run has no basis for.
-    const [target] = planStagedConfiguration([
+    const { 0: target } = planStagedConfiguration([
       reportOf('@socketregistry/own-keys', 'not-staged', '0.0.0'),
     ])
     expect(
@@ -307,7 +313,7 @@ describe('operator-facing messages', () => {
   })
 
   test('the write-failure block follows What / Where / Saw / Wanted / Fix', () => {
-    const [target] = planStagedConfiguration([
+    const { 0: target } = planStagedConfiguration([
       reportOf('@socketregistry/own-keys', 'not-staged', '0.0.0'),
     ])
     const lines = formatBindingWriteFailure({

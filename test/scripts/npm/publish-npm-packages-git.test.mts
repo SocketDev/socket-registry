@@ -8,14 +8,13 @@
  */
 
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
+import { checkoutCommit } from '../../../scripts/repo/npm/publish-npm-packages-git.mts'
 
 const mockSpawn = vi.hoisted(() => vi.fn())
 
 vi.mock(import('@socketsecurity/lib-stable/process/spawn/child'), () => ({
   spawn: mockSpawn,
 }))
-
-import { checkoutCommit } from '../../../scripts/repo/npm/publish-npm-packages-git.mts'
 
 // Every `git` invocation the mock recorded, as a space-joined command line.
 function spawnedCommands(): string[] {

@@ -27,12 +27,10 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
 
   it('should accept custom message', () => {
     const errors = [new Error('error 1')]
-    const aggregateError = new AggregateError(
-      errors,
-      'Multiple errors occurred',
-    )
+    const message = 'Multiple errors occurred'
+    const aggregateError = new AggregateError(errors, message)
 
-    expect(aggregateError.message).toBe('Multiple errors occurred')
+    expect(aggregateError.message).toBe(message)
     expect(aggregateError.errors.length).toBe(1)
   })
 
