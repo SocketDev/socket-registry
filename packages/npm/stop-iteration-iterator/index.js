@@ -14,6 +14,7 @@ module.exports = function getStopIterationIterator(origIterator) {
     next() {
       const done = !!doneState.get(origIterator)
       try {
+        // oxlint-disable-next-line socket/returned-object-null-proto -- IteratorResult requires an ordinary object.
         return {
           done,
           value: done ? undefined : origIterator.next(),
@@ -23,6 +24,7 @@ module.exports = function getStopIterationIterator(origIterator) {
         if (e !== stopIteration) {
           throw e
         }
+        // oxlint-disable-next-line socket/returned-object-null-proto -- IteratorResult requires an ordinary object.
         return { done: true, value: undefined }
       }
     },

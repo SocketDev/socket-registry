@@ -52,6 +52,7 @@ module.exports = function filter(predicate) {
         if (selected) {
           // Step 5.b.v.1: Let completion be Completion(Yield(value)).
           // Step 5.b.v.2: IfAbruptCloseIterator(completion, iterated).
+          // oxlint-disable-next-line socket/returned-object-null-proto -- IteratorResult requires an ordinary object.
           return { value: result.value, done: false }
         }
         // Step 5.b.vi: Set counter to counter + 1.

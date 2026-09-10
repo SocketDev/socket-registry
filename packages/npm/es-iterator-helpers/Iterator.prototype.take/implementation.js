@@ -54,6 +54,7 @@ module.exports =
             if (remaining === 0) {
               // Step 8.b.i.1: Return ? IteratorClose(iterated, NormalCompletion(undefined)).
               iteratorClose(iterator, undefined)
+              // oxlint-disable-next-line socket/returned-object-null-proto -- IteratorResult requires an ordinary object.
               return { value: undefined, done: true }
             }
             // Step 8.b.ii: If remaining is not +∞, then

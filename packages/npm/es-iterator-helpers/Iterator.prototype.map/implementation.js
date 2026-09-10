@@ -51,6 +51,7 @@ module.exports = function map(mapper) {
       // Step 5.b.vi: IfAbruptCloseIterator(completion, iterated).
       // Step 5.b.vii: Set counter to counter + 1.
       index += 1
+      // oxlint-disable-next-line socket/returned-object-null-proto -- IteratorResult requires an ordinary object.
       return { value: mappedValue, done: false }
     },
   })

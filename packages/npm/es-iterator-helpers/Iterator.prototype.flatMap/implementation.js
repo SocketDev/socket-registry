@@ -102,6 +102,7 @@ module.exports = function flatMap(mapper) {
         return outerReturnResult
       }
     }
+    // oxlint-disable-next-line socket/returned-object-null-proto -- IteratorResult requires an ordinary object.
     return { value: undefined, done: true }
   }
   // Step 6: Create the iterator from the closure.

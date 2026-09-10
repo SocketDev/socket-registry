@@ -68,6 +68,7 @@ module.exports =
                 const result = ReflectApply(nextMethod, iterator, [])
                 // Step 3.a.v.3: Yield value if not done.
                 if (!result.done) {
+                  // oxlint-disable-next-line socket/returned-object-null-proto -- IteratorResult requires an ordinary object.
                   return { value: result.value, done: false }
                 }
               } catch (error) {
@@ -81,6 +82,7 @@ module.exports =
               iterablesIndex += 1
             }
             // Step 3.b: Return Completion(undefined).
+            // oxlint-disable-next-line socket/returned-object-null-proto -- IteratorResult requires an ordinary object.
             return { value: undefined, done: true }
           },
 
@@ -94,6 +96,7 @@ module.exports =
                 return ReflectApply(returnMethod, iterator, [])
               }
             }
+            // oxlint-disable-next-line socket/returned-object-null-proto -- IteratorResult requires an ordinary object.
             return { value: undefined, done: true }
           },
 
