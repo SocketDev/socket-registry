@@ -5,12 +5,16 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import { safeDelete } from '@socketsecurity/lib-stable/fs/safe'
 
 const fixture = vi.hoisted(() => ({ root: '' }))
-vi.mock(import('../../scripts/repo/constants/paths.mts'), () => ({
-  NPM: 'npm',
-  get NPM_PACKAGES_PATH() {
-    return fixture.root
-  },
-}))
+vi.mock(
+  import('../../scripts/repo/constants/paths.mts'),
+  async importOriginal => ({
+    ...(await importOriginal()),
+    NPM: 'npm',
+    get NPM_PACKAGES_PATH() {
+      return fixture.root
+    },
+  }),
+)
 
 beforeEach(() => {
   fixture.root = mkdtempSync(path.join(os.tmpdir(), 'registry-test-loader-'))

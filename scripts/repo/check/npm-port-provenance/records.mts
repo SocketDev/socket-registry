@@ -92,7 +92,7 @@ export interface NpmPortCheckInput {
   // `file-fork` rows whose `local` is a ported npm suite.
   rows: readonly FileForkRow[]
   // The manifest's merged `upstreams` map.
-  upstreams: Readonly<LockstepManifest['upstreams']>
+  upstreams: Readonly<NonNullable<LockstepManifest['upstreams']>>
   // Parsed `.gitmodules` blocks, each carrying its pinned ref.
   pins: readonly NpmPortPin[]
   // Ported-suite source text by repo-relative path; undefined when absent.

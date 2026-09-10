@@ -10,7 +10,7 @@
  * hatch that reached it is too.
  */
 
-import yargsParser from 'yargs-parser'
+import { createRequire } from 'node:module'
 
 import { LATEST } from '../constants/packages.mts'
 
@@ -34,6 +34,15 @@ export interface PublishCliArgs {
   quiet?: boolean | undefined
   '--'?: string[] | undefined
 }
+
+const yargsParser = createRequire(import.meta.url)('yargs-parser') as (
+  args: string[],
+  options: {
+    boolean: string[]
+    string: string[]
+    configuration: Record<string, boolean>
+  },
+) => PublishCliArgs
 
 export const cliArgs: PublishCliArgs = yargsParser(process.argv.slice(2), {
   boolean: [
