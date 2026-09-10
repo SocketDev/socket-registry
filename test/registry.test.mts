@@ -1,67 +1,36 @@
-/**
- * @file Tests for @socketsecurity/registry package.
- */
-
 import { describe, expect, it } from 'vitest'
 
 import * as registry from '../registry/src/index.js'
+import manifest from '../registry/manifest.json' with { type: 'json' }
 
-const SOCKET_REGISTRY_PACKAGE_NAME = '@socketsecurity/registry'
-
-describe(SOCKET_REGISTRY_PACKAGE_NAME, () => {
-  it('should export main registry functions', () => {
-    expect(registry).toBeDefined()
-    expect(typeof registry).toBe('object')
-    expect(typeof registry.getManifestData).toBe('function')
+describe('@socketsecurity/registry current source', () => {
+  it('returns the complete manifest without an ecosystem', () => {
+    expect(registry.getManifestData()).toEqual(manifest)
   })
 
-  describe('getManifestData', () => {
-    it('should return full manifest when called with no arguments', () => {
-      const manifest = registry.getManifestData()
-      expect(manifest).toBeDefined()
-      expect(typeof manifest).toBe('object')
-      expect(manifest).not.toBeNull()
-    })
+  it('returns the complete npm ecosystem entries', () => {
+    expect(registry.getManifestData('npm')).toEqual(manifest.npm)
+  })
 
-    it('should return ecosystem data when called with ecosystem', () => {
-      const npmData = registry.getManifestData('npm')
-      expect(npmData).toBeDefined()
-      expect(Array.isArray(npmData)).toBe(true)
-    })
-
-    it('should return undefined for non-existent ecosystem', () => {
-      const result = registry.getManifestData('nonexistent')
-      expect(result).toBeUndefined()
-    })
-
-    it('should return package data when called with ecosystem and package name', () => {
-      const data = registry.getManifestData('npm', 'is-string')
-      expect(data).toBeDefined()
-      expect(typeof data).toBe('object')
-      expect(data).toHaveProperty('package', 'is-string')
-    })
-
-    it('should return undefined for non-existent package', () => {
-      const result = registry.getManifestData('npm', 'nonexistent-package')
-      expect(result).toBeUndefined()
-    })
-
-    it('should return undefined when ecosystem exists but package does not', () => {
-      const result = registry.getManifestData(
-        'npm',
-        'definitely-does-not-exist-123',
-      )
-      expect(result).toBeUndefined()
+  it('returns the requested package metadata without its purl tuple', () => {
+    expect(registry.getManifestData('npm', 'is-string')).toMatchObject({
+      name: '@socketregistry/is-string',
+      package: 'is-string',
+      license: 'MIT',
     })
   })
 
-  it('should have working utility functions', async () => {
-    const { isPlainObject } =
-      await import('@socketsecurity/lib/objects/predicates')
-    expect(typeof isPlainObject).toBe('function')
-    expect(isPlainObject({})).toBe(true)
-    // oxlint-disable-next-line socket/prefer-undefined-over-null -- testing null branch
-    expect(isPlainObject(null)).toBe(false)
-    expect(isPlainObject([])).toBe(false)
+  it('returns undefined for a missing package in an existing ecosystem', () => {
+    expect(
+      registry.getManifestData('npm', 'nonexistent-package'),
+    ).toBeUndefined()
   })
+
+  it.each(['nonexistent', 'constructor', '__proto__', 'toString'])(
+    'returns undefined for the unknown ecosystem %s',
+    ecosystem => {
+      expect(registry.getManifestData(ecosystem)).toBeUndefined()
+      expect(registry.getManifestData(ecosystem, 'is-string')).toBeUndefined()
+    },
+  )
 })

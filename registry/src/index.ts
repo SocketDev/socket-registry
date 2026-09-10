@@ -26,6 +26,10 @@ export function getManifestData(
       return manifestData
     }
 
+    if (!Object.hasOwn(manifestData, ecosystem)) {
+      return undefined
+    }
+
     const ecoData: ManifestEntry[] | undefined =
       manifestData[ecosystem as keyof Manifest]
     if (!ecoData) {
