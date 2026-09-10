@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/oxc-project/oxc/5306f24d9e82ae36ad9c3c964f33075bc589c799/npm/oxlint/configuration_schema.json",
   "plugins": ["typescript", "unicorn", "import"],
-  "jsPlugins": ["./oxlint-plugin.mjs"],
+  "jsPlugins": ["./oxlint-plugin.generated.mjs"],
   "categories": {
     "correctness": "error",
     "suspicious": "error"
@@ -168,6 +168,7 @@
     "socket/prefer-shell-win32": "error",
     "socket/prefer-socket-lib-compare-str": "error",
     "socket/prefer-socket-lib-error-message": "error",
+    "socket/prefer-socket-lib-json-format": "error",
     "socket/prefer-socket-lib-normalize-path": "error",
     "socket/prefer-socket-lib-predicates": "error",
     "socket/prefer-spawn-over-execsync": "error",
@@ -318,7 +319,7 @@
     "**/test/repo",
     "**/tests/fixtures",
     "**/wasm_exec.js",
-    "**/.config/fleet/oxlint-plugin.mjs",
+    "**/.config/fleet/oxlint-plugin.generated.mjs",
     "**/*.d.ts",
     "**/*.d.ts.map",
     "**/*.tsbuildinfo",
