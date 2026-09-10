@@ -82,6 +82,8 @@ import {
   syncOperatorOverlay,
 } from './configure-staged-publishing-operator.mts'
 import { saveTrustedPublisherInPlace } from './configure-staged-publishing-write.mts'
+import { fetchJsonInPage } from './configure-staged-publishing-fetch.mts'
+import type { SettingsProbe } from './configure-staged-publishing-fetch.mts'
 
 import type { OperatorPause } from './configure-staged-publishing-operator.mts'
 import type {
@@ -96,50 +98,6 @@ const logger = getDefaultLogger()
 // never reaches network idle must not stall the wait — the landed URL and the
 // payload itself are the real gate.
 const SETTLE_TIMEOUT_MS = 5 * MILLISECONDS_PER_SECOND
-
-/**
- * One probe of the access page, as read through the browser.
- */
-export interface SettingsProbe {
-  body: string
-  fetchUrl: string
-  status: number
-}
-
-/**
- * Run a same-origin fetch in the page's MAIN world. The page's own cookies
- * authenticate it, so no credential is read, copied, or logged by this process.
- * The URL the fetch FINALLY landed on is returned alongside the body, because
- * that is the only thing that separates the access page from npm's sign-in
- * interstitial — npm serves the interstitial as HTTP 200 JSON, so status and
- * body shape alone cannot tell them apart. A destroyed execution context from a
- * mid-navigation race yields status 0, which callers treat as retryable rather
- * than fatal.
- */
-export async function fetchJsonInPage(
-  page: Page,
-  url: string,
-): Promise<SettingsProbe> {
-  try {
-    return await page.evaluate(async fetchUrl => {
-      // oxlint-disable-next-line socket/no-fetch-prefer-http-request -- runs in the npm page's MAIN world via page.evaluate; the lib httpRequest is unavailable there and only the page's cookies authenticate this request.
-      const r = await fetch(fetchUrl, {
-        cache: 'no-store',
-        credentials: 'same-origin',
-        headers: { accept: 'application/json', 'x-spiferack': '1' },
-        method: 'GET',
-      })
-      return {
-        __proto__: null,
-        body: await r.text(),
-        fetchUrl: r.url,
-        status: r.status,
-      }
-    }, url)
-  } catch {
-    return { body: '', fetchUrl: '', status: 0 }
-  }
-}
 
 // Give the page a bounded chance to reach network idle. Fail-soft by design:
 // a timeout here means "still busy", not "broken", and the caller re-probes.
