@@ -1,36 +1,38 @@
-// socket-lint: mirror-exempt — configure-staged-publishing-plan.test.mts is the module's primary mirror; this file carries its permission-token half, split out to stay under the file-size cap.
 /**
  * @file Tests for the permission half of the staged-publishing configurator:
  *   which of npm's grant tokens map to which rendered action, and the registry
- *   evidence the run demands before it takes a grant away.
- *   Both matter for the same reason. Stage-only is the target policy, so the
- *   run CLEARS "npm publish" rather than leaving it alone — and a grant spelled
- *   in a way the action table does not know simply disappears from the action
- *   set, which reads as a package already narrowed when it is not. Getting that
- *   wrong in one direction skips a package that still publishes without an
- *   approval step; in the other it removes a permission on no evidence at all.
+ *   evidence the run demands before it takes a grant away. Both matter for the
+ *   same reason. Stage-only is the target policy, so the run CLEARS "`npm
+ *   publish`" rather than leaving it alone — and a grant spelled in a way the
+ *   action table does not know simply disappears from the action set, which
+ *   reads as a package already narrowed when it is not. Getting that wrong in
+ *   one direction skips a package that still publishes without an approval
+ *   step; in the other it removes a permission on no evidence at all.
  */
 
 import { describe, expect, test } from 'vitest'
 
 import {
-  countConnectionPermissionTokens,
   decideStagedConfigurationState,
-  findUnmappedPermissionTokens,
   formatMissingPackumentEvidence,
-  grantTokensForAction,
   hasPackumentEvidence,
   isWriteState,
   permitsStagedPublish,
   planStagedConfiguration,
-  readAllowedActions,
-  readConnectionPermissionTokens,
-  readTrustedPublisherState,
-  resolvePermissionAction,
   TARGET_ENVIRONMENT_NAME,
   TARGET_REPOSITORY_NAME,
   TARGET_WORKFLOW_FILENAME,
 } from '../../../scripts/repo/npm/configure-staged-publishing-plan.mts'
+
+import {
+  countConnectionPermissionTokens,
+  findUnmappedPermissionTokens,
+  grantTokensForAction,
+  readAllowedActions,
+  readConnectionPermissionTokens,
+  readTrustedPublisherState,
+  resolvePermissionAction,
+} from '../../../scripts/repo/npm/configure-staged-publishing-payload.mts'
 
 import type { StagedTrustReport } from '../../../scripts/repo/npm/check-trusted-packages-staged.mts'
 
@@ -189,7 +191,7 @@ describe('permission tokens', () => {
 
 describe('direct-publish clearing evidence', () => {
   test('a package the registry answered for may be narrowed', () => {
-    const [target] = planStagedConfiguration([
+    const { 0: target } = planStagedConfiguration([
       reportOf('@socketregistry/abab', 'not-staged', '1.0.9'),
     ])
     expect(hasPackumentEvidence(target!)).toBe(true)
