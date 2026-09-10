@@ -169,6 +169,16 @@ async function main(): Promise<void> {
   logger.log('# GitHub Actions Dependency Tree')
   logger.log('')
 
+  printActionDependencyTree(dependencyTree, message => logger.log(message))
+
+  logger.log('')
+  logger.info(`Total: ${allDependencies.size} unique actions/workflows`)
+}
+
+export function printActionDependencyTree(
+  dependencyTree: ReadonlyMap<string, StructuredDependency[]>,
+  print: (message: string) => void,
+): void {
   // Sort files for consistent output.
   const sortedFiles = Array.from(dependencyTree.keys()).toSorted()
   // Base indentation for the entire tree.
@@ -187,7 +197,7 @@ async function main(): Promise<void> {
 
       // Remove .github/ prefix for cleaner display.
       const cleanFile = file.replace(/^\.github\//, '')
-      logger.log(`${indent}${filePrefix} ${cleanFile}`)
+      print(`${indent}${filePrefix} ${cleanFile}`)
 
       for (let depIndex = 0; depIndex < dependencies.length; depIndex++) {
         const dep = dependencies[depIndex]
@@ -197,7 +207,7 @@ async function main(): Promise<void> {
         const isLastDep = depIndex === dependencies.length - 1
         const depPrefix = isLastDep ? '└─' : '├─'
 
-        logger.log(`${indent}${continuationPrefix} ${depPrefix} ${dep.action}`)
+        print(`${indent}${continuationPrefix} ${depPrefix} ${dep.action}`)
 
         for (
           let transIndex = 0;
@@ -212,16 +222,13 @@ async function main(): Promise<void> {
           const transPrefix = isLastTrans ? '└─' : '├─'
           const transContinuation = isLastDep ? '  ' : '│ '
 
-          logger.log(
+          print(
             `${indent}${continuationPrefix} ${transContinuation} ${transPrefix} ${transitive}`,
           )
         }
       }
     }
   }
-
-  logger.log('')
-  logger.info(`Total: ${allDependencies.size} unique actions/workflows`)
 }
 
 if (isMainModule(import.meta.url)) {
