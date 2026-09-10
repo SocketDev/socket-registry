@@ -38,7 +38,7 @@ import type { AccessPageReadiness } from './configure-staged-publishing-session.
 /**
  * The operator wait a caller can substitute, shaped to what a readiness poll
  * knows rather than to the fleet pause's own parameter list. The production
- * implementation delegates to `pauseForChallenge`; this seam exists so a wait
+ * implementation delegates to `pauseForChallenge`; this callback lets a wait
  * loop's no-navigation invariant is also testable without touching the gate
  * files or the operator's desktop.
  */

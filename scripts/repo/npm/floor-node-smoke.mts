@@ -21,7 +21,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 
-import { safeDeleteSync } from '@socketsecurity/lib-stable/fs/safe'
+import { strictDeleteSync } from '../../fleet/fs/strict.mts'
 import { httpDownload } from '@socketsecurity/lib-stable/http-request/download'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { spawnSync } from '@socketsecurity/lib-stable/process/spawn/child'
@@ -105,9 +105,9 @@ async function ensureFloorNode(): Promise<string> {
   const tar = spawnSync('tar', ['-xf', archivePath, '-C', baseDir], {
     stdio: 'inherit',
   })
-  safeDeleteSync(archivePath, { force: true })
+  strictDeleteSync(archivePath, { base: baseDir })
   if (tar.status !== 0 || !existsSync(binPath)) {
-    safeDeleteSync(extractDir, { force: true, recursive: true })
+    strictDeleteSync(extractDir, { base: baseDir })
     throw new Error(`floor node extract failed (${pin.asset})`)
   }
   return binPath

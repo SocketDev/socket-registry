@@ -30,11 +30,11 @@
  *   `./check-trusted-packages-staged.mts` rather than a hardcoded array, so a
  *   package that gets configured drops out of the plan on the next run.
  *   Usage:
- *   pnpm run npm:configure-staged                  # plan only, writes nothing
- *   pnpm run npm:configure-staged --apply
- *   pnpm run npm:configure-staged --package date
- *   pnpm run npm:configure-staged --apply --limit 1
- *   pnpm run npm:configure-staged --dump-form @socketregistry/abab
+ *   `pnpm run npm:configure-staged` # plan only, writes nothing
+ *   `pnpm run npm:configure-staged --apply`
+ *   `pnpm run npm:configure-staged --package date`
+ *   `pnpm run npm:configure-staged --apply --limit 1`
+ *   `pnpm run npm:configure-staged --dump-form @socketregistry/abab`
  *   The two dump lanes are how a page whose shape changed gets re-derived
  *   without writing anything. `--dump-payload` prints the access payload's key
  *   tree, which is where the trusted-publisher DATA lives; `--dump-form` opens
@@ -378,11 +378,21 @@ export async function main(): Promise<void> {
     return
   }
 
+  await configureStagedTargets(slice, {
+    profileDir: (args['profile-dir'] as string | undefined) || undefined,
+  })
+}
+
+async function configureStagedTargets(
+  slice: readonly StagedConfigurationTarget[],
+  options?: { profileDir?: string | undefined },
+): Promise<void> {
   // ONE window and ONE page for the whole run: every package navigates the same
   // page and nothing closes until the run ends. A per-package browser would ask
   // the operator to clear a challenge again for each name.
+  const opts = { __proto__: null, ...options } as typeof options
   const session = await openNpmSettingsSession({
-    profileDir: (args['profile-dir'] as string | undefined) || undefined,
+    profileDir: opts?.profileDir,
   })
   logger.success(
     `Signed in to npm as ${session.user}. Each package waits for its access page to render before anything is read, so finish any sign-in or one-time password in the Chrome window when asked.`,
