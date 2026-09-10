@@ -51,7 +51,10 @@
         "test/scripts/repo/perf.test.mts",
         "test/scripts/repo/setup.test.mts",
         "test/scripts/repo/update-external-tools.test.mts",
-        "test/scripts/repo/update.test.mts"
+        "test/scripts/repo/update.test.mts",
+        "test/scripts/repo/ci/generate-actions-allow-list.test.mts",
+        "test/scripts/repo/ci/inline-action-versions-as-shas.test.mts",
+        "test/scripts/repo/ci/show-actions-tree.test.mts"
       ],
       "slow": ["test/fleet/e2e/**/*.test.mts"]
     }

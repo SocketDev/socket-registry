@@ -8,6 +8,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { isMainModule } from '../../fleet/process/is-main-module.mts'
+import { runMain } from '../../fleet/process/run-main.mts'
 import { REPO_ROOT } from '../../fleet/paths.mts'
 import {
   ROOT_DOT_GITHUB_ACTIONS_PATH,
@@ -224,8 +225,16 @@ async function main(): Promise<void> {
 }
 
 if (isMainModule(import.meta.url)) {
-  main().catch((e: unknown) => {
-    logger.error(e)
-    process.exitCode = 1
-  })
+  runMain(
+    async () => {
+      await main().catch((e: unknown) => {
+        logger.error(e)
+        process.exitCode = 1
+      })
+    },
+    {
+      describe: 'prints the GitHub Actions dependency tree',
+      help: 'Usage: pnpm generate-actions-tree',
+    },
+  )
 }

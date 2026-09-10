@@ -9,13 +9,14 @@ import process from 'node:process'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import clipboardy from 'clipboardy'
 
-const logger = getDefaultLogger()
-
 import { isMainModule } from '../../fleet/process/is-main-module.mts'
+import { runMain } from '../../fleet/process/run-main.mts'
 import {
   ROOT_DOT_GITHUB_ACTIONS_PATH,
   ROOT_DOT_GITHUB_WORKFLOWS_PATH,
 } from '../constants/paths.mts'
+
+const logger = getDefaultLogger()
 
 /**
  * Extract action dependencies from a workflow or action file.
@@ -208,8 +209,16 @@ async function main(): Promise<void> {
 }
 
 if (isMainModule(import.meta.url)) {
-  main().catch((e: unknown) => {
-    logger.error(e)
-    process.exitCode = 1
-  })
+  runMain(
+    async () => {
+      await main().catch((e: unknown) => {
+        logger.error(e)
+        process.exitCode = 1
+      })
+    },
+    {
+      describe: 'generates the GitHub Actions allow list',
+      help: 'Usage: pnpm generate-actions-allow-list [options]\n--exact  Use exact commit references\n--copy  Copy the allow list',
+    },
+  )
 }

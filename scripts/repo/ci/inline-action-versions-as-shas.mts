@@ -11,6 +11,7 @@ import { resolveRefToSha } from '@socketsecurity/lib-stable/github/refs'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
 import { isMainModule } from '../../fleet/process/is-main-module.mts'
+import { runMain } from '../../fleet/process/run-main.mts'
 import { ROOT_PATH } from '../constants/paths.mts'
 import { normalizePath } from '@socketsecurity/lib-stable/paths/normalize'
 
@@ -363,8 +364,16 @@ async function main(): Promise<void> {
 }
 
 if (isMainModule(import.meta.url)) {
-  main().catch((e: unknown) => {
-    logger.error(e)
-    process.exitCode = 1
-  })
+  runMain(
+    async () => {
+      await main().catch((e: unknown) => {
+        logger.error(e)
+        process.exitCode = 1
+      })
+    },
+    {
+      describe: 'pins GitHub Actions to commit references',
+      help: 'Usage: pnpm inline-action-shas [options]\n--dry-run  Preview changes\n--cwd <path>  Select the repository',
+    },
+  )
 }
