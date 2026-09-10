@@ -2,7 +2,7 @@
 
 [![Socket Badge](https://socket.dev/api/badge/npm/package/@socketsecurity/registry)](https://socket.dev/npm/package/@socketsecurity/registry)
 [![CI](https://github.com/SocketDev/socket-registry/actions/workflows/ci.yml/badge.svg)](https://github.com/SocketDev/socket-registry/actions/workflows/ci.yml)
-<picture><img src="assets/repo/coverage.svg?v=c8237228374d" height="20" alt="Coverage" /></picture>
+<picture><img src="assets/repo/coverage.svg?v=7bc666fd5d56" height="20" alt="Coverage" /></picture>
 
 [![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
 [![Follow @socket.dev on Bluesky](https://img.shields.io/badge/Follow-@socket.dev-1DA1F2?style=social&logo=bluesky)](https://bsky.app/profile/socket.dev)
