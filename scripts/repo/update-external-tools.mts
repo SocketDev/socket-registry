@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /*
  * Update the `.config/repo/external-tools.json` manifest to pick up new releases of every
- * tool listed with `"release": "asset"` (today: pnpm, zizmor).
+ * tool listed with `"origin": "gh-asset"` (codedb).
  *
  * Contract for this file:
  *
@@ -194,12 +194,12 @@ export async function updateTool(
 
   // Only tools that distribute via GitHub release assets are managed
   // here. Others (e.g. runtime-resolved pins) stay manual.
-  if (toolConfig.release !== 'asset') {
+  if (toolConfig.origin !== 'gh-asset') {
     return {
       tool: name,
       skipped: true,
       updated: false,
-      reason: `release type is ${toolConfig.release ?? 'unset'}, only "asset" is supported`,
+      reason: `tool origin is ${toolConfig.origin ?? 'unset'}, only "gh-asset" is supported`,
     }
   }
 

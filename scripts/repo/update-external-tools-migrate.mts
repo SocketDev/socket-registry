@@ -79,7 +79,7 @@ export async function migrateTool(
 ): Promise<UpdateResult> {
   logger.log(`=== Migrating ${name} (sha256 -> sha512) ===`)
   const toolConfig = config[name]
-  if (!toolConfig || toolConfig.release !== 'asset') {
+  if (!toolConfig || toolConfig.origin !== 'gh-asset') {
     return {
       tool: name,
       skipped: true,
