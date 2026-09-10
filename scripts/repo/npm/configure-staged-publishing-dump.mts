@@ -107,7 +107,7 @@ export function describePayloadKeyTree(
       for (let i = 0; i < shown; i += 1) {
         const item = node[i]
         lines.push(`${prefix}[${i}]: ${describeValueType(item)}`)
-        if (item && typeof item === 'object') {
+        if (item !== null && typeof item === 'object') {
           walk(item, depth + 1, `${prefix}${INDENT}`)
         }
       }
@@ -125,7 +125,7 @@ export function describePayloadKeyTree(
       const key = keys[i]!
       const value = node[key]
       lines.push(`${prefix}${key}: ${describeValueType(value)}`)
-      if (value && typeof value === 'object') {
+      if (value !== null && typeof value === 'object') {
         walk(value, depth + 1, `${prefix}${INDENT}`)
       }
     }

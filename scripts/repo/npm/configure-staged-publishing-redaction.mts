@@ -12,7 +12,7 @@
  *   and a `data-*` value never prints at all — the NAME is the diagnostic and
  *   the value is npm's private state.
  *   The vocabulary gate is deliberately strict. One word outside npm's form
- *   copy redacts the whole string, so "Allow npm publish" stays legible while
+ *   copy redacts the whole string, so "Allow `npm publish`" stays legible while
  *   "Signed in as someone@example.test" does not. A redacted label still tells
  *   the operator a label EXISTS and how long it is, which is all a shape
  *   re-derivation needs.
@@ -94,7 +94,7 @@ const UI_TEXT_ATTRIBUTES: ReadonlySet<string> = new Set([
 
 // npm's own trusted-publisher form vocabulary. A piece of UI copy prints in
 // full only when EVERY word in it is in here or in the filler list below, which
-// is what keeps "Allow npm publish" legible while an account name, an email, or
+// is what keeps "Allow `npm publish`" legible while an account name, an email, or
 // a repository slug is redacted by the same rule that would have printed it.
 const FORM_VOCABULARY_WORDS: ReadonlySet<string> = new Set([
   'access',

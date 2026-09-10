@@ -213,7 +213,7 @@ export async function fillTrustedPublisherForm(
   // rather than a preference. npm's Allowed actions field is required and its
   // own help text says "At least one must be selected" — its CLI refuses a
   // trust write with neither flag, and the registry answers a permissionless
-  // body with a 400. Clearing "npm publish" first on a package that only has
+  // body with a 400. Clearing "`npm publish`" first on a package that only has
   // that grant walks the form through the empty state npm rejects; adding the
   // staged grant first means the form is never empty at any point.
   await setPublisherActionControl(page, {

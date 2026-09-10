@@ -155,14 +155,14 @@ export function grantTokensForAction(action: string): string[] {
   const tokens = new Set<string>([action])
   const exact = Object.entries(OIDC_PERMISSION_ACTIONS)
   for (let i = 0, { length } = exact; i < length; i += 1) {
-    const [token, mapped] = exact[i]!
+    const { 0: token, 1: mapped } = exact[i]!
     if (mapped === action) {
       tokens.add(token)
     }
   }
   const normalized = Object.entries(NORMALIZED_PERMISSION_ACTIONS)
   for (let i = 0, { length } = normalized; i < length; i += 1) {
-    const [token, mapped] = normalized[i]!
+    const { 0: token, 1: mapped } = normalized[i]!
     if (mapped === action) {
       tokens.add(token)
     }
@@ -243,7 +243,7 @@ function collectStrings(value: unknown, into: Set<string>): void {
     }
     return
   }
-  if (value && typeof value === 'object') {
+  if (value !== null && typeof value === 'object') {
     const record = value as Record<string, unknown>
     const keys = Object.keys(record)
     for (let i = 0, { length } = keys; i < length; i += 1) {

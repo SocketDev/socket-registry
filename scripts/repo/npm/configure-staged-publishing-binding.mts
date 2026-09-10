@@ -69,8 +69,8 @@ export const TARGET_BINDING: Readonly<TrustedPublisherBinding> = Object.freeze({
  * placeholder exists there is nothing left that needs to publish directly, and
  * leaving the direct grant in place means a compromised or mis-triggered
  * workflow can put a version in front of consumers with no approval step. So
- * "npm publish" is CLEARED, not merely left alone, and a package carrying both
- * grants is a package that still needs work.
+ * "`npm publish`" is CLEARED, not merely left alone, and a package carrying
+ * both grants is a package that still needs work.
  */
 export const TARGET_ALLOWED_ACTIONS: readonly string[] = Object.freeze([
   STAGE_PUBLISH_ACTION,
@@ -83,7 +83,7 @@ export const TARGET_ALLOWED_ACTIONS: readonly string[] = Object.freeze([
  * - `rebind` — one exists but points somewhere else; overwrite the whole form.
  * - `configure` — the binding is right and the staged-publish action is missing.
  * - `narrow` — the binding is right and the staged-publish action is there, but
- *   the direct "npm publish" grant is still allowed alongside it. The whole
+ *   the direct "`npm publish`" grant is still allowed alongside it. The whole
  *   form is rewritten with that box cleared, so every release has to go through
  *   the approval queue.
  * - `skip` — nothing to do; the idempotent re-run case.
@@ -122,7 +122,7 @@ export function diffTargetBinding(
   ]
   const mismatches: string[] = []
   for (let i = 0, { length } = pairs; i < length; i += 1) {
-    const [label, have, want] = pairs[i]!
+    const { 0: label, 1: have, 2: want } = pairs[i]!
     if (have !== want) {
       mismatches.push(`${label}: ${have ?? '(unset)'} -> ${want}`)
     }
