@@ -168,6 +168,67 @@ describe.each(['entry', 'fallback'])(
         ).toThrow()
         expect(closed).toBe(0)
       })
+
+      it('consumes short zip padding once and fills the remaining positions', () => {
+        const reads: string[] = []
+        const padding = {
+          *[Symbol.iterator]() {
+            reads.push('padding:start')
+            yield 'missing'
+            reads.push('padding:done')
+          },
+        }
+        const result = loadSub('Iterator.zip')([[], [1, 2], []], {
+          get mode() {
+            reads.push('mode')
+            return 'longest'
+          },
+          get padding() {
+            reads.push('padding')
+            return padding
+          },
+        })
+        expect(reads).toEqual([
+          'mode',
+          'padding',
+          'padding:start',
+          'padding:done',
+        ])
+        expect(Array.from(result)).toEqual([
+          ['missing', 1, undefined],
+          ['missing', 2, undefined],
+        ])
+      })
+      it('reads keyed padding only for included enumerable sources in key order', () => {
+        const reads: string[] = []
+        const sources = {
+          get first() {
+            expect(this).toBe(sources)
+            reads.push('source:first')
+            return []
+          },
+          omitted: undefined,
+          second: [1],
+        }
+        const result = loadSub('Iterator.zipKeyed')(sources, {
+          mode: 'longest',
+          padding: {
+            get first() {
+              reads.push('first')
+              return 'missing'
+            },
+            get omitted() {
+              throw new Error('unused padding')
+            },
+            get second() {
+              reads.push('second')
+              return 0
+            },
+          },
+        })
+        expect(reads).toEqual(['source:first', 'first', 'second'])
+        expect(Array.from(result)).toEqual([{ first: 'missing', second: 1 }])
+      })
       it('finishes empty and equal strict sources without a padding row', () => {
         const zip = loadSub('Iterator.zip')
         expect(Array.from(zip([[], []], { mode: 'longest' }))).toEqual([])

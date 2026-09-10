@@ -62,21 +62,7 @@ module.exports = function zipKeyed(iterables, options) {
     // (Managed implicitly by exception handling.)
     // Step 12.c: If desc is not undefined and desc.[[Enumerable]] is true, then
     if (desc?.enumerable) {
-      // Step 12.c.i: Let value be undefined.
-      let value
-      // Step 12.c.ii: If IsDataDescriptor(desc) is true, then
-      if ('value' in desc) {
-        // Step 12.c.ii.1: Set value to desc.[[Value]].
-        value = desc.value
-      } else if (desc.get) {
-        // Step 12.c.iii.1: Assert: IsAccessorDescriptor(desc) is true.
-        // Step 12.c.iii.2: Let getter be desc.[[Get]].
-        // Step 12.c.iii.3: If getter is not undefined, then
-        // Step 12.c.iii.3.a: Let getterResult be Completion(Call(getter, iterables)).
-        // Step 12.c.iii.3.b: IfAbruptCloseIterators(getterResult, iters).
-        // Step 12.c.iii.3.c: Set value to getterResult.
-        value = desc.get.call(iterables)
-      }
+      const value = getKeyedZipValue(desc, iterables)
 
       // Step 12.c.iv: If value is not undefined, then
       if (value !== undefined) {
@@ -99,6 +85,29 @@ module.exports = function zipKeyed(iterables, options) {
   // Step 13: Let iterCount be the number of elements in iters.
   const { length: iterCount } = iters
 
+  collectKeyedZipPadding(mode, paddingOption, iterCount, padding, keys)
+
+  // Step 16: Return IteratorZip(iters, mode, padding, finishResults).
+  return iteratorZip(
+    iters,
+    mode,
+    padding,
+    // Step 15: Let finishResults be a new Abstract Closure with parameters (results).
+    function finishResults(results) {
+      // Step 15.a: Let obj be OrdinaryObjectCreate(null).
+      const obj = Object.create(null)
+      // Step 15.b: For each integer i such that 0 ≤ i < iterCount, in ascending order, do
+      for (let i = 0; i < iterCount; i += 1) {
+        // Step 15.b.i: Perform ! CreateDataPropertyOrThrow(obj, keys[i], results[i]).
+        obj[keys[i]] = results[i]
+      }
+      // Step 15.c: Return obj.
+      return obj
+    },
+  )
+}
+
+function collectKeyedZipPadding(mode, paddingOption, iterCount, padding, keys) {
   // Step 14: If mode is "longest", then
   if (mode === 'longest') {
     // Step 14.a: If paddingOption is undefined, then
@@ -119,23 +128,23 @@ module.exports = function zipKeyed(iterables, options) {
       }
     }
   }
+}
 
-  // Step 16: Return IteratorZip(iters, mode, padding, finishResults).
-  return iteratorZip(
-    iters,
-    mode,
-    padding,
-    // Step 15: Let finishResults be a new Abstract Closure with parameters (results).
-    function finishResults(results) {
-      // Step 15.a: Let obj be OrdinaryObjectCreate(null).
-      const obj = Object.create(null)
-      // Step 15.b: For each integer i such that 0 ≤ i < iterCount, in ascending order, do
-      for (let i = 0; i < iterCount; i += 1) {
-        // Step 15.b.i: Perform ! CreateDataPropertyOrThrow(obj, keys[i], results[i]).
-        obj[keys[i]] = results[i]
-      }
-      // Step 15.c: Return obj.
-      return obj
-    },
-  )
+function getKeyedZipValue(desc, iterables) {
+  // Step 12.c.i: Let value be undefined.
+  let value
+  // Step 12.c.ii: If IsDataDescriptor(desc) is true, then
+  if ('value' in desc) {
+    // Step 12.c.ii.1: Set value to desc.[[Value]].
+    value = desc.value
+  } else if (desc.get) {
+    // Step 12.c.iii.1: Assert: IsAccessorDescriptor(desc) is true.
+    // Step 12.c.iii.2: Let getter be desc.[[Get]].
+    // Step 12.c.iii.3: If getter is not undefined, then
+    // Step 12.c.iii.3.a: Let getterResult be Completion(Call(getter, iterables)).
+    // Step 12.c.iii.3.b: IfAbruptCloseIterators(getterResult, iters).
+    // Step 12.c.iii.3.c: Set value to getterResult.
+    value = desc.get.call(iterables)
+  }
+  return value
 }

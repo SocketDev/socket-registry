@@ -70,6 +70,22 @@ module.exports = function zip(iterables, options) {
   // Step 13: Let iterCount be the number of elements in iters.
   const { length: iterCount } = iters
 
+  collectZipPadding(mode, paddingOption, iterCount, padding)
+
+  // Step 16: Return IteratorZip(iters, mode, padding, finishResults).
+  return iteratorZip(
+    iters,
+    mode,
+    padding,
+    // Step 15: Let finishResults be a new Abstract Closure with parameters (results) that captures nothing and performs the following steps when called:
+    function finishResults(results) {
+      // Step 15.a: Return CreateArrayFromList(results).
+      return results
+    },
+  )
+}
+
+function collectZipPadding(mode, paddingOption, iterCount, padding) {
   // Step 14: If mode is "longest", then
   if (mode === 'longest') {
     // Step 14.a: If paddingOption is undefined, then
@@ -99,16 +115,4 @@ module.exports = function zip(iterables, options) {
       }
     }
   }
-
-  // Step 16: Return IteratorZip(iters, mode, padding, finishResults).
-  return iteratorZip(
-    iters,
-    mode,
-    padding,
-    // Step 15: Let finishResults be a new Abstract Closure with parameters (results) that captures nothing and performs the following steps when called:
-    function finishResults(results) {
-      // Step 15.a: Return CreateArrayFromList(results).
-      return results
-    },
-  )
 }
