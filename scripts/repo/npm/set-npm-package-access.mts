@@ -12,6 +12,7 @@ import { isSpawnError } from '@socketsecurity/lib-stable/process/spawn/errors'
 import { pEach } from '@socketsecurity/lib-stable/promises/iterate'
 import { pluralize } from '@socketsecurity/lib-stable/words/pluralize'
 import { isMainModule } from '../../fleet/process/is-main-module.mts'
+import { runMain } from '../../fleet/process/run-main.mts'
 import { COLUMN_LIMIT } from '../constants/core.mts'
 import { getEnv } from '../constants/env.mts'
 import { getNpmPackageNames } from '../constants/testing.mts'
@@ -142,8 +143,16 @@ async function main(): Promise<void> {
 }
 
 if (isMainModule(import.meta.url)) {
-  main().catch((e: unknown) => {
-    logger.error(e)
-    process.exitCode = 1
-  })
+  runMain(
+    async () => {
+      await main().catch((e: unknown) => {
+        logger.error(e)
+        process.exitCode = 1
+      })
+    },
+    {
+      describe: 'sets registry npm package access',
+      help: 'Usage: pnpm package-npm-access [options]\n--force, -f  Force the access update\n--quiet  Suppress progress',
+    },
+  )
 }

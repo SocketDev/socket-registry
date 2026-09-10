@@ -22,6 +22,7 @@ import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 
 import { isMainModule } from '../../fleet/process/is-main-module.mts'
+import { runMain } from '../../fleet/process/run-main.mts'
 import {
   describeStagedTrust,
   formatStagedTrustProblem,
@@ -81,42 +82,6 @@ const { values: args } = parseArgs({
   },
   strict: false,
 })
-
-if (args['help']) {
-  logger.log('')
-  logger.log('Usage: node check-trusted-packages.mjs [options]')
-  logger.log('')
-  logger.log('Options:')
-  logger.log(
-    '  --all     Check all Socket packages (@socketsecurity/*, @socketregistry/*, @socketoverride/*)',
-  )
-  logger.log(
-    '  --debug   Show detailed information for all packages (not just failures)',
-  )
-  logger.log('  --help    Show this help message')
-  logger.log('')
-  logger.log('By default, checks:')
-  logger.log('  - All @socketregistry/* packages')
-  logger.log('  - All @socketoverride/* packages')
-  logger.log('  - Core Socket packages (sfw, socket, etc.)')
-  logger.log('')
-  logger.log('Each package is checked for:')
-  logger.log('  - Expected maintainers and a SocketDev repository')
-  logger.log('  - npm provenance (trusted publishing)')
-  logger.log(
-    '  - Staged publishing on the version dist-tag latest points at; a package',
-  )
-  logger.log(
-    '    whose manifest version is not published yet is reported, never failed',
-  )
-  logger.log('')
-  logger.log('With --all flag, adds:')
-  logger.log(
-    '  - Additional Socket packages (@socketsecurity/config, @socketsecurity/mcp, etc.)',
-  )
-  logger.log('')
-  process.exitCode = 0
-}
 
 interface PackageMaintainer {
   name?: string | undefined
@@ -486,8 +451,16 @@ async function main(): Promise<void> {
 }
 
 if (isMainModule(import.meta.url)) {
-  main().catch(error => {
-    logger.error('Fatal error:', error)
-    process.exitCode = 1
-  })
+  runMain(
+    async () => {
+      await main().catch(error => {
+        logger.error('Fatal error:', error)
+        process.exitCode = 1
+      })
+    },
+    {
+      describe: 'checks package ownership and trusted publishing',
+      help: 'Usage: pnpm check-trusted [options]\n--all  Include all Socket packages\n--debug  Show detailed package results',
+    },
+  )
 }

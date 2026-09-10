@@ -54,7 +54,12 @@
         "test/scripts/repo/update.test.mts",
         "test/scripts/repo/ci/generate-actions-allow-list.test.mts",
         "test/scripts/repo/ci/inline-action-versions-as-shas.test.mts",
-        "test/scripts/repo/ci/show-actions-tree.test.mts"
+        "test/scripts/repo/ci/show-actions-tree.test.mts",
+        "test/scripts/repo/npm/check-trusted-packages.test.mts",
+        "test/scripts/repo/npm/configure-staged-publishing.test.mts",
+        "test/scripts/repo/npm/make-npm-override.test.mts",
+        "test/scripts/repo/npm/set-npm-package-access.test.mts",
+        "test/scripts/repo/npm/wire-npm-port.test.mts"
       ],
       "slow": ["test/fleet/e2e/**/*.test.mts"]
     }

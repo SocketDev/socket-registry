@@ -16,7 +16,6 @@ import process from 'node:process'
 
 import { parseArgs } from '../util/parse-args.mts'
 import { UTF8 } from '@socketsecurity/lib-stable/constants/encoding'
-import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { isDirEmptySync } from '@socketsecurity/lib-stable/fs/inspect'
 import { httpJson } from '@socketsecurity/lib-stable/http-request'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
@@ -28,6 +27,7 @@ import { naturalCompare } from '@socketsecurity/lib-stable/sorts/natural'
 import semver from 'semver'
 
 import { isMainModule } from '../../fleet/process/is-main-module.mts'
+import { runMain } from '../../fleet/process/run-main.mts'
 import { NPM_PACKAGES_PATH, ROOT_PATH } from '../constants/paths.mts'
 
 const logger = getDefaultLogger()
@@ -484,8 +484,8 @@ async function main(): Promise<void> {
 }
 
 if (isMainModule(import.meta.url)) {
-  main().catch((e: unknown) => {
-    logger.error(errorMessage(e))
-    process.exitCode = 1
+  runMain(main, {
+    describe: 'wires registry override upstream tests',
+    help: 'Usage: pnpm npm:wire-port <package...> [options]\n--dry-run  Preview changes\n--upstream <owner/repo>  Select upstream\n--tag <tag>  Select upstream tag\n--upstream-path <path>  Select local upstream',
   })
 }

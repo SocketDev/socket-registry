@@ -24,6 +24,7 @@ import { open } from 'out-url'
 import semver from 'semver'
 import { UTF8 } from '@socketsecurity/lib-stable/constants/encoding'
 import { isMainModule } from '../../fleet/process/is-main-module.mts'
+import { runMain } from '../../fleet/process/run-main.mts'
 import { ESNEXT } from '../constants/core.mts'
 import { LOG_SYMBOLS } from '@socketsecurity/lib-stable/logger/symbols'
 import { fetchPackageManifest } from '@socketsecurity/lib-stable/packages/manifest'
@@ -482,8 +483,16 @@ async function main(): Promise<void> {
 }
 
 if (isMainModule(import.meta.url)) {
-  main().catch((e: unknown) => {
-    logger.error(e)
-    process.exitCode = 1
-  })
+  runMain(
+    async () => {
+      await main().catch((e: unknown) => {
+        logger.error(e)
+        process.exitCode = 1
+      })
+    },
+    {
+      describe: 'creates a registry npm override',
+      help: 'Usage: pnpm make-npm-override [package] [options]\n--force, -f  Replace existing output\n--quiet  Suppress progress',
+    },
+  )
 }

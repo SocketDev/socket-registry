@@ -56,6 +56,7 @@ import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { sleep } from '@socketsecurity/lib-stable/promises/timers'
 
 import { isMainModule } from '../../fleet/process/is-main-module.mts'
+import { runMain } from '../../fleet/process/run-main.mts'
 import {
   loadStagedRoster,
   readStagedTrust,
@@ -465,8 +466,16 @@ export async function main(): Promise<void> {
 }
 
 if (isMainModule(import.meta.url)) {
-  main().catch((e: unknown) => {
-    logger.error(errorMessage(e))
-    process.exitCode = 1
-  })
+  runMain(
+    async () => {
+      await main().catch((e: unknown) => {
+        logger.error(errorMessage(e))
+        process.exitCode = 1
+      })
+    },
+    {
+      describe: 'configures npm staged publishing',
+      help: 'Usage: pnpm npm:configure-staged [options]\n--apply  Apply changes\n--package <name>  Select a package\n--limit <count>  Limit packages\n--dump-form <name>  Inspect a form\n--dump-payload <name>  Inspect a payload\n--profile-dir <path>  Select browser profile',
+    },
+  )
 }
