@@ -1,5 +1,5 @@
 /**
- * @file The npm publish ORCHESTRATION for the publish workflow: staged
+ * @file The `npm publish` ORCHESTRATION for the publish workflow: staged
  *   publishing with exponential-backoff retry, a concurrency-bounded fan-out
  *   over a package list, and a batched `pnpm stage approve` loop that refreshes
  *   the 2FA OTP as it walks hundreds of staged packages. Split out of
@@ -25,7 +25,7 @@ import { joinAnd } from '@socketsecurity/lib-stable/arrays/join'
 import { isPlainObject as isObjectObject } from '@socketsecurity/lib-stable/objects/predicates'
 import { pEach } from '@socketsecurity/lib-stable/promises/iterate'
 import { pluralize } from '@socketsecurity/lib-stable/words/pluralize'
-import { password } from '@socketsecurity/lib/stdio/prompts'
+import { password } from '@socketsecurity/lib-stable/stdio/prompts'
 
 import { LATEST } from '../constants/packages.mts'
 import { ROOT_PATH } from '../constants/paths.mts'
@@ -169,18 +169,7 @@ export async function stagePublish(
       tag,
     })
     if (!result.postureOk) {
-      recordPublishFailure(state, {
-        message: formatPublishFailure({
-          detail: `the npm auth posture refused the upload${result.ran ? ' after it ran' : ' before it ran'}; wanted a clean trusted-publishing exchange. ${extractNpmError(result.output) || 'No registry output was captured.'}`,
-          printName: pkg.printName,
-          reason: 'posture',
-        }),
-        printName: pkg.printName,
-        reason: 'posture',
-      })
-      logger.fail(
-        `${pkg.printName}: npm auth posture refused the upload; not retrying.`,
-      )
+      recordPostureFailure(pkg, state, result)
       return
     }
     if (result.code === 0) {
@@ -198,21 +187,7 @@ export async function stagePublish(
     }
   }
 
-  // All retries exhausted.
-  recordPublishFailure(state, {
-    message: formatPublishFailure({
-      detail: `${maxRetries} upload ${pluralize('attempt', { count: maxRetries })} failed under tag "${tag}"; wanted one exit-0 upload. ${extractNpmError(lastOutput) || 'No registry output was captured.'}`,
-      printName: pkg.printName,
-      reason: 'upload',
-    }),
-    printName: pkg.printName,
-    reason: 'upload',
-  })
-  if (lastOutput) {
-    logger.log('')
-    logger.log(extractNpmError(lastOutput))
-    logger.log('')
-  }
+  recordUploadFailure(pkg, state, maxRetries, tag, lastOutput)
 }
 
 /**
@@ -263,20 +238,7 @@ export async function approveStagedPackages(
     return
   }
 
-  // Filter out already-published versions. If a stage upload was approved
-  // earlier but the entry lingers in stage list (registry quirk), don't
-  // re-approve it.
-  const eligible: StageListEntry[] = []
-  for (const entry of staged) {
-    // eslint-disable-next-line no-await-in-loop
-    if (
-      entry.name &&
-      entry.version &&
-      !(await isAlreadyPublished(entry.name, entry.version))
-    ) {
-      eligible.push(entry)
-    }
-  }
+  const eligible = await getEligibleStagedPackages(staged)
   if (!eligible.length) {
     logger.log('All staged entries are already published; nothing to approve.')
     return
@@ -352,4 +314,68 @@ export async function approveStagedPackages(
   logger.log(
     `Approved ${approved} ${pluralize('package', { count: approved })}`,
   )
+}
+
+function recordPostureFailure(
+  pkg: PublishPackageEntry,
+  state: PublishState,
+  result: Awaited<ReturnType<typeof uploadNpmPackage>>,
+): void {
+  recordPublishFailure(state, {
+    message: formatPublishFailure({
+      detail: `the npm auth posture refused the upload${result.ran ? ' after it ran' : ' before it ran'}; wanted a clean trusted-publishing exchange. ${extractNpmError(result.output) || 'No registry output was captured.'}`,
+      printName: pkg.printName,
+      reason: 'posture',
+    }),
+    printName: pkg.printName,
+    reason: 'posture',
+  })
+  logger.fail(
+    `${pkg.printName}: npm auth posture refused the upload; not retrying.`,
+  )
+}
+
+function recordUploadFailure(
+  pkg: PublishPackageEntry,
+  state: PublishState,
+  maxRetries: number,
+  tag: string,
+  lastOutput: string,
+): void {
+  // All retries exhausted.
+  recordPublishFailure(state, {
+    message: formatPublishFailure({
+      detail: `${maxRetries} upload ${pluralize('attempt', { count: maxRetries })} failed under tag "${tag}"; wanted one exit-0 upload. ${extractNpmError(lastOutput) || 'No registry output was captured.'}`,
+      printName: pkg.printName,
+      reason: 'upload',
+    }),
+    printName: pkg.printName,
+    reason: 'upload',
+  })
+  if (lastOutput) {
+    logger.log('')
+    logger.log(extractNpmError(lastOutput))
+    logger.log('')
+  }
+}
+
+async function getEligibleStagedPackages(
+  staged: StageListEntry[],
+): Promise<StageListEntry[]> {
+  // Filter out already-published versions. If a stage upload was approved
+  // earlier but the entry lingers in stage list (registry quirk), don't
+  // re-approve it.
+  const eligible: StageListEntry[] = []
+  for (let i = 0, { length } = staged; i < length; i += 1) {
+    const entry = staged[i]!
+    // eslint-disable-next-line no-await-in-loop
+    if (
+      entry.name &&
+      entry.version &&
+      !(await isAlreadyPublished(entry.name, entry.version))
+    ) {
+      eligible.push(entry)
+    }
+  }
+  return eligible
 }
