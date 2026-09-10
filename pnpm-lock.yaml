@@ -805,7 +805,6 @@ importers:
       yoctocolors-cjs:
         specifier: 'catalog:'
         version: 2.1.3
-    linkDirectory: false
     publishDirectory: registry
 
   .claude/hooks/fleet/account-snapshot-recorder:
@@ -1577,16 +1576,6 @@ importers:
         specifier: 'catalog:'
         version: 26.4.0
 
-  .claude/hooks/fleet/fixer-foreign-edits-nudge:
-    dependencies:
-      '@socketsecurity/lib-stable':
-        specifier: 'catalog:'
-        version: '@socketsecurity/lib@7.0.1(typescript@7.0.2)'
-    devDependencies:
-      '@types/node':
-        specifier: 'catalog:'
-        version: 26.4.0
-
   .claude/hooks/fleet/fixer-peer-edits-nudge:
     dependencies:
       '@socketsecurity/lib-stable':
@@ -1964,16 +1953,6 @@ importers:
         version: 26.4.0
 
   .claude/hooks/fleet/new-hook-claude-md-guard:
-    dependencies:
-      '@socketsecurity/lib-stable':
-        specifier: 'catalog:'
-        version: '@socketsecurity/lib@7.0.1(typescript@7.0.2)'
-    devDependencies:
-      '@types/node':
-        specifier: 'catalog:'
-        version: 26.4.0
-
-  .claude/hooks/fleet/no-amend-foreign-commit-guard:
     dependencies:
       '@socketsecurity/lib-stable':
         specifier: 'catalog:'
@@ -4095,8 +4074,6 @@ importers:
 
   .config/fleet/oxlint-plugin/fleet/no-runtime-features-below-engine-floor: {}
 
-  .config/fleet/oxlint-plugin/fleet/no-shop-metaphor-jargon: {}
-
   .config/fleet/oxlint-plugin/fleet/no-source-content-tests: {}
 
   .config/fleet/oxlint-plugin/fleet/no-source-sniffing: {}
@@ -4170,8 +4147,6 @@ importers:
   .config/fleet/oxlint-plugin/fleet/prefer-find-up-package-json: {}
 
   .config/fleet/oxlint-plugin/fleet/prefer-function-declaration: {}
-
-  .config/fleet/oxlint-plugin/fleet/prefer-lib-predicates: {}
 
   .config/fleet/oxlint-plugin/fleet/prefer-lib-versions-over-semver: {}
 
