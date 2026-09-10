@@ -12,14 +12,13 @@ import fg from 'fast-glob'
 
 import type { InputOptions, OutputOptions } from 'rolldown'
 
-import { isQuiet } from '@socketsecurity/lib/argv/flag-predicates'
-import { errorMessage } from '@socketsecurity/lib/errors/message'
-import { getDefaultLogger } from '@socketsecurity/lib/logger/default'
-import { printFooter } from '@socketsecurity/lib/stdio/footer'
-import { printHeader } from '@socketsecurity/lib/stdio/header'
+import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
+import { printFooter } from '@socketsecurity/lib-stable/stdio/footer'
+import { printHeader } from '@socketsecurity/lib-stable/stdio/header'
 
 import { buildConfig } from '../.config/rolldown.config.mts'
-import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
+import { parseArgs } from 'node:util'
 import { runSequence } from '../../scripts/fleet/util/run-command.mts'
 import process from 'node:process'
 
@@ -60,7 +59,7 @@ export async function buildSource(options: BuildOptions = {}) {
       if (!quiet) {
         logger.error('Clean failed')
       }
-      return { exitCode, buildTime: 0 }
+      return { __proto__: null, exitCode, buildTime: 0 }
     }
   }
 
@@ -87,13 +86,13 @@ export async function buildSource(options: BuildOptions = {}) {
     // imports. esbuild's `__toCommonJS` wrapper required the rewrite; rolldown
     // doesn't.
 
-    return { exitCode: 0, buildTime }
+    return { __proto__: null, exitCode: 0, buildTime }
   } catch (e) {
     if (!quiet) {
       logger.error('Source build failed')
       logger.fail(e)
     }
-    return { exitCode: 1, buildTime: 0 }
+    return { __proto__: null, exitCode: 1, buildTime: 0 }
   }
 }
 
@@ -240,6 +239,117 @@ export async function watchBuild(options: BuildOptions = {}): Promise<number> {
   }
 }
 
+interface BuildSelection {
+  needed: boolean
+  src: boolean
+  types: boolean
+  watch: boolean
+}
+
+async function runFullBuild(options: BuildOptions & { needed: boolean }) {
+  const { quiet, verbose, analyze, needed } = {
+    __proto__: null,
+    ...options,
+  } as typeof options
+  let exitCode = 0
+  if (!quiet) {
+    printHeader('Building Package')
+  }
+
+  // Check if build is needed when --needed flag is used.
+  const buildNeeded = !needed || isBuildNeeded()
+  if (!buildNeeded) {
+    if (!quiet) {
+      logger.info('Build artifacts exist, skipping build')
+    }
+    return { __proto__: null, exitCode: 0, finished: false }
+  }
+
+  // Clean dist directory.
+  exitCode = await runSequence([
+    {
+      args: ['exec', 'del-cli', 'dist', '**/*.tsbuildinfo', '--', '--quiet'],
+      command: 'pnpm',
+      options: {
+        cwd: rootPath,
+        shell: process.platform === 'win32',
+      },
+    },
+  ])
+  if (exitCode !== 0) {
+    if (!quiet) {
+      logger.error('Clean failed')
+    }
+    return { __proto__: null, exitCode, finished: false }
+  }
+
+  if (!quiet) {
+    logger.success('Build Cleaned')
+  }
+
+  // Run source and types builds in parallel.
+  const { 0: srcResult, 1: typesExitCode } = await Promise.all([
+    buildSource({
+      quiet,
+      verbose,
+      skipClean: true,
+      analyze,
+    }),
+    buildTypes({ quiet, verbose, skipClean: true }),
+  ])
+
+  // Check if any of the parallel builds failed.
+  exitCode = srcResult.exitCode !== 0 ? srcResult.exitCode : typesExitCode
+  return { __proto__: null, exitCode, finished: true }
+}
+
+async function runBuildMode(values: BuildSelection, options: BuildOptions) {
+  const { quiet, verbose, analyze } = {
+    __proto__: null,
+    ...options,
+  } as typeof options
+  let exitCode = 0
+
+  // Handle watch mode.
+  if (values['watch']) {
+    if (!quiet) {
+      printHeader('Build Runner (Watch Mode)')
+    }
+    exitCode = await watchBuild({ quiet, verbose })
+  }
+  // Build types only.
+  else if (values['types'] && !values['src']) {
+    if (!quiet) {
+      printHeader('Building TypeScript Declarations')
+    }
+    exitCode = await buildTypes({ quiet, verbose })
+    if (exitCode === 0 && !quiet) {
+      logger.log('Type declarations built')
+    }
+  }
+  // Build source only.
+  else if (values['src'] && !values['types']) {
+    if (!quiet) {
+      printHeader('Building Source')
+    }
+    const { buildTime, exitCode: srcExitCode } = await buildSource({
+      quiet,
+      verbose,
+      analyze,
+    })
+    exitCode = srcExitCode
+    if (exitCode === 0 && !quiet) {
+      logger.log(`Source build complete in ${buildTime}ms`)
+    }
+  }
+  // Build everything (default).
+  else {
+    return await runFullBuild({ ...options, needed: values.needed })
+  }
+
+  return { __proto__: null, exitCode, finished: true }
+}
+
 async function main() {
   try {
     // Parse arguments.
@@ -320,7 +430,7 @@ async function main() {
       return
     }
 
-    const quiet = isQuiet(values)
+    const quiet = Boolean(values.quiet || values.silent || values.q)
     const verbose = Boolean(values['verbose'])
     const analyze = Boolean(values['analyze'])
 
@@ -333,99 +443,18 @@ async function main() {
       return
     }
 
-    let exitCode = 0
-
-    // Handle watch mode.
-    if (values['watch']) {
-      if (!quiet) {
-        printHeader('Build Runner (Watch Mode)')
-      }
-      exitCode = await watchBuild({ quiet, verbose })
-    }
-    // Build types only.
-    else if (values['types'] && !values['src']) {
-      if (!quiet) {
-        printHeader('Building TypeScript Declarations')
-      }
-      exitCode = await buildTypes({ quiet, verbose })
-      if (exitCode === 0 && !quiet) {
-        logger.log('Type declarations built')
-      }
-    }
-    // Build source only.
-    else if (values['src'] && !values['types']) {
-      if (!quiet) {
-        printHeader('Building Source')
-      }
-      const { buildTime, exitCode: srcExitCode } = await buildSource({
-        quiet,
-        verbose,
-        analyze,
-      })
-      exitCode = srcExitCode
-      if (exitCode === 0 && !quiet) {
-        logger.log(`Source build complete in ${buildTime}ms`)
-      }
-    }
-    // Build everything (default).
-    else {
-      if (!quiet) {
-        printHeader('Building Package')
-      }
-
-      // Check if build is needed when --needed flag is used.
-      const buildNeeded = !values['needed'] || isBuildNeeded()
-      if (!buildNeeded) {
-        if (!quiet) {
-          logger.info('Build artifacts exist, skipping build')
-        }
-        process.exitCode = 0
-        return
-      }
-
-      // Clean dist directory.
-      exitCode = await runSequence([
-        {
-          args: [
-            'exec',
-            'del-cli',
-            'dist',
-            '**/*.tsbuildinfo',
-            '--',
-            '--quiet',
-          ],
-          command: 'pnpm',
-          options: {
-            cwd: rootPath,
-            shell: process.platform === 'win32',
-          },
-        },
-      ])
-      if (exitCode !== 0) {
-        if (!quiet) {
-          logger.error('Clean failed')
-        }
-        process.exitCode = exitCode
-        return
-      }
-
-      if (!quiet) {
-        logger.success('Build Cleaned')
-      }
-
-      // Run source and types builds in parallel.
-      const [srcResult, typesExitCode] = await Promise.all([
-        buildSource({
-          quiet,
-          verbose,
-          skipClean: true,
-          analyze,
-        }),
-        buildTypes({ quiet, verbose, skipClean: true }),
-      ])
-
-      // Check if any of the parallel builds failed.
-      exitCode = srcResult.exitCode !== 0 ? srcResult.exitCode : typesExitCode
+    const { exitCode, finished } = await runBuildMode(
+      {
+        needed: Boolean(values['needed']),
+        src: Boolean(values['src']),
+        types: Boolean(values['types']),
+        watch: Boolean(values['watch']),
+      },
+      { quiet, verbose, analyze },
+    )
+    if (!finished) {
+      process.exitCode = exitCode
+      return
     }
 
     // Print final status and footer.

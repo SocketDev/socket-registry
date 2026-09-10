@@ -60,6 +60,24 @@ describe('main outside CI', () => {
     vi.resetModules()
   })
 
+  test.each([['--dry-run', '--dist-tag', 'next']])(
+    'parses dry-run aliases with %j',
+    async (...args) => {
+      process.argv = [process.argv[0]!, ORCHESTRATOR_PATH, ...args]
+      const { dryRunFlag, distTagFlag } =
+        await import('../../../scripts/repo/npm/publish-npm-packages-args.mts')
+      expect(dryRunFlag).toBe(true)
+      expect(distTagFlag).toBe('next')
+    },
+  )
+
+  test('retains dry-run flags after the argument separator', async () => {
+    process.argv = [process.argv[0]!, ORCHESTRATOR_PATH, '--', '--dry-run']
+    const { dryRunFlag } =
+      await import('../../../scripts/repo/npm/publish-npm-packages-args.mts')
+    expect(dryRunFlag).toBe(true)
+  })
+
   test('a dry run previews the dispatch and uploads nothing', async () => {
     process.argv = [process.argv[0]!, ORCHESTRATOR_PATH, '--dry-run']
     // The module captures ENV + cliArgs at import time, so it is imported

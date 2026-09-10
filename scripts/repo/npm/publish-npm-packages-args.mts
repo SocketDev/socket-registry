@@ -10,7 +10,7 @@
  * hatch that reached it is too.
  */
 
-import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
+import yargsParser from 'yargs-parser'
 
 import { LATEST } from '../constants/packages.mts'
 
@@ -35,46 +35,26 @@ export interface PublishCliArgs {
   '--'?: string[] | undefined
 }
 
-export const { values: cliArgs } = parseArgs<PublishCliArgs>({
-  options: {
-    approve: {
-      type: 'boolean',
-    },
-    debug: {
-      type: 'boolean',
-    },
-    'dist-tag': {
-      type: 'string',
-    },
-    'dry-run': {
-      type: 'boolean',
-    },
-    'force-publish': {
-      type: 'boolean',
-    },
-    'force-registry': {
-      type: 'boolean',
-    },
-    only: {
-      type: 'string',
-    },
-    otp: {
-      type: 'string',
-    },
-    publish: {
-      type: 'boolean',
-    },
-    ref: {
-      type: 'string',
-    },
-    'skip-npm-packages': {
-      type: 'boolean',
-    },
-    quiet: {
-      type: 'boolean',
-    },
+export const cliArgs: PublishCliArgs = yargsParser(process.argv.slice(2), {
+  boolean: [
+    'approve',
+    'debug',
+    'dry-run',
+    'force-publish',
+    'force-registry',
+    'publish',
+    'skip-npm-packages',
+    'quiet',
+  ],
+  string: ['dist-tag', 'only', 'otp', 'ref'],
+  configuration: {
+    'camel-case-expansion': true,
+    'dot-notation': false,
+    'parse-numbers': false,
+    'parse-positional-numbers': false,
+    'populate--': true,
+    'unknown-options-as-args': true,
   },
-  strict: false,
 })
 
 // --dry-run previews the staged-publish + approve leaf without spawning

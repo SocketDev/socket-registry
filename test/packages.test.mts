@@ -7,7 +7,7 @@ import path from 'node:path'
 import process from 'node:process'
 
 import PackageJson from '@npmcli/package-json'
-import { parseArgs } from '@socketsecurity/lib/argv/parse'
+import { parseArgs } from 'node:util'
 import { EXT_JSON } from '@socketsecurity/lib/paths/exts'
 import { readJson } from '@socketsecurity/lib/fs/read-json'
 import { isObject } from '@socketsecurity/lib/objects/predicates'
@@ -49,7 +49,7 @@ const npmPackageNames = getNpmPackageNames()
 const npmPackagesPath = NPM_PACKAGES_PATH
 
 // Pass args:
-// pnpm run test:unit ./test/packages.test.ts -- --force
+// `pnpm run` test:unit ./test/packages.test.ts -- --force
 // Note: --force is converted to FORCE_TEST env var by test.js because
 // Vitest runs tests in worker processes that don't receive CLI args.
 parseArgs({
@@ -422,29 +422,33 @@ for (let i = 0, { length } = ecosystems; i < length; i += 1) {
           }),
         )
 
-        const hasOverridesAsDeps = Object.values(dependencies ?? {}).some(
-          v => typeof v === 'string' && v.includes(SOCKET_REGISTRY_SCOPE),
-        )
+        testPackageFileInventory()
 
-        const hasOverrides =
-          hasOverridesAsDeps || !!pkgOverrides || !!pkgResolutions
+        function testPackageFileInventory() {
+          const hasOverridesAsDeps = Object.values(dependencies ?? {}).some(
+            v => typeof v === 'string' && v.includes(SOCKET_REGISTRY_SCOPE),
+          )
 
-        const hasDependencies = !!dependencies
+          const hasOverrides =
+            hasOverridesAsDeps || !!pkgOverrides || !!pkgResolutions
 
-        if (hasOverrides) {
-          if (!hasOverridesAsDeps) {
-            it('should have overrides and resolutions fields in package.json', () => {
-              expect(isObject(pkgOverrides)).toBe(true)
-              expect(isObject(pkgResolutions)).toBe(true)
+          const hasDependencies = !!dependencies
+
+          if (hasOverrides) {
+            if (!hasOverridesAsDeps) {
+              it('should have overrides and resolutions fields in package.json', () => {
+                expect(isObject(pkgOverrides)).toBe(true)
+                expect(isObject(pkgResolutions)).toBe(true)
+              })
+            }
+          } else if (!hasDependencies) {
+            it('package files should match "files" field', () => {
+              const filesToCompare = files.filter(p =>
+                isDotFile(p) ? dotFileMatches.has(p) : !isSrcFile(p),
+              )
+              expect(filesFieldMatches).toEqual(filesToCompare)
             })
           }
-        } else if (!hasDependencies) {
-          it('package files should match "files" field', () => {
-            const filesToCompare = files.filter(p =>
-              isDotFile(p) ? dotFileMatches.has(p) : !isSrcFile(p),
-            )
-            expect(filesFieldMatches).toEqual(filesToCompare)
-          })
         }
       })
     }

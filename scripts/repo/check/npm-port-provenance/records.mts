@@ -9,15 +9,14 @@
 
 import path from 'node:path'
 
-import { parseGitmodules } from '../../../fleet/_shared/gitmodules.mts'
+import { parseGitmodules } from '../../../fleet/git/modules.mts'
 import { parseBlocks } from '../../../fleet/gen/gitmodules-hash.mts'
 
-import type { GitmodulesEntry } from '../../../fleet/_shared/gitmodules.mts'
+import type { GitmodulesEntry } from '../../../fleet/git/modules.mts'
 import type {
   FileForkRow,
   LockstepManifest,
   Row,
-  Upstream,
 } from '../../../fleet/lockstep/schema.mts'
 
 // Ported suites live here; a row's `local` path must start with this prefix for
@@ -93,7 +92,7 @@ export interface NpmPortCheckInput {
   // `file-fork` rows whose `local` is a ported npm suite.
   rows: readonly FileForkRow[]
   // The manifest's merged `upstreams` map.
-  upstreams: Readonly<Record<string, Upstream>>
+  upstreams: Readonly<LockstepManifest['upstreams']>
   // Parsed `.gitmodules` blocks, each carrying its pinned ref.
   pins: readonly NpmPortPin[]
   // Ported-suite source text by repo-relative path; undefined when absent.
@@ -179,6 +178,7 @@ export function mergeGitmodulesPins(gitmodulesText: string): NpmPortPin[] {
     ]),
   )
   return parseGitmodules(gitmodulesText).map(entry => ({
+    __proto__: null,
     ...entry,
     ref: refByName.get(entry.name),
   }))

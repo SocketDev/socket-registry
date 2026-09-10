@@ -7,7 +7,6 @@ import process from 'node:process'
 
 import colors from 'yoctocolors-cjs'
 
-import { isQuiet } from '@socketsecurity/lib-stable/argv/flag-predicates'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
 import { isMainModule } from '../fleet/process/is-main-module.mts'
@@ -18,7 +17,7 @@ const logger = getDefaultLogger()
 
 // Parse all flags from command line to pass through.
 const args = process.argv.slice(2)
-const quiet = isQuiet(args)
+const quiet = args.some(arg => ['--quiet', '--silent', '-q'].includes(arg))
 
 async function main(): Promise<void> {
   // Build the @socketsecurity/registry-stable package.

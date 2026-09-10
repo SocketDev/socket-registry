@@ -9,7 +9,7 @@ import path from 'node:path'
 import { PackageURL } from '@socketregistry/packageurl-js-stable'
 import type { PackageJson } from '@socketsecurity/lib-stable/packages/types'
 import type { SpinnerInstance } from '@socketsecurity/lib-stable/spinner/types'
-import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
+import { parseArgs } from 'node:util'
 import { UNLICENSED } from '@socketsecurity/lib-stable/constants/licenses'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { pEach } from '@socketsecurity/lib-stable/promises/iterate'
@@ -65,10 +65,6 @@ interface PackageManifestInfo {
 }
 
 interface AddNpmManifestDataOptions {
-  // Accumulates the names of packages the run attempted but could not fully
-  // resolve — registry 404s, tarball extraction failures, unreadable
-  // package.json files. The dropped-package guard in main() uses this set to
-  // tell a transient fetch failure apart from an intentional removal.
   fetchFailures?: Set<string> | undefined
   spinner?: SpinnerInstance | undefined
 }
@@ -81,9 +77,6 @@ const require = createRequire(import.meta.url)
 
 const { values: cliArgs } = parseArgs({
   options: {
-    // Acknowledge intentional package deletions — packages the extensions
-    // config or packages/npm tree no longer lists. Without this flag any
-    // shrink of the manifest's package set aborts the write.
     'allow-removals': {
       type: 'boolean',
     },
@@ -111,40 +104,23 @@ export async function addNpmManifestData(
   const registryExt: Array<[string, RegistryExtensionData]> =
     registryExtJson[eco] ?? []
 
-  // Chunk registry ext names to process them in parallel 3 at a time.
   await pEach(
     registryExt,
     async ([, data]) => {
       const nmPkgId = `${data.name}@latest`
-      const nmPkgManifest = (await fetchPackageManifest(nmPkgId)) as
-        | PackageManifestInfo
-        | undefined
-      if (!nmPkgManifest) {
-        spinner?.warn(`${nmPkgId}: Not found in ${NPM} registry`)
-        fetchFailures?.add(data.name)
-        fetchFailures?.add(data.package)
+      const fetched = await fetchManifestPackage(
+        nmPkgId,
+        [data.name, data.package],
+        opts,
+      )
+      if (!fetched) {
         return
       }
-      let nmPkgJson: PackageJson | undefined
-      await extractPackage(nmPkgId, undefined, async nmPkgPath => {
-        nmPkgJson = await readPackageJson(nmPkgPath, { normalize: true })
-      })
-      if (!nmPkgJson) {
-        spinner?.warn(`${nmPkgId}: Unable to read package.json`)
-        fetchFailures?.add(data.name)
-        fetchFailures?.add(data.package)
-        return
-      }
-      // A 0.0.0 publish is a name reservation, not a usable override — the
-      // manifest advertises replacements, so a placeholder stays out of it
-      // until a real release ships.
+      const { packageJson: nmPkgJson } = fetched
       if (nmPkgJson.version === '0.0.0') {
         spinner?.warn(`${nmPkgId}: 0.0.0 placeholder — skipping manifest entry`)
         return
       }
-      // Socket-maintained overrides take engines from the published
-      // package.json; third-party extensions keep the manifest's engines.
-      // (Inlined from the retired isBlessedPackageName helper.)
       const isSocketOverride = data.name.startsWith('@socketregistry/')
       manifestData.push([
         PackageURL.fromString(
@@ -168,7 +144,6 @@ export async function addNpmManifestData(
     { concurrency: DEFAULT_CONCURRENCY },
   )
 
-  // Chunk package names to process them in parallel 3 at a time.
   await pEach(
     getNpmPackageNames(),
     async sockRegPkgName => {
@@ -176,23 +151,11 @@ export async function addNpmManifestData(
       const nmPkgSpec =
         getPackageVersionSpec(origPkgName, undefined) || 'latest'
       const nmPkgId = `${origPkgName}@${nmPkgSpec}`
-      const nmPkgManifest = (await fetchPackageManifest(nmPkgId)) as
-        | PackageManifestInfo
-        | undefined
-      if (!nmPkgManifest) {
-        spinner?.warn(`${nmPkgId}: Not found in ${NPM} registry`)
-        fetchFailures?.add(origPkgName)
+      const fetched = await fetchManifestPackage(nmPkgId, [origPkgName], opts)
+      if (!fetched) {
         return
       }
-      let nmPkgJson: PackageJson | undefined
-      await extractPackage(nmPkgId, undefined, async nmPkgPath => {
-        nmPkgJson = await readPackageJson(nmPkgPath, { normalize: true })
-      })
-      if (!nmPkgJson) {
-        spinner?.warn(`${nmPkgId}: Unable to read package.json`)
-        fetchFailures?.add(origPkgName)
-        return
-      }
+      const { manifest: nmPkgManifest, packageJson: nmPkgJson } = fetched
       const pkgPath = path.join(NPM_PACKAGES_PATH, sockRegPkgName)
       const pkgJson = await readPackageJson(pkgPath, { normalize: true })
       if (!pkgJson) {
@@ -200,12 +163,8 @@ export async function addNpmManifestData(
         fetchFailures?.add(origPkgName)
         return
       }
-      const { engines, name, socket } = pkgJson
-      const entryExports = resolvePackageJsonEntryExports(pkgJson.exports) as
-        | Record<string, unknown>
-        | undefined
+      const { name } = pkgJson
 
-      // Use latest published version from npm registry.
       const sockPkgManifest = (await fetchPackageManifest(`${name}@latest`)) as
         | PackageManifestInfo
         | undefined
@@ -218,61 +177,20 @@ export async function addNpmManifestData(
         return
       }
       const version = sockPkgManifest.version
-      // A 0.0.0 publish is a name reservation, not a usable override — the
-      // manifest advertises replacements, so a placeholder stays out of it
-      // until a real release ships.
       if (version === '0.0.0') {
         spinner?.warn(`${name}: 0.0.0 placeholder — skipping manifest entry`)
         return
       }
 
-      const interop = ['cjs']
-      const isEsm = pkgJson.type === 'module'
-      if (isEsm) {
-        interop.push('esm')
-      }
-      const dotExport = entryExports?.['.'] as
-        | Record<string, unknown>
-        | undefined
-      const isBrowserify =
-        !isEsm &&
-        !!(
-          (entryExports?.['node'] && entryExports?.['default']) ||
-          (dotExport?.['node'] && dotExport?.['default'])
-        )
-      if (isBrowserify) {
-        interop.push('browserify')
-      }
-      const skipTests = shouldSkipTests(origPkgName, {
-        ecosystem: eco,
-        testPath: TEST_NPM_PATH,
-      })
-      const metaEntries: Array<[PropertyKey, unknown]> = [
-        ['name', name],
-        ['interop', interop.toSorted(naturalCompare)],
-        ['license', nmPkgJson.license ?? UNLICENSED],
-        ['package', origPkgName],
-        ['version', version],
-      ]
-      if (nmPkgManifest.deprecated) {
-        metaEntries.push(['deprecated', true])
-      }
-      if (engines) {
-        metaEntries.push(['engines', toSortedObject(filterEngines(engines))])
-      } else {
-        metaEntries.push(['engines', { node: getPackageDefaultNodeRange() }])
-      }
-      if (skipTests) {
-        metaEntries.push(['skipTests', true])
-      }
-      if (socket) {
-        metaEntries.push(...objectEntries(socket))
-      }
+      const metadata = createPackageMetadata(
+        pkgJson,
+        nmPkgJson,
+        nmPkgManifest,
+        origPkgName,
+        version,
+      )
       const purlObj = PackageURL.fromString(`pkg:${eco}/${name}@${version}`)
-      manifestData.push([
-        purlObj.toString(),
-        toSortedObjectFromEntries(metaEntries),
-      ])
+      manifestData.push([purlObj.toString(), metadata])
     },
     { concurrency: DEFAULT_CONCURRENCY },
   )
@@ -284,7 +202,6 @@ export async function addNpmManifestData(
       latestIndexes.push(i)
     }
   }
-  // Chunk lookupLatest to process them in parallel 3 at a time.
   await pEach(
     latestIndexes,
     async index => {
@@ -316,7 +233,101 @@ export async function addNpmManifestData(
   return manifest
 }
 
-// Helper function to filter out package manager engines from engines object.
+async function fetchManifestPackage(
+  packageId: string,
+  failureNames: string[],
+  options?: AddNpmManifestDataOptions,
+) {
+  const opts = { __proto__: null, ...options } as typeof options
+  const manifest = (await fetchPackageManifest(packageId)) as
+    | PackageManifestInfo
+    | undefined
+  if (!manifest) {
+    opts?.spinner?.warn(`${packageId}: Not found in ${NPM} registry`)
+    recordFetchFailures(failureNames, options)
+    return undefined
+  }
+  let packageJson: PackageJson | undefined
+  await extractPackage(packageId, undefined, async packagePath => {
+    packageJson = await readPackageJson(packagePath, { normalize: true })
+  })
+  if (!packageJson) {
+    opts?.spinner?.warn(`${packageId}: Unable to read package.json`)
+    recordFetchFailures(failureNames, options)
+    return undefined
+  }
+  return { __proto__: null, manifest, packageJson }
+}
+
+function recordFetchFailures(
+  names: string[],
+  options?: AddNpmManifestDataOptions,
+) {
+  const opts = { __proto__: null, ...options } as typeof options
+  for (let i = 0, { length } = names; i < length; i += 1) {
+    const name = names[i]!
+    opts?.fetchFailures?.add(name)
+  }
+}
+
+function getPackageInterop(pkgJson: PackageJson) {
+  const entryExports = resolvePackageJsonEntryExports(pkgJson.exports) as
+    | Record<string, unknown>
+    | undefined
+  const interop = ['cjs']
+  const isEsm = pkgJson.type === 'module'
+  if (isEsm) {
+    interop.push('esm')
+  }
+  const dotExport = entryExports?.['.'] as Record<string, unknown> | undefined
+  const isBrowserify =
+    !isEsm &&
+    !!(
+      (entryExports?.['node'] && entryExports?.['default']) ||
+      (dotExport?.['node'] && dotExport?.['default'])
+    )
+  if (isBrowserify) {
+    interop.push('browserify')
+  }
+  return interop.toSorted(naturalCompare)
+}
+
+function createPackageMetadata(
+  pkgJson: PackageJson,
+  nmPkgJson: PackageJson,
+  nmPkgManifest: PackageManifestInfo,
+  origPkgName: string,
+  version: string | undefined,
+) {
+  const { engines, name, socket } = pkgJson
+  const skipTests = shouldSkipTests(origPkgName, {
+    ecosystem: NPM,
+    testPath: TEST_NPM_PATH,
+  })
+  const metaEntries: Array<[PropertyKey, unknown]> = [
+    ['name', name],
+    ['interop', getPackageInterop(pkgJson)],
+    ['license', nmPkgJson.license ?? UNLICENSED],
+    ['package', origPkgName],
+    ['version', version],
+  ]
+  if (nmPkgManifest.deprecated) {
+    metaEntries.push(['deprecated', true])
+  }
+  if (engines) {
+    metaEntries.push(['engines', toSortedObject(filterEngines(engines))])
+  } else {
+    metaEntries.push(['engines', { node: getPackageDefaultNodeRange() }])
+  }
+  if (skipTests) {
+    metaEntries.push(['skipTests', true])
+  }
+  if (socket) {
+    metaEntries.push(...objectEntries(socket))
+  }
+  return toSortedObjectFromEntries(metaEntries)
+}
+
 export function filterEngines(
   engines: Record<string, string>,
 ): Record<string, string>
@@ -330,19 +341,12 @@ export function filterEngines(
   if (!engines) {
     return engines
   }
-  // biome-ignore lint/correctness/noUnusedVariables: Destructuring to exclude keys.
   const { npm, pnpm, yarn, ...filteredEngines } = engines
   return filteredEngines
 }
 
 export interface ManifestDropReport {
-  // Packages present in the previous manifest, absent from the regenerated
-  // one, and attributable to a recorded fetch failure — a transient drop that
-  // must never be written.
   failedDrops: string[]
-  // Packages present before, absent now, with no recorded fetch failure —
-  // the extensions/config stopped listing them. Written only under
-  // --allow-removals.
   removals: string[]
 }
 
@@ -410,7 +414,6 @@ async function readCurrentManifest(): Promise<
     raw = await fs.readFile(REGISTRY_MANIFEST_JSON_PATH, 'utf8')
   } catch (e) {
     if ((e as NodeJS.ErrnoException | undefined)?.code === 'ENOENT') {
-      // First-ever generation — nothing to guard against.
       return undefined
     }
     throw e
@@ -419,7 +422,6 @@ async function readCurrentManifest(): Promise<
 }
 
 async function main(): Promise<void> {
-  // Exit early if no relevant files have been modified and not forced.
   if (!cliArgs['force']) {
     const modifiedFiles = await getModifiedFiles({
       cwd: ROOT_PACKAGES_PATH,
@@ -437,10 +439,6 @@ async function main(): Promise<void> {
       const manifest: Record<string, ManifestEntry[]> = {}
       const fetchFailures = new Set<string>()
       await addNpmManifestData(manifest, { fetchFailures, spinner })
-      // Previously-present-package-disappeared guard: a transient registry
-      // failure must fail the run loudly instead of silently shrinking the
-      // manifest — observed live when @socketregistry/string.prototype.at
-      // vanished on one run and reappeared on the next.
       const { failedDrops, removals } = diffDroppedPackages(
         previous,
         manifest,
@@ -470,10 +468,6 @@ async function main(): Promise<void> {
     },
     spinner,
   })
-  // Canonicalize the rewritten manifest with the fleet formatter — the format
-  // gate checks oxfmt's output, and the biomeFormat this script used to call
-  // was dead code: biome is not installed, so it silently returned its input
-  // unformatted.
   await spawn(
     process.execPath,
     [
