@@ -1,5 +1,8 @@
 'use strict'
 
+const { str, to_u32 } = require('./binary.cjs')
+const { fmt_resolution, fmt_url } = require('./resolution.cjs')
+
 // Node 18 (this package's floor) lacks Array#toSorted; pick toSorted where
 // available, else the in-place sort on the already-fresh array. The computed
 // method also sidesteps the toSorted-vs-sort lint rule conflict.
@@ -42,6 +45,29 @@ function base64(a) {
     ret = btoa(ret)
   }
   return ret
+}
+
+function collectRequestedVersions(list_len, buffers) {
+  // resolutions[k] names the package that dependency record k resolves to.
+  // One pass over the edges buckets every record by its target, instead of
+  // rescanning the whole resolutions array once per package.
+  const requested_versions = Array.from({ length: list_len }, () => [])
+  const resolution_targets = to_u32(buffers.resolutions)
+  const edge_count = Math.min(
+    resolution_targets.length,
+    Math.floor(buffers.dependencies.byteLength / 26),
+  )
+  for (let k = 0; k < edge_count; k += 1) {
+    const target = resolution_targets[k]
+    // Package 0 is the root, which carries no requested versions, and a target
+    // past the package list is unresolvable.
+    if (target > 0 && target < list_len) {
+      requested_versions[target].push(
+        buffers.dependencies.subarray(k * 26, k * 26 + 26),
+      )
+    }
+  }
+  return requested_versions
 }
 
 function eq(a, b) {
@@ -96,103 +122,6 @@ function fmt_integrity(a) {
   return out
 }
 
-function fmt_resolution(a, buffers) {
-  if (a.byteLength < 64) {
-    throw new TypeError('resolution too short')
-  }
-  const tag = a[0]
-  const view2 = new DataView(a.buffer, a.byteOffset, a.byteLength)
-  let pos = 8
-  if (tag === 2 /* npm */) {
-    pos += 8
-    const major = view2.getUint32((pos += 4) - 4, true)
-    const minor = view2.getUint32((pos += 4) - 4, true)
-    const patch = view2.getUint32((pos += 4) - 4, true)
-    pos += 4
-    const version_tag = new Uint8Array(view2.buffer, view2.byteOffset + pos, 32)
-    const pre = str(version_tag.subarray(0, 8), buffers)
-    const build = str(version_tag.subarray(16, 24), buffers)
-    let v = `${major}.${minor}.${patch}`
-    if (pre) {
-      v += `-${pre}`
-    }
-    if (build) {
-      v += `+${build}`
-    }
-    return v
-  }
-  if (
-    tag === 4 /* folder */ ||
-    tag === 8 /* local_tarball */ ||
-    tag === 80 /* remote_tarball */ ||
-    tag === 72 /* workspace */ ||
-    tag === 64 /* symlink */ ||
-    tag === 100 /* single_file_module */
-  ) {
-    let v = str(
-      new Uint8Array(view2.buffer, view2.byteOffset + pos, 8),
-      buffers,
-    )
-    if (tag === 72 /* workspace */) {
-      v = `workspace:${v}`
-    }
-    if (tag === 64 /* symlink */) {
-      v = `link:${v}`
-    }
-    if (tag === 100 /* single_file_module */) {
-      v = `module:${v}`
-    }
-    return v
-  }
-  if (
-    tag === 32 /* git */ ||
-    tag === 16 /* github */ ||
-    tag === 24 /* gitlab */
-  ) {
-    let out =
-      tag === 32 /* git */
-        ? 'git+'
-        : tag === 16 /* github */
-          ? 'github:'
-          : 'gitlab:'
-    const owner = str(
-      new Uint8Array(view2.buffer, view2.byteOffset + pos, 8),
-      buffers,
-    )
-    const repo = str(
-      new Uint8Array(view2.buffer, view2.byteOffset + pos + 8, 8),
-      buffers,
-    )
-    if (owner) {
-      out += `${owner}/`
-    } else if (is_scp(repo)) {
-      out += 'ssh://'
-    }
-    out += repo
-    pos += 16
-    const commitish = str(
-      new Uint8Array(view2.buffer, view2.byteOffset + pos, 8),
-      buffers,
-    )
-    let resolved = str(
-      new Uint8Array(view2.buffer, view2.byteOffset + pos + 8, 8),
-      buffers,
-    )
-    if (resolved) {
-      out += '#'
-      let i = -1
-      if ((i = resolved.lastIndexOf('-')) >= 0) {
-        resolved = resolved.slice(i + 1)
-      }
-      out += resolved
-    } else if (commitish) {
-      out += `#${commitish}`
-    }
-    return out
-  }
-  return ''
-}
-
 function fmt_specs(name, specs, version) {
   specs = Array.from(new Set(specs.map(e => e || `^${version}`)))[SORT_METHOD]()
   let out = ''
@@ -208,39 +137,8 @@ function fmt_specs(name, specs, version) {
   return `${out}:`
 }
 
-function fmt_url(a, buffers) {
-  if (a.byteLength < 64) {
-    throw new TypeError('resolution too short')
-  }
-  return a[0] === 2 /* npm */
-    ? str(new Uint8Array(a.buffer, a.byteOffset + 8, 8), buffers)
-    : fmt_resolution(a, buffers)
-}
-
 function hex(a) {
   return (256 + a).toString(16).slice(1)
-}
-
-function is_scp(s) {
-  if (s.length < 3) {
-    return false
-  }
-  let at = -1
-  for (let i = 0, { length } = s; i < length; i += 1) {
-    if (s[i] === '@') {
-      if (at < 0) {
-        at = i
-      }
-    } else if (s[i] === ':') {
-      if (s.slice(i).startsWith('://')) {
-        return false
-      }
-      return at >= 0 ? i > at + 1 : i > 0
-    } else if (s[i] === '/') {
-      return at >= 0 && i > at + 1
-    }
-  }
-  return false
 }
 
 function localeCompare(x, y) {
@@ -345,25 +243,7 @@ function parse(buf) {
     pos = end2
     return a
   }, {})
-  // resolutions[k] names the package that dependency record k resolves to.
-  // One pass over the edges buckets every record by its target, instead of
-  // rescanning the whole resolutions array once per package.
-  const requested_versions = Array.from({ length: list_len }, () => [])
-  const resolution_targets = to_u32(buffers.resolutions)
-  const edge_count = Math.min(
-    resolution_targets.length,
-    Math.floor(buffers.dependencies.byteLength / 26),
-  )
-  for (let k = 0; k < edge_count; k += 1) {
-    const target = resolution_targets[k]
-    // Package 0 is the root, which carries no requested versions, and a target
-    // past the package list is unresolvable.
-    if (target > 0 && target < list_len) {
-      requested_versions[target].push(
-        buffers.dependencies.subarray(k * 26, k * 26 + 26),
-      )
-    }
-  }
+  const requested_versions = collectRequestedVersions(list_len, buffers)
   let ResolutionTag
   ;(ResolutionTag2 => {
     ResolutionTag2[(ResolutionTag2['uninitialized'] = 0)] = 'uninitialized'
@@ -474,30 +354,6 @@ function slice(data, a, item) {
   )
   return Array.from({ length }, (_, i) =>
     data.subarray(item * off + item * i, item * off + item * i + item),
-  )
-}
-
-function str(a, buffers) {
-  if ((a[7] & 128) === 0) {
-    const i = a.indexOf(0)
-    if (i >= 0) {
-      a = a.subarray(0, i)
-    }
-    return new TextDecoder().decode(a)
-  }
-  const [off, len] = to_u32(a)
-  return new TextDecoder().decode(
-    buffers.string_bytes.subarray(off, off + (len & ~2_147_483_648)),
-  )
-}
-
-function to_u32(a) {
-  if (a.byteOffset % 4 === 0) {
-    return new Uint32Array(a.buffer, a.byteOffset, a.byteLength / 4)
-  }
-  const view2 = new DataView(a.buffer, a.byteOffset, a.byteLength)
-  return Uint32Array.from({ length: a.byteLength / 4 }, (_, i) =>
-    view2.getUint32(i * 4, true),
   )
 }
 

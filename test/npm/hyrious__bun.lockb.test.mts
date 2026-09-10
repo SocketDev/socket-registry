@@ -105,6 +105,93 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     expect(hyriousBunLockbIndex.parse(lockb)).toBe(yarnLock)
   })
 
+  describe('resolution encodings', () => {
+    const resolutionModule = skip
+      ? undefined
+      : require(path.join(pkgPath, 'resolution.cjs'))
+    const binaryModule = skip
+      ? undefined
+      : require(path.join(pkgPath, 'binary.cjs'))
+    const buffers = { string_bytes: new Uint8Array() }
+
+    function resolution(
+      tag: number,
+      fields: ReadonlyArray<readonly [number, string]>,
+    ) {
+      const bytes = new Uint8Array(64)
+      bytes[0] = tag
+      for (let i = 0, { length } = fields; i < length; i += 1) {
+        const field = fields[i]!
+        bytes.set(new TextEncoder().encode(field[1]), field[0])
+      }
+      return bytes
+    }
+
+    it.each([
+      { tag: 4, expected: 'folder' },
+      { tag: 8, expected: 'folder' },
+      { tag: 80, expected: 'folder' },
+      { tag: 72, expected: 'workspace:folder' },
+      { tag: 64, expected: 'link:folder' },
+      { tag: 100, expected: 'module:folder' },
+    ])('formats path resolution tag $tag', ({ tag, expected }) => {
+      const bytes = resolution(tag, [[8, 'folder']])
+      expect(resolutionModule.fmt_resolution(bytes, buffers)).toBe(expected)
+      expect(resolutionModule.fmt_url(bytes, buffers)).toBe(expected)
+    })
+
+    it.each([
+      { tag: 32, prefix: 'git+' },
+      { tag: 16, prefix: 'github:' },
+      { tag: 24, prefix: 'gitlab:' },
+    ])(
+      'prefers the resolved revision for repository tag $tag',
+      ({ tag, prefix }) => {
+        const bytes = resolution(tag, [
+          [8, 'owner'],
+          [16, 'repo'],
+          [24, 'main'],
+          [32, 'tag-abc'],
+        ])
+        expect(resolutionModule.fmt_resolution(bytes, buffers)).toBe(
+          `${prefix}owner/repo#abc`,
+        )
+        bytes.fill(0, 32, 40)
+        expect(resolutionModule.fmt_resolution(bytes, buffers)).toBe(
+          `${prefix}owner/repo#main`,
+        )
+      },
+    )
+
+    it('retains npm prerelease and build fields independently from its URL', () => {
+      const bytes = resolution(2, [
+        [8, 'tarball'],
+        [32, 'alpha'],
+        [48, 'build'],
+      ])
+      const view = new DataView(bytes.buffer)
+      view.setUint32(16, 1, true)
+      view.setUint32(20, 2, true)
+      view.setUint32(24, 3, true)
+      expect(resolutionModule.fmt_resolution(bytes, buffers)).toBe(
+        '1.2.3-alpha+build',
+      )
+      expect(resolutionModule.fmt_url(bytes, buffers)).toBe('tarball')
+    })
+
+    it('decodes unaligned external string offsets', () => {
+      const bytes = new Uint8Array(9)
+      const view = new DataView(bytes.buffer, 1)
+      view.setUint32(0, 2, true)
+      view.setUint32(4, 0x80_00_00_04, true)
+      expect(
+        binaryModule.str(bytes.subarray(1), {
+          string_bytes: new TextEncoder().encode('xxnametail'),
+        }),
+      ).toBe('name')
+    })
+  })
+
   describe('rejects hostile input without allocating', () => {
     it('rejects a package count the file cannot back', () => {
       expect(() =>
