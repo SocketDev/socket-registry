@@ -423,7 +423,7 @@ const SCRIPT_META: ScriptMeta = {
 
   Compares each package's shipped bytes against what npm has, bumps the ones
   that changed, and lists the ones npm still holds at the 0.0.0 placeholder.
-  It never uploads: stage via npm-publish-packages.yml afterwards.
+  It never uploads: stage via publish-npm-packages.yml afterwards.
 
   --release   a release is expected — exit 1 when nothing can be staged`,
 }

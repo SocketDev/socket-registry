@@ -91,7 +91,7 @@ export function reportReleaseState(
     `${publishable} ${publishable === 1 ? 'package needs' : 'packages need'} publishing (${state.bumped.length} changed, ${state.placeholders.length} never published).`,
   )
   logger.log(
-    'Stage them by dispatching npm-publish-packages.yml: pnpm run package-npm-publish --publish',
+    'Stage them by dispatching publish-npm-packages.yml: pnpm run package-npm-publish --publish',
   )
   return 0
 }

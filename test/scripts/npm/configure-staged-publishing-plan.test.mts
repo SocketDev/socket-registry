@@ -5,7 +5,7 @@
  *   load-bearing. A payload carrying a connections list with no live row must
  *   read as `create` — that is a package with no trusted publisher, the state
  *   that made every staging upload 401 the first time
- *   `npm-publish-packages.yml` ran. A payload the reader cannot recognize at
+ *   `publish-npm-packages.yml` ran. A payload the reader cannot recognize at
  *   all must read as `unreadable` and stop the run, never as "nothing
  *   configured", which would send a write at a page nobody has verified.
  */
@@ -145,7 +145,7 @@ describe('readTrustedPublisherState / decideStagedConfigurationState', () => {
     const payload = JSON.parse(
       '{"oidcConnections":[{"config":{"environment_name":"npm-publish",' +
         '"repository_name":"socket-registry","repository_owner":"SocketDev",' +
-        '"workflow":"npm-publish-packages.yml"},"deleted":null,' +
+        '"workflow":"publish-npm-packages.yml"},"deleted":null,' +
         '"permissions":["createStagedPackage"]}]}',
     )
     const reading = readTrustedPublisherState(payload)
@@ -159,6 +159,16 @@ describe('readTrustedPublisherState / decideStagedConfigurationState', () => {
     )
     expect(reading.blockState).toBe('absent')
     expect(decideStagedConfigurationState(reading)).toBe('create')
+  })
+
+  test('a binding to the previous family filename requires rebind', () => {
+    const reading = readTrustedPublisherState(
+      payloadWithConnection({ workflow: 'npm-publish-packages.yml' }),
+    )
+    expect(decideStagedConfigurationState(reading)).toBe('rebind')
+    expect(diffTargetBinding(reading.binding)).toEqual([
+      'workflow filename: npm-publish-packages.yml -> publish-npm-packages.yml',
+    ])
   })
 
   test('a block bound to the wrong workflow is rebind', () => {
@@ -318,7 +328,7 @@ describe('operator-facing messages', () => {
     ])
     const lines = formatBindingWriteFailure({
       mismatches: [
-        'workflowName: saved npm-publish.yml, wanted npm-publish-packages.yml',
+        'workflowName: saved npm-publish.yml, wanted publish-npm-packages.yml',
       ],
       state: 'create',
       target: target!,
@@ -361,7 +371,7 @@ describe('re-derived payload key paths', () => {
     environment_name: 'npm-publish',
     repository_name: 'socket-registry',
     repository_owner: 'SocketDev',
-    workflow: 'npm-publish-packages.yml',
+    workflow: 'publish-npm-packages.yml',
   }
 
   test('the observed key path still reads a correct binding as skip', () => {
@@ -396,7 +406,7 @@ describe('re-derived payload key paths', () => {
           environmentName: 'npm-publish',
           repositoryName: 'socket-registry',
           repositoryOwner: 'SocketDev',
-          workflowFilename: 'npm-publish-packages.yml',
+          workflowFilename: 'publish-npm-packages.yml',
         }),
       ],
     })

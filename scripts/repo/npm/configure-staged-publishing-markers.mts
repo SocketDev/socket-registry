@@ -23,6 +23,8 @@
  *   challenge at all, whatever text renders around it.
  */
 
+import { INTERSTITIAL_MARKERS } from '../../fleet/registry-infra/npm/staged-browser-parse.mts'
+
 /**
  * Text reduced to the one form a marker phrase is matched against: lowercase,
  * HTML entities for space and ellipsis resolved, every ellipsis spelling
@@ -51,21 +53,6 @@ export function normalizeChallengeText(value: string): string {
       .trim()
   )
 }
-
-/**
- * The human-verification copy, written the way a person reads it on the page.
- * Matched against {@link normalizeChallengeText} output, so trailing
- * punctuation and case are already gone by the time these are compared.
- */
-export const HUMAN_VERIFICATION_PHRASES: readonly string[] = [
-  'just a moment',
-  'checking if the site connection is secure',
-  'checking your browser before accessing',
-  'verify you are human',
-  'verifying you are human',
-  'additional verification required',
-  'enable javascript and cookies to continue',
-]
 
 // Challenge scaffolding that is not copy: Cloudflare's own run identifiers.
 // These need no normalization — they are tokens, not sentences — and they are
@@ -165,8 +152,8 @@ export function hasHumanVerificationMarkers(body: string): boolean {
   if (!normalized) {
     return false
   }
-  for (let i = 0, { length } = HUMAN_VERIFICATION_PHRASES; i < length; i += 1) {
-    if (normalized.includes(HUMAN_VERIFICATION_PHRASES[i]!)) {
+  for (let i = 0, { length } = INTERSTITIAL_MARKERS; i < length; i += 1) {
+    if (normalized.includes(INTERSTITIAL_MARKERS[i]!)) {
       return true
     }
   }

@@ -7,7 +7,7 @@
  *     local by design — the OTP is a human's.
  *   - CI: stage every needs-publish package, collect per-package failures, exit 1
  *     if any (publish-npm-packages-stage.mts).
- *   - local, no `--approve`: DISPATCH `npm-publish-packages.yml` and watch the
+ *   - local, no `--approve`: DISPATCH `publish-npm-packages.yml` and watch the
  *     run (publish-npm-packages-dispatch.mts). Nothing uploads from here. There
  *     is no local upload path and no `--force` that reaches one. The fleet
  *     allows exactly one npm upload invocation,
@@ -60,7 +60,7 @@ async function runApproveLane(): Promise<number> {
 async function runDispatchLane(): Promise<number> {
   if (dryRunFlag) {
     logger.log(
-      'Local lane: a real run dispatches npm-publish-packages.yml and watches it. Nothing uploads from here.',
+      'Local lane: a real run dispatches publish-npm-packages.yml and watches it. Nothing uploads from here.',
     )
     logger.log(
       `[dry-run] would dispatch publish=${cliArgs.publish ? 'true' : 'false'} dist-tag=${distTagFlag} only=${onlyFlag ?? ''}${refFlag ? ` ref=${refFlag}` : ''}`,
@@ -132,7 +132,7 @@ const SCRIPT_META: ScriptMeta = {
     'publishes the socket-registry package family — CI stages, local dispatches the workflow or promotes what is staged',
   help: `Usage: node scripts/repo/npm/publish-npm-packages.mts [options]
 
-  Outside CI this DISPATCHES .github/workflows/npm-publish-packages.yml and
+  Outside CI this DISPATCHES .github/workflows/publish-npm-packages.yml and
   watches the run; it never uploads. Inside CI it stages every needs-publish
   package through the one fleet-owned npm upload.
 

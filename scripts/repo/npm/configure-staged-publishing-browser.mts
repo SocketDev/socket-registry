@@ -331,7 +331,7 @@ export function buildDesiredPublisher(config: {
 
 /**
  * Write one package's trusted publisher so a staged publish from
- * `npm-publish-packages.yml` is allowed, and a direct publish is not.
+ * `publish-npm-packages.yml` is allowed, and a direct publish is not.
  *
  * Every write state drives the SAME form, so every one takes the same path:
  * `create` fills it for a package that has no publisher, `rebind` overwrites

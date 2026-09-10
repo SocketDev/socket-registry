@@ -71,7 +71,7 @@ describe('formatPublishFailure', () => {
     expect(message).toContain(
       'https://www.npmjs.com/package/@socketregistry/own-keys/access',
     )
-    expect(message).toContain('npm-publish-packages.yml')
+    expect(message).toContain('publish-npm-packages.yml')
   })
 
   test('an approve failure builds the URL from the bare name, not name@version', () => {

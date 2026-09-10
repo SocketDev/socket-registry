@@ -20,7 +20,7 @@ describe('buildWorkflowDispatchArgs', () => {
     expect(buildWorkflowDispatchArgs({})).toEqual([
       'workflow',
       'run',
-      PUBLISH_WORKFLOW_FILE,
+      'publish-npm-packages.yml',
       '--field',
       'publish=false',
       '--field',

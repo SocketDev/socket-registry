@@ -7,10 +7,10 @@
  *   Five per-package states come out of reading that page. `create` is a
  *   package with no trusted publisher at all — the state that made every
  *   `@socketregistry/*` staging upload 401 the first time
- *   `.github/workflows/npm-publish-packages.yml` ran, because npm answers the
+ *   `.github/workflows/publish-npm-packages.yml` ran, because npm answers the
  *   OIDC token exchange with a 404 when no publisher matches the claim.
  *   `rebind` is a publisher pointing somewhere else, most often at the
- *   single-subject `npm-publish.yml` rather than the family stager. `configure`
+ *   single-subject `publish-npm.yml` rather than the family stager. `configure`
  *   is a correct binding missing the staged-publish action. `narrow` is a
  *   correct binding that permits the staged publish AND still permits a direct
  *   one. `skip` is a package already correct, which is what makes a re-run a

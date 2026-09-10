@@ -39,7 +39,7 @@ const ACCESS_PAYLOAD = JSON.stringify({
           environment_name: 'npm-publish',
           repository_name: 'socket-registry',
           repository_owner: 'SocketDev',
-          workflow: 'npm-publish-packages.yml',
+          workflow: 'publish-npm-packages.yml',
         },
         permissions: ['createStagedPackage'],
       },

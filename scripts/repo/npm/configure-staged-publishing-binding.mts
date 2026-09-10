@@ -7,7 +7,7 @@
  *   with the claims a workflow run presents, npm refuses the token exchange
  *   with a 404 and the upload falls through to no credential at all — the
  *   failure that stranded every `@socketregistry/*` package the first time
- *   `.github/workflows/npm-publish-packages.yml` ran.
+ *   `.github/workflows/publish-npm-packages.yml` ran.
  *   Reading the binding is deliberately three-valued. `absent` (npm returned a
  *   connections list with no live row) means "create one"; `present` means
  *   "compare and repair"; `unreadable` means the payload was not an access-page
@@ -38,11 +38,11 @@ export const TARGET_REPOSITORY_NAME = 'socket-registry'
 
 /**
  * The workflow that stages the `@socketregistry/*` family. This is NOT
- * `npm-publish.yml`: that workflow publishes the single-subject fleet member,
+ * `publish-npm.yml`: that workflow publishes the single-subject fleet member,
  * while the family stager lives in its own file, and npm matches the workflow
  * FILENAME from the OIDC claim, so the two are not interchangeable.
  */
-export const TARGET_WORKFLOW_FILENAME = 'npm-publish-packages.yml'
+export const TARGET_WORKFLOW_FILENAME = 'publish-npm-packages.yml'
 
 /**
  * The GitHub environment the staging job runs inside. npm's trusted-publisher

@@ -1,6 +1,6 @@
 /**
  * @file The LOCAL lane of the family publish: dispatch the
- *   `npm-publish-packages.yml` workflow and watch the run it starts.
+ *   `publish-npm-packages.yml` workflow and watch the run it starts.
  *   Nothing here uploads. The fleet allows exactly one npm upload invocation,
  *   `scripts/fleet/registry-infra/npm/publish-command.mts`, and it must run
  *   where the trusted-publishing identity lives — a GitHub Actions job with
@@ -22,7 +22,7 @@ const logger = getDefaultLogger()
  * The workflow file the local lane dispatches. Kept as a bare filename because
  * that is what `gh workflow run` accepts.
  */
-export const PUBLISH_WORKFLOW_FILE = 'npm-publish-packages.yml'
+export const PUBLISH_WORKFLOW_FILE = 'publish-npm-packages.yml'
 
 export interface DispatchConfig {
   distTag?: string | undefined

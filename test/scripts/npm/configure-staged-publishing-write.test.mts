@@ -19,7 +19,7 @@ const DESIRED: TrustedPublisherDesired = {
   environmentName: 'npm-publish',
   repositoryName: 'socket-registry',
   repositoryOwner: 'SocketDev',
-  workflowFilename: 'npm-publish-packages.yml',
+  workflowFilename: 'publish-npm-packages.yml',
 }
 
 function payloadWithPermissions(permissions: readonly string[]): unknown {
@@ -31,7 +31,7 @@ function payloadWithPermissions(permissions: readonly string[]): unknown {
             environment_name: 'npm-publish',
             repository_name: 'socket-registry',
             repository_owner: 'SocketDev',
-            workflow: 'npm-publish-packages.yml',
+            workflow: 'publish-npm-packages.yml',
           },
           permissions,
         },

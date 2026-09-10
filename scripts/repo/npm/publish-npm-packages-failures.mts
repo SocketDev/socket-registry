@@ -82,13 +82,13 @@ export function formatPublishFailure(config: {
       : `the staged upload of ${printName}, via scripts/fleet/registry-infra/npm/publish-command.mts.`
   let fix: string
   if (isTrustedPublisherProblem(detail)) {
-    fix = `Configure this package's trusted publisher at ${accessUrl} — repository socket-registry, workflow npm-publish-packages.yml, environment npm-publish — then re-dispatch.`
+    fix = `Configure this package's trusted publisher at ${accessUrl} — repository socket-registry, workflow publish-npm-packages.yml, environment npm-publish — then re-dispatch.`
   } else if (reason === 'approve') {
     fix = `Re-run \`pnpm run package-npm-publish --approve\` with a fresh 2FA code. If the entry was already promoted, confirm with \`npm view ${name ?? printName} versions\` before approving again.`
   } else if (reason === 'posture') {
-    fix = `Re-dispatch npm-publish-packages.yml from GitHub Actions — the upload needs the workflow's OIDC identity, and no local npm token substitutes for it.`
+    fix = `Re-dispatch publish-npm-packages.yml from GitHub Actions — the upload needs the workflow's OIDC identity, and no local npm token substitutes for it.`
   } else {
-    fix = `Read the registry error above, fix it, then re-dispatch npm-publish-packages.yml. Package access page: ${accessUrl}.`
+    fix = `Read the registry error above, fix it, then re-dispatch publish-npm-packages.yml. Package access page: ${accessUrl}.`
   }
   return (
     `Failed to publish ${printName}.\n` +
