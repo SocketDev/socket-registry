@@ -4027,6 +4027,9 @@ CHANGELOG.md
 !/packages/npm/deep-equal/package/external/
 !/.node-version
 !/registry/CHANGELOG.md
+!/docs/repo/agents.md/
+/docs/repo/agents.md/*
+!/docs/repo/agents.md/npm-high-impact-rankings.md
 
 # vitiate coverage-guided fuzz lane caches (regenerable; never commit)
 /.swc/
