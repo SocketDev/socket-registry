@@ -76,14 +76,14 @@ export async function getAllYamlFiles(dir: string): Promise<string[]> {
   return files
 }
 
-/**
- * Generate and display GitHub Actions allow list.
- */
-async function main(): Promise<void> {
+export async function collectActionDependencies(
+  workflowsPath: string,
+  actionsPath: string,
+): Promise<Map<string, string>> {
   const allDependencies = new Map<string, string>()
 
   // Process workflow files.
-  const workflowFiles = await getAllYamlFiles(ROOT_DOT_GITHUB_WORKFLOWS_PATH)
+  const workflowFiles = await getAllYamlFiles(workflowsPath)
   for (let i = 0, { length } = workflowFiles; i < length; i += 1) {
     const file = workflowFiles[i]
     if (file === undefined) {
@@ -97,7 +97,7 @@ async function main(): Promise<void> {
   }
 
   // Process action files.
-  const actionDirs = await fs.readdir(ROOT_DOT_GITHUB_ACTIONS_PATH, {
+  const actionDirs = await fs.readdir(actionsPath, {
     withFileTypes: true,
   })
   for (let i = 0, { length } = actionDirs; i < length; i += 1) {
@@ -106,11 +106,7 @@ async function main(): Promise<void> {
       continue
     }
     if (dir.isDirectory()) {
-      const actionFile = path.join(
-        ROOT_DOT_GITHUB_ACTIONS_PATH,
-        dir.name,
-        'action.yml',
-      )
+      const actionFile = path.join(actionsPath, dir.name, 'action.yml')
       try {
         const deps = await extractDependencies(actionFile)
         // oxlint-disable-next-line socket/prefer-cached-for-loop -- iterates Map.entries() (non-array iterable); cached-length would be incorrect.
@@ -120,6 +116,15 @@ async function main(): Promise<void> {
       } catch {}
     }
   }
+
+  return allDependencies
+}
+
+async function main(): Promise<void> {
+  const allDependencies = await collectActionDependencies(
+    ROOT_DOT_GITHUB_WORKFLOWS_PATH,
+    ROOT_DOT_GITHUB_ACTIONS_PATH,
+  )
 
   // Categorize dependencies.
   const socketDevActions = []
