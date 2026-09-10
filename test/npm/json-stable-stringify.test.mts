@@ -217,6 +217,40 @@ describe(
       expect(holders[1]).toBe(obj)
     })
 
+    it('resolves sorted getters and toJSON before calling the replacer', () => {
+      const events: string[] = []
+      const value = {
+        get b() {
+          events.push('get:b')
+          return 0
+        },
+        get a() {
+          events.push('get:a')
+          return {
+            toJSON() {
+              events.push('toJSON:a')
+              return null
+            },
+          }
+        },
+      }
+      const result = jsonStableStringifyModule(value, {
+        replacer(key: string, entry: unknown) {
+          events.push(`replace:${key}`)
+          return entry
+        },
+      })
+      expect(result).toBe('{"a":null,"b":0}')
+      expect(events).toEqual([
+        'replace:',
+        'get:a',
+        'toJSON:a',
+        'replace:a',
+        'get:b',
+        'replace:b',
+      ])
+    })
+
     it('sorts integer-like keys lexicographically like upstream', () => {
       expect(jsonStableStringifyModule({ 10: 'a', 2: 'b' })).toBe(
         '{"10":"a","2":"b"}',
@@ -238,6 +272,9 @@ describe(
       )
       deep['d'] = new Date(0)
       const leaf = deep
+      leaf['missing'] = undefined
+      leaf['empty'] = {}
+      leaf['array'] = [null, undefined, Math.max, Symbol.iterator, []]
       for (let i = 0; i < 200_000; i += 1) {
         deep = { a: deep }
       }
@@ -245,6 +282,9 @@ describe(
       expect(out.endsWith('}'.repeat(200_001))).toBe(true)
       expect(out).toContain('"d":"1970-01-01T00:00:00.000Z"')
       expect(out).toContain('"__proto__":{"p":true}')
+      expect(out).toContain('"array":[null,null,null,null,[]]')
+      expect(out).toContain('"empty":{}')
+      expect(out).not.toContain('"missing"')
       expect(JSON.stringify(leaf)).toContain('"__proto__":{"p":true}')
     })
   },

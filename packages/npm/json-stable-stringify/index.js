@@ -31,9 +31,88 @@ function isRawJSON(value) {
   return JSONIsRawJSON !== undefined && JSONIsRawJSON(value)
 }
 
+function pushStableArrayFrames(value, out, stack, inPath) {
+  const { length } = value
+  if (length === 0) {
+    out.push('[]')
+    return
+  }
+  inPath.add(value)
+  stack.push({ __proto__: null, token: ']', exit: value })
+  for (let i = length - 1; i >= 0; i -= 1) {
+    stack.push({ __proto__: null, value: resolveToJSON(value[i]) })
+    if (i > 0) {
+      stack.push({ __proto__: null, token: ',' })
+    }
+  }
+  stack.push({ __proto__: null, token: '[' })
+}
+
+function pushStableObjectFrames(value, out, stack, inPath) {
+  const keys = ObjectKeys(value)[SORT_METHOD]()
+  const emit = []
+  for (let i = 0, { length } = keys; i < length; i += 1) {
+    const k = keys[i]
+    const v = resolveToJSON(value[k])
+    const vt = typeof v
+    // JSON.stringify omits undefined / function / symbol object values.
+    if (v === undefined || vt === 'function' || vt === 'symbol') {
+      continue
+    }
+    emit.push({ __proto__: null, key: k, value: v })
+  }
+  if (emit.length === 0) {
+    out.push('{}')
+    return
+  }
+  inPath.add(value)
+  stack.push({ __proto__: null, token: '}', exit: value })
+  for (let i = emit.length - 1; i >= 0; i -= 1) {
+    stack.push({ __proto__: null, value: emit[i].value })
+    stack.push({ __proto__: null, token: `${JSONStringify(emit[i].key)}:` })
+    if (i > 0) {
+      stack.push({ __proto__: null, token: ',' })
+    }
+  }
+  stack.push({ __proto__: null, token: '{' })
+}
+
+function pushStableValueFrame(value, out, stack, inPath) {
+  // Child values are toJSON-resolved before being pushed, so dispatch reads
+  // them as-is.
+  if (value === null) {
+    out.push('null')
+    return
+  }
+  const valType = typeof value
+  if (
+    valType === 'function' ||
+    valType === 'symbol' ||
+    valType === 'undefined'
+  ) {
+    // Only array elements reach here because object keys are prefiltered,
+    // and unrepresentable array elements serialize as null.
+    out.push('null')
+    return
+  }
+  if (valType !== 'object' || isRawJSON(value)) {
+    out.push(JSONStringify(value))
+    return
+  }
+  if (inPath.has(value)) {
+    throw new TypeError('Converting circular structure to JSON')
+  }
+
+  if (ArrayIsArray(value)) {
+    pushStableArrayFrames(value, out, stack, inPath)
+  } else {
+    pushStableObjectFrames(value, out, stack, inPath)
+  }
+}
+
 function resolveToJSON(value) {
   if (
-    value &&
+    value !== null &&
     typeof value === 'object' &&
     typeof value.toJSON === 'function'
   ) {
@@ -67,79 +146,38 @@ function stringifyIterativeStable(root) {
       continue
     }
 
-    // Child values are toJSON-resolved before being pushed, so dispatch reads
-    // them as-is.
-    const { value } = frame
-    if (value === null) {
-      out.push('null')
-      continue
-    }
-    const valType = typeof value
-    if (
-      valType === 'function' ||
-      valType === 'symbol' ||
-      valType === 'undefined'
-    ) {
-      // Only array elements reach here because object keys are prefiltered,
-      // and unrepresentable array elements serialize as null.
-      out.push('null')
-      continue
-    }
-    if (valType !== 'object' || isRawJSON(value)) {
-      out.push(JSONStringify(value))
-      continue
-    }
-    if (inPath.has(value)) {
-      throw new TypeError('Converting circular structure to JSON')
-    }
-
-    if (ArrayIsArray(value)) {
-      const { length } = value
-      if (length === 0) {
-        out.push('[]')
-        continue
-      }
-      inPath.add(value)
-      stack.push({ __proto__: null, token: ']', exit: value })
-      for (let i = length - 1; i >= 0; i -= 1) {
-        stack.push({ __proto__: null, value: resolveToJSON(value[i]) })
-        if (i > 0) {
-          stack.push({ __proto__: null, token: ',' })
-        }
-      }
-      stack.push({ __proto__: null, token: '[' })
-      continue
-    }
-
-    const keys = ObjectKeys(value)[SORT_METHOD]()
-    const emit = []
-    for (let i = 0, { length } = keys; i < length; i += 1) {
-      const k = keys[i]
-      const v = resolveToJSON(value[k])
-      const vt = typeof v
-      // JSON.stringify omits undefined / function / symbol object values.
-      if (v === undefined || vt === 'function' || vt === 'symbol') {
-        continue
-      }
-      emit.push({ __proto__: null, key: k, value: v })
-    }
-    if (emit.length === 0) {
-      out.push('{}')
-      continue
-    }
-    inPath.add(value)
-    stack.push({ __proto__: null, token: '}', exit: value })
-    for (let i = emit.length - 1; i >= 0; i -= 1) {
-      stack.push({ __proto__: null, value: emit[i].value })
-      stack.push({ __proto__: null, token: `${JSONStringify(emit[i].key)}:` })
-      if (i > 0) {
-        stack.push({ __proto__: null, token: ',' })
-      }
-    }
-    stack.push({ __proto__: null, token: '{' })
+    pushStableValueFrame(frame.value, out, stack, inPath)
   }
 
   return out.join('')
+}
+
+function stringifyScalar(val) {
+  if (val === null) {
+    return 'null'
+  }
+  // JSON.stringify has no representation for undefined, functions, or
+  // symbols. Returning undefined lets the caller omit the object key or
+  // substitute null for the array element, matching native behavior.
+  if (val === undefined) {
+    return undefined
+  }
+
+  const valType = typeof val
+
+  if (valType === 'boolean') {
+    return val ? 'true' : 'false'
+  }
+  if (valType === 'bigint' || valType === 'number' || valType === 'string') {
+    return JSONStringify(val)
+  }
+  if (valType === 'function' || valType === 'symbol') {
+    return undefined
+  }
+
+  if (valType !== 'object') {
+    return JSONStringify(val)
+  }
 }
 
 /**
@@ -159,30 +197,8 @@ function stringifyStable(value, space, opts) {
       val = opts.replacer.call(holder, key, val)
     }
 
-    if (val === null) {
-      return 'null'
-    }
-    // JSON.stringify has no representation for undefined, functions, or
-    // symbols. Returning undefined lets the caller omit the object key or
-    // substitute null for the array element, matching native behavior.
-    if (val === undefined) {
-      return undefined
-    }
-
-    const valType = typeof val
-
-    if (valType === 'boolean') {
-      return val ? 'true' : 'false'
-    }
-    if (valType === 'bigint' || valType === 'number' || valType === 'string') {
-      return JSONStringify(val)
-    }
-    if (valType === 'function' || valType === 'symbol') {
-      return undefined
-    }
-
-    if (valType !== 'object') {
-      return JSONStringify(val)
+    if (val === null || typeof val !== 'object') {
+      return stringifyScalar(val)
     }
 
     if (isRawJSON(val)) {
@@ -197,28 +213,34 @@ function stringifyStable(value, space, opts) {
       throw new TypeError('Converting circular structure to JSON')
     }
 
-    if (ArrayIsArray(val)) {
-      const { length } = val
-      if (length === 0) {
-        return hasSpace && !opts.collapseEmpty ? `[\n${indent}]` : '[]'
-      }
+    return ArrayIsArray(val)
+      ? stringifyArray(val, indent, childIndent)
+      : stringifyObject(val, indent, childIndent)
+  }
 
-      seen.add(val)
-      const joiner = hasSpace ? `,\n${childIndent}` : ','
-      const nextIndent = childIndent + space
-      let result = hasSpace ? `[\n${childIndent}` : '['
-
-      for (let i = 0, j = 0; i < length; i += 1) {
-        const v = stringify(val, String(i), val[i], childIndent, nextIndent)
-        // An array element with no JSON representation serializes as null.
-        result = `${result}${j ? joiner : ''}${v === undefined ? 'null' : v}`
-        j = 1
-      }
-
-      seen.delete(val)
-      return hasSpace ? `${result}\n${indent}]` : `${result}]`
+  function stringifyArray(val, indent, childIndent) {
+    const { length } = val
+    if (length === 0) {
+      return hasSpace && !opts.collapseEmpty ? `[\n${indent}]` : '[]'
     }
 
+    seen.add(val)
+    const joiner = hasSpace ? `,\n${childIndent}` : ','
+    const nextIndent = childIndent + space
+    let result = hasSpace ? `[\n${childIndent}` : '['
+
+    for (let i = 0, j = 0; i < length; i += 1) {
+      const v = stringify(val, String(i), val[i], childIndent, nextIndent)
+      // An array element with no JSON representation serializes as null.
+      result = `${result}${j ? joiner : ''}${v === undefined ? 'null' : v}`
+      j = 1
+    }
+
+    seen.delete(val)
+    return hasSpace ? `${result}\n${indent}]` : `${result}]`
+  }
+
+  function stringifyObject(val, indent, childIndent) {
     // Object - sort keys and emit in exactly that order.
     const keys = ObjectKeys(val)
     const { length } = keys
