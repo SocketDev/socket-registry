@@ -31,7 +31,7 @@ export const GITMODULES_TEXT = `# for-each-v0.3.5 sha256:${'4'.repeat(64)}
 \tverify = none
 `
 
-export const UPSTREAMS: Readonly<Record<string, Upstream>> = {
+export const UPSTREAMS: Readonly<Record<'Raynos-for-each', Upstream>> = {
   'Raynos-for-each': {
     submodule: 'upstream/Raynos-for-each',
     repo: 'https://github.com/Raynos/for-each',

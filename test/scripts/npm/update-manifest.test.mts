@@ -34,7 +34,7 @@ const entry = (
   },
 ]
 
-const previous: Record<string, ManifestEntry[]> = {
+const previous: Record<'npm', ManifestEntry[]> = {
   npm: [
     entry('@socketregistry/abab', 'abab', '1.0.9'),
     entry(
@@ -57,7 +57,7 @@ async function regenerate(
   fetchPackageManifest: (id: string) => Promise<FakeManifest | undefined>,
 ): Promise<{
   fetchFailures: Set<string>
-  next: Record<string, ManifestEntry[]>
+  next: Record<'npm', ManifestEntry[]>
 }> {
   const data: ManifestEntry[] = []
   const fetchFailures = new Set<string>()
@@ -126,7 +126,7 @@ describe('update-manifest — dropped-package guard', () => {
   })
 
   test('failure recorded under the Socket override name also matches', () => {
-    const next: Record<string, ManifestEntry[]> = {
+    const next: Record<'npm', ManifestEntry[]> = {
       npm: [entry('@socketregistry/abab', 'abab', '1.0.9')],
     }
     const report = diffDroppedPackages(
@@ -139,7 +139,7 @@ describe('update-manifest — dropped-package guard', () => {
   })
 
   test('identical package sets produce no drops even when versions moved', () => {
-    const next: Record<string, ManifestEntry[]> = {
+    const next: Record<'npm', ManifestEntry[]> = {
       npm: previous['npm']!.map(([, meta]) =>
         entry(meta['name'] as string, meta['package'] as string, '2.0.0'),
       ),

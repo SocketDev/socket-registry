@@ -12,6 +12,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { safeDelete } from '@socketsecurity/lib-stable/fs/safe'
+import { stringifyWithFormatting } from '@socketsecurity/lib-stable/json/format'
 import { afterEach, describe, expect, test } from 'vitest'
 
 import { runNpmPortProvenanceCheck } from '../../../../scripts/repo/check/npm-port-provenance-is-current.mts'
@@ -36,7 +37,7 @@ interface ScratchRepoOptions {
   // `.gitmodules` contents; omitted means the file is not written at all.
   gitmodules?: string | undefined
   // Lockstep manifest object; defaults to the one wired for-each port.
-  manifest?: unknown
+  manifest?: Record<string, unknown> | undefined
 }
 
 const scratchRoots: string[] = []
@@ -55,7 +56,7 @@ function makeScratchRepo(options?: ScratchRepoOptions | undefined): string {
   }
   writeFileSync(
     path.join(root, '.config', 'repo', 'lockstep.json'),
-    `${JSON.stringify(manifest, undefined, 2)}\n`,
+    stringifyWithFormatting(manifest, { indent: 2, newline: '\n' }),
     'utf8',
   )
   if (opts.gitmodules !== undefined) {
@@ -68,7 +69,10 @@ function makeScratchRepo(options?: ScratchRepoOptions | undefined): string {
   )
   writeFileSync(
     path.join(root, 'test', 'npm', 'package.json'),
-    `${JSON.stringify({ devDependencies: { 'for-each': '0.3.5' } }, undefined, 2)}\n`,
+    stringifyWithFormatting(
+      { devDependencies: { 'for-each': '0.3.5' } },
+      { indent: 2, newline: '\n' },
+    ),
     'utf8',
   )
   return root

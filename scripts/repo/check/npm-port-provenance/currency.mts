@@ -11,7 +11,10 @@ import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 import { measureReleaseCurrency, parseLsRemoteTags } from './records.mts'
 
 import type { NpmPortPin, NpmPortProblem } from './records.mts'
-import type { FileForkRow, Upstream } from '../../../fleet/lockstep/schema.mts'
+import type {
+  FileForkRow,
+  LockstepManifest,
+} from '../../../fleet/lockstep/schema.mts'
 
 export interface NpmPortCurrencyOptions {
   // Tag reader override. Defaults to `git ls-remote --tags`; injected by tests
@@ -39,7 +42,7 @@ export async function listRemoteReleaseTags(
  */
 export async function findNpmPortCurrencyProblems(
   rows: readonly FileForkRow[],
-  upstreams: Readonly<Record<string, Upstream>>,
+  upstreams: Readonly<NonNullable<LockstepManifest['upstreams']>>,
   pins: readonly NpmPortPin[],
   options?: NpmPortCurrencyOptions | undefined,
 ): Promise<NpmPortProblem[]> {
