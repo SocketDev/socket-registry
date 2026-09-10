@@ -100,7 +100,14 @@ export function extractUsesStatements(content: string): UsesStatement[] {
   let match: RegExpExecArray | null
   // biome-ignore lint/suspicious/noAssignInExpressions: Standard regex loop pattern.
   while ((match = usesRegex.exec(content)) !== null) {
-    const [fullMatch, indent, owner, repoPath, ref, comment] = match
+    const {
+      0: fullMatch,
+      1: indent,
+      2: owner,
+      3: repoPath,
+      4: ref,
+      5: comment,
+    } = match
     if (!(fullMatch && indent !== undefined && owner && repoPath && ref)) {
       continue
     }
@@ -231,36 +238,9 @@ export async function processFile(
   return { hasChanges: false }
 }
 
-/**
- * Main function to process all workflow and action files.
- */
-async function main(): Promise<void> {
-  const args = process.argv.slice(2)
-  const dryRun = args.includes('--dry-run')
-  const token = process.env['GITHUB_TOKEN'] || ''
-
-  // Parse --cwd argument.
-  const cwdIndex = args.indexOf('--cwd')
-  const cwdArg = cwdIndex >= 0 ? args[cwdIndex + 1] : undefined
-  const cwd = cwdArg ? path.resolve(cwdArg) : ROOT_PATH
-
-  if (!token) {
-    logger.warn(
-      'No GITHUB_TOKEN found. GitHub API rate limit is 60 requests/hour without authentication.',
-    )
-    logger.warn(
-      'Set GITHUB_TOKEN environment variable to increase limit to 5000 requests/hour.',
-    )
-  }
-
-  if (dryRun) {
-    logger.info('Running in dry-run mode - no files will be modified')
-  }
-
-  if (cwd !== ROOT_PATH) {
-    logger.info(`Working directory: ${cwd}`)
-  }
-
+export async function collectActionReferenceFiles(
+  cwd: string,
+): Promise<string[]> {
   const dotGithubPath = path.join(cwd, '.github')
   const workflowsPath = path.join(dotGithubPath, 'workflows')
   const actionsPath = path.join(dotGithubPath, 'actions')
@@ -303,6 +283,68 @@ async function main(): Promise<void> {
     }
   } catch {}
 
+  return allFiles
+}
+
+function printActionReferenceChanges(
+  processedFiles: Array<{ changes: FileChange[]; file: string }>,
+  cwd: string,
+  options: { dryRun: boolean },
+): void {
+  const opts = { __proto__: null, ...options }
+  const { dryRun } = opts
+  // Display changes.
+  // Destructured loop variable; cached-length rewrite would scatter it.
+  // oxlint-disable-next-line socket/prefer-cached-for-loop -- reserved
+  for (const { changes, file } of processedFiles) {
+    logger.error('')
+    logger.info(`${path.relative(cwd, file)}:`)
+    for (let i = 0, { length } = changes; i < length; i += 1) {
+      const change = changes[i]
+      if (!change) {
+        continue
+      }
+      logger.log(`  ${change.action}@${change.ref} → ${change.sha.slice(0, 7)}`)
+      if (!dryRun) {
+        logger.log(`    - ${change.oldLine}`)
+        logger.log(`    + ${change.newLine.trim()}`)
+      }
+    }
+  }
+}
+
+/**
+ * Main function to process all workflow and action files.
+ */
+async function main(): Promise<void> {
+  const args = process.argv.slice(2)
+  const dryRun = args.includes('--dry-run')
+  const token = process.env['GITHUB_TOKEN'] || ''
+
+  // Parse --cwd argument.
+  const cwdIndex = args.indexOf('--cwd')
+  const cwdArg = cwdIndex >= 0 ? args[cwdIndex + 1] : undefined
+  const cwd = cwdArg ? path.resolve(cwdArg) : ROOT_PATH
+
+  if (!token) {
+    logger.warn(
+      'No GITHUB_TOKEN found. GitHub API rate limit is 60 requests/hour without authentication.',
+    )
+    logger.warn(
+      'Set GITHUB_TOKEN environment variable to increase limit to 5000 requests/hour.',
+    )
+  }
+
+  if (dryRun) {
+    logger.info('Running in dry-run mode - no files will be modified')
+  }
+
+  if (cwd !== ROOT_PATH) {
+    logger.info(`Working directory: ${cwd}`)
+  }
+
+  const allFiles = await collectActionReferenceFiles(cwd)
+
   if (!allFiles.length) {
     logger.warn('No workflow or action files found')
     return
@@ -330,24 +372,7 @@ async function main(): Promise<void> {
     return
   }
 
-  // Display changes.
-  // Destructured loop variable; cached-length rewrite would scatter it.
-  // oxlint-disable-next-line socket/prefer-cached-for-loop -- reserved
-  for (const { changes, file } of processedFiles) {
-    logger.error('')
-    logger.info(`${path.relative(cwd, file)}:`)
-    for (let i = 0, { length } = changes; i < length; i += 1) {
-      const change = changes[i]
-      if (!change) {
-        continue
-      }
-      logger.log(`  ${change.action}@${change.ref} → ${change.sha.slice(0, 7)}`)
-      if (!dryRun) {
-        logger.log(`    - ${change.oldLine}`)
-        logger.log(`    + ${change.newLine.trim()}`)
-      }
-    }
-  }
+  printActionReferenceChanges(processedFiles, cwd, { dryRun })
 
   logger.error('')
   logger.info(
