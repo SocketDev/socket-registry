@@ -25,7 +25,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   })
 
   it('null is not an array', () => {
-    expect(isArray(undefined)).toBe(false)
+    // oxlint-disable-next-line socket/prefer-undefined-over-null -- null is the contract input.
+    expect(isArray(null)).toBe(false)
   })
 
   it('false is not an array', () => {

@@ -38,7 +38,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   })
 
   it('throws on null', () => {
-    expect(() => fromEntries(undefined)).toThrow()
+    // oxlint-disable-next-line socket/prefer-undefined-over-null -- null is the contract input.
+    expect(() => fromEntries(null)).toThrow()
   })
 
   it('works with a duplicate key', () => {

@@ -61,7 +61,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     })
 
     it('transforms null into nothing', () => {
-      expect(qs.stringify({ foo: undefined })).toBe('foo=')
+      // oxlint-disable-next-line socket/prefer-undefined-over-null -- null is the contract input.
+      expect(qs.stringify({ foo: null })).toBe('foo=')
     })
   })
 

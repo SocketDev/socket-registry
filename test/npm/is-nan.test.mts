@@ -23,7 +23,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       })
 
       it('null is not NaN', () => {
-        expect(numberIsNaN(undefined)).toBe(false)
+        // oxlint-disable-next-line socket/prefer-undefined-over-null -- null is the contract input.
+        expect(numberIsNaN(null)).toBe(false)
       })
 
       it('false is not NaN', () => {

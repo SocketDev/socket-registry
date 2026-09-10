@@ -5,7 +5,7 @@
 
 import process from 'node:process'
 
-import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
+import { parseArgs } from 'node:util'
 
 let cliArgs: Record<string, unknown> | undefined
 
@@ -48,10 +48,7 @@ function isPackageTestingSkipped() {
     return false
   }
 
-  // Skip by default in regular runs to keep tests fast.
-  // Use --force flag to run package tests.
-  const args = getCliArgs()
-  return !(args['force'] || process.env['FORCE_TEST'] === '1')
+  return false
 }
 
 export { getCliArgs, isPackageTestingSkipped }

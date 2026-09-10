@@ -20,7 +20,8 @@ describe('hasown', () => {
     })
 
     it('should throw TypeError for null', () => {
-      expect(() => hasOwn(undefined, '')).toThrow(TypeError)
+      // oxlint-disable-next-line socket/prefer-undefined-over-null -- null is the contract input.
+      expect(() => hasOwn(null, '')).toThrow(TypeError)
     })
   })
 

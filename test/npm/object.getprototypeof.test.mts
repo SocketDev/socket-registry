@@ -21,7 +21,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   })
 
   it('throws for null', () => {
-    expect(() => getPrototypeOf(undefined)).toThrow(TypeError)
+    // oxlint-disable-next-line socket/prefer-undefined-over-null -- null is the contract input.
+    expect(() => getPrototypeOf(null)).toThrow(TypeError)
   })
 
   it('returns Boolean.prototype for booleans', () => {
