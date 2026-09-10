@@ -162,7 +162,7 @@ export async function publishAtCommit(
       })
 
   const allPackages = [...npmPackages, registryPackage].filter(pkg =>
-    matchesOnlyFilter(onlyFilter, pkg.name, pkg.printName),
+    matchesOnlyFilter(onlyFilter, pkg.name, { printName: pkg.printName }),
   )
   if (onlyFilter.size) {
     logger.log(
@@ -257,9 +257,13 @@ export async function publishAtCommit(
         '[dry-run] Skipping the manifest.json refresh and its commit; the worktree stays untouched.',
       )
     } else {
-      await spawn('node', ['scripts/repo/npm/update-manifest.mts', '--force'], {
-        shell: WIN32,
-      })
+      await spawn(
+        process.execPath,
+        ['scripts/repo/npm/update-manifest.mts', '--force'],
+        {
+          shell: WIN32,
+        },
+      )
     }
 
     // Commit manifest changes if there are any.

@@ -118,6 +118,16 @@ describe('the only filter', () => {
     expect(matchesOnlyFilter(filter, '@socketregistry/hasown')).toBe(false)
   })
 
+  test('a package matches its explicit display name', () => {
+    const filter = parseOnlyFilter('display-name')
+    expect(matchesOnlyFilter(filter, '@example/package')).toBe(false)
+    expect(
+      matchesOnlyFilter(filter, '@example/package', {
+        printName: 'display-name',
+      }),
+    ).toBe(true)
+  })
+
   test('whitespace separates entries too', () => {
     const filter = parseOnlyFilter('own-keys  es-to-primitive')
     expect(filter.size).toBe(2)

@@ -137,8 +137,9 @@ export function parseOnlyFilter(only: string | undefined): Set<string> {
 export function matchesOnlyFilter(
   filter: Set<string>,
   name: string,
-  printName?: string | undefined,
+  options: { printName?: string | undefined } = {},
 ): boolean {
+  const { printName } = options
   if (!filter.size) {
     return true
   }
