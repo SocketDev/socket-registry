@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /*
- * @file Generates docs/agents.md/repo/npm-high-impact-rankings.md from the
+ * @file Generates docs/repo/agents.md/npm-high-impact-rankings.md from the
  *   catalog-pinned npm-high-impact dataset. Every packages/npm override is
  *   ranked by its position in `npmHighImpact` (downloads-first union list),
  *   `npmTopDownloads`, and `npmTopDependents`; the doc's headline stats and
@@ -30,8 +30,8 @@ const logger = getDefaultLogger()
 export const RANKINGS_DOC_PATH = path.join(
   ROOT_PATH,
   'docs',
-  'agents.md',
   'repo',
+  'agents.md',
   'npm-high-impact-rankings.md',
 )
 
