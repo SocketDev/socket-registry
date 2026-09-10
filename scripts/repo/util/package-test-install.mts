@@ -12,7 +12,7 @@ import os from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
 
-import { WIN32 } from '@socketsecurity/lib-stable/constants/platform'
+import { isWin32 } from '@socketsecurity/lib-stable/constants/platform'
 import { readPackageJson } from '@socketsecurity/lib-stable/packages/read'
 
 import { cleanTestScript } from './script-cleaning.mts'
@@ -191,7 +191,7 @@ export async function installPackageForTesting(
       recursive: true,
       dereference: true,
       errorOnExist: false,
-      ...(WIN32 ? { retryDelay: 100, maxRetries: 3 } : {}),
+      ...(isWin32() ? { retryDelay: 100, maxRetries: 3 } : {}),
       filter: src =>
         !src.includes('node_modules') && !src.endsWith('.DS_Store'),
     })
@@ -296,7 +296,7 @@ export async function spawnCapture(
   try {
     const result = await spawn(command, args, {
       stdio: 'pipe',
-      shell: WIN32,
+      shell: isWin32(),
       ...options,
     })
     return { stdout: result.stdout, stderr: result.stderr }

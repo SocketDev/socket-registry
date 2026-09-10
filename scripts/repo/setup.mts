@@ -11,7 +11,7 @@ import { mkdir, open, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
 
-import { WIN32 } from '@socketsecurity/lib-stable/constants/platform'
+import { isWin32 } from '@socketsecurity/lib-stable/constants/platform'
 import { isErrnoException } from '@socketsecurity/lib-stable/errors/predicates'
 import { safeDelete } from '@socketsecurity/lib-stable/fs/safe'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
@@ -157,7 +157,7 @@ export async function downloadAndVerify(
   }
 
   const { version } = config
-  const binaryName = WIN32 ? `${tool}.exe` : tool
+  const binaryName = isWin32() ? `${tool}.exe` : tool
   const cachePath = getToolCachePath(tool, version)
   const binaryPath = path.join(cachePath, binaryName)
 
@@ -203,7 +203,7 @@ export async function downloadAndVerify(
       const result = await spawn(
         'curl',
         ['-fSL', '--retry', '3', '-o', archivePath, url],
-        { stdio: quiet ? 'pipe' : 'inherit', shell: WIN32 },
+        { stdio: quiet ? 'pipe' : 'inherit', shell: isWin32() },
       )
       if ((result.code ?? 0) !== 0) {
         throw new Error(`Download failed: ${url}`)
@@ -224,14 +224,14 @@ export async function downloadAndVerify(
       log.step('Extracting…')
       if (assetName.endsWith('.zip')) {
         const unzipResult = await spawn(
-          WIN32 ? 'powershell' : 'unzip',
-          WIN32
+          isWin32() ? 'powershell' : 'unzip',
+          isWin32()
             ? [
                 '-Command',
                 `Expand-Archive -Path '${archivePath}' -DestinationPath '${tmpDir}' -Force`,
               ]
             : ['-q', '-o', archivePath, '-d', tmpDir],
-          { stdio: 'pipe', shell: WIN32 },
+          { stdio: 'pipe', shell: isWin32() },
         )
         if ((unzipResult.code ?? 0) !== 0) {
           throw new Error(`Extraction failed for ${archivePath}`)
@@ -240,7 +240,7 @@ export async function downloadAndVerify(
         const tarResult = await spawn(
           'tar',
           ['xf', archivePath, '-C', tmpDir],
-          { stdio: 'pipe', shell: WIN32 },
+          { stdio: 'pipe', shell: isWin32() },
         )
         if ((tarResult.code ?? 0) !== 0) {
           throw new Error(`Extraction failed for ${archivePath}`)
@@ -256,7 +256,7 @@ export async function downloadAndVerify(
 
       const { copyFile, chmod } = await import('node:fs/promises')
       await copyFile(extractedBinary, path.join(cachePath, binaryName))
-      if (!WIN32) {
+      if (!isWin32()) {
         await chmod(path.join(cachePath, binaryName), 0o755)
       }
       await writeFile(path.join(cachePath, '.integrity'), expectedIntegrity)

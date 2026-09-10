@@ -5,7 +5,7 @@
 import { mkdtempSync, promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import parseArgsModule from '@socketsecurity/lib-stable/argv/parse'
+import { parseArgs } from '../util/parse-args.mts'
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { errorStack } from '@socketsecurity/lib-stable/errors/stack'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
@@ -16,7 +16,6 @@ import process from 'node:process'
 import { isMainModule } from '../../fleet/process/is-main-module.mts'
 import { ROOT_PATH } from '../constants/paths.mts'
 
-const { parseArgs } = parseArgsModule
 const logger = getDefaultLogger()
 const { spawn } = spawnModule
 

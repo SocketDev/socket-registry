@@ -11,7 +11,7 @@ import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 
-import { WIN32 } from '@socketsecurity/lib-stable/constants/platform'
+import { isWin32 } from '@socketsecurity/lib-stable/constants/platform'
 import { isErrnoException } from '@socketsecurity/lib-stable/errors/predicates'
 import { readPackageJson } from '@socketsecurity/lib-stable/packages/read'
 import { pEach } from '@socketsecurity/lib-stable/promises/iterate'
@@ -141,7 +141,7 @@ export async function copySocketOverride(
         !(excludePackageJson && src.endsWith('package.json')),
       force: true,
       recursive: true,
-      ...(WIN32 ? { maxRetries: 3, retryDelay: 100 } : {}),
+      ...(isWin32() ? { maxRetries: 3, retryDelay: 100 } : {}),
     })
   } catch (e) {
     if (

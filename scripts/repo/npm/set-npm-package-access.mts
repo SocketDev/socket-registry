@@ -3,8 +3,9 @@
  */
 
 import path from 'node:path'
-import { execNpm } from '@socketsecurity/lib-stable/eco/npm/npm/exec'
-import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
+import { isWin32 } from '@socketsecurity/lib-stable/constants/platform'
+import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
+import { parseArgs } from '../util/parse-args.mts'
 import { joinAnd } from '@socketsecurity/lib-stable/arrays/join'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { isSpawnError } from '@socketsecurity/lib-stable/process/spawn/errors'
@@ -110,8 +111,10 @@ async function main(): Promise<void> {
       async pkg => {
         try {
           const stdout = (
-            await execNpm(['access', 'set', 'mfa=automation', pkg.name], {
+            await spawn('npm', ['access', 'set', 'mfa=automation', pkg.name], {
               cwd: pkg.path,
+              shell: isWin32(),
+              stdioString: true,
             })
           ).stdout
           logger.log(stdout)

@@ -11,7 +11,7 @@ import path from 'node:path'
 
 import { gt } from '@socketsecurity/lib-stable/versions/compare'
 
-import { parseConventionalCommits } from '../../fleet/lib/changelog.mts'
+import { parseChangelogCommits } from '../../fleet/changelog/commits.mts'
 import {
   deriveReleaseCommits as deriveAnchoredReleaseCommits,
   lastReleaseTag,
@@ -129,7 +129,7 @@ export async function deriveSubjectRelease(config: {
     return {
       anchor,
       base: published,
-      commits: parseConventionalCommits(await readCommitStream(anchor, cwd)),
+      commits: parseChangelogCommits(await readCommitStream(anchor, cwd)),
       fromTag,
       publishedVersion: published,
     }
