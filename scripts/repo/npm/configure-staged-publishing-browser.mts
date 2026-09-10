@@ -129,7 +129,12 @@ export async function fetchJsonInPage(
         headers: { accept: 'application/json', 'x-spiferack': '1' },
         method: 'GET',
       })
-      return { body: await r.text(), fetchUrl: r.url, status: r.status }
+      return {
+        __proto__: null,
+        body: await r.text(),
+        fetchUrl: r.url,
+        status: r.status,
+      }
     }, url)
   } catch {
     return { body: '', fetchUrl: '', status: 0 }

@@ -272,6 +272,18 @@ export function hasSignInMarkers(body: string): boolean {
   )
 }
 
+function hasReadySettingsPayload(
+  body: string,
+  probe: AccessPageProbe,
+): boolean {
+  return (
+    probe.status === 200 &&
+    hasSettingsPayloadMarkers(body) &&
+    !hasDecisiveTwoFactorMarkers(body) &&
+    isAccessPageUrl(probe.fetchUrl ?? probe.pageUrl)
+  )
+}
+
 /**
  * Classify one probe of the access page.
  *
@@ -304,12 +316,7 @@ export function classifyAccessPageReadiness(
   if (cfg.status === 0) {
     return 'unsettled'
   }
-  if (
-    cfg.status === 200 &&
-    hasSettingsPayloadMarkers(body) &&
-    !hasDecisiveTwoFactorMarkers(body) &&
-    isAccessPageUrl(cfg.fetchUrl ?? cfg.pageUrl)
-  ) {
+  if (hasReadySettingsPayload(body, cfg)) {
     return 'ready'
   }
   if (hasHumanVerificationMarkers(body)) {
