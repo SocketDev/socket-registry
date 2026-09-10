@@ -29,5 +29,11 @@
         "reason": "Attested commit 5bf88a0b has no v2.0.1 or bare 2.0.1 tag on origin at all. Same frozen-history shape as 2.0.2."
       }
     ]
+  },
+  "coverage": {
+    "include": [
+      "registry/src/**/*.{ts,mts,cts}",
+      "packages/npm/**/*.{js,cjs,mjs}"
+    ]
   }
 }
