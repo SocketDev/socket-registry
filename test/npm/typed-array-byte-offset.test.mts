@@ -40,7 +40,6 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     it('returns false for objects', () => {
       expect(typedArrayByteOffset({})).toBe(false)
       expect(typedArrayByteOffset(/a/g)).toBe(false)
-      expect(typedArrayByteOffset(new RegExp('a', 'g'))).toBe(false)
       expect(typedArrayByteOffset(new Date())).toBe(false)
     })
 

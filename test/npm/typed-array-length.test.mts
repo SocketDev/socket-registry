@@ -40,7 +40,6 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     it('returns false for objects', () => {
       expect(typedArrayLength({})).toBe(false)
       expect(typedArrayLength(/a/g)).toBe(false)
-      expect(typedArrayLength(new RegExp('a', 'g'))).toBe(false)
       expect(typedArrayLength(new Date())).toBe(false)
     })
 

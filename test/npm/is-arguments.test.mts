@@ -48,9 +48,9 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       })()
     })
 
-    it('sliced arguments is not arguments', () => {
+    it('copied arguments is not arguments', () => {
       ;(function () {
-        expect(isArguments(Array.prototype.slice.call(arguments))).toBe(false)
+        expect(isArguments(Array.from(arguments))).toBe(false)
       })()
     })
   })

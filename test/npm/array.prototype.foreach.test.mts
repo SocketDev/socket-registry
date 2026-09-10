@@ -121,7 +121,7 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       arrayLike[arrayLike['length']] = a + 3
       arrayLike['length'] += 1
     })
-    expect(Array.prototype.slice.call(arrayLike)).toEqual([1, 2, 3, 4, 5, 6])
+    expect(Array.from(arrayLike)).toEqual([1, 2, 3, 4, 5, 6])
     expect(i).toBe(3)
   })
 

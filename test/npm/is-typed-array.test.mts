@@ -50,10 +50,6 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
       expect(isTypedArray(/a/g)).toBe(false)
     })
 
-    it('regex object is not typed array', () => {
-      expect(isTypedArray(new RegExp('a', 'g'))).toBe(false)
-    })
-
     it('new Date() is not typed array', () => {
       expect(isTypedArray(new Date())).toBe(false)
     })
