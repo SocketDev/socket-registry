@@ -10,6 +10,7 @@ import colors from 'yoctocolors-cjs'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
 import { isMainModule } from '../fleet/process/is-main-module.mts'
+import { runMain } from '../fleet/process/run-main.mts'
 import { runCommand } from '../fleet/util/run-command.mts'
 import { REGISTRY_PKG_PATH } from './constants/paths.mts'
 
@@ -46,8 +47,16 @@ async function main(): Promise<void> {
 }
 
 if (isMainModule(import.meta.url)) {
-  main().catch((e: unknown) => {
-    logger.error(colors.red('✗ Build failed:'), e)
-    process.exitCode = 1
-  })
+  runMain(
+    async () => {
+      await main().catch((e: unknown) => {
+        logger.error(colors.red('✗ Build failed:'), e)
+        process.exitCode = 1
+      })
+    },
+    {
+      describe: 'builds the registry package',
+      help: 'Usage: pnpm build [--src] [--types] [--watch] [--needed] [--quiet]',
+    },
+  )
 }

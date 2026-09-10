@@ -12,6 +12,7 @@ import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import fastGlob from 'fast-glob'
 
 import { isMainModule } from '../fleet/process/is-main-module.mts'
+import { runMain } from '../fleet/process/run-main.mts'
 import { PERF_NPM_PATH } from './constants/paths.mts'
 
 const logger = getDefaultLogger()
@@ -28,8 +29,16 @@ async function main(): Promise<void> {
 }
 
 if (isMainModule(import.meta.url)) {
-  main().catch((e: unknown) => {
-    logger.error(e)
-    process.exitCode = 1
-  })
+  runMain(
+    async () => {
+      await main().catch((e: unknown) => {
+        logger.error(e)
+        process.exitCode = 1
+      })
+    },
+    {
+      describe: 'runs registry package performance tests',
+      help: 'Usage: pnpm perf',
+    },
+  )
 }

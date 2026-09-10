@@ -43,7 +43,15 @@
         "test/registry/scripts/declarations.test.mts",
         "test/helpers/**/*.test.mts",
         "test/scripts/repo/check/override-lanes-match.test.mts",
-        "test/fleet/integration/**/*.test.mts"
+        "test/fleet/integration/**/*.test.mts",
+        "test/scripts/repo/build.test.mts",
+        "test/scripts/repo/bump.test.mts",
+        "test/scripts/repo/clean.test.mts",
+        "test/scripts/repo/fuzz.test.mts",
+        "test/scripts/repo/perf.test.mts",
+        "test/scripts/repo/setup.test.mts",
+        "test/scripts/repo/update-external-tools.test.mts",
+        "test/scripts/repo/update.test.mts"
       ],
       "slow": ["test/fleet/e2e/**/*.test.mts"]
     }

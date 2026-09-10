@@ -73,5 +73,8 @@ export async function main(): Promise<number> {
 }
 
 if (isMainModule(import.meta.url)) {
-  runMain(main)
+  runMain(main, {
+    describe: 'updates dependencies and the registry manifest',
+    help: 'Usage: pnpm update [fleet update options]',
+  })
 }

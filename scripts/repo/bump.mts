@@ -43,6 +43,7 @@ import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { gt } from '@socketsecurity/lib-stable/versions/compare'
 
 import { isMainModule } from '../fleet/process/is-main-module.mts'
+import { runMain } from '../fleet/process/run-main.mts'
 import { replaceVersion } from '../fleet/bump/manifest-write.mts'
 import {
   changelogCommitBumpLevel,
@@ -420,8 +421,16 @@ async function main(): Promise<void> {
 }
 
 if (isMainModule(import.meta.url)) {
-  main().catch((e: unknown) => {
-    logger.error(e)
-    process.exitCode = 1
-  })
+  runMain(
+    async () => {
+      await main().catch((e: unknown) => {
+        logger.error(e)
+        process.exitCode = 1
+      })
+    },
+    {
+      describe: 'prepares a registry release version',
+      help: 'Usage: pnpm bump [--dry-run] [--release-as <level>] [--write-only] [--empty-changelog-entry <text>]',
+    },
+  )
 }

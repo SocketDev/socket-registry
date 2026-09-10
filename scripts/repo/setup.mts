@@ -18,6 +18,7 @@ import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 
 import { isMainModule } from '../fleet/process/is-main-module.mts'
+import { runMain } from '../fleet/process/run-main.mts'
 import { REPO_CACHE_DIR } from '../fleet/paths.mts'
 import { EXTERNAL_TOOLS_CONFIG_PATH } from './constants/paths.mts'
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
@@ -320,8 +321,16 @@ async function main(): Promise<void> {
 }
 
 if (isMainModule(import.meta.url)) {
-  main().catch((e: unknown) => {
-    logger.error(e)
-    process.exitCode = 1
-  })
+  runMain(
+    async () => {
+      await main().catch((e: unknown) => {
+        logger.error(e)
+        process.exitCode = 1
+      })
+    },
+    {
+      describe: 'installs verified registry external tools',
+      help: 'Usage: pnpm setup [--quiet]',
+    },
+  )
 }

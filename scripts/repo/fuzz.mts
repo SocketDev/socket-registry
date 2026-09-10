@@ -26,6 +26,7 @@ import { spawnSync } from '@socketsecurity/lib-stable/process/spawn/child'
 import type { SpawnSyncOptions } from '@socketsecurity/lib-stable/process/spawn/types'
 
 import { isMainModule } from '../fleet/process/is-main-module.mts'
+import { runMain } from '../fleet/process/run-main.mts'
 
 const logger = getDefaultLogger()
 
@@ -130,7 +131,7 @@ export function sweepOrphanedShmSegments(): void {
   }
 }
 
-if (isMainModule(import.meta.url)) {
+function main(): void {
   sweepOrphanedShmSegments()
 
   // Sync required: top-level CLI runner, exits with the child's code.
@@ -150,4 +151,11 @@ if (isMainModule(import.meta.url)) {
   ) as { status?: number | null | undefined }
 
   process.exit(result.status ?? 1)
+}
+
+if (isMainModule(import.meta.url)) {
+  runMain(main, {
+    describe: 'runs registry fuzz tests',
+    help: 'Usage: pnpm fuzz [vitest options]',
+  })
 }

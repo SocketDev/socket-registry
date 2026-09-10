@@ -12,6 +12,7 @@ import { createSectionHeader } from '@socketsecurity/lib-stable/stdio/header'
 import { deleteAsync } from 'del'
 import fastGlob from 'fast-glob'
 import { isMainModule } from '../fleet/process/is-main-module.mts'
+import { runMain } from '../fleet/process/run-main.mts'
 
 const logger = getDefaultLogger()
 
@@ -235,8 +236,16 @@ async function main(): Promise<void> {
 }
 
 if (isMainModule(import.meta.url)) {
-  main().catch((e: unknown) => {
-    logger.error(e)
-    process.exitCode = 1
-  })
+  runMain(
+    async () => {
+      await main().catch((e: unknown) => {
+        logger.error(e)
+        process.exitCode = 1
+      })
+    },
+    {
+      describe: 'cleans registry build and cache files',
+      help: 'Usage: pnpm clean [options]\n--all  Clean everything except node_modules\n--cache  Clean caches\n--coverage  Clean coverage reports\n--dist  Clean build output\n--types  Clean declarations\n--modules  Clean node_modules\n--quiet, --silent  Suppress progress',
+    },
+  )
 }
