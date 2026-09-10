@@ -4,34 +4,22 @@
 // minimally-edited copy of the upstream commonjs-assert algorithm below.
 const {
   $Set,
-  $getTime,
   $mapGet,
   $mapHas,
   $mapSize,
-  $objToString,
   $setAdd,
   $setDelete,
   $setHas,
   $setSize,
   assign,
-  byteLength,
-  flags,
-  gPO,
   getIterator,
   getSideChannel,
   is,
-  isArguments,
-  isArray,
-  isArrayBuffer,
-  isDate,
-  isRegex,
-  isSharedArrayBuffer,
   objectKeys,
-  sabByteLength,
   whichBoxedPrimitive,
   whichCollection,
-  whichTypedArray,
 } = /*@__PURE__*/ require('./external/natives')
+const { binaryObjectEquiv, sameObjectTypes } = require('./object-types')
 
 // taken from https://github.com/browserify/commonjs-assert/blob/bba838e9ba9e28edf3127ce6974624208502f6bc/internal/util/comparisons.js#L416-L439
 function findLooseMatchingPrimitives(prim) {
@@ -106,21 +94,6 @@ function internalDeepEqual(actual, expected, options, channel) {
   return objEquiv(actual, expected, opts, channel)
 }
 
-function isBuffer(x) {
-  if (!x || typeof x !== 'object' || typeof x.length !== 'number') {
-    return false
-  }
-  if (typeof x.copy !== 'function' || typeof x.slice !== 'function') {
-    return false
-  }
-  if (x.length > 0 && typeof x[0] !== 'number') {
-    return false
-  }
-
-  const Ctor = x.constructor
-  return !!(typeof Ctor?.isBuffer === 'function' && Ctor.isBuffer(x))
-}
-
 function mapEquiv(a, b, options, channel) {
   options = { __proto__: null, ...options }
   if ($mapSize(a) !== $mapSize(b)) {
@@ -129,7 +102,6 @@ function mapEquiv(a, b, options, channel) {
   const iA = getIterator(a)
   const iB = getIterator(b)
   let resultA
-  let resultB
   let set
   let key
   let item1
@@ -137,7 +109,7 @@ function mapEquiv(a, b, options, channel) {
   while ((resultA = iA.next()) && !resultA.done) {
     key = resultA.value[0]
     item1 = resultA.value[1]
-    if (key && typeof key === 'object') {
+    if (key !== null && typeof key === 'object') {
       if (!set) {
         set = new $Set()
       }
@@ -163,30 +135,7 @@ function mapEquiv(a, b, options, channel) {
   }
 
   if (set) {
-    while ((resultB = iB.next()) && !resultB.done) {
-      key = resultB.value[0]
-      item2 = resultB.value[1]
-      if (key && typeof key === 'object') {
-        if (!mapHasEqualEntry(set, a, key, item2, options, channel)) {
-          return false
-        }
-      } else if (
-        !options.strict &&
-        (!a.has(key) ||
-          !internalDeepEqual($mapGet(a, key), item2, options, channel)) &&
-        !mapHasEqualEntry(
-          set,
-          a,
-          key,
-          item2,
-          assign({}, options, { strict: false }),
-          channel,
-        )
-      ) {
-        return false
-      }
-    }
-    return $setSize(set) === 0
+    return mapMatchPendingEntries(set, a, iB, options, channel, options.strict)
   }
   return true
 }
@@ -210,6 +159,36 @@ function mapHasEqualEntry(set, map, key1, item1, options, channel) {
   }
 
   return false
+}
+
+function mapMatchPendingEntries(set, a, iB, options, channel, strict) {
+  let resultB
+  let key
+  let item2
+  while ((resultB = iB.next()) && !resultB.done) {
+    key = resultB.value[0]
+    item2 = resultB.value[1]
+    if (key !== null && typeof key === 'object') {
+      if (!mapHasEqualEntry(set, a, key, item2, options, channel)) {
+        return false
+      }
+    } else if (
+      !strict &&
+      (!a.has(key) ||
+        !internalDeepEqual($mapGet(a, key), item2, options, channel)) &&
+      !mapHasEqualEntry(
+        set,
+        a,
+        key,
+        item2,
+        assign({}, options, { strict: false }),
+        channel,
+      )
+    ) {
+      return false
+    }
+  }
+  return $setSize(set) === 0
 }
 
 // taken from https://github.com/browserify/commonjs-assert/blob/bba838e9ba9e28edf3127ce6974624208502f6bc/internal/util/comparisons.js#L449-L460
@@ -238,131 +217,12 @@ function objEquiv(a, b, options, channel) {
   options = { __proto__: null, ...options }
   let i, key
 
-  if (typeof a !== typeof b) {
+  if (!sameObjectTypes(a, b, options.strict)) {
     return false
   }
-  if (a == null || b == null) {
-    return false
-  }
-
-  if ($objToString(a) !== $objToString(b)) {
-    return false
-  }
-
-  if (isArguments(a) !== isArguments(b)) {
-    return false
-  }
-
-  const aIsArray = isArray(a)
-  const bIsArray = isArray(b)
-  if (aIsArray !== bIsArray) {
-    return false
-  }
-
-  const aIsError = a instanceof Error
-  const bIsError = b instanceof Error
-  if (aIsError !== bIsError) {
-    return false
-  }
-  if (aIsError || bIsError) {
-    if (a.name !== b.name || a.message !== b.message) {
-      return false
-    }
-  }
-
-  const aIsRegex = isRegex(a)
-  const bIsRegex = isRegex(b)
-  if (aIsRegex !== bIsRegex) {
-    return false
-  }
-  if (
-    (aIsRegex || bIsRegex) &&
-    (a.source !== b.source || flags(a) !== flags(b))
-  ) {
-    return false
-  }
-
-  const aIsDate = isDate(a)
-  const bIsDate = isDate(b)
-  if (aIsDate !== bIsDate) {
-    return false
-  }
-  if (aIsDate || bIsDate) {
-    // && would work too, because both are true or both false here
-    if ($getTime(a) !== $getTime(b)) {
-      return false
-    }
-  }
-  if (options.strict && gPO && gPO(a) !== gPO(b)) {
-    return false
-  }
-
-  const aWhich = whichTypedArray(a)
-  const bWhich = whichTypedArray(b)
-  if (aWhich !== bWhich) {
-    return false
-  }
-  if (aWhich || bWhich) {
-    // && would work too, because both are true or both false here
-    if (a.length !== b.length) {
-      return false
-    }
-    for (i = 0; i < a.length; i++) {
-      if (a[i] !== b[i]) {
-        return false
-      }
-    }
-    return true
-  }
-
-  const aIsBuffer = isBuffer(a)
-  const bIsBuffer = isBuffer(b)
-  if (aIsBuffer !== bIsBuffer) {
-    return false
-  }
-  if (aIsBuffer || bIsBuffer) {
-    // && would work too, because both are true or both false here
-    if (a.length !== b.length) {
-      return false
-    }
-    for (i = 0; i < a.length; i++) {
-      if (a[i] !== b[i]) {
-        return false
-      }
-    }
-    return true
-  }
-
-  const aIsArrayBuffer = isArrayBuffer(a)
-  const bIsArrayBuffer = isArrayBuffer(b)
-  if (aIsArrayBuffer !== bIsArrayBuffer) {
-    return false
-  }
-  if (aIsArrayBuffer || bIsArrayBuffer) {
-    // && would work too, because both are true or both false here
-    if (byteLength(a) !== byteLength(b)) {
-      return false
-    }
-    return (
-      typeof Uint8Array === 'function' &&
-      internalDeepEqual(new Uint8Array(a), new Uint8Array(b), options, channel)
-    )
-  }
-
-  const aIsSAB = isSharedArrayBuffer(a)
-  const bIsSAB = isSharedArrayBuffer(b)
-  if (aIsSAB !== bIsSAB) {
-    return false
-  }
-  if (aIsSAB || bIsSAB) {
-    // && would work too, because both are true or both false here
-    if (sabByteLength(a) !== sabByteLength(b)) {
-      return false
-    }
-    return (
-      typeof Uint8Array === 'function' &&
-      internalDeepEqual(new Uint8Array(a), new Uint8Array(b), options, channel)
-    )
+  const binary = binaryObjectEquiv(a, b, options, channel, internalDeepEqual)
+  if (binary !== undefined) {
+    return binary
   }
 
   if (typeof a !== typeof b) {
@@ -419,7 +279,6 @@ function setEquiv(a, b, options, channel) {
   const iA = getIterator(a)
   const iB = getIterator(b)
   let resultA
-  let resultB
   let set
   while ((resultA = iA.next()) && !resultA.done) {
     if (resultA.value && typeof resultA.value === 'object') {
@@ -441,21 +300,7 @@ function setEquiv(a, b, options, channel) {
     }
   }
   if (set) {
-    while ((resultB = iB.next()) && !resultB.done) {
-      // We have to check if a primitive value is already matching and only if it's not, go hunting for it.
-      if (resultB.value && typeof resultB.value === 'object') {
-        if (!setHasEqualElement(set, resultB.value, options.strict, channel)) {
-          return false
-        }
-      } else if (
-        !options.strict &&
-        !$setHas(a, resultB.value) &&
-        !setHasEqualElement(set, resultB.value, options.strict, channel)
-      ) {
-        return false
-      }
-    }
-    return $setSize(set) === 0
+    return setMatchPendingEntries(set, a, iB, options.strict, channel)
   }
   return true
 }
@@ -474,6 +319,25 @@ function setHasEqualElement(set, val1, options, channel) {
   }
 
   return false
+}
+
+function setMatchPendingEntries(set, a, iB, strict, channel) {
+  let resultB
+  while ((resultB = iB.next()) && !resultB.done) {
+    // We have to check if a primitive value is already matching and only if it's not, go hunting for it.
+    if (resultB.value && typeof resultB.value === 'object') {
+      if (!setHasEqualElement(set, resultB.value, strict, channel)) {
+        return false
+      }
+    } else if (
+      !strict &&
+      !$setHas(a, resultB.value) &&
+      !setHasEqualElement(set, resultB.value, strict, channel)
+    ) {
+      return false
+    }
+  }
+  return $setSize(set) === 0
 }
 
 // taken from https://github.com/browserify/commonjs-assert/blob/bba838e9ba9e28edf3127ce6974624208502f6bc/internal/util/comparisons.js#L441-L447

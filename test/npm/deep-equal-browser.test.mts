@@ -221,6 +221,41 @@ describe(`${eco} > ${sockRegPkgName} (portable branch)`, { skip }, () => {
     })
   })
 
+  it('matches loose null collection entries without losing object matches', () => {
+    const leftMap = new Map<unknown, unknown>([
+      [null, 'entry'],
+      [{ key: 1 }, 2],
+    ])
+    const rightMap = new Map<unknown, unknown>([
+      [{ key: 1 }, 2],
+      [undefined, 'entry'],
+    ])
+    expect(loose(leftMap, rightMap)).toBe(true)
+    expect(strict(leftMap, rightMap)).toBe(false)
+    const leftSet = new Set<unknown>().add(null).add({ key: 1 })
+    const rightSet = new Set<unknown>().add({ key: 1 }).add(undefined)
+    expect(loose(leftSet, rightSet)).toBe(true)
+    expect(strict(leftSet, rightSet)).toBe(false)
+  })
+
+  it('reads corresponding object values in descending key order', () => {
+    const events: string[] = []
+    function createValue(label: string) {
+      return {
+        get a() {
+          events.push(`${label}:a`)
+          return 1
+        },
+        get z() {
+          events.push(`${label}:z`)
+          return 2
+        },
+      }
+    }
+    expect(loose(createValue('left'), createValue('right'))).toBe(true)
+    expect(events).toEqual(['left:z', 'right:z', 'left:a', 'right:a'])
+  })
+
   describe('circular references', () => {
     it('handles self-referential structures without overflow', () => {
       const a: Record<string, unknown> = { foo: 1 }
