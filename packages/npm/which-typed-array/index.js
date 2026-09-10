@@ -20,6 +20,7 @@ const attempters = [
     const getter = Ctor.prototype.__lookupGetter__(Symbol.toStringTag)
     const expected = getter.call(new Ctor())
     return {
+      __proto__: null,
       name,
       check(value) {
         try {

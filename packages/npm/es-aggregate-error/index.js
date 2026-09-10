@@ -2,13 +2,6 @@
 
 const Impl = require('./implementation')
 
-function EsAggregateError(errors, message) {
-  // The function call AggregateError(…) is equivalent to the object creation
-  // expression new AggregateError(…) with the same arguments.
-  // https://tc39.es/ecma262/#sec-aggregate-error-constructor
-  return new Impl(errors, message)
-}
-
 function desc(value, configurable = true, writable = true) {
   return {
     __proto__: null,
@@ -16,6 +9,13 @@ function desc(value, configurable = true, writable = true) {
     value,
     writable,
   }
+}
+
+function EsAggregateError(errors, message) {
+  // The function call AggregateError(…) is equivalent to the object creation
+  // expression new AggregateError(…) with the same arguments.
+  // https://tc39.es/ecma262/#sec-aggregate-error-constructor
+  return new Impl(errors, message)
 }
 
 // The %AggregateError.prototype% is a plain object
