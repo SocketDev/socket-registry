@@ -2,6 +2,8 @@
  * @file Tests for indent-string NPM package override.
  */
 
+import path from 'node:path'
+
 import { describe, expect, it } from 'vitest'
 
 import { setupNpmPackageTest } from '../util/npm-package.mts'
@@ -9,6 +11,7 @@ import { setupNpmPackageTest } from '../util/npm-package.mts'
 const {
   eco,
   module: indentString,
+  pkgPath,
   skip,
   sockRegPkgName,
 } = setupNpmPackageTest(import.meta.url)
@@ -63,4 +66,34 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
   it('supports the v1/v2 two-arg (input, indent) form', () => {
     expect(indentString('a', '>')).toBe('>a')
   })
+
+  it('validates count and indent before returning unchanged zero-count input', () => {
+    expect(() => indentString('example', 'invalid', {})).toThrow(TypeError)
+    expect(() => indentString('example', -1, { indent: null })).toThrow(
+      RangeError,
+    )
+    expect(() => indentString('example', 0, { indent: null })).toThrow(
+      TypeError,
+    )
+  })
+
+  it.each(['index.cjs', 'index.js'])(
+    'reads option getters before validating input through %s',
+    entry => {
+      const indentEntry = require(path.join(pkgPath, entry))
+      const reads: string[] = []
+      const options = {
+        get includeEmptyLines() {
+          reads.push('includeEmptyLines')
+          return true
+        },
+        get indent() {
+          reads.push('indent')
+          return '>'
+        },
+      }
+      expect(() => indentEntry(null, 1, options)).toThrow(TypeError)
+      expect(reads).toStrictEqual(['includeEmptyLines', 'indent'])
+    },
+  )
 })

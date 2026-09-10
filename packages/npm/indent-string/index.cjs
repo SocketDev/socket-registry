@@ -41,6 +41,15 @@ module.exports = function indentString(input, count, options) {
     // Every upstream major defaults count to 1.
     count = 1
   }
+  validateIndentArguments(count, indent)
+  if (count === 0) {
+    return input
+  }
+  const regex = includeEmptyLines ? /^/gm : /^(?!\s*$)/gm
+  return input.replace(regex, () => indent.repeat(count))
+}
+
+function validateIndentArguments(count, indent) {
   if (typeof count !== 'number') {
     throw new TypeError(
       `Expected \`count\` to be a \`number\`, got \`${typeof count}\``,
@@ -56,9 +65,4 @@ module.exports = function indentString(input, count, options) {
       `Expected \`options.indent\` to be a \`string\`, got \`${typeof indent}\``,
     )
   }
-  if (count === 0) {
-    return input
-  }
-  const regex = includeEmptyLines ? /^/gm : /^(?!\s*$)/gm
-  return input.replace(regex, () => indent.repeat(count))
 }
