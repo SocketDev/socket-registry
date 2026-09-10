@@ -15,7 +15,7 @@ import path from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
-import { setupNpmPackageTest } from '../util/npm-package-helper.mts'
+import { setupNpmPackageTest } from '../util/npm-package.mts'
 
 type DeepEqual = (a: unknown, b: unknown, options?: unknown) => boolean
 

@@ -36,7 +36,7 @@ function writeOverride(name: string, files: Record<string, string>): void {
 }
 
 test('missing overrides fail instead of silently skipping', async () => {
-  const { setupNpmPackageTest } = await import('../util/npm-package-helper.mts')
+  const { setupNpmPackageTest } = await import('../util/npm-package.mts')
   expect(() =>
     setupNpmPackageTest(import.meta.url, { package: 'example-missing' }),
   ).toThrow()
@@ -46,7 +46,7 @@ test('broken primary overrides fail instead of silently skipping', async () => {
   writeOverride('example-broken', {
     'index.js': "throw new Error('example load failure')",
   })
-  const { setupNpmPackageTest } = await import('../util/npm-package-helper.mts')
+  const { setupNpmPackageTest } = await import('../util/npm-package.mts')
   expect(() =>
     setupNpmPackageTest(import.meta.url, { package: 'example-broken' }),
   ).toThrow()
@@ -60,7 +60,7 @@ test('broken sibling lanes fail instead of silently losing their coverage', asyn
     'index.cjs': 'module.exports = () => 42',
     'index.js': "throw new Error('example sibling failure')",
   })
-  const { setupNpmPackageTest } = await import('../util/npm-package-helper.mts')
+  const { setupNpmPackageTest } = await import('../util/npm-package.mts')
   expect(() =>
     setupNpmPackageTest(import.meta.url, { package: 'example-sibling' }),
   ).toThrow()
@@ -68,7 +68,7 @@ test('broken sibling lanes fail instead of silently losing their coverage', asyn
 
 test('working overrides execute the current fixture module', async () => {
   writeOverride('example-working', { 'index.js': 'module.exports = () => 42' })
-  const { setupNpmPackageTest } = await import('../util/npm-package-helper.mts')
+  const { setupNpmPackageTest } = await import('../util/npm-package.mts')
   const loaded = setupNpmPackageTest(import.meta.url, {
     package: 'example-working',
   })

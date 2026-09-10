@@ -6,7 +6,7 @@ import { describe } from 'vitest'
 import {
   createInvalidValuesExcluding,
   createTypeCheckerTests,
-} from '../util/type-checker-helper.mts'
+} from '../util/type-checker.mts'
 
 // The exports map serves index.js by default and index.cjs under the node
 // condition, so both lanes carry the upstream contract and both are gated.

@@ -73,7 +73,7 @@ import {
   getCompatData,
   readLicenses,
   toChoice,
-} from './make-npm-override-helpers.mts'
+} from './override-manifest.mts'
 import {
   collectIncompatibleLicenses,
   collectLicenseWarnings,

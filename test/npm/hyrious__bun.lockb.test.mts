@@ -7,7 +7,7 @@ import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 import { TEST_NPM_FIXTURES_PATH } from '../../scripts/repo/constants/paths.mts'
-import { setupNpmPackageTest } from '../util/npm-package-helper.mts'
+import { setupNpmPackageTest } from '../util/npm-package.mts'
 
 const UTF8 = 'utf8'
 const testNpmFixturesPath = TEST_NPM_FIXTURES_PATH

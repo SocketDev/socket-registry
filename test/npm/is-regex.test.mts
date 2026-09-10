@@ -4,11 +4,11 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { setupNpmPackageTest } from '../util/npm-package-helper.mts'
+import { setupNpmPackageTest } from '../util/npm-package.mts'
 import {
   createInvalidValuesExcluding,
   createTypeCheckerTests,
-} from '../util/type-checker-helper.mts'
+} from '../util/type-checker.mts'
 
 const {
   eco,

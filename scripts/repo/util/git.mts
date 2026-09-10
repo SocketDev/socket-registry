@@ -23,7 +23,7 @@ import {
   getUnstagedFilesSync,
   isUnstaged as isUnstagedImport,
   isUnstagedSync as isUnstagedSyncImport,
-} from './git-helpers.mts'
+} from './git-status.mts'
 import { getGlobMatcher } from './globs.mts'
 
 interface GetPackagesOptions {

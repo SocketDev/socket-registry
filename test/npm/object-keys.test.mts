@@ -5,8 +5,8 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { expectValidPackageStructure } from '../util/assertion-helpers.mts'
-import { setupNpmPackageTest } from '../util/npm-package-helper.mts'
+import { expectValidPackageStructure } from '../util/assertions.mts'
+import { setupNpmPackageTest } from '../util/npm-package.mts'
 
 const {
   eco,

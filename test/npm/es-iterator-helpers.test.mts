@@ -10,7 +10,7 @@ import { describe, expect, it } from 'vitest'
 
 import { createNpmFallbackLoader } from '../util/npm-fallback.mts'
 
-import { setupNpmPackageTest } from '../util/npm-package-helper.mts'
+import { setupNpmPackageTest } from '../util/npm-package.mts'
 
 const {
   eco,

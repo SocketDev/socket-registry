@@ -5,7 +5,7 @@ import path from 'node:path'
 // eslint-disable-next-line n/no-extraneous-import
 import { getDefaultLogger } from '@socketsecurity/lib/logger/default'
 import { describe, expect, it } from 'vitest'
-import { setupNpmPackageTest } from '../util/npm-package-helper.mts'
+import { setupNpmPackageTest } from '../util/npm-package.mts'
 
 const logger = getDefaultLogger()
 
