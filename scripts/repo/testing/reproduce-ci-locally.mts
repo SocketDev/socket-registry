@@ -5,7 +5,10 @@
 import { mkdtempSync, promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { parseArgs } from '../util/parse-args.mts'
+import {
+  parseArgs,
+  readStringOrFalseArrayArgument,
+} from '../util/parse-args.mts'
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { errorStack } from '@socketsecurity/lib-stable/errors/stack'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
@@ -20,15 +23,7 @@ import { ROOT_PATH } from '../constants/paths.mts'
 const logger = getDefaultLogger()
 const { spawn } = spawnModule
 
-interface CliArgs {
-  keepTemp: boolean
-  package: string[] | undefined
-  skipBuild: boolean
-  skipInstall: boolean
-  verbose: boolean
-}
-
-const { values: cliArgs } = parseArgs<CliArgs>({
+const { values: cliArgs } = parseArgs({
   options: {
     package: {
       type: 'string',
@@ -53,6 +48,11 @@ const { values: cliArgs } = parseArgs<CliArgs>({
   },
   strict: false,
 })
+
+const requestedPackages = readStringOrFalseArrayArgument(
+  cliArgs['package'],
+  'package',
+)
 
 /**
  * Create isolated test environment by copying project to temp directory.
@@ -121,7 +121,7 @@ export async function runCiCommand(
   }
 
   const result = await spawn(command, args, {
-    stdio: cliArgs.verbose ? 'inherit' : 'pipe',
+    stdio: cliArgs['verbose'] ? 'inherit' : 'pipe',
     env: ciEnv,
     ...options,
   })
@@ -160,7 +160,7 @@ export async function runLint(workDir: string) {
 
   if (result.code !== 0) {
     logger.error('Linting failed')
-    if (!cliArgs.verbose) {
+    if (!cliArgs['verbose']) {
       logger.error(result.stderr || result.stdout)
     }
     return false
@@ -179,9 +179,9 @@ export async function runNpmPackageTests(workDir: string) {
 
   const args = ['run', 'test:npm']
 
-  if (cliArgs.package?.length) {
-    for (let i = 0, { length } = cliArgs.package; i < length; i += 1) {
-      const pkg = cliArgs.package[i]
+  if (requestedPackages?.length) {
+    for (let i = 0, { length } = requestedPackages; i < length; i += 1) {
+      const pkg = requestedPackages[i]
       if (pkg) {
         // vitest positional filter — matches the override's test file path.
         args.push(pkg)
@@ -193,7 +193,7 @@ export async function runNpmPackageTests(workDir: string) {
 
   if (result.code !== 0) {
     logger.error('NPM package tests failed')
-    if (!cliArgs.verbose) {
+    if (!cliArgs['verbose']) {
       logger.error(result.stderr || result.stdout)
     }
     return false
@@ -215,7 +215,7 @@ export async function runTypecheck(workDir: string) {
 
   if (result.code !== 0) {
     logger.error('Type checking failed')
-    if (!cliArgs.verbose) {
+    if (!cliArgs['verbose']) {
       logger.error(result.stderr || result.stdout)
     }
     return false
@@ -237,7 +237,7 @@ export async function runUnitTests(workDir: string) {
 
   if (result.code !== 0) {
     logger.error('Unit tests failed')
-    if (!cliArgs.verbose) {
+    if (!cliArgs['verbose']) {
       logger.error(result.stderr || result.stdout)
     }
     return false
@@ -247,6 +247,33 @@ export async function runUnitTests(workDir: string) {
   return true
 }
 
+async function runEnvironmentChecks(tempDir: string): Promise<boolean> {
+  let success = true
+  const lintSuccess = await runLint(tempDir)
+  if (!lintSuccess) {
+    success = false
+  }
+
+  const typecheckSuccess = await runTypecheck(tempDir)
+  if (!typecheckSuccess) {
+    success = false
+  }
+
+  const unitTestSuccess = await runUnitTests(tempDir)
+  if (!unitTestSuccess) {
+    success = false
+  }
+
+  if (requestedPackages?.length || !requestedPackages) {
+    const npmTestSuccess = await runNpmPackageTests(tempDir)
+    if (!npmTestSuccess) {
+      success = false
+    }
+  }
+
+  return success
+}
+
 /**
  * Main reproduction flow.
  */
@@ -254,8 +281,8 @@ async function main(): Promise<void> {
   logger.info('=== Reproducing CI Environment Locally ===')
   logger.error('')
 
-  if (cliArgs.package?.length) {
-    logger.info(`Testing specific packages: ${cliArgs.package.join(', ')}`)
+  if (requestedPackages?.length) {
+    logger.info(`Testing specific packages: ${requestedPackages.join(', ')}`)
     logger.error('')
   }
 
@@ -265,7 +292,7 @@ async function main(): Promise<void> {
   try {
     tempDir = await createTestEnvironment()
 
-    if (!cliArgs.skipInstall) {
+    if (!cliArgs['skipInstall']) {
       const installSuccess = await runInstall(tempDir)
       if (!installSuccess) {
         success = false
@@ -273,7 +300,7 @@ async function main(): Promise<void> {
       }
     }
 
-    if (!cliArgs.skipBuild) {
+    if (!cliArgs['skipBuild']) {
       const buildSuccess = await runBuild(tempDir)
       if (!buildSuccess) {
         success = false
@@ -281,27 +308,7 @@ async function main(): Promise<void> {
       }
     }
 
-    const lintSuccess = await runLint(tempDir)
-    if (!lintSuccess) {
-      success = false
-    }
-
-    const typecheckSuccess = await runTypecheck(tempDir)
-    if (!typecheckSuccess) {
-      success = false
-    }
-
-    const unitTestSuccess = await runUnitTests(tempDir)
-    if (!unitTestSuccess) {
-      success = false
-    }
-
-    if (cliArgs.package?.length || !cliArgs.package) {
-      const npmTestSuccess = await runNpmPackageTests(tempDir)
-      if (!npmTestSuccess) {
-        success = false
-      }
-    }
+    success = await runEnvironmentChecks(tempDir)
 
     logger.error('')
     logger.info('=== CI Reproduction Summary ===')
@@ -317,17 +324,17 @@ async function main(): Promise<void> {
     }
   } catch (e) {
     logger.error(`CI reproduction failed: ${errorMessage(e)}`)
-    if (cliArgs.verbose) {
+    if (cliArgs['verbose']) {
       logger.error(errorStack(e))
     }
     process.exitCode = 1
   } finally {
-    if (tempDir && !cliArgs.keepTemp) {
+    if (tempDir && !cliArgs['keepTemp']) {
       logger.error('')
       logger.info(`Cleaning up temporary directory: ${tempDir}`)
       // Force delete temp directory outside CWD.
       await del(tempDir, { force: true })
-    } else if (tempDir && cliArgs.keepTemp) {
+    } else if (tempDir && cliArgs['keepTemp']) {
       logger.error('')
       logger.info(`Temporary directory preserved: ${tempDir}`)
     }
@@ -339,7 +346,7 @@ if (isMainModule(import.meta.url)) {
     async () => {
       await main().catch((e: unknown) => {
         logger.error(`Fatal error: ${errorMessage(e)}`)
-        if (cliArgs.verbose) {
+        if (cliArgs['verbose']) {
           logger.error(errorStack(e))
         }
         process.exitCode = 1

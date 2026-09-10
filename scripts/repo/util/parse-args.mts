@@ -69,10 +69,8 @@ function configureArgumentOptions(
   }
 }
 
-export function parseArgs<T = Record<string, unknown>>(
-  config: ParseArgsConfig = {},
-): {
-  values: T
+export function parseArgs(config: ParseArgsConfig = {}): {
+  values: Record<string, unknown>
   positionals: string[]
   raw: ParserArguments
 } {
@@ -106,7 +104,7 @@ export function parseArgs<T = Record<string, unknown>>(
   const { _: positionals, ...values } = raw
   const result = {
     __proto__: null,
-    values: values as T,
+    values,
     positionals: positionals.map(String),
     raw,
   }
@@ -115,4 +113,57 @@ export function parseArgs<T = Record<string, unknown>>(
 
 export function isQuiet(values: Record<string, unknown>): boolean {
   return Boolean(values['quiet'] || values['silent'])
+}
+
+function invalidArgumentValue(
+  name: string,
+  value: unknown,
+  wanted: string,
+): TypeError {
+  const actual = Array.isArray(value) ? 'array' : typeof value
+  return new TypeError(
+    `Invalid --${name} argument. Where: CLI arguments. Saw ${actual}; wanted ${wanted}. Fix: supply --${name} with the documented value shape.`,
+  )
+}
+
+export function readOptionalStringArgument(
+  value: unknown,
+  name: string,
+): string | undefined {
+  if (value === undefined || value === false || value === '') {
+    return undefined
+  }
+  if (typeof value === 'string') {
+    return value
+  }
+  throw invalidArgumentValue(name, value, 'one string')
+}
+
+export function readStringArrayArgument(
+  value: unknown,
+  name: string,
+): string[] | undefined {
+  if (value === undefined) {
+    return undefined
+  }
+  if (Array.isArray(value) && value.every(item => typeof item === 'string')) {
+    return value
+  }
+  throw invalidArgumentValue(name, value, 'an array of strings')
+}
+
+export function readStringOrFalseArrayArgument(
+  value: unknown,
+  name: string,
+): Array<string | false> | undefined {
+  if (value === undefined) {
+    return undefined
+  }
+  if (
+    Array.isArray(value) &&
+    value.every(item => typeof item === 'string' || item === false)
+  ) {
+    return value
+  }
+  throw invalidArgumentValue(name, value, 'an array of strings or false')
 }

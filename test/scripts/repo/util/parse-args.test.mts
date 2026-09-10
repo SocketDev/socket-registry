@@ -2,6 +2,9 @@ import { describe, expect, it } from 'vitest'
 import {
   isQuiet,
   parseArgs,
+  readOptionalStringArgument,
+  readStringArrayArgument,
+  readStringOrFalseArrayArgument,
 } from '../../../../scripts/repo/util/parse-args.mts'
 
 describe('repository argument parsing', () => {
@@ -78,6 +81,71 @@ describe('repository argument parsing', () => {
       parseArgs({ args: ['--config.path', 'one', '--config.path', 'two'] })
         .values,
     ).toEqual({ 'config.path': ['one', 'two'] })
+  })
+
+  it('narrows repeated strings and negated arrays without changing parser values', () => {
+    const options = {
+      package: { type: 'string' as const, multiple: true },
+      concurrency: { type: 'string' as const, default: '5' },
+      'log-file': { type: 'string' as const },
+    }
+    const repeated = parseArgs({
+      args: [
+        '--package',
+        'first',
+        '--package',
+        'second',
+        '--concurrency',
+        '2',
+        '--concurrency',
+        '4',
+        '--log-file',
+        'first.log',
+        '--log-file',
+        'second.log',
+      ],
+      options,
+    }).values
+    expect(readStringArrayArgument(repeated['package'], 'package')).toEqual([
+      'first',
+      'second',
+    ])
+    expect(repeated['concurrency']).toEqual(['2', '4'])
+    expect(Number.parseInt(String(repeated['concurrency']), 10)).toBe(2)
+    expect(() =>
+      readOptionalStringArgument(repeated['logFile'], 'log-file'),
+    ).toThrow(TypeError)
+    const negated = parseArgs({
+      args: ['--no-package', '--no-log-file'],
+      options,
+    }).values
+    expect(negated['package']).toEqual([false])
+    expect(
+      readStringOrFalseArrayArgument(negated['package'], 'package'),
+    ).toEqual([false])
+    expect(() =>
+      readStringArrayArgument(negated['package'], 'package'),
+    ).toThrow(TypeError)
+    expect(
+      readOptionalStringArgument(negated['logFile'], 'log-file'),
+    ).toBeUndefined()
+  })
+
+  it('preserves optional scalar and array arguments while rejecting invalid shapes', () => {
+    expect(readOptionalStringArgument(undefined, 'log-file')).toBeUndefined()
+    expect(readOptionalStringArgument('', 'log-file')).toBeUndefined()
+    expect(readOptionalStringArgument('build.log', 'log-file')).toBe(
+      'build.log',
+    )
+    expect(readStringArrayArgument(undefined, 'package')).toBeUndefined()
+    expect(readStringOrFalseArrayArgument(undefined, 'package')).toBeUndefined()
+    expect(
+      readStringOrFalseArrayArgument(['first', false, 'second'], 'package'),
+    ).toEqual(['first', false, 'second'])
+    expect(() => readStringOrFalseArrayArgument([true], 'package')).toThrow(
+      TypeError,
+    )
+    expect(() => readStringArrayArgument('first', 'package')).toThrow(TypeError)
   })
 
   it.each([

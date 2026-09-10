@@ -5,7 +5,7 @@
 import { promises as fs } from 'node:fs'
 import process from 'node:process'
 
-import { parseArgs } from '../util/parse-args.mts'
+import { parseArgs, readOptionalStringArgument } from '../util/parse-args.mts'
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { errorStack } from '@socketsecurity/lib-stable/errors/stack'
 import { httpText } from '@socketsecurity/lib-stable/http-request'
@@ -22,13 +22,7 @@ import { runMain } from '../../fleet/process/run-main.mts'
 
 const logger = getDefaultLogger()
 
-interface CliArgsValues {
-  logFile?: string | undefined
-  logUrl?: string | undefined
-  verbose: boolean
-}
-
-const { values: cliArgs } = parseArgs<CliArgsValues>({
+const { values: cliArgs } = parseArgs({
   options: {
     'log-file': {
       type: 'string',
@@ -49,6 +43,13 @@ interface GroupedFailures {
   byPackage: Record<string, Failure[]>
 }
 
+function createFailureDetails(
+  details: Record<string, string>,
+): Record<string, string> {
+  Object.setPrototypeOf(details, null)
+  return details
+}
+
 /**
  * Failure pattern definitions for automated CI log analysis. Each pattern
  * includes: - pattern: Regex to match error in logs - category: Human-readable
@@ -61,7 +62,7 @@ const FAILURE_PATTERNS: Record<string, FailurePatternDef> = {
     pattern: /build\/([^\s]+).*not found/i,
     category: 'Build Artifacts',
     severity: 'error',
-    extract: match => ({ artifact: match[1] ?? '' }),
+    extract: match => createFailureDetails({ artifact: match[1] ?? '' }),
     suggestions: [
       'Run build step before testing',
       'Commit required build artifacts to git',
@@ -76,7 +77,8 @@ const FAILURE_PATTERNS: Record<string, FailurePatternDef> = {
       /Failed to load plugin ['"]([^'"]+)['"] declared in ['"]([^'"]+)['"]/,
     category: 'ESLint Configuration',
     severity: 'error',
-    extract: match => ({ plugin: match[1] ?? '', config: match[2] ?? '' }),
+    extract: match =>
+      createFailureDetails({ plugin: match[1] ?? '', config: match[2] ?? '' }),
     suggestions: [
       'Add missing ESLint plugin to devDependencies',
       'Remove plugin from ESLint config if not needed',
@@ -86,7 +88,7 @@ const FAILURE_PATTERNS: Record<string, FailurePatternDef> = {
   },
   MODULE_NOT_FOUND: {
     category: 'Module Resolution',
-    extract: match => ({ module: match[1] ?? '' }),
+    extract: match => createFailureDetails({ module: match[1] ?? '' }),
     pattern: /Cannot find module ['"]([^'"]+)['"]/,
     severity: 'error',
     suggestions: [
@@ -123,7 +125,7 @@ const FAILURE_PATTERNS: Record<string, FailurePatternDef> = {
     pattern: /ENOENT.*['"]([^'"]+)['"]/,
     category: 'Path Resolution',
     severity: 'error',
-    extract: match => ({ path: match[1] ?? '' }),
+    extract: match => createFailureDetails({ path: match[1] ?? '' }),
     suggestions: [
       'Use path.join() instead of hard-coded path separators',
       'Use os.tmpdir() for temporary directories',
@@ -135,7 +137,7 @@ const FAILURE_PATTERNS: Record<string, FailurePatternDef> = {
     pattern: /\.pnpm\/([^/]+)/,
     category: 'Module Resolution',
     severity: 'error',
-    extract: match => ({ pnpmPath: match[1] ?? '' }),
+    extract: match => createFailureDetails({ pnpmPath: match[1] ?? '' }),
     suggestions: [
       'Replace direct .pnpm references with regular imports',
       'Use package name instead of .pnpm path',
@@ -234,15 +236,63 @@ export function extractPackageName(line: string): string | undefined {
  * Fetch log content from URL or file.
  */
 export async function fetchLogContent(): Promise<string> {
-  if (cliArgs.logFile) {
-    return await fs.readFile(cliArgs.logFile, 'utf8')
+  const logFile = readOptionalStringArgument(cliArgs['logFile'], 'log-file')
+  if (logFile) {
+    return await fs.readFile(logFile, 'utf8')
   }
 
-  if (cliArgs.logUrl) {
-    return await httpText(cliArgs.logUrl, { timeout: 30_000 })
+  const logUrl = readOptionalStringArgument(cliArgs['logUrl'], 'log-url')
+  if (logUrl) {
+    return await httpText(logUrl, { timeout: 30_000 })
   }
 
   throw new Error('Must provide --log-file or --log-url')
+}
+
+function formatDetailedFailures(failures: Failure[]): void {
+  // Verbose output.
+  if (cliArgs['verbose']) {
+    logger.error('')
+    logger.info('--- Detailed Failures ---')
+    for (let i = 0, { length } = failures; i < length; i += 1) {
+      const failure = failures[i]
+      if (failure === undefined) {
+        continue
+      }
+      logger.error('')
+      logger.info(
+        `[${failure.severity.toUpperCase()}] ${failure.category} (${failure.package || 'unknown'})`,
+      )
+      logger.info(`  Line: ${failure.line}`)
+      if (failure.details) {
+        logger.info(`  Details: ${JSON.stringify(failure.details, null, 2)}`)
+      }
+    }
+  }
+}
+
+function formatGeneralSuggestions(
+  categoryRecs: CategoryRecommendation[],
+): void {
+  // Display general suggestions.
+  logger.error('')
+  logger.info('--- General Suggestions ---')
+  const uniqueCategories = [...new Set(categoryRecs.map(r => r.category))]
+  for (let i = 0, { length } = uniqueCategories; i < length; i += 1) {
+    const category = uniqueCategories[i]
+    if (category === undefined) {
+      continue
+    }
+    const rec = categoryRecs.find(r => r.category === category)
+    if (rec === undefined) {
+      continue
+    }
+    logger.error('')
+    logger.info(`${category}:`)
+    for (const suggestion of rec.suggestions) {
+      logger.info(`  - ${suggestion}`)
+    }
+  }
 }
 
 /**
@@ -309,45 +359,9 @@ export function formatResults(
     }
   }
 
-  // Display general suggestions.
-  logger.error('')
-  logger.info('--- General Suggestions ---')
-  const uniqueCategories = [...new Set(categoryRecs.map(r => r.category))]
-  for (let i = 0, { length } = uniqueCategories; i < length; i += 1) {
-    const category = uniqueCategories[i]
-    if (category === undefined) {
-      continue
-    }
-    const rec = categoryRecs.find(r => r.category === category)
-    if (rec === undefined) {
-      continue
-    }
-    logger.error('')
-    logger.info(`${category}:`)
-    for (const suggestion of rec.suggestions) {
-      logger.info(`  - ${suggestion}`)
-    }
-  }
+  formatGeneralSuggestions(categoryRecs)
 
-  // Verbose output.
-  if (cliArgs.verbose) {
-    logger.error('')
-    logger.info('--- Detailed Failures ---')
-    for (let i = 0, { length } = failures; i < length; i += 1) {
-      const failure = failures[i]
-      if (failure === undefined) {
-        continue
-      }
-      logger.error('')
-      logger.info(
-        `[${failure.severity.toUpperCase()}] ${failure.category} (${failure.package || 'unknown'})`,
-      )
-      logger.info(`  Line: ${failure.line}`)
-      if (failure.details) {
-        logger.info(`  Details: ${JSON.stringify(failure.details, null, 2)}`)
-      }
-    }
-  }
+  formatDetailedFailures(failures)
 }
 
 /**
@@ -387,6 +401,7 @@ export function generateRecommendations(
       package: packageName,
       count: packageFailures.length,
       issues: packageFailures.map(f => ({
+        __proto__: null,
         category: f.category,
         details: f.details,
       })),
@@ -450,7 +465,7 @@ async function main(): Promise<void> {
     }
   } catch (e) {
     logger.error(`Analysis failed: ${errorMessage(e)}`)
-    if (cliArgs.verbose) {
+    if (cliArgs['verbose']) {
       logger.error(errorStack(e))
     }
     process.exitCode = 1

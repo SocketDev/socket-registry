@@ -25,12 +25,7 @@ import {
 
 const logger = getDefaultLogger()
 
-interface CliArgs {
-  force: boolean | undefined
-  quiet: boolean | undefined
-}
-
-const { values: cliArgs } = parseArgs<CliArgs>({
+const { values: cliArgs } = parseArgs({
   options: {
     force: {
       type: 'boolean',
@@ -68,7 +63,7 @@ export function packageData(data: PackageDataInput): PackageData {
 async function main(): Promise<void> {
   // Exit early if not running in CI or with --force.
   const ENV = getEnv()
-  if (!(cliArgs.force || ENV.CI)) {
+  if (!(cliArgs['force'] || ENV.CI)) {
     return
   }
 

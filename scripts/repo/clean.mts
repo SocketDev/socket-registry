@@ -129,17 +129,7 @@ export function selectCleanTasks(options: CleanSelection): CleanTask[] {
 async function main(): Promise<void> {
   try {
     // Parse arguments
-    const { values } = parseArgs<{
-      all: boolean
-      cache: boolean
-      coverage: boolean
-      dist: boolean
-      help: boolean
-      modules: boolean
-      quiet: boolean
-      silent: boolean
-      types: boolean
-    }>({
+    const { values } = parseArgs({
       options: {
         help: {
           type: 'boolean',
@@ -183,7 +173,7 @@ async function main(): Promise<void> {
     })
 
     // Show help if requested
-    if (values.help) {
+    if (values['help']) {
       logger.log('Clean Runner')
       logger.log('')
       logger.log('Usage: pnpm clean [options]')
@@ -213,7 +203,14 @@ async function main(): Promise<void> {
 
     const quiet = isQuiet(values)
 
-    const tasks = selectCleanTasks(values)
+    const tasks = selectCleanTasks({
+      all: Boolean(values['all']),
+      cache: Boolean(values['cache']),
+      coverage: Boolean(values['coverage']),
+      dist: Boolean(values['dist']),
+      modules: Boolean(values['modules']),
+      types: Boolean(values['types']),
+    })
 
     // Check if there's anything to clean
     if (!tasks.length) {

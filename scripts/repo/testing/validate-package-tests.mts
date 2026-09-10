@@ -6,7 +6,7 @@
 import { existsSync, promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { parseArgs } from '../util/parse-args.mts'
+import { parseArgs, readStringArrayArgument } from '../util/parse-args.mts'
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import promisesModule from '@socketsecurity/lib-stable/promises/iterate'
@@ -21,18 +21,11 @@ import { isMainModule } from '../../fleet/process/is-main-module.mts'
 import { runMain } from '../../fleet/process/run-main.mts'
 import { NPM_PACKAGES_PATH } from '../constants/paths.mts'
 
-interface CliArgs {
-  package?: string[] | undefined
-  concurrency: string
-  verbose: boolean
-  fix: boolean
-}
-
 const logger = getDefaultLogger()
 const { spawn } = spawnModule
 const { pEach } = promisesModule
 
-const { values: cliArgs } = parseArgs<CliArgs>({
+const { values: cliArgs } = parseArgs({
   options: {
     package: {
       type: 'string',
@@ -110,8 +103,9 @@ export function formatResults(results: ValidationResult[]): {
  * Get list of package directories to validate.
  */
 export async function getPackagesToValidate(): Promise<string[]> {
-  if (cliArgs.package?.length) {
-    return cliArgs.package
+  const packages = readStringArrayArgument(cliArgs['package'], 'package')
+  if (packages?.length) {
+    return packages
   }
 
   const entries = await fs.readdir(NPM_PACKAGES_PATH, { withFileTypes: true })
@@ -316,7 +310,7 @@ export async function validatePackage(
   const packageDir = path.join(NPM_PACKAGES_PATH, packageName)
   const allIssues: ValidationIssue[] = []
 
-  if (cliArgs.verbose) {
+  if (cliArgs['verbose']) {
     logger.info(`Validating ${packageName}...`)
   }
 
@@ -435,7 +429,7 @@ async function main(): Promise<void> {
   logger.info(`Found ${packages.length} packages to validate`)
   logger.error('')
 
-  const concurrency = Number.parseInt(cliArgs.concurrency, 10)
+  const concurrency = Number.parseInt(String(cliArgs['concurrency']), 10)
   const results: ValidationResult[] = []
   await pEach(
     packages,
@@ -478,7 +472,7 @@ if (isMainModule(import.meta.url)) {
     async () => {
       await main().catch((e: unknown) => {
         logger.error(`Validation failed: ${errorMessage(e)}`)
-        if (cliArgs.verbose) {
+        if (cliArgs['verbose']) {
           logger.error(e instanceof Error ? e.stack : errorMessage(e))
         }
         process.exitCode = 1
