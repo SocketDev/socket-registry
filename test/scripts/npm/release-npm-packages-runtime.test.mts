@@ -1,11 +1,14 @@
 import { beforeEach, expect, it, vi } from 'vitest'
 import {
+  hasPackageChanged,
   maybeBumpPackage,
   packageData,
 } from '../../../scripts/repo/npm/release-npm-packages.mts'
 import type { BumpState } from '../../../scripts/repo/npm/release-npm-packages.mts'
 
 const mocks = vi.hoisted(() => ({
+  localHashes: vi.fn(),
+  remoteHashes: vi.fn(),
   manifest: vi.fn(),
   read: vi.fn(),
   readSync: vi.fn(),
@@ -31,6 +34,14 @@ vi.mock(
   async original => ({
     ...(await original()),
     spawn: mocks.spawn,
+  }),
+)
+
+vi.mock(
+  import('../../../scripts/repo/npm/release-npm-packages-hashes.mts'),
+  () => ({
+    getLocalPackageFileHashes: mocks.localHashes,
+    getRemotePackageFileHashes: mocks.remoteHashes,
   }),
 )
 
@@ -107,3 +118,19 @@ it('saves a patch for changed bytes and records the edited package', async () =>
   expect(state.bumped).toEqual([pkg])
   expect(state.changed).toEqual([pkg])
 })
+
+it.each(['remote', 'local'])(
+  'reports changes when %s hashing fails',
+  async side => {
+    mocks.localHashes.mockResolvedValue({ 'index.js': 'example-hash' })
+    mocks.remoteHashes.mockResolvedValue({ 'index.js': 'example-hash' })
+    const failing = side === 'remote' ? mocks.remoteHashes : mocks.localHashes
+    failing.mockRejectedValue(new Error('example hash failure'))
+    const state = createState()
+    expect(
+      await hasPackageChanged(createPackage(), { version: '1.0.0' }, { state }),
+    ).toBe(true)
+    expect(state.warnings).toHaveLength(1)
+    expect(state.changes).toEqual([])
+  },
+)

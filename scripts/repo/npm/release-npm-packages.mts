@@ -100,13 +100,6 @@ function createEmptyBumpState(): BumpState {
   }
 }
 
-function settledOrDefault<T>(
-  result: PromiseSettledResult<T> | undefined,
-  fallback: T,
-): T {
-  return result?.status === 'fulfilled' ? result.value : fallback
-}
-
 function memoize<T>(create: () => T): () => T {
   let cached: T | undefined
   return () => {
@@ -165,8 +158,14 @@ export async function hasPackageChanged(
       getRemotePackageFileHashes(`${pkg.name}@${manifest.version}`),
       getLocalPackageFileHashes(pkg.path),
     ])
-    const remoteHashes = settledOrDefault(remoteResult, {})
-    const localHashes = settledOrDefault(localResult, {})
+    if (remoteResult.status === 'rejected') {
+      throw remoteResult.reason
+    }
+    if (localResult.status === 'rejected') {
+      throw localResult.reason
+    }
+    const remoteHashes = remoteResult.value
+    const localHashes = localResult.value
 
     // Use remote files as source of truth and check if local matches.
     for (const { 0: file, 1: remoteHash } of Object.entries(remoteHashes)) {
