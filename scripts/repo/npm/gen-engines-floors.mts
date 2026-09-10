@@ -24,6 +24,7 @@ import { resolveOriginalPackageName } from '@socketsecurity/lib-stable/packages/
 import semver from 'semver'
 
 import { isMainModule } from '../../fleet/process/is-main-module.mts'
+import { runMain } from '../../fleet/process/run-main.mts'
 import { NPM_PACKAGES_PATH } from '../constants/paths.mts'
 
 const logger = getDefaultLogger()
@@ -386,6 +387,14 @@ function main(): void {
 
 /* c8 ignore start - entrypoint guard; the pure legs are covered directly. */
 if (isMainModule(import.meta.url)) {
-  main()
+  runMain(
+    () => {
+      main()
+    },
+    {
+      describe: 'detects minimum Node.js versions for overrides',
+      help: 'Usage: node scripts/repo/npm/gen-engines-floors.mts [options]\n--only <name>  Select a package\n--write  Write engine ranges',
+    },
+  )
 }
 /* c8 ignore stop */

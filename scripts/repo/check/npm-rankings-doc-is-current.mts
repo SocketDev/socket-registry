@@ -17,6 +17,7 @@ import process from 'node:process'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
 import { isMainModule } from '../../fleet/process/is-main-module.mts'
+import { runMain } from '../../fleet/process/run-main.mts'
 import {
   NPM_HIGH_IMPACT_MANIFEST_PATH,
   ROOT_PATH,
@@ -103,13 +104,21 @@ export async function runRankingsDocCheck(
 
 /* c8 ignore start - entrypoint guard; the pure legs are covered directly. */
 if (isMainModule(import.meta.url)) {
-  runRankingsDocCheck({ quiet: process.argv.includes('--quiet') })
-    .then(code => {
-      process.exitCode = code
-    })
-    .catch((e: unknown) => {
-      logger.fail(`npm-rankings-doc-is-current failed: ${String(e)}`)
-      process.exitCode = 1
-    })
+  runMain(
+    async () => {
+      await runRankingsDocCheck({ quiet: process.argv.includes('--quiet') })
+        .then(code => {
+          process.exitCode = code
+        })
+        .catch((e: unknown) => {
+          logger.fail(`npm-rankings-doc-is-current failed: ${String(e)}`)
+          process.exitCode = 1
+        })
+    },
+    {
+      describe: 'checks the generated npm impact rankings',
+      help: 'Usage: node scripts/repo/check/npm-rankings-doc-is-current.mts [options]\n--quiet  Suppress progress',
+    },
+  )
 }
 /* c8 ignore stop */

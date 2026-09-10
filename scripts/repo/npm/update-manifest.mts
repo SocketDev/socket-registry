@@ -20,6 +20,7 @@ import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 import { DEFAULT_CONCURRENCY } from '../constants/core.mts'
 import { getNpmPackageNames } from '../constants/testing.mts'
 import { isMainModule } from '../../fleet/process/is-main-module.mts'
+import { runMain } from '../../fleet/process/run-main.mts'
 import { getModifiedFiles } from '../util/git.mts'
 import { fetchPackageManifest } from '@socketsecurity/lib-stable/packages/manifest'
 import { resolveOriginalPackageName } from '@socketsecurity/lib-stable/packages/normalize'
@@ -479,8 +480,16 @@ async function main(): Promise<void> {
 }
 
 if (isMainModule(import.meta.url)) {
-  main().catch((e: unknown) => {
-    logger.error(e)
-    process.exitCode = 1
-  })
+  runMain(
+    async () => {
+      await main().catch((e: unknown) => {
+        logger.error(e)
+        process.exitCode = 1
+      })
+    },
+    {
+      describe: 'regenerates the registry manifest',
+      help: 'Usage: node scripts/repo/npm/update-manifest.mts [options]\n--allow-removals  Allow intentional package removals\n--force, -f  Regenerate without changed files\n--quiet  Suppress progress',
+    },
+  )
 }

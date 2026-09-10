@@ -69,7 +69,13 @@
         "test/scripts/repo/testing/analyze-ci-failures.test.mts",
         "test/scripts/repo/testing/reproduce-ci-locally.test.mts",
         "test/scripts/repo/testing/validate-package-tests.test.mts",
-        "test/scripts/repo/bootstrap/fetch-session.test.mts"
+        "test/scripts/repo/bootstrap/fetch-session.test.mts",
+        "test/scripts/repo/check/npm-port-provenance-is-current-help.test.mts",
+        "test/scripts/repo/check/npm-rankings-doc-is-current-help.test.mts",
+        "test/scripts/repo/check/override-lanes-match-help.test.mts",
+        "test/scripts/repo/check/override-surface-covers-upstream-majors-help.test.mts",
+        "test/scripts/repo/npm/gen-engines-floors-help.test.mts",
+        "test/scripts/repo/npm/update-manifest-help.test.mts"
       ],
       "slow": ["test/fleet/e2e/**/*.test.mts"]
     }

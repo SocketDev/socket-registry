@@ -29,6 +29,7 @@ import { pEach } from '@socketsecurity/lib-stable/promises/iterate'
 import semver from 'semver'
 
 import { isMainModule } from '../../fleet/process/is-main-module.mts'
+import { runMain } from '../../fleet/process/run-main.mts'
 import { NPM_PACKAGES_PATH } from '../constants/paths.mts'
 import { resolveExportsSubpath } from '../util/exports-resolver.mts'
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
@@ -303,20 +304,28 @@ export async function runSurfaceCheck(
 
 /* c8 ignore start - entrypoint guard; the pure legs are covered directly. */
 if (isMainModule(import.meta.url)) {
-  const onlyIndex = process.argv.indexOf('--only')
-  runSurfaceCheck({
-    only: onlyIndex === -1 ? undefined : process.argv[onlyIndex + 1],
-    online: process.argv.includes('--online'),
-    quiet: process.argv.includes('--quiet'),
-  })
-    .then(code => {
-      process.exitCode = code
-    })
-    .catch((e: unknown) => {
-      logger.fail(
-        `override-surface-covers-upstream-majors failed: ${String(e)}`,
-      )
-      process.exitCode = 1
-    })
+  runMain(
+    async () => {
+      const onlyIndex = process.argv.indexOf('--only')
+      await runSurfaceCheck({
+        only: onlyIndex === -1 ? undefined : process.argv[onlyIndex + 1],
+        online: process.argv.includes('--online'),
+        quiet: process.argv.includes('--quiet'),
+      })
+        .then(code => {
+          process.exitCode = code
+        })
+        .catch((e: unknown) => {
+          logger.fail(
+            `override-surface-covers-upstream-majors failed: ${String(e)}`,
+          )
+          process.exitCode = 1
+        })
+    },
+    {
+      describe: 'checks override exports across upstream major versions',
+      help: 'Usage: node scripts/repo/check/override-surface-covers-upstream-majors.mts [options]\n--online  Inspect upstream packages\n--only <name>  Select upstream\n--quiet  Suppress progress',
+    },
+  )
 }
 /* c8 ignore stop */

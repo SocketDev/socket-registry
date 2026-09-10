@@ -23,6 +23,7 @@ import process from 'node:process'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
 import { isMainModule } from '../../fleet/process/is-main-module.mts'
+import { runMain } from '../../fleet/process/run-main.mts'
 
 const logger = getDefaultLogger()
 const requireCjs = createRequire(import.meta.url)
@@ -261,9 +262,17 @@ export function runOverrideLanesCheck(
 
 /* c8 ignore start - entrypoint guard; the pure legs are covered directly. */
 if (isMainModule(import.meta.url)) {
-  const repoRoot = path.resolve(import.meta.dirname, '..', '..', '..')
-  process.exitCode = runOverrideLanesCheck(repoRoot, {
-    quiet: process.argv.includes('--quiet'),
-  })
+  runMain(
+    () => {
+      const repoRoot = path.resolve(import.meta.dirname, '..', '..', '..')
+      process.exitCode = runOverrideLanesCheck(repoRoot, {
+        quiet: process.argv.includes('--quiet'),
+      })
+    },
+    {
+      describe: 'checks override test lane assignments',
+      help: 'Usage: node scripts/repo/check/override-lanes-match.mts [options]\n--quiet  Suppress progress',
+    },
+  )
 }
 /* c8 ignore stop */
