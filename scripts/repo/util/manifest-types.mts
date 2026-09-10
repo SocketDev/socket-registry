@@ -16,8 +16,6 @@ export interface ManifestEntryData {
 
 export type ManifestEntry = [string, ManifestEntryData]
 
-export type RegistryManifest = Record<string, ManifestEntry[]>
-
 export interface NpmManifest {
   version: string
 }

@@ -1,6 +1,6 @@
 /**
  * @file Biome formatter utility.
- * Formats content using Biome CLI via pnpm exec.
+ *   Formats content using Biome CLI via `pnpm exec`.
  */
 
 import path from 'node:path'

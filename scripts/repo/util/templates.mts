@@ -38,11 +38,7 @@ import {
 } from '../constants/templates.mts'
 import { getLicenseContent } from '../constants/utils.mts'
 import { biomeFormat } from './biome.mts'
-import type {
-  ManifestEntry,
-  ManifestEntryData,
-  RegistryManifest,
-} from './manifest-types.mts'
+import type { ManifestEntry, ManifestEntryData } from './manifest-types.mts'
 
 // File extension constants.
 const EXT_JSON = '.json'
@@ -59,30 +55,20 @@ type TemplateAction = [
   TemplateActionData | (() => TemplateActionData | Promise<TemplateActionData>),
 ]
 
-const typedRegistryManifest = registryManifest as unknown as RegistryManifest
+const typedRegistryManifest = new Map(
+  Object.entries(registryManifest) as Array<[string, ManifestEntry[]]>,
+)
 
 /**
  * Get manifest data from the registry manifest.json.
  */
-function getManifestData(): RegistryManifest
-function getManifestData(ecosystem: string): ManifestEntry[] | undefined
 function getManifestData(
   ecosystem: string,
   packageName: string,
-): ManifestEntryData | undefined
-function getManifestData(
-  ecosystem?: string,
-  packageName?: string,
-): RegistryManifest | ManifestEntry[] | ManifestEntryData | undefined {
-  if (!ecosystem) {
-    return typedRegistryManifest
-  }
-  const ecoData = typedRegistryManifest[ecosystem]
+): ManifestEntryData | undefined {
+  const ecoData = typedRegistryManifest.get(ecosystem)
   if (!ecoData) {
     return undefined
-  }
-  if (!packageName) {
-    return ecoData
   }
   const entry = ecoData.find(([, data]) => data.package === packageName)
   return entry ? entry[1] : undefined
