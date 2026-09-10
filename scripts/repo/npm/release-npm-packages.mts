@@ -161,7 +161,7 @@ export async function hasPackageChanged(
   let changed = false
   // Compare actual file contents by extracting packages and comparing SHA hashes.
   try {
-    const [remoteResult, localResult] = await Promise.allSettled([
+    const { 0: remoteResult, 1: localResult } = await Promise.allSettled([
       getRemotePackageFileHashes(`${pkg.name}@${manifest.version}`),
       getLocalPackageFileHashes(pkg.path),
     ])
@@ -189,6 +189,64 @@ export async function hasPackageChanged(
     changed = true
   }
   return changed
+}
+
+async function hasReleasePackageChanges(
+  pkg: PkgData,
+  manifest: PackageManifest,
+  options: MaybeBumpPackageOptions,
+): Promise<boolean> {
+  const opts = { __proto__: null, ...options }
+  const { spinner, state } = opts
+  if (await hasGitChanges(pkg.path)) {
+    spinner?.text(`Detected git changes in ${pkg.printName}`)
+    return true
+  }
+  spinner?.text(`Comparing ${pkg.printName} against published version…`)
+  return await hasPackageChanged(pkg, manifest, { state })
+}
+
+async function writeChangedPackageVersion(
+  pkg: PkgData,
+  manifest: PackageManifest,
+  options: MaybeBumpPackageOptions & { state: BumpState },
+): Promise<void> {
+  const opts = { __proto__: null, ...options }
+  const { spinner, state } = opts
+  const editablePkgJson = (await readPackageJson(pkg.path, {
+    editable: true,
+    normalize: true,
+  })) as unknown as EditablePackageJsonInstance | undefined
+  if (!editablePkgJson) {
+    throw new Error(
+      `maybeBumpPackage: Failed to read editable package.json for ${pkg.name}`,
+    )
+  }
+  const localVersion = editablePkgJson.content.version
+  if (localVersion && semver.gt(localVersion, manifest.version)) {
+    pkg.version = localVersion
+    spinner?.log(
+      `=${pkg.name}@${localVersion} (already bumped from ${manifest.version})`,
+    )
+    state.bumped.push(pkg)
+  } else {
+    let version = semver.inc(manifest.version, 'patch')
+    if (!version) {
+      throw new Error(
+        `maybeBumpPackage: Failed to increment version for ${pkg.name}@${manifest.version}`,
+      )
+    }
+    if (pkg.tag !== LATEST && pkg.tag) {
+      const incremented = semver.inc(version, 'patch')
+      version = `${incremented}-${pkg.tag}`
+    }
+    pkg.version = version
+    editablePkgJson.update({ version })
+    await editablePkgJson.save()
+    state.changed.push(pkg)
+    spinner?.log(`+${pkg.name}@${manifest.version} -> ${version}`)
+    state.bumped.push(pkg)
+  }
 }
 
 export async function maybeBumpPackage(
@@ -244,56 +302,13 @@ export async function maybeBumpPackage(
     return
   }
 
-  // Fast path: Check git for uncommitted changes first.
-  const hasGitChange = await hasGitChanges(pkg.path)
-
-  let hasChanged = false
-  if (hasGitChange) {
-    // Git shows changes, skip expensive hash comparison.
-    spinner?.text(`Detected git changes in ${pkg.printName}`)
-    hasChanged = true
-  } else {
-    // No git changes, do full hash comparison.
-    spinner?.text(`Comparing ${pkg.printName} against published version…`)
-    hasChanged = await hasPackageChanged(pkg, manifest, { state })
-  }
+  const hasChanged = await hasReleasePackageChanges(pkg, manifest, {
+    spinner,
+    state,
+  })
 
   if (hasChanged) {
-    const editablePkgJson = (await readPackageJson(pkg.path, {
-      editable: true,
-      normalize: true,
-    })) as unknown as EditablePackageJsonInstance | undefined
-    if (!editablePkgJson) {
-      throw new Error(
-        `maybeBumpPackage: Failed to read editable package.json for ${pkg.name}`,
-      )
-    }
-    const localVersion = editablePkgJson.content.version
-    // If local version is already ahead, no need to bump.
-    if (localVersion && semver.gt(localVersion, manifest.version)) {
-      pkg.version = localVersion
-      spinner?.log(
-        `=${pkg.name}@${localVersion} (already bumped from ${manifest.version})`,
-      )
-      state.bumped.push(pkg)
-    } else {
-      let version = semver.inc(manifest.version, 'patch')
-      if (!version) {
-        throw new Error(
-          `maybeBumpPackage: Failed to increment version for ${pkg.name}@${manifest.version}`,
-        )
-      }
-      if (pkg.tag !== LATEST && pkg.tag) {
-        const incremented = semver.inc(version, 'patch')
-        version = `${incremented}-${pkg.tag}`
-      }
-      pkg.version = version
-      editablePkgJson.update({ version })
-      await editablePkgJson.save()
-      state.changed.push(pkg)
-      spinner?.log(`+${pkg.name}@${manifest.version} -> ${version}`)
-      state.bumped.push(pkg)
-    }
+    await writeChangedPackageVersion(pkg, manifest, { spinner, state })
   }
 }
 
