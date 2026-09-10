@@ -21,7 +21,6 @@ import {
   getStagedFilesSync,
   getUnstagedFiles,
   getUnstagedFilesSync,
-  isUnstaged as isUnstagedImport,
 } from './git-status.mts'
 import { getGlobMatcher } from './globs.mts'
 
@@ -126,17 +125,6 @@ function getStagedPackagesSync(eco: string, options?: GetPackagesOptions) {
 export async function getModifiedFiles(options?: { cwd?: string | undefined }) {
   options = { __proto__: null, ...options } as typeof options
   return await getUnstagedFiles(options)
-}
-
-/**
- * Alias for isUnstaged.
- */
-export async function isModified(
-  pathname: string,
-  options?: { cwd?: string | undefined },
-) {
-  options = { __proto__: null, ...options } as typeof options
-  return await isUnstagedImport(pathname, options)
 }
 
 export {

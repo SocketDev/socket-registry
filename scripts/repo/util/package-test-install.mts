@@ -7,7 +7,6 @@
 import { existsSync, promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import process from 'node:process'
 
 import { isWin32 } from '@socketsecurity/lib-stable/constants/platform'
 import { readPackageJson } from '@socketsecurity/lib-stable/packages/read'
@@ -15,7 +14,6 @@ import { readPackageJson } from '@socketsecurity/lib-stable/packages/read'
 import { cleanTestScript } from './script-cleaning.mts'
 import { spawn } from './spawn.mts'
 import { testRunners } from './test-runners.mts'
-import { ROOT_PATH } from '../constants/paths.mts'
 
 // Shared pnpm flags to make it behave like npm with hoisting.
 export const PNPM_NPM_LIKE_FLAGS = [
@@ -43,26 +41,6 @@ export const PNPM_HOISTED_INSTALL_FLAGS = [
   ...PNPM_NPM_LIKE_FLAGS,
   ...PNPM_INSTALL_BASE_FLAGS,
 ]
-
-// Environment override to force pnpm to install devDependencies.
-// By default, pnpm skips devDependencies when CI or NODE_ENV=production is detected.
-export const PNPM_INSTALL_ENV = { CI: undefined, NODE_ENV: undefined }
-
-/**
- * Builds test environment with proper PATH for test runners.
- */
-export function buildTestEnv(
-  packageTempDir: string,
-  installedPath: string,
-): NodeJS.ProcessEnv {
-  const packageBinPath = path.join(packageTempDir, 'node_modules', '.bin')
-  const nestedBinPath = path.join(installedPath, 'node_modules', '.bin')
-  const rootBinPath = path.join(ROOT_PATH, 'node_modules', '.bin')
-  return {
-    ...process.env,
-    PATH: `${nestedBinPath}${path.delimiter}${packageBinPath}${path.delimiter}${rootBinPath}${path.delimiter}${process.env['PATH']}`,
-  }
-}
 
 export interface InstallPackageForTestingResult {
   installed: boolean

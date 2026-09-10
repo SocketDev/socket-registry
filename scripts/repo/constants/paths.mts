@@ -110,9 +110,6 @@ export const TEMPLATES_PATH = normalizePath(
   path.join(__dirname, '..', 'templates'),
 )
 export const NPM_TEMPLATES_PATH = normalizePath(path.join(TEMPLATES_PATH, NPM))
-export const NPM_TEMPLATES_README_PATH = normalizePath(
-  path.join(NPM_TEMPLATES_PATH, README_MD),
-)
 
 // Performance test paths.
 export const PERF_NPM_PATH = normalizePath(path.join(ROOT_PATH, `perf/${NPM}`))

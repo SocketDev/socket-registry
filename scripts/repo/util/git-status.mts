@@ -207,14 +207,3 @@ export async function isUnstaged(
   const files = await getUnstagedFiles(options)
   return files.includes(pathname)
 }
-
-/**
- * Check if a file is unstaged synchronously.
- */
-export function isUnstagedSync(
-  pathname: string,
-  options: GitStatusOptions = {},
-): boolean {
-  const files = getUnstagedFilesSync(options)
-  return files.includes(pathname)
-}
