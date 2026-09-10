@@ -21,6 +21,7 @@ import { isMainModule } from '../fleet/process/is-main-module.mts'
 import { runMain } from '../fleet/process/run-main.mts'
 import { REPO_CACHE_DIR } from '../fleet/paths.mts'
 import { EXTERNAL_TOOLS_CONFIG_PATH } from './constants/paths.mts'
+import type { RootConfig } from './update-external-tools-config.mts'
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 
 const logger = getDefaultLogger()
@@ -129,16 +130,70 @@ export async function acquireLock(
   throw new Error(`Timed out waiting for lock: ${lockPath}`)
 }
 
-interface PlatformEntry {
-  asset: string
-  integrity: string
-}
-
-interface ToolConfig {
-  platforms?: Record<string, PlatformEntry> | undefined
-  origin?: string | undefined
+type ToolConfig = RootConfig[string] & {
   repository: string
   version: string
+}
+
+async function downloadToolArchive(
+  tool: string,
+  version: string,
+  archivePath: string,
+  url: string,
+  expectedIntegrity: string,
+): Promise<void> {
+  log.step(`Downloading ${tool} ${version}...`)
+  const result = await spawn(
+    'curl',
+    ['-fSL', '--retry', '3', '-o', archivePath, url],
+    { stdio: quiet ? 'pipe' : 'inherit', shell: isWin32() },
+  )
+  if ((result.code ?? 0) !== 0) {
+    throw new Error(`Download failed: ${url}`)
+  }
+
+  // Verify integrity.
+  log.step('Verifying integrity…')
+  const actual = await computeIntegrity(archivePath)
+  if (actual !== expectedIntegrity) {
+    throw new Error(
+      `Integrity mismatch for ${tool} ${version}:\n` +
+        `  Expected: ${expectedIntegrity}\n` +
+        `  Actual:   ${actual}`,
+    )
+  }
+}
+
+async function extractToolArchive(
+  assetName: string,
+  archivePath: string,
+  tmpDir: string,
+): Promise<void> {
+  // Extract.
+  log.step('Extracting…')
+  if (assetName.endsWith('.zip')) {
+    const unzipResult = await spawn(
+      isWin32() ? 'powershell' : 'unzip',
+      isWin32()
+        ? [
+            '-Command',
+            `Expand-Archive -Path '${archivePath}' -DestinationPath '${tmpDir}' -Force`,
+          ]
+        : ['-q', '-o', archivePath, '-d', tmpDir],
+      { stdio: 'pipe', shell: isWin32() },
+    )
+    if ((unzipResult.code ?? 0) !== 0) {
+      throw new Error(`Extraction failed for ${archivePath}`)
+    }
+  } else {
+    const tarResult = await spawn('tar', ['xf', archivePath, '-C', tmpDir], {
+      stdio: 'pipe',
+      shell: isWin32(),
+    })
+    if ((tarResult.code ?? 0) !== 0) {
+      throw new Error(`Extraction failed for ${archivePath}`)
+    }
+  }
 }
 
 export async function downloadAndVerify(
@@ -203,53 +258,14 @@ export async function downloadAndVerify(
     const archivePath = path.join(tmpDir, assetName)
 
     try {
-      log.step(`Downloading ${tool} ${version}...`)
-      const result = await spawn(
-        'curl',
-        ['-fSL', '--retry', '3', '-o', archivePath, url],
-        { stdio: quiet ? 'pipe' : 'inherit', shell: isWin32() },
+      await downloadToolArchive(
+        tool,
+        version,
+        archivePath,
+        url,
+        expectedIntegrity,
       )
-      if ((result.code ?? 0) !== 0) {
-        throw new Error(`Download failed: ${url}`)
-      }
-
-      // Verify integrity.
-      log.step('Verifying integrity…')
-      const actual = await computeIntegrity(archivePath)
-      if (actual !== expectedIntegrity) {
-        throw new Error(
-          `Integrity mismatch for ${tool} ${version}:\n` +
-            `  Expected: ${expectedIntegrity}\n` +
-            `  Actual:   ${actual}`,
-        )
-      }
-
-      // Extract.
-      log.step('Extracting…')
-      if (assetName.endsWith('.zip')) {
-        const unzipResult = await spawn(
-          isWin32() ? 'powershell' : 'unzip',
-          isWin32()
-            ? [
-                '-Command',
-                `Expand-Archive -Path '${archivePath}' -DestinationPath '${tmpDir}' -Force`,
-              ]
-            : ['-q', '-o', archivePath, '-d', tmpDir],
-          { stdio: 'pipe', shell: isWin32() },
-        )
-        if ((unzipResult.code ?? 0) !== 0) {
-          throw new Error(`Extraction failed for ${archivePath}`)
-        }
-      } else {
-        const tarResult = await spawn(
-          'tar',
-          ['xf', archivePath, '-C', tmpDir],
-          { stdio: 'pipe', shell: isWin32() },
-        )
-        if ((tarResult.code ?? 0) !== 0) {
-          throw new Error(`Extraction failed for ${archivePath}`)
-        }
-      }
+      await extractToolArchive(assetName, archivePath, tmpDir)
 
       // Write checksum marker, then move to cache.
       await mkdir(cachePath, { recursive: true })
@@ -291,7 +307,7 @@ async function main(): Promise<void> {
     return
   }
   const config = JSON.parse(await readFile(configPath, 'utf8')) as {
-    tools?: Record<string, ToolConfig> | undefined
+    tools?: RootConfig | undefined
   }
 
   let allOk = true
@@ -300,7 +316,7 @@ async function main(): Promise<void> {
       continue
     }
     try {
-      const binaryPath = await downloadAndVerify(tool, toolConfig)
+      const binaryPath = await downloadAndVerify(tool, toolConfig as ToolConfig)
       if (binaryPath) {
         log.info(`${tool} ${toolConfig.version}: ${binaryPath}`)
       } else {
