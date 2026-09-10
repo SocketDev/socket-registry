@@ -31,7 +31,7 @@ import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import {
   extractHttpStatus,
   getPackumentSlim,
-} from '@socketsecurity/lib/npm/meta'
+} from '@socketsecurity/lib-stable/npm/meta'
 
 import { NPM_PACKAGES_PATH } from '../constants/paths.mts'
 import { REPO_ROOT } from '../../fleet/paths.mts'
@@ -39,7 +39,7 @@ import { REPO_ROOT } from '../../fleet/paths.mts'
 import type {
   GetPackumentSlimOptions,
   PackumentMetaSlim,
-} from '@socketsecurity/lib/npm/meta-types'
+} from '@socketsecurity/lib-stable/npm/meta-types'
 
 /**
  * The published-package roster of record. Constructed once here; every consumer
@@ -125,8 +125,8 @@ export type StagedManifestRow = [
  */
 export function collectStagedRoster(manifest: unknown): StagedRosterEntry[] {
   const rows =
-    manifest &&
     typeof manifest === 'object' &&
+    manifest !== null &&
     Array.isArray((manifest as { npm?: unknown }).npm)
       ? ((manifest as { npm: unknown[] }).npm as StagedManifestRow[])
       : []
@@ -315,6 +315,19 @@ export async function loadStagedRoster(options?: {
   return roster.filter(entry => scopes.some(s => entry.name.startsWith(s)))
 }
 
+function countStagedVersions(
+  versionMap: NonNullable<PackumentMetaSlim['versions']>,
+  versions: string[],
+): number {
+  let stagedVersionCount = 0
+  for (let i = 0, { length } = versions; i < length; i += 1) {
+    if (versionMap[versions[i]!]?.staged === true) {
+      stagedVersionCount += 1
+    }
+  }
+  return stagedVersionCount
+}
+
 /**
  * Classify one package's staged-publishing state from its slimmed full
  * packument. Pure — the network lives in `readStagedTrust`. Passing
@@ -335,12 +348,7 @@ export function classifyStagedTrust(
   } as NonNullable<typeof options>
   const versionMap = meta?.versions ?? {}
   const versions = Object.keys(versionMap)
-  let stagedVersionCount = 0
-  for (let i = 0, { length } = versions; i < length; i += 1) {
-    if (versionMap[versions[i]!]?.staged === true) {
-      stagedVersionCount += 1
-    }
-  }
+  const stagedVersionCount = countStagedVersions(versionMap, versions)
   const manifestVersionIsPublished =
     manifestVersion !== undefined &&
     Object.hasOwn(versionMap, manifestVersion) === true
