@@ -22,7 +22,6 @@ import {
   getUnstagedFiles,
   getUnstagedFilesSync,
   isUnstaged as isUnstagedImport,
-  isUnstagedSync as isUnstagedSyncImport,
 } from './git-status.mts'
 import { getGlobMatcher } from './globs.mts'
 
@@ -130,14 +129,6 @@ export async function getModifiedFiles(options?: { cwd?: string | undefined }) {
 }
 
 /**
- * Alias for getUnstagedFilesSync.
- */
-export function getModifiedFilesSync(options?: { cwd?: string | undefined }) {
-  options = { __proto__: null, ...options } as typeof options
-  return getUnstagedFilesSync(options)
-}
-
-/**
  * Alias for isUnstaged.
  */
 export async function isModified(
@@ -146,46 +137,6 @@ export async function isModified(
 ) {
   options = { __proto__: null, ...options } as typeof options
   return await isUnstagedImport(pathname, options)
-}
-
-/**
- * Alias for isUnstagedSync.
- */
-export function isModifiedSync(
-  pathname: string,
-  options?: { cwd?: string | undefined },
-) {
-  options = { __proto__: null, ...options } as typeof options
-  return isUnstagedSyncImport(pathname, options)
-}
-
-interface FilterPackagesOptions {
-  force?: boolean | undefined
-  packageKey?: string | undefined
-}
-
-/**
- * Filter packages to only those with changes, unless force mode is enabled.
- */
-export async function filterPackagesByChanges<
-  T extends Record<string, unknown>,
->(packages: T[], eco: string, options?: FilterPackagesOptions): Promise<T[]> {
-  const { force = false, packageKey = 'socketPackage' } = {
-    __proto__: null,
-    ...options,
-  } as FilterPackagesOptions
-  if (force) {
-    return packages
-  }
-  const changedPackages = (await getAllChangedPackages(eco)) as string[]
-  if (!changedPackages.length) {
-    return []
-  }
-  const changedSet = new Set(changedPackages)
-  return packages.filter(pkg => {
-    const pkgName = (pkg[packageKey] as string) || (pkg['package'] as string)
-    return changedSet.has(pkgName)
-  })
 }
 
 export {

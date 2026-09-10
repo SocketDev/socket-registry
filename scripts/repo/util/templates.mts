@@ -64,13 +64,13 @@ const typedRegistryManifest = registryManifest as unknown as RegistryManifest
 /**
  * Get manifest data from the registry manifest.json.
  */
-export function getManifestData(): RegistryManifest
-export function getManifestData(ecosystem: string): ManifestEntry[] | undefined
-export function getManifestData(
+function getManifestData(): RegistryManifest
+function getManifestData(ecosystem: string): ManifestEntry[] | undefined
+function getManifestData(
   ecosystem: string,
   packageName: string,
 ): ManifestEntryData | undefined
-export function getManifestData(
+function getManifestData(
   ecosystem?: string,
   packageName?: string,
 ): RegistryManifest | ManifestEntry[] | ManifestEntryData | undefined {

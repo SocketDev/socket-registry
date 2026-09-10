@@ -58,21 +58,3 @@ export function getGlobMatcher(
     return !matchesExclude
   }
 }
-
-/**
- * Default ignore patterns for file traversal.
- */
-export const defaultIgnore = [
-  '**/node_modules/**',
-  '**/.git/**',
-  '**/dist/**',
-  '**/build/**',
-  '**/coverage/**',
-  '**/.cache/**',
-  '**/.tmp/**',
-  '**/tmp/**',
-  '**/.next/**',
-  '**/.nuxt/**',
-  '**/.svelte-kit/**',
-  '**/.vite/**',
-]

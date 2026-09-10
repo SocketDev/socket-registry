@@ -1,10 +1,7 @@
 /**
- * @file The test-install harness for npm package overrides: pnpm install flag
+ * @file The test-install harness for npm package overrides: `pnpm install` flag
  *   sets, a temp-dir installer that lays a Socket override on top of the real
- *   package, and the capturing spawn wrapper they share. Split out of
- *   package.mts so that file (the package.json read/update toolkit) stays under
- *   the file-size soft cap; package.mts re-exports these so existing import
- *   paths keep resolving.
+ *   package, and the capturing spawn wrapper they share.
  */
 
 import { existsSync, promises as fs } from 'node:fs'
@@ -28,7 +25,7 @@ export const PNPM_NPM_LIKE_FLAGS = [
   '--config.strict-peer-dependencies=false',
 ]
 
-// Basic pnpm install flags for CI-friendly behavior.
+// Basic `pnpm install` flags for CI-friendly behavior.
 // These are for isolated test installs of third-party packages we don't control.
 export const PNPM_INSTALL_BASE_FLAGS = [
   // Allow git-resolved subdeps in third-party packages (e.g. evalmd → markdown-it).
@@ -172,7 +169,7 @@ export async function installPackageForTesting(
       originalScripts = originalPkgJson?.scripts
       originalDevDependencies = originalPkgJson?.devDependencies
     } else {
-      // Just copying local package, no npm install
+      // Just copying local package, no `npm install`
       const scopedPath = packageName.startsWith('@')
         ? path.join(
             packageTempDir,

@@ -138,16 +138,3 @@ export async function dispatchPublishWorkflow(
   logger.log(`Watching the run: gh ${watchArgs.join(' ')}`)
   return await runInherit('gh', watchArgs, ROOT_PATH)
 }
-
-/**
- * Whether `gh` is callable. A missing CLI is the one dispatch failure worth
- * naming up front, because the fix is an install rather than a re-run.
- */
-export async function hasGitHubCli(): Promise<boolean> {
-  try {
-    await spawn('gh', ['--version'], { stdioString: true })
-    return true
-  } catch {
-    return false
-  }
-}

@@ -19,14 +19,14 @@ interface HeaderOptions {
 /**
  * Format a header title with optional emoji prefix.
  */
-export function formatHeaderTitle(title: string, emoji?: string): string {
+function formatHeaderTitle(title: string, emoji?: string): string {
   return emoji ? `${emoji} ${title}` : title
 }
 
 /**
  * Create a horizontal rule of specified width.
  */
-export function createHorizontalRule(
+function createHorizontalRule(
   width: number = DEFAULT_RULE_WIDTH,
   char: string = DEFAULT_RULE_CHAR,
 ): string {
@@ -47,17 +47,4 @@ export function logSectionHeader(title: string, options?: HeaderOptions): void {
   logger.log('')
   logger.log(`${header}`)
   logger.log(createHorizontalRule(ruleWidth, ruleChar))
-}
-
-/**
- * Log a subsection header without horizontal rule.
- */
-export function logSubsectionHeader(
-  title: string,
-  options?: HeaderOptions,
-): void {
-  const { emoji } = { __proto__: null, ...options } as HeaderOptions
-  const header = formatHeaderTitle(title, emoji)
-  logger.log('')
-  logger.log(`${header}`)
 }
