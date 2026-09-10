@@ -4,32 +4,15 @@
 
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
-import process from 'node:process'
 
-import which from 'which'
 import {
   NODE_MODULES,
   PACKAGE_LOCK_JSON,
   PNPM,
   ROOT_LICENSE_PATH,
-  ROOT_NODE_MODULES_BIN_PATH,
   ROOT_PATH,
   YARN_LOCK,
 } from './paths.mts'
-
-/**
- * Get cached default which command options with augmented PATH.
- */
-let defaultWhichOptions: { path: string } | undefined
-export function getDefaultWhichOptions(): { path: string } {
-  if (defaultWhichOptions === undefined) {
-    defaultWhichOptions = {
-      __proto__: null,
-      path: `${ROOT_NODE_MODULES_BIN_PATH}${path.delimiter}${process.env['PATH']}`,
-    } as { path: string }
-  }
-  return defaultWhichOptions!
-}
 
 /**
  * Get root LICENSE file content.
@@ -40,17 +23,6 @@ export function getLicenseContent(): string {
     licenseContent = readFileSync(ROOT_LICENSE_PATH, 'utf8')
   }
   return licenseContent!
-}
-
-/**
- * Get git executable path.
- */
-let gitExecPath: string | undefined
-export function getGitExecPath(): string {
-  if (gitExecPath === undefined) {
-    gitExecPath = which.sync('git', getDefaultWhichOptions())
-  }
-  return gitExecPath!
 }
 
 /**
@@ -94,20 +66,4 @@ export function getIgnoreGlobs(): readonly string[] {
     ])
   }
   return ignoreGlobs!
-}
-
-/**
- * Parse arguments configuration.
- */
-export const PARSE_ARGS_CONFIG = {
-  options: {
-    force: {
-      type: 'boolean',
-      short: 'f',
-    },
-    quiet: {
-      type: 'boolean',
-    },
-  },
-  strict: false,
 }

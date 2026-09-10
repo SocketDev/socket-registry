@@ -5,10 +5,7 @@
 import os from 'node:os'
 
 const platform = os.platform()
-export const DARWIN = platform === 'darwin'
 export const WIN32 = platform === 'win32'
-
-export const NEWLINE = os.EOL
 
 // Maintained Node.js versions.
 // Manual version list: https://nodejs.org/en/about/previous-releases
