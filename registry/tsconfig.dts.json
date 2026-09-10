@@ -9,7 +9,7 @@
     "noEmit": false,
     "sourceMap": false
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.mts"],
   "exclude": [
     ".cache",
     "dist/**/*",

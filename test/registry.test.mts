@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import * as registry from '../registry/src/index.js'
+import * as registry from '../registry/src/index.mjs'
 import manifest from '../registry/manifest.json' with { type: 'json' }
 
 describe('@socketsecurity/registry current source', () => {

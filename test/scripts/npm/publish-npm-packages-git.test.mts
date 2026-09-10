@@ -57,7 +57,7 @@ describe('checkoutCommit', () => {
 
   test('a dirty local worktree refuses instead of discarding the work', async () => {
     vi.stubEnv('CI', '')
-    setWorktreeStatus(' M registry/src/index.ts\n?? scratch.mts\n')
+    setWorktreeStatus(' M registry/src/index.mts\n?? scratch.mts\n')
     await expect(checkoutCommit('abc1234')).rejects.toThrow(
       /Refusing to reset a dirty worktree[\s\S]*2 uncommitted change\(s\)[\s\S]*Fix:/,
     )

@@ -18,6 +18,7 @@ import { printFooter } from '@socketsecurity/lib-stable/stdio/footer'
 import { printHeader } from '@socketsecurity/lib-stable/stdio/header'
 
 import { buildConfig } from '../.config/rolldown.config.mts'
+import { normalizeRegistryDeclarations } from './declarations.mts'
 import { parseArgs } from 'node:util'
 import { runSequence } from '../../scripts/fleet/util/run-command.mts'
 import process from 'node:process'
@@ -132,6 +133,9 @@ export async function buildTypes(options: BuildOptions = {}) {
     }
   }
 
+  if (exitCode === 0) {
+    await normalizeRegistryDeclarations(path.join(rootPath, 'dist'))
+  }
   return exitCode
 }
 

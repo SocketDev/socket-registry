@@ -17,7 +17,7 @@ if (isCoverageEnabled) {
     if (typeof id === 'string' && id.includes('/registry/dist/')) {
       const srcPath = id
         .replace(/\/registry\/dist\//, '/registry/src/')
-        .replace(/\.js$/, '.ts')
+        .replace(/\.js$/, '.mts')
 
       // Try to resolve the src path.
       try {

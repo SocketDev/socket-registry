@@ -40,6 +40,7 @@
     "lanes": {
       "mid": [
         "test/packages.test.mts",
+        "test/registry/scripts/declarations.test.mts",
         "test/helpers/**/*.test.mts",
         "test/scripts/repo/check/override-lanes-match.test.mts",
         "test/fleet/integration/**/*.test.mts"

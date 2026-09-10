@@ -24,7 +24,7 @@ import fastGlob from 'fast-glob'
 import semver from 'semver'
 import { describe, expect, it } from 'vitest'
 
-import { getManifestData } from '../registry/src/index.js'
+import { getManifestData } from '../registry/src/index.mjs'
 import {
   LICENSE,
   NPM,

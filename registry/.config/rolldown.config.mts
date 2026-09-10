@@ -66,6 +66,7 @@ export const buildConfig: RolldownOptions = {
   // rolldown). Value is already-quoted source text, same contract as esbuild.
   transform: {
     define: {
+      'import.meta.url': 'require("node:url").pathToFileURL(__filename).href',
       'process.env.NODE_ENV': JSON.stringify(
         process.env['NODE_ENV'] || 'production',
       ),

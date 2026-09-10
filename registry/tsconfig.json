@@ -28,7 +28,7 @@
     "useUnknownInCatchVariables": true,
     "verbatimModuleSyntax": false
   },
-  "include": ["src/**/*.ts", "src/**/*.d.ts"],
+  "include": ["src/**/*.mts", "src/**/*.d.ts"],
   "exclude": [
     ".cache",
     "dist/**/*",

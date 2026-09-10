@@ -3,12 +3,13 @@
  *   data.
  */
 
-import type { Manifest, ManifestEntry, ManifestEntryData } from './types'
+import { createRequire } from 'node:module'
 
-// Export types from types.ts
-export * from './types'
+import type { Manifest, ManifestEntry, ManifestEntryData } from './types.mjs'
 
-// Function overloads for proper typing
+export * from './types.mjs'
+
+const readRegistryModule = createRequire(import.meta.url)
 export function getManifestData(): Manifest
 export function getManifestData(ecosystem: string): ManifestEntry[] | undefined
 export function getManifestData(
@@ -20,7 +21,7 @@ export function getManifestData(
   packageName?: string,
 ): Manifest | ManifestEntry[] | ManifestEntryData | ManifestEntry | undefined {
   try {
-    const manifestData = require('../manifest.json') as Manifest
+    const manifestData = readRegistryModule('../manifest.json') as Manifest
 
     if (!ecosystem) {
       return manifestData
