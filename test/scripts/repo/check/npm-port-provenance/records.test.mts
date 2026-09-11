@@ -27,7 +27,7 @@ import {
   makeRow,
   PORT_HEADER_SOURCE,
   PORTED_SHA,
-} from './fixtures.mts'
+} from './fixture/provenance.mts'
 
 describe('parseNpmPortHeader', () => {
   test('reads a wrapped header with a full inline SHA', () => {

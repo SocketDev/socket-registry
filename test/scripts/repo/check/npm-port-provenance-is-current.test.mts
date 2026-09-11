@@ -23,7 +23,7 @@ import {
   PORT_HEADER_SOURCE,
   PORTED_SHA,
   UPSTREAMS,
-} from './npm-port-provenance/fixtures.mts'
+} from './npm-port-provenance/fixture/provenance.mts'
 
 const REPO_ROOT = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),

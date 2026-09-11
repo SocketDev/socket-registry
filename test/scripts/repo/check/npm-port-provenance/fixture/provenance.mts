@@ -4,10 +4,10 @@
  *   so the pure-leg tests and the runner tests compare against the same bytes.
  */
 
-import { mergeGitmodulesPins } from '../../../../../scripts/repo/check/npm-port-provenance/records.mts'
+import { mergeGitmodulesPins } from '../../../../../../scripts/repo/check/npm-port-provenance/records.mts'
 
-import type { NpmPortPin } from '../../../../../scripts/repo/check/npm-port-provenance/records.mts'
-import type { Upstream } from '../../../../../scripts/fleet/lockstep/schema.mts'
+import type { NpmPortPin } from '../../../../../../scripts/repo/check/npm-port-provenance/records.mts'
+import type { Upstream } from '../../../../../../scripts/fleet/lockstep/schema.mts'
 
 export const PORTED_SHA = '45229651ed893773058ba9ccc42af8999014409f'
 

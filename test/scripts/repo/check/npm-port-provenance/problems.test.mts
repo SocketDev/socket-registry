@@ -18,7 +18,7 @@ import {
   PORT_HEADER_SOURCE,
   PORTED_SHA,
   UPSTREAMS,
-} from './fixtures.mts'
+} from './fixture/provenance.mts'
 
 function makeInput(overrides?: Partial<NpmPortCheckInput>): NpmPortCheckInput {
   return {

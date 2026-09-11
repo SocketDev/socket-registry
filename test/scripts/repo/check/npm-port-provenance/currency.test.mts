@@ -8,7 +8,7 @@ import { describe, expect, test } from 'vitest'
 
 import { findNpmPortCurrencyProblems } from '../../../../../scripts/repo/check/npm-port-provenance/currency.mts'
 
-import { makePins, makeRow, UPSTREAMS } from './fixtures.mts'
+import { makePins, makeRow, UPSTREAMS } from './fixture/provenance.mts'
 
 const rows = [makeRow()]
 const pins = makePins()

@@ -6,11 +6,11 @@ import path from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
-import { TEST_NPM_FIXTURES_PATH } from '../../scripts/repo/constants/paths.mts'
+import { TEST_NPM_FIXTURE_PATH } from '../../scripts/repo/constants/paths.mts'
 import { setupNpmPackageTest } from '../util/npm-package.mts'
 
 const UTF8 = 'utf8'
-const testNpmFixturesPath = TEST_NPM_FIXTURES_PATH
+const testNpmFixturePath = TEST_NPM_FIXTURE_PATH
 const { eco, pkgPath, skip, sockRegPkgName } = setupNpmPackageTest(
   import.meta.url,
 )
@@ -98,8 +98,8 @@ describe(`${eco} > ${sockRegPkgName}`, { skip }, () => {
     : require(path.join(pkgPath, 'index.cjs'))
 
   it('parses bun.lockb into yarn.lock contents', () => {
-    const lockbPath = path.join(testNpmFixturesPath, 'fixture-bun.lockb')
-    const yarnLockPath = path.join(testNpmFixturesPath, 'fixture-yarn.lock')
+    const lockbPath = path.join(testNpmFixturePath, 'bun.lockb')
+    const yarnLockPath = path.join(testNpmFixturePath, 'yarn.lock')
     const lockb = readFileSync(lockbPath)
     const yarnLock = readFileSync(yarnLockPath, UTF8)
     expect(hyriousBunLockbIndex.parse(lockb)).toBe(yarnLock)

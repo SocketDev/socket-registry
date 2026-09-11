@@ -91,8 +91,8 @@ export const TEST_NPM_PATH = normalizePath(path.join(ROOT_PATH, `test/${NPM}`))
 export const TEST_NPM_PKG_JSON_PATH = normalizePath(
   path.join(TEST_NPM_PATH, PACKAGE_JSON),
 )
-export const TEST_NPM_FIXTURES_PATH = normalizePath(
-  path.join(TEST_NPM_PATH, 'fixtures'),
+export const TEST_NPM_FIXTURE_PATH = normalizePath(
+  path.join(TEST_NPM_PATH, 'fixture'),
 )
 
 // Relative paths.
