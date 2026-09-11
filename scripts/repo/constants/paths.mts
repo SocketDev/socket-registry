@@ -2,36 +2,12 @@
  * @file Path constants for project structure.
  */
 
-import { existsSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { findUpPackageJson } from '@socketsecurity/lib-stable/packages/find'
+export * from '../../fleet/paths.mts'
 
-/**
- * Find project root by looking for pnpm-workspace.yaml. Anchors on this
- * module's own location (per fleet rule: scripts/ must not depend on the
- * caller's cwd).
- */
-export function findProjectRoot(): string {
-  const __filename = fileURLToPath(import.meta.url)
-  let currentPath = path.dirname(__filename)
-  const root = path.parse(currentPath).root
-
-  while (currentPath !== root) {
-    if (existsSync(path.join(currentPath, 'pnpm-workspace.yaml'))) {
-      return normalizePath(currentPath)
-    }
-    currentPath = path.dirname(currentPath)
-  }
-
-  // Fallback: the directory holding the nearest package.json (walks up via the
-  // fleet lib helper, so it stays correct if this file moves).
-  const nearestPkg = findUpPackageJson(import.meta)
-  return normalizePath(
-    nearestPkg ? path.dirname(nearestPkg) : path.dirname(__filename),
-  )
-}
+import { REPO_ROOT } from '../../fleet/paths.mts'
 
 /**
  * Normalize path separators for cross-platform compatibility.
@@ -53,7 +29,7 @@ export const README_MD = 'README.md'
 export const YARN_LOCK = 'yarn.lock'
 
 // Root path.
-export const ROOT_PATH = findProjectRoot()
+export const ROOT_PATH = normalizePath(REPO_ROOT)
 export const EXTERNAL_TOOLS_CONFIG_PATH = normalizePath(
   path.join(ROOT_PATH, '.config', 'repo', 'external-tools.json'),
 )
