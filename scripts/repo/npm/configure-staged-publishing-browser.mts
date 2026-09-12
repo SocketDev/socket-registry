@@ -58,7 +58,7 @@ import {
 export { DEFAULT_PROFILE_DIR }
 import { CHALLENGE_PROGRESS_INTERVAL_MS } from '../../fleet/registry-infra/npm/challenge-gate.mts'
 
-import type { TrustedPublisherDesired } from '../../fleet/registry-infra/npm/trusted-publisher-plan.mts'
+import type { TrustedPublisherDesired } from '../../fleet/registry-infra/npm/settings/trusted-publisher-plan.mts'
 import {
   classifyAccessPageReadiness,
   formatBindingWriteFailure,

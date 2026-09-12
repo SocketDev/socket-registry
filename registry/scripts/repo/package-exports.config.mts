@@ -9,7 +9,7 @@
  *   entry. Consumers read the data through the `./manifest.json` export.
  */
 
-import type { ExportsConfig } from '../../../scripts/fleet/make-package-exports.mts'
+import type { ExportsConfig } from '../../../scripts/fleet/gen/package-exports.mts'
 
 export const config: ExportsConfig = {
   ignore: ['dist/manifest.js'],
