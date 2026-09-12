@@ -3,7 +3,7 @@
  *   sources.
  */
 import { findWheelhouseRoot } from '../../../.claude/hooks/fleet/_shared/wheelhouse-root.mts'
-import fleetRosterJson from '../../../.claude/skills/fleet/cascading-fleet/lib/fleet-repos.json' with { type: 'json' }
+import fleetRosterJson from '../../../.claude/skills/fleet/cascading-commits/lib/fleet-repos.json' with { type: 'json' }
 import { SOCKET_GITHUB_ORGS } from '../../../scripts/fleet/constants/socket-scopes.mts'
 import { isFleetPackProducerSlug } from '../../../scripts/fleet/member/fleet-membership.mts'
 import {
