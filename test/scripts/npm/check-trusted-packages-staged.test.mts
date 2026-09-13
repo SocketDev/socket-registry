@@ -17,7 +17,8 @@
 import crypto from 'node:crypto'
 
 import { HttpResponseError } from '@socketsecurity/lib/http-request/response-types'
-import { createNpmMetaCache } from '@socketsecurity/lib/eco/npm/meta'
+import { createNpmMetaCache } from '@socketsecurity/lib-stable/npm/meta'
+import stableLibPackageJson from '@socketsecurity/lib-stable/package.json' with { type: 'json' }
 import { describe, expect, test } from 'vitest'
 
 import {
@@ -36,7 +37,16 @@ import type {
   StagedManifestRow,
   StagedRosterEntry,
 } from '../../../scripts/repo/npm/check-trusted-packages-staged.mts'
-import type { PackumentMetaSlim } from '@socketsecurity/lib/eco/npm/meta-types'
+import type { PackumentMetaSlim } from '@socketsecurity/lib-stable/npm/meta-types'
+
+test('stable npm metadata imports use published paths', () => {
+  expect(stableLibPackageJson.exports).toHaveProperty('./npm/meta')
+  expect(stableLibPackageJson.exports).toHaveProperty('./npm/meta-types')
+  expect(stableLibPackageJson.exports).not.toHaveProperty('./eco/npm/meta')
+  expect(stableLibPackageJson.exports).not.toHaveProperty(
+    './eco/npm/meta-types',
+  )
+})
 
 interface VersionSpec {
   staged?: boolean | undefined
