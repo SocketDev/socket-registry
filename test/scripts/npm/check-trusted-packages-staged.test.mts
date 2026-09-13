@@ -17,7 +17,7 @@
 import crypto from 'node:crypto'
 
 import { HttpResponseError } from '@socketsecurity/lib/http-request/response-types'
-import { createNpmMetaCache } from '@socketsecurity/lib/npm/meta'
+import { createNpmMetaCache } from '@socketsecurity/lib/eco/npm/meta'
 import { describe, expect, test } from 'vitest'
 
 import {
@@ -36,7 +36,7 @@ import type {
   StagedManifestRow,
   StagedRosterEntry,
 } from '../../../scripts/repo/npm/check-trusted-packages-staged.mts'
-import type { PackumentMetaSlim } from '@socketsecurity/lib/npm/meta-types'
+import type { PackumentMetaSlim } from '@socketsecurity/lib/eco/npm/meta-types'
 
 interface VersionSpec {
   staged?: boolean | undefined
