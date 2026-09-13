@@ -31,7 +31,7 @@ import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import {
   extractHttpStatus,
   getPackumentSlim,
-} from '@socketsecurity/lib-stable/npm/meta'
+} from '@socketsecurity/lib-stable/eco/npm/meta'
 
 import { NPM_PACKAGES_PATH } from '../constants/paths.mts'
 import { REPO_ROOT } from '../../fleet/paths.mts'
@@ -39,7 +39,7 @@ import { REPO_ROOT } from '../../fleet/paths.mts'
 import type {
   GetPackumentSlimOptions,
   PackumentMetaSlim,
-} from '@socketsecurity/lib-stable/npm/meta-types'
+} from '@socketsecurity/lib-stable/eco/npm/meta-types'
 
 /**
  * The published-package roster of record. Constructed once here; every consumer
