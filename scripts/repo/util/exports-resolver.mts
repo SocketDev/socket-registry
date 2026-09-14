@@ -80,5 +80,5 @@ export function resolveExportsSubpath(
     subpath.length - bestKey.slice(star + 1).length,
   )
   const target = resolveRequireConditions(exportsField[bestKey])
-  return target?.replace('*', () => matched)
+  return target?.replaceAll('*', () => matched)
 }

@@ -29,6 +29,7 @@ import semver from 'semver'
 import { isMainModule } from '../../fleet/process/is-main-module.mts'
 import { runMain } from '../../fleet/process/run-main.mts'
 import { NPM_PACKAGES_PATH, ROOT_PATH } from '../constants/paths.mts'
+import { encodeNpmRegistryName } from '../util/npm-registry-name.mts'
 
 const logger = getDefaultLogger()
 
@@ -389,7 +390,7 @@ export async function wireOnePort(
       | undefined
     try {
       manifest = (await httpJson(
-        `https://registry.npmjs.org/${pkgName.replace('/', '%2f')}/latest`,
+        `https://registry.npmjs.org/${encodeNpmRegistryName(pkgName)}/latest`,
       )) as typeof manifest
     } catch {
       manifest = undefined

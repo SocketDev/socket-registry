@@ -25,7 +25,7 @@ const entry = (
   origName: string,
   version = '1.0.0',
 ): ManifestEntry => [
-  `pkg:npm/${name.replace('@', '%40')}@${version}`,
+  `pkg:npm/${name.replace(/^@/, '%40')}@${version}`,
   {
     license: 'MIT',
     name,

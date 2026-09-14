@@ -32,6 +32,7 @@ import { isMainModule } from '../../fleet/process/is-main-module.mts'
 import { runMain } from '../../fleet/process/run-main.mts'
 import { NPM_PACKAGES_PATH } from '../constants/paths.mts'
 import { resolveExportsSubpath } from '../util/exports-resolver.mts'
+import { encodeNpmRegistryName } from '../util/npm-registry-name.mts'
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 
 const logger = getDefaultLogger()
@@ -211,7 +212,7 @@ async function auditOverride(pkgDir: string): Promise<SurfaceGap[]> {
   ) as { socket?: { upstreamCompatRange?: string | undefined } | undefined }
   const compatRange = manifest.socket?.upstreamCompatRange
   const packument = (await fetchJson(
-    `${REGISTRY_BASE}/${upstreamName.replace('/', '%2f')}`,
+    `${REGISTRY_BASE}/${encodeNpmRegistryName(upstreamName)}`,
   )) as {
     versions?: Record<
       string,
