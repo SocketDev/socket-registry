@@ -120,8 +120,8 @@ jobs:
         with:
           # Thin members download the wheelhouse release bundle during
           # `pnpm install`, and the mint is what authorizes that download.
-          payload-token-client-id: ${{ vars.SOCKET_PAYLOAD_CLIENT_ID }}
-          payload-token-private-key: ${{ secrets.SOCKET_PAYLOAD_APP_PRIVATE_KEY }}
+          payload-token-client-id: ${{ secrets.SOCKET_RELEASE_CLIENT_ID || vars.SOCKET_RELEASE_CLIENT_ID }}
+          payload-token-private-key: ${{ secrets.SOCKET_RELEASE_APP_PRIVATE_KEY }}
 
       # Build dist/ before staging — the stager imports the registry package's
       # own built output, and `files` ships dist/, so the tarballs need it.

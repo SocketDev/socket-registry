@@ -3,7 +3,7 @@
 # referenced by ./ path — no cross-repo reusable workflow, no first-party
 # `uses:@sha`. Repo-specific jobs (test-npm-packages) live alongside the fleet
 # check/test shape under `jobs:`.
-name: ⚡ CI
+name: "ci: gates"
 
 # PUSH, never pull_request. The fleet takes no outside contributions and
 # lands on main directly, so a pull_request trigger adds no coverage a push
