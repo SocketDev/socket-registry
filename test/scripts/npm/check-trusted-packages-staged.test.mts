@@ -36,7 +36,7 @@ import type {
   StagedManifestRow,
   StagedRosterEntry,
 } from '../../../scripts/repo/npm/check-trusted-packages-staged.mts'
-import type { PackumentMetaSlim } from '@socketsecurity/lib-stable/eco/npm/meta-types'
+import type { PackumentMetaSlim } from '@socketsecurity/lib-stable/eco/npm/meta/types'
 
 interface VersionSpec {
   staged?: boolean | undefined
