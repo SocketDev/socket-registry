@@ -46,6 +46,7 @@ for (let i = 0, { length } = entryFiles; i < length; i += 1) {
 }
 
 export const buildConfig: RolldownOptions = {
+  experimental: { attachDebugInfo: 'none' },
   // bundle:false equivalent — keep each source file as its own module with
   // inter-file requires intact.
   external: (id: string) => !id.startsWith('.') && !path.isAbsolute(id),
