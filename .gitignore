@@ -2790,7 +2790,7 @@ docs/fleet/workflows/practices.md
 docs/fleet/workflows/publishing.md
 docs/fleet/workflows/registry-settings.md
 docs/references/fleet/sfw-local-install.md
-patches/brace-expansion@5.0.9.patch
+patches/brace-expansion@5.0.12.patch
 patches/minimatch@10.2.6.patch
 scripts/fleet/agent-orphan-sweep.mts
 scripts/fleet/ai-backends-status.mts

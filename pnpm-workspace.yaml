@@ -604,6 +604,7 @@ patchedDependencies:
   # The patch restores `expand` as the default on each build separately;
   # patching one build leaves the other broken.
   # On a bump, regenerate via `pnpm patch brace-expansion` + `pnpm patch-commit`.
+  brace-expansion@5.0.12: patches/fleet/brace-expansion@5.0.12.patch
   # default-export interop (managed by socket-wheelhouse sync; do not edit):
   # v10's ESM build ships named exports only, so `import minimatch from
   # 'minimatch'` throws "does not provide an export named default". That is

@@ -538,6 +538,7 @@ overrides:
 
 patchedDependencies:
   '@polka/url@1.0.0-next.29': 60d82e95c5e67e66c41fe2987ddd4fc3f4992f12158e5c56838e7682e6ef72ea
+  brace-expansion@5.0.12: 5acc253ec520f13d5bbca0bf6e87a6c58d4e5bd7b7e843fab99c6e386685a9cf
   minimatch@10.2.6: 83f1ea5b333d1b6fe1b36f93ccb222aa02e5dd468b2c646e285d7d53d234e174
   run-local-ci@0.18.1: a335253820e963c2659ec1b08ee143e865eb39ec80ca7d313fff50c33e157d99
   vitest@5.0.0: 555bbde80f3e83833e33f6825435e36659d4e2a927e2a3cb5dbc4d6eaeef976b
@@ -10633,7 +10634,7 @@ snapshots:
 
   boolbase@1.0.0: {}
 
-  brace-expansion@5.0.12:
+  brace-expansion@5.0.12(patch_hash=5acc253ec520f13d5bbca0bf6e87a6c58d4e5bd7b7e843fab99c6e386685a9cf):
     dependencies:
       balanced-match: 4.0.4
 
@@ -12321,7 +12322,7 @@ snapshots:
 
   minimatch@10.2.6(patch_hash=83f1ea5b333d1b6fe1b36f93ccb222aa02e5dd468b2c646e285d7d53d234e174):
     dependencies:
-      brace-expansion: 5.0.12
+      brace-expansion: 5.0.12(patch_hash=5acc253ec520f13d5bbca0bf6e87a6c58d4e5bd7b7e843fab99c6e386685a9cf)
 
   minipass-collect@2.0.1:
     dependencies:

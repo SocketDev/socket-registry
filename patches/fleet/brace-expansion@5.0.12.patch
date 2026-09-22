@@ -1,8 +1,8 @@
 diff --git a/dist/commonjs/index.js b/dist/commonjs/index.js
-index 869a6be..eac919c 100644
+index 48cf0d3..650253b 100644
 --- a/dist/commonjs/index.js
 +++ b/dist/commonjs/index.js
-@@ -286,4 +286,8 @@ function expand_(str, max, maxLength, isTop) {
+@@ -330,4 +330,8 @@ function expand_(str, max, maxLength, maxDepth, depth, maxRewrites, isTop) {
      }
      return acc;
  }
@@ -13,10 +13,10 @@ index 869a6be..eac919c 100644
  //# sourceMappingURL=index.js.map
 \ No newline at end of file
 diff --git a/dist/esm/index.js b/dist/esm/index.js
-index fd68f57..50dab56 100644
+index 0e0cc96..a9332ae 100644
 --- a/dist/esm/index.js
 +++ b/dist/esm/index.js
-@@ -282,4 +282,9 @@ function expand_(str, max, maxLength, isTop) {
+@@ -326,4 +326,9 @@ function expand_(str, max, maxLength, maxDepth, depth, maxRewrites, isTop) {
      }
      return acc;
  }
