@@ -51,7 +51,7 @@ allowBuilds:
 pmOnFail: warn
 
 catalog:
-  '@mdn/browser-compat-data': 8.1.0
+  '@mdn/browser-compat-data': 8.1.1
   '@modelcontextprotocol/client': 2.0.0
   # run-local-ci (bin: local-ci, formerly published as @redwoodjs/agent-ci)
   # runs a repo's GitHub Actions workflows locally in Docker so a change can
@@ -60,14 +60,14 @@ catalog:
   # transitive) so its version is uniform fleet-wide.
   '@ultrathink/acorn.rs.wasm': 0.1.1
   'ata-validator': 1.27.0
-  'brace-expansion': 5.0.9
+  'brace-expansion': 5.0.12
   'dtu-github-actions': 0.18.1
   # shadscan — shadcn UI audit CLI for the design skills (missing UI
   # fundamentals report). Exact-pinned; the whole package is younger than
   # the soak window, so it carries a minimumReleaseAgeExclude entry below.
   '@shadscan/cli': 0.17.0
   '@sinclair/typebox': 0.34.52
-  'ecc-agentshield': 1.4.0
+  'ecc-agentshield': 1.6.0
   'mcp-tada': 0.4.0
   'run-local-ci': 0.18.1
   'sharp': 0.35.4
@@ -75,7 +75,7 @@ catalog:
   # pinned while the fleet migrates; the 0.x entry is deleted once no member
   # imports the scoped name. 1.3.10 is inside the 7-day soak, so it carries a
   # dated minimumReleaseAgeExclude entry above.
-  'typebox': 1.3.30
+  'typebox': 1.3.31
   '@socketregistry/packageurl-js': 1.5.3
   # -stable aliases: pnpm `overrides:` can't redirect a package's own
   # name when used INSIDE that same package — Node ESM treats it as a
@@ -98,12 +98,12 @@ catalog:
   '@types/node': 26.5.1
   '@types/semver': 7.8.0
   '@types/shell-quote': 1.7.5
-  'compromise': 14.16.0
+  'compromise': 14.17.0
   # fast-check — property-based testing for pure fleet-script logic (pin
   # derivation, version compare, config validation). Runs standalone in vitest.
   # published: 2026-07-08 (past 7-day soak). See .claude/skills/fleet/property-testing.
-  'fast-check': 4.9.0
-  'magic-string': 1.2.3
+  'fast-check': 4.10.0
+  'magic-string': 1.4.1
   'markdownlint-cli2': 0.23.2
   'mdast-util-from-markdown': 2.0.3
   # GFM pair for render-faithful markdown parsing (tables, footnotes,
@@ -179,20 +179,20 @@ catalog:
   # platform-binary optionalDependencies, despite the monorepo's internal
   # workspace layout. dtu-github-actions is its GitHub-Actions parser, pinned
   # explicitly (not left transitive) so its version is uniform fleet-wide.
-  '@anthropic-ai/claude-code': 2.1.220
+  '@anthropic-ai/claude-code': 2.1.272
   # comptime 0.1.0 — Zig-inspired build-time evaluation for Rolldown/Vite.
   # Wraps comptime(() => expr) calls; the Rolldown plugin evaluates them at
   # build time and replaces the call site with the serialized literal result.
   # Use in rolldown.config.mts for any repo with a Rolldown build.
   # published: 2026-05-07 (26 days, past 7-day soak)
   'comptime': 0.1.0
-  'rolldown-plugin-dts': 0.28.4
+  'rolldown-plugin-dts': 0.28.5
   'svgo': 4.1.0
-  'vite': 8.2.2
+  'vite': 8.3.0
   'vitiate': 0.3.1
   '@vitiate/core': 0.3.1
 
-  'browserslist': 4.28.7
+  'browserslist': 4.28.9
   'cacache': 20.0.4
   'clipboardy': 4.0.0
   'debug': ^4.4.3
@@ -208,11 +208,11 @@ catalog:
   'globals': 16.5.0
   'iconv-lite': 0.6.3
   'js-yaml': npm:@zkochan/js-yaml@0.0.10
-  'libnpmpack': 9.1.11
+  'libnpmpack': 9.1.13
   'make-fetch-happen': 15.0.6
   'normalize-package-data': 8.0.0
   'npm-package-arg': 13.0.2
-  'out-url': 1.2.2
+  'out-url': 1.3.0
   'pacote': 21.5.1
   'read-yaml-file': 2.1.0
   'source-map-support': 0.5.21
@@ -221,21 +221,21 @@ catalog:
   'streaming-iterables': 8.0.1
   'tar': 7.5.22
   'trash': 10.1.1
-  'update-browserslist-db': 1.2.3
+  'update-browserslist-db': 1.3.3
   'validate-npm-package-name': 6.0.2
   'which': 5.0.0
-  'yaml': 2.9.0
+  'yaml': 2.9.1
   'yargs-parser': 22.0.0
   'yoctocolors-cjs': 2.1.3
   # Restored repo-owned entries an older cascade splice dropped; versions
   # match the last state origin CI installed with.
-  '@babel/generator': 7.29.7
-  '@babel/parser': 7.29.7
-  '@babel/traverse': 7.29.7
-  '@babel/types': 7.29.7
-  '@biomejs/biome': 2.5.5
+  '@babel/generator': 7.29.8
+  '@babel/parser': 7.29.8
+  '@babel/traverse': 7.29.8
+  '@babel/types': 7.29.8
+  '@biomejs/biome': 2.5.13
   '@biomejs/js-api': 3.0.0
-  '@biomejs/wasm-nodejs': 2.5.5
+  '@biomejs/wasm-nodejs': 2.5.13
   '@inquirer/checkbox': 4.3.2
   '@inquirer/core': 10.3.2
   '@inquirer/prompts': 7.10.1
@@ -252,7 +252,7 @@ catalog:
   '@types/validate-npm-package-name': 4.0.2
   '@types/which': 3.0.4
   '@typescript/native-preview': 7.0.0-dev.20260510.1
-  '@yarnpkg/extensions': 2.0.6
+  '@yarnpkg/extensions': 2.0.7
   '@zkochan/js-yaml': 0.0.10
   # agent-ci runs a repo's GitHub Actions workflows locally in Docker so a
   # change can be validated before it's pushed (see the `agent-ci` skill).
@@ -262,7 +262,7 @@ catalog:
   # explicitly (not left transitive) so its version is uniform fleet-wide.
   '@babel/core': 7.29.7
   'html5parser': 3.0.0
-  'npm-run-all2': 9.0.2
+  'npm-run-all2': 9.0.3
 resolutionMode: highest
 
 # Soak time for external-tools updates: minutes a release must have
@@ -455,7 +455,7 @@ overrides:
   '@socketsecurity/registry': 'catalog:'
   '@socketsecurity/sdk': 'catalog:'
   '@swc/core': '1.16.1'
-  'brace-expansion@>=4': '5.0.9'
+  'brace-expansion@>=4': '5.0.12'
   'chalk@>=5': '5.6.2'
   'es-define-property': 'npm:@socketregistry/es-define-property@1.0.7'
   'es-set-tostringtag': 'npm:@socketregistry/es-set-tostringtag@1.0.10'
@@ -467,9 +467,9 @@ overrides:
   'hasown': 'npm:@socketregistry/hasown@1.0.7'
   'iconv-lite': '0.7.3'
   'isexe@>=3': '4.0.0'
-  'js-yaml@>=5.0.0 <5.2.2': '5.4.1'
+  'js-yaml@>=5.0.0 <5.2.2': '5.4.2'
   'lru-cache@>=10': '11.5.2'
-  'magic-string': '1.2.3'
+  'magic-string': '1.4.1'
   'mime-db': '1.54.0'
   'mime-types@>=3': '3.0.2'
   'minimatch@>=3': '10.2.6'
@@ -488,7 +488,7 @@ overrides:
   'uuid': '11.1.1'
   'which': '7.0.0'
   'wrap-ansi@>=8': '9.0.2'
-  'yaml@2': '2.9.0'
+  'yaml@2': '2.9.1'
 
   # Repo-specific overrides below.
   # Dedup: @grpc/proto-loader 0.7 (dockerode direct) vs 0.8 (via @grpc/grpc-js,
@@ -503,7 +503,7 @@ overrides:
   '@types/unist@2': '3.0.3'
   # Dedup compat shim: ansi-regex 5 (CJS yargs@17 cluster) vs 6 (ESM,
   # markdownlint). See the patchedDependencies comment for the shim.
-  'ansi-regex': '6.2.2'
+  'ansi-regex': '6.3.0'
   # Dedup: color-convert 0.5.3 is a declared-but-unused dependency of
   # css-color-converter@2.0.0 (badge-maker) — its lib/index.js never
   # `require`s color-convert at all, so the 0.5.3 resolution is dead weight.
@@ -519,7 +519,7 @@ overrides:
   # Dedup compat shim: content-type 1 (body-parser direct) vs 2 (via type-is,
   # also a body-parser dep). See the patchedDependencies comment for the API
   # break + the shim that restores it.
-  'content-type': '2.0.0'
+  'content-type': '2.1.0'
   # Dedup: css-tree 2.2.1 (csso, pinned ~2.2.0, via svgo) vs 3.2.1 (svgo
   # direct). css-tree 3's changelog lists deep AST-shape breaks (Block/Ratio/
   # MediaFeature node shape, List.getSize()->size), but none touch the
@@ -534,7 +534,7 @@ overrides:
   'is-unicode-supported': 'npm:@socketregistry/is-unicode-supported@1.0.5'
   'json-stable-stringify': 'npm:@socketregistry/json-stable-stringify@1.0.14'
   # Dependabot transitive-advisory pin (soaked, semver-compatible).
-  'markdown-it': '14.3.0'
+  'markdown-it': '14.3.2'
   # Dedup: picomatch 2 (micromatch, via fast-glob -> globby ->
   # markdownlint-cli2) vs 4 (fdir/tinyglobby, via vite/vitest). micromatch's
   # `picomatch(glob, options, returnState)` call and its
@@ -542,13 +542,13 @@ overrides:
   # toPosixSlashes) are unchanged; the one behavior diff (utils.isWindows()
   # no longer reads an options override) is never hit — neither fast-glob nor
   # globby ever pass a `windows` option. Collapse unscoped to 4.0.4.
-  'picomatch': '4.0.5'
-  'protobufjs': '7.6.5'
+  'picomatch': '4.0.7'
+  'protobufjs': '7.6.6'
   'rolldown': 'catalog:'
   # sharp 0.35.0 dropped its install script (source compile is opt-in); pin the
   # logo generator's sharp to 0.35.3 so it stays on a no-build-script line — its
   # prebuilt @img/sharp-* binaries cover the rasterize + animated-GIF encode.
-  'sharp': '0.35.3'
+  'sharp': '0.35.4'
   'string-width': '8.2.2'
   # Dedup compat shim: strip-ansi 6 (CJS yargs@17 cluster) vs 7 (ESM,
   # via string-width@8 -> markdownlint). See the patchedDependencies comment
@@ -604,7 +604,6 @@ patchedDependencies:
   # The patch restores `expand` as the default on each build separately;
   # patching one build leaves the other broken.
   # On a bump, regenerate via `pnpm patch brace-expansion` + `pnpm patch-commit`.
-  brace-expansion@5.0.9: patches/fleet/brace-expansion@5.0.9.patch
   # default-export interop (managed by socket-wheelhouse sync; do not edit):
   # v10's ESM build ships named exports only, so `import minimatch from
   # 'minimatch'` throws "does not provide an export named default". That is
