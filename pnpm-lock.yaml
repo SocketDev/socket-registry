@@ -210,8 +210,8 @@ catalogs:
       specifier: 0.17.0
       version: 0.17.0
     '@socketregistry/packageurl-js-stable':
-      specifier: npm:@socketregistry/packageurl-js@1.5.2
-      version: 1.5.2
+      specifier: npm:@socketregistry/packageurl-js@1.5.3
+      version: 1.5.3
     '@socketsecurity/lib-stable':
       specifier: npm:@socketsecurity/lib@7.0.2
       version: 7.0.2
@@ -477,7 +477,7 @@ catalogs:
 overrides:
   '@polka/url': 1.0.0-next.29
   '@sinclair/typebox': 0.34.52
-  '@socketregistry/packageurl-js': 1.5.2
+  '@socketregistry/packageurl-js': 1.5.3
   '@socketsecurity/lib': 7.0.2
   '@socketsecurity/registry': 2.0.5
   '@socketsecurity/sdk': 4.1.4
@@ -599,11 +599,11 @@ importers:
         specifier: workspace:1.0.5
         version: link:packages/npm/is-unicode-supported
       '@socketregistry/packageurl-js':
-        specifier: 1.5.2
-        version: 1.5.2
+        specifier: 1.5.3
+        version: 1.5.3
       '@socketregistry/packageurl-js-stable':
         specifier: 'catalog:'
-        version: '@socketregistry/packageurl-js@1.5.2'
+        version: '@socketregistry/packageurl-js@1.5.3'
       '@socketsecurity/lib':
         specifier: 7.0.2
         version: 7.0.2(typescript@7.1.0-dev.20260909.1)
@@ -1235,7 +1235,7 @@ importers:
     dependencies:
       '@socketregistry/packageurl-js-stable':
         specifier: 'catalog:'
-        version: '@socketregistry/packageurl-js@1.5.2'
+        version: '@socketregistry/packageurl-js@1.5.3'
       '@socketsecurity/lib-stable':
         specifier: 'catalog:'
         version: '@socketsecurity/lib@7.0.2(typescript@7.1.0-dev.20260909.1)'
@@ -3497,7 +3497,7 @@ importers:
     dependencies:
       '@socketregistry/packageurl-js-stable':
         specifier: 'catalog:'
-        version: '@socketregistry/packageurl-js@1.5.2'
+        version: '@socketregistry/packageurl-js@1.5.3'
       '@socketsecurity/lib-stable':
         specifier: 'catalog:'
         version: '@socketsecurity/lib@7.0.2(typescript@7.1.0-dev.20260909.1)'
@@ -6005,9 +6005,9 @@ packages:
     resolution: {integrity: sha512-ykbeQpj5hlpM378udshcKJSyS0FMGL1o2bcAQd2lqXMnkDd0qfPXfV93JLWgiy8tlZP8MribUGZIH1gPpF4nqQ==}
     engines: {node: '>=24'}
 
-  '@socketregistry/packageurl-js@1.5.2':
-    resolution: {integrity: sha512-j8plTfIjXEU8u2q4clv9njGqHFXQz0Ad4lscj2em3QcQlaWD/UHaQeYgyKlAiM6PowkEWMXFhVD7cgm1BzX6Sg==}
-    engines: {node: '>=24', npm: '>=12.0.1', pnpm: '>=11.0.5'}
+  '@socketregistry/packageurl-js@1.5.3':
+    resolution: {integrity: sha512-L3EIqOlRbUgZK6lHhaiWE6QO6U94SM13GywFRxsjN062ZcxzP/B2Qv3TyKN002WOXrW1iZoPRfYnIK5glOrQFQ==}
+    engines: {node: '>=24', npm: ^11.19.0 || >=12.0.2, pnpm: ^11.25.0 || >=12.3.4}
 
   '@socketregistry/safe-buffer@1.0.9':
     resolution: {integrity: sha512-eV4uYchI1+vQeKpFG+aBlhVQ/AaaPTTXaan+ReiNn/izy8U9hfT4WC8l4g8o8BC3zaeNnsNVxec14hJH/y2y3g==}
@@ -10035,7 +10035,7 @@ snapshots:
 
   '@socketregistry/json-stable-stringify@1.0.14': {}
 
-  '@socketregistry/packageurl-js@1.5.2': {}
+  '@socketregistry/packageurl-js@1.5.3': {}
 
   '@socketregistry/safe-buffer@1.0.9': {}
 
