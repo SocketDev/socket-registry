@@ -276,7 +276,6 @@
     "normalize-package-data": "catalog:",
     "npm-high-impact": "catalog:",
     "npm-package-arg": "catalog:",
-    "npm-run-all2": "catalog:",
     "out-url": "catalog:",
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
@@ -352,8 +351,5 @@
     "puppeteer": false,
     "rolldown": true,
     "ssh2": false
-  },
-  "npm-run-all2": {
-    "nodeRun": true
   }
 }

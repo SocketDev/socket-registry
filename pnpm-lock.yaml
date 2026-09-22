@@ -383,9 +383,6 @@ catalogs:
     npm-package-arg:
       specifier: 13.0.2
       version: 13.0.2
-    npm-run-all2:
-      specifier: 9.0.2
-      version: 9.0.2
     out-url:
       specifier: 1.2.2
       version: 1.2.2
@@ -781,9 +778,6 @@ importers:
       npm-package-arg:
         specifier: 'catalog:'
         version: 13.0.2
-      npm-run-all2:
-        specifier: 'catalog:'
-        version: 9.0.2
       out-url:
         specifier: 'catalog:'
         version: 1.2.2
@@ -8112,11 +8106,6 @@ packages:
     resolution: {integrity: sha512-TakBap6OM1w0H73VZVDf44iFXsOS3h+L4wVMXmbWOQroZgFhMch0juN6XSzBNlD965yIKvWg2dfu7NSiaYLxtw==}
     engines: {node: ^20.17.0 || >=22.9.0}
 
-  npm-run-all2@9.0.2:
-    resolution: {integrity: sha512-+dd4SO2jAlLE06OzmJKzIe6QvvjXezcbmobnh8usR0a8BzQCABTdqTXqVPji0ICOhSQpIIrkGd7IzNl5iDaRSA==}
-    engines: {node: ^22.22.2 || ^24.15.0 || >=26.0.0, npm: '>= 10'}
-    hasBin: true
-
   npm-run-path@3.1.0:
     resolution: {integrity: sha512-Dbl4A/VfiVGLgQv29URL9xshU8XDY1GeLy+fsaZ1AA8JDSfjvr5P5+pzRbWqRSBxk6/DW7MIh8lTM/PaGnP2kg==}
     engines: {node: '>=8'}
@@ -12458,17 +12447,6 @@ snapshots:
       proc-log: 6.1.0
     transitivePeerDependencies:
       - supports-color
-
-  npm-run-all2@9.0.2:
-    dependencies:
-      ansi-styles: 6.2.3
-      cross-spawn: 7.0.6
-      memorystream: 0.3.1
-      picomatch: 4.0.5
-      pidtree: 1.0.0
-      read-package-json-fast: 6.0.0
-      shell-quote: 1.10.0
-      which: 7.0.0
 
   npm-run-path@3.1.0:
     dependencies:

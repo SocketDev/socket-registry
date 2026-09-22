@@ -262,7 +262,6 @@ catalog:
   # explicitly (not left transitive) so its version is uniform fleet-wide.
   '@babel/core': 7.29.7
   'html5parser': 3.0.0
-  'npm-run-all2': 9.0.2
 resolutionMode: highest
 
 # Soak time for external-tools updates: minutes a release must have
