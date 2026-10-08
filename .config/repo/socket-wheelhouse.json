@@ -5,10 +5,6 @@
   "ai": {
     "localAssist": true
   },
-  "bundle": {
-    "ref": "fleet-pack-011e1c67ce8860fdf7dca52a45e1a8d6620379e6",
-    "cascadeSha": "011e1c67ce8860fdf7dca52a45e1a8d6620379e6"
-  },
   "repo": {
     "type": "mono"
   },
@@ -17,7 +13,9 @@
     "type": "js"
   },
   "release": {
-    "publishedPackages": ["@socketsecurity/registry"],
+    "publishedPackages": [
+      "@socketsecurity/registry"
+    ],
     "versionSource": "package.json",
     "provenanceOrphanBaseline": [
       {
@@ -78,7 +76,9 @@
         "test/scripts/repo/npm/gen-engines-floors-help.test.mts",
         "test/scripts/repo/npm/update-manifest-help.test.mts"
       ],
-      "slow": ["test/fleet/e2e/**/*.test.mts"]
+      "slow": [
+        "test/fleet/e2e/**/*.test.mts"
+      ]
     }
   }
 }
