@@ -2,8 +2,8 @@ import { afterEach, expect, it, vi } from 'vitest'
 import {
   findTsReferenceChoices,
   selectOverrideTemplate,
-} from '../../../../scripts/repo/npm/override/template.mts'
-import { TEMPLATE_CJS_ESM } from '../../../../scripts/repo/constants/templates.mts'
+} from '../../../../scripts/npm/override/template.mts'
+import { TEMPLATE_CJS_ESM } from '../../../../scripts/constants/templates.mts'
 
 const { confirm, select, search } = vi.hoisted(() => ({
   __proto__: null,

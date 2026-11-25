@@ -6,8 +6,8 @@
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 
-import { NPM, NPM_PACKAGES_PATH } from '../../scripts/repo/constants/paths.mts'
-import { isPackageTestingSkipped } from '../../scripts/repo/util/tests.mts'
+import { NPM, NPM_PACKAGES_PATH } from '../../scripts/constants/paths.mts'
+import { isPackageTestingSkipped } from '../../scripts/util/tests.mts'
 
 interface SetupNpmPackageTestResult {
   eco: string
@@ -185,7 +185,7 @@ function createDualLaneCompare(
       const shadowOutcome = callLane(shadow, thisArg, args)
       if (!outcomesAgree(primaryOutcome, shadowOutcome)) {
         throw new Error(
-          `packages/npm/${pkgName}: entry lanes disagree. Saw: ${primaryLabel} ${laneOutcome(primaryOutcome)}, ${shadowLabel} ${laneOutcome(shadowOutcome)}. Wanted: identical outcomes on every input. Fix: fork the divergent lane to match the upstream contract (see scripts/repo/check/override-lanes-match.mts).`,
+          `packages/npm/${pkgName}: entry lanes disagree. Saw: ${primaryLabel} ${laneOutcome(primaryOutcome)}, ${shadowLabel} ${laneOutcome(shadowOutcome)}. Wanted: identical outcomes on every input. Fix: fork the divergent lane to match the upstream contract (see scripts/check/override-lanes-match.mts).`,
         )
       }
       if (primaryOutcome.threw) {

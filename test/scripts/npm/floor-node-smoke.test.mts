@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
-import { resolveNodeEntry } from '../../../scripts/repo/npm/floor-node-smoke.mts'
+import { resolveNodeEntry } from '../../../scripts/npm/floor-node-smoke.mts'
 
-describe('scripts/repo/npm/floor-node-smoke', () => {
+describe('scripts/npm/floor-node-smoke', () => {
   it('resolves a direct string entry', () => {
     expect(resolveNodeEntry('./index.js')).toBe('./index.js')
   })

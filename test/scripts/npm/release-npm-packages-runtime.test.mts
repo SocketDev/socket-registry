@@ -3,8 +3,8 @@ import {
   hasPackageChanged,
   maybeBumpPackage,
   packageData,
-} from '../../../scripts/repo/npm/release-npm-packages.mts'
-import type { BumpState } from '../../../scripts/repo/npm/release-npm-packages.mts'
+} from '../../../scripts/npm/release-npm-packages.mts'
+import type { BumpState } from '../../../scripts/npm/release-npm-packages.mts'
 
 const mocks = vi.hoisted(() => ({
   localHashes: vi.fn(),
@@ -37,13 +37,10 @@ vi.mock(
   }),
 )
 
-vi.mock(
-  import('../../../scripts/repo/npm/release-npm-packages-hashes.mts'),
-  () => ({
-    getLocalPackageFileHashes: mocks.localHashes,
-    getRemotePackageFileHashes: mocks.remoteHashes,
-  }),
-)
+vi.mock(import('../../../scripts/npm/release-npm-packages-hashes.mts'), () => ({
+  getLocalPackageFileHashes: mocks.localHashes,
+  getRemotePackageFileHashes: mocks.remoteHashes,
+}))
 
 function createState(): BumpState {
   return {

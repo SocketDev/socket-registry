@@ -1,5 +1,5 @@
 /**
- * @file Tests for the scripts/repo/npm/publish-npm-packages.mts lane router. The
+ * @file Tests for the scripts/npm/publish-npm-packages.mts lane router. The
  *   orchestrator used to carry a local upload path behind `--force`; that path
  *   is deleted, so outside CI the only thing the script can do is DISPATCH the
  *   workflow. These specs pin that the escape hatch is gone and that the local
@@ -11,12 +11,11 @@ import path from 'node:path'
 
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
-import { ROOT_PATH } from '../../../scripts/repo/constants/paths.mts'
+import { ROOT_PATH } from '../../../scripts/constants/paths.mts'
 
 const ORCHESTRATOR_PATH = path.join(
   ROOT_PATH,
   'scripts',
-  'repo',
   'npm',
   'publish-npm-packages.mts',
 )
@@ -24,7 +23,6 @@ const ORCHESTRATOR_PATH = path.join(
 const ARGS_PATH = path.join(
   ROOT_PATH,
   'scripts',
-  'repo',
   'npm',
   'publish-npm-packages-args.mts',
 )
@@ -65,7 +63,7 @@ describe('main outside CI', () => {
     async (...args) => {
       process.argv = [process.argv[0]!, ORCHESTRATOR_PATH, ...args]
       const { dryRunFlag, distTagFlag } =
-        await import('../../../scripts/repo/npm/publish-npm-packages-args.mts')
+        await import('../../../scripts/npm/publish-npm-packages-args.mts')
       expect(dryRunFlag).toBe(true)
       expect(distTagFlag).toBe('next')
     },
@@ -74,7 +72,7 @@ describe('main outside CI', () => {
   test('retains dry-run flags after the argument separator', async () => {
     process.argv = [process.argv[0]!, ORCHESTRATOR_PATH, '--', '--dry-run']
     const { dryRunFlag } =
-      await import('../../../scripts/repo/npm/publish-npm-packages-args.mts')
+      await import('../../../scripts/npm/publish-npm-packages-args.mts')
     expect(dryRunFlag).toBe(true)
   })
 
@@ -83,7 +81,40 @@ describe('main outside CI', () => {
     // The module captures ENV + cliArgs at import time, so it is imported
     // fresh under the stubbed environment.
     const { main } =
-      await import('../../../scripts/repo/npm/publish-npm-packages.mts')
+      await import('../../../scripts/npm/publish-npm-packages.mts')
     await expect(main()).resolves.toBe(0)
+  })
+})
+
+describe('main in CI', () => {
+  let originalArgv: string[]
+
+  beforeEach(() => {
+    originalArgv = process.argv
+    process.argv = [process.argv[0]!, ORCHESTRATOR_PATH]
+    vi.stubEnv('CI', 'true')
+    vi.stubEnv('GITHUB_ACTIONS', '')
+    vi.resetModules()
+  })
+
+  afterEach(() => {
+    process.argv = originalArgv
+    vi.unstubAllEnvs()
+    vi.resetModules()
+  })
+
+  test('refuses a live stage outside the publish workflow', async () => {
+    const { main } =
+      await import('../../../scripts/npm/publish-npm-packages.mts')
+    await expect(main()).rejects.toThrow(
+      /requires a registry npm publish workflow/u,
+    )
+  })
+
+  test('requires local context for interactive promotion', async () => {
+    process.argv.push('--approve')
+    const { main } =
+      await import('../../../scripts/npm/publish-npm-packages.mts')
+    await expect(main()).rejects.toThrow(/local npm session/u)
   })
 })

@@ -1,7 +1,7 @@
 import { promises as fs } from 'node:fs'
 import { afterEach, expect, it, vi } from 'vitest'
-import { writeOverrideFiles } from '../../../../scripts/repo/npm/override/files.mts'
-import * as templates from '../../../../scripts/repo/util/templates.mts'
+import { writeOverrideFiles } from '../../../../scripts/npm/override/files.mts'
+import * as templates from '../../../../scripts/util/templates.mts'
 
 afterEach(() => vi.restoreAllMocks())
 

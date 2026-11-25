@@ -1,6 +1,6 @@
 import { beforeEach, expect, it, vi } from 'vitest'
-import { REGISTRY_PKG_PATH } from '../../../scripts/repo/constants/paths.mts'
-import { publishAtCommit } from '../../../scripts/repo/npm/publish-npm-packages-commit.mts'
+import { REGISTRY_PKG_PATH } from '../../../scripts/constants/paths.mts'
+import { publishAtCommit } from '../../../scripts/npm/publish-npm-packages-commit.mts'
 
 const mocks = vi.hoisted(() => ({
   __proto__: null,
@@ -23,18 +23,15 @@ vi.mock(import('@socketsecurity/lib-stable/packages/read'), () => ({
 vi.mock(import('@socketsecurity/lib-stable/process/spawn/child'), () => ({
   spawn: mocks.spawn,
 }))
-vi.mock(import('../../../scripts/repo/constants/testing.mts'), () => ({
+vi.mock(import('../../../scripts/constants/testing.mts'), () => ({
   getNpmPackageNames: () => ['example-module'],
 }))
+vi.mock(import('../../../scripts/npm/publish-npm-packages-git.mts'), () => ({
+  checkoutCommit: mocks.checkout,
+  getCommitSha: async () => 'example-sha',
+}))
 vi.mock(
-  import('../../../scripts/repo/npm/publish-npm-packages-git.mts'),
-  () => ({
-    checkoutCommit: mocks.checkout,
-    getCommitSha: async () => 'example-sha',
-  }),
-)
-vi.mock(
-  import('../../../scripts/repo/npm/publish-npm-packages-publish.mts'),
+  import('../../../scripts/npm/publish-npm-packages-publish.mts'),
   () => ({
     publishPackages: mocks.publish,
   }),
@@ -67,7 +64,7 @@ it('refreshes and commits the manifest between override and registry publishing'
   expect(events[0]).toBe('pnpm:run build')
   const overrideIndex = events.indexOf('publish:@example/module')
   const updateIndex = events.findIndex(event =>
-    event.includes('scripts/repo/npm/update-manifest.mts --force'),
+    event.includes('scripts/npm/update-manifest.mts --force'),
   )
   const commitIndex = events.findIndex(event => event.startsWith('git:commit '))
   const registryIndex = events.indexOf('publish:@example/registry')

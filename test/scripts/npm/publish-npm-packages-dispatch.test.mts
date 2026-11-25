@@ -1,5 +1,5 @@
 /**
- * @file Tests for scripts/repo/npm/publish-npm-packages-dispatch.mts — the local
+ * @file Tests for scripts/npm/publish-npm-packages-dispatch.mts — the local
  *   lane's argv mapping. The dispatch is the ONLY thing a local run may do, so
  *   what it hands `gh` is the whole contract: every workflow input is passed
  *   explicitly rather than left to the YAML's default, and `publish` defaults
@@ -13,7 +13,7 @@ import {
   buildWorkflowDispatchArgs,
   buildWorkflowWatchArgs,
   PUBLISH_WORKFLOW_FILE,
-} from '../../../scripts/repo/npm/publish-npm-packages-dispatch.mts'
+} from '../../../scripts/npm/publish-npm-packages-dispatch.mts'
 
 describe('buildWorkflowDispatchArgs', () => {
   test('a bare dispatch targets the workflow and defaults to a dry run', () => {
@@ -51,6 +51,23 @@ describe('buildWorkflowDispatchArgs', () => {
       '--field',
       'only=own-keys,is-data-view',
     ])
+  })
+
+  test('dispatches the registry independently of override packages', () => {
+    expect(
+      buildWorkflowDispatchArgs({ only: '@socketsecurity/registry' }),
+    ).toEqual([
+      'workflow',
+      'run',
+      'publish-npm.yml',
+      '--field',
+      'publish=false',
+      '--field',
+      'dist-tag=latest',
+    ])
+    expect(() =>
+      buildWorkflowDispatchArgs({ only: 'registry,own-keys' }),
+    ).toThrow(/separately/u)
   })
 
   test('publish is always sent, never left to the YAML default', () => {

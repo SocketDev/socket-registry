@@ -6,7 +6,7 @@ const { runSequence } = vi.hoisted(() => ({
   __proto__: null,
   runSequence: vi.fn(),
 }))
-vi.mock(import('../../../scripts/fleet/util/run-command.mts'), () => ({
+vi.mock(import('../../../scripts/lib/run-command.mts'), () => ({
   __proto__: null,
   runSequence,
 }))

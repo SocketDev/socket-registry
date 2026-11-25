@@ -6,7 +6,7 @@ import { safeDelete } from '@socketsecurity/lib-stable/fs/safe'
 
 const fixture = vi.hoisted(() => ({ root: '' }))
 vi.mock(
-  import('../../scripts/repo/constants/paths.mts'),
+  import('../../scripts/constants/paths.mts'),
   async importOriginal => ({
     ...(await importOriginal()),
     get NPM_PACKAGES_PATH() {

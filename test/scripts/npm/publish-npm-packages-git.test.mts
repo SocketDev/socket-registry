@@ -1,5 +1,5 @@
 /**
- * @file Tests for scripts/repo/npm/publish-npm-packages-git.mts checkoutCommit.
+ * @file Tests for scripts/npm/publish-npm-packages-git.mts checkoutCommit.
  *   The publish flow runs in checkouts shared with other sessions, so the
  *   `git reset --hard` + `git checkout <sha>` pair has two safety rails: a
  *   --dry-run preview touches the worktree not at all, and a real run over a
@@ -8,7 +8,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
-import { checkoutCommit } from '../../../scripts/repo/npm/publish-npm-packages-git.mts'
+import { checkoutCommit } from '../../../scripts/npm/publish-npm-packages-git.mts'
 
 const mockSpawn = vi.hoisted(() => vi.fn())
 
