@@ -1,22 +1,16 @@
 {
-  "extends": "./.config/fleet/tsconfig.base.json",
   "compilerOptions": {
     "allowImportingTsExtensions": true,
-    "declaration": true,
-    "declarationMap": false,
+    "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "bundler",
     "noEmit": true,
-    "sourceMap": false
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "es2024",
+    "types": ["node"]
   },
-  "include": ["**/*.ts", "**/*.mts", "**/*.cts"],
-  "exclude": [
-    "**/.cache/**",
-    "**/node_modules/**",
-    "packages/npm/**",
-    "scripts/**",
-    "test/**/packages/**",
-    "test/npm/**/*.d.ts",
-    "test/npm/node_modules/**"
-  ]
+  "include": ["registry/src/**/*.mts", "registry/scripts/**/*.mts", "scripts/**/*.mts"],
+  "exclude": ["**/node_modules/**", "scripts/templates/**"]
 }

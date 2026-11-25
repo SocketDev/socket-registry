@@ -1,0 +1,229 @@
+/**
+ * @file Generate GitHub Actions allow list from workflow and action
+ *   dependencies.
+ */
+
+import { promises as fs } from 'node:fs'
+import path from 'node:path'
+import process from 'node:process'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
+import clipboardy from 'clipboardy'
+
+import { isMainModule, runMain } from '../lib/cli.mts'
+import {
+  ROOT_DOT_GITHUB_ACTIONS_PATH,
+  ROOT_DOT_GITHUB_WORKFLOWS_PATH,
+} from '../constants/paths.mts'
+
+const logger = getDefaultLogger()
+
+/**
+ * Extract action dependencies from a workflow or action file.
+ */
+export async function extractDependencies(
+  filePath: string,
+): Promise<Map<string, string>> {
+  const content = await fs.readFile(filePath, 'utf8')
+  const dependencies = new Map<string, string>()
+
+  // Extract from uses: statements only (these have SHAs).
+  const usesMatches = content.matchAll(/^\s*uses:\s*(.+)$/gm)
+  for (const match of usesMatches) {
+    const capture = match[1]
+    if (capture === undefined) {
+      continue
+    }
+    // Remove inline comments from uses statements.
+    const action = capture.trim().replace(/\s+#.*$/, '')
+    // Skip local actions that reference the current repo.
+    if (!action.startsWith('.')) {
+      // Extract owner/repo as key for deduplication.
+      const atIndex = action.indexOf('@')
+      if (atIndex !== -1) {
+        const key = action.slice(0, atIndex)
+        // Store with key to deduplicate - keep the SHA version.
+        dependencies.set(key, action)
+      }
+    }
+  }
+
+  return dependencies
+}
+
+/**
+ * Recursively find all YAML files in a directory.
+ */
+export async function getAllYamlFiles(dir: string): Promise<string[]> {
+  const files: string[] = []
+  try {
+    const entries = await fs.readdir(dir, { withFileTypes: true })
+    for (let i = 0, { length } = entries; i < length; i += 1) {
+      const entry = entries[i]
+      if (entry === undefined) {
+        continue
+      }
+      const fullPath = path.join(dir, entry.name)
+      if (entry.isFile() && entry.name.endsWith('.yml')) {
+        files.push(fullPath)
+      } else if (entry.isDirectory()) {
+        // Recursively search subdirectories.
+
+        files.push(...(await getAllYamlFiles(fullPath)))
+      }
+    }
+  } catch {}
+  return files
+}
+
+export async function collectActionDependencies(
+  workflowsPath: string,
+  actionsPath: string,
+): Promise<Map<string, string>> {
+  const allDependencies = new Map<string, string>()
+
+  // Process workflow files.
+  const workflowFiles = await getAllYamlFiles(workflowsPath)
+  for (let i = 0, { length } = workflowFiles; i < length; i += 1) {
+    const file = workflowFiles[i]
+    if (file === undefined) {
+      continue
+    }
+    const deps = await extractDependencies(file)
+    // oxlint-disable-next-line socket/prefer-cached-for-loop -- iterates Map.entries() (non-array iterable); cached-length would be incorrect.
+    for (const { 0: key, 1: value } of deps.entries()) {
+      allDependencies.set(key, value)
+    }
+  }
+
+  // Process action files.
+  const actionDirs = await fs.readdir(actionsPath, {
+    withFileTypes: true,
+  })
+  for (let i = 0, { length } = actionDirs; i < length; i += 1) {
+    const dir = actionDirs[i]
+    if (dir === undefined) {
+      continue
+    }
+    if (dir.isDirectory()) {
+      const actionFile = path.join(actionsPath, dir.name, 'action.yml')
+      try {
+        const deps = await extractDependencies(actionFile)
+        // oxlint-disable-next-line socket/prefer-cached-for-loop -- iterates Map.entries() (non-array iterable); cached-length would be incorrect.
+        for (const { 0: key, 1: value } of deps.entries()) {
+          allDependencies.set(key, value)
+        }
+      } catch {}
+    }
+  }
+
+  return allDependencies
+}
+
+async function main(): Promise<void> {
+  const allDependencies = await collectActionDependencies(
+    ROOT_DOT_GITHUB_WORKFLOWS_PATH,
+    ROOT_DOT_GITHUB_ACTIONS_PATH,
+  )
+
+  // Categorize dependencies.
+  const socketDevActions = []
+  const externalActions = []
+
+  // Iterates Map.values() (non-array iterable); cached-length would fail.
+  // oxlint-disable-next-line socket/prefer-cached-for-loop -- reserved
+
+  for (const dep of allDependencies.values()) {
+    if (dep.startsWith('SocketDev/')) {
+      socketDevActions.push(dep)
+    } else if (!dep.startsWith('.')) {
+      externalActions.push(dep)
+    }
+  }
+
+  // Sort for consistency.
+  socketDevActions.sort()
+  externalActions.sort()
+
+  // Check if --exact flag was passed.
+  const useExactSha = process.argv.includes('--exact')
+
+  // Generate version wildcards or use exact SHAs.
+  const allActions = [...socketDevActions, ...externalActions]
+  const allowListActions = useExactSha
+    ? allActions
+    : allActions.map(action => {
+        const atIndex = action.indexOf('@')
+        return atIndex !== -1 ? `${action.slice(0, atIndex)}@*` : action
+      })
+
+  // Generate the allow list.
+  // Base indentation.
+  const indent = '  '
+
+  logger.log('# GitHub Actions Allow List')
+  logger.log('# Generated by scripts/generate-actions-allow-list.js')
+  logger.log('')
+  logger.log('## Instructions:')
+  logger.log(`${indent}1. Go to your repository Settings → Actions → General`)
+  logger.log(
+    `${indent}2. Under "Actions permissions", select "Allow SocketDev, and select non-SocketDev, actions and reusable workflows"`,
+  )
+  logger.log(`${indent}3. Check "Allow actions created by GitHub"`)
+  logger.log(
+    `${indent}4. Check "Allow actions by Marketplace verified creators" (optional)`,
+  )
+  logger.log(
+    `${indent}5. In "Allow specified actions and reusable workflows", paste the list below:`,
+  )
+  logger.log('')
+  logger.log(
+    `## Allow List${useExactSha ? ' (Exact SHAs)' : ' (Version Wildcards)'}:`,
+  )
+  logger.log('')
+
+  const allowList = `${allowListActions.map(action => `${indent}${action}`).join(',\n')},`
+  logger.log(allowList)
+
+  logger.log('')
+  logger.info(`Total: ${allActions.length} actions/workflows`)
+  logger.log('')
+  logger.info(
+    'For a detailed dependency tree, run: `pnpm run generate-actions-tree`',
+  )
+
+  // Check if --copy flag was passed.
+  if (process.argv.includes('--copy')) {
+    try {
+      // Copy the non-indented version for easier pasting.
+      const clipboardList = `${allowListActions.join(',\n')},`
+      clipboardy.writeSync(clipboardList)
+      logger.success('Allow list copied to clipboard!')
+    } catch {}
+  } else {
+    logger.log(
+      '💡 Tip: Run `pnpm run generate-actions-allow-list --copy` to copy the allow list to clipboard',
+    )
+  }
+
+  if (!useExactSha) {
+    logger.log(
+      '💡 Tip: Add `--exact` flag to generate list with exact commit SHAs instead of version wildcards',
+    )
+  }
+}
+
+if (isMainModule(import.meta.url)) {
+  runMain(
+    async () => {
+      await main().catch((e: unknown) => {
+        logger.error(e)
+        process.exitCode = 1
+      })
+    },
+    {
+      json: 'result',
+      describe: 'generates the GitHub Actions allow list',
+      help: 'Usage: pnpm generate-actions-allow-list [options]\n--exact  Use exact commit references\n--copy  Copy the allow list',
+    },
+  )
+}

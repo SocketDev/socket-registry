@@ -1,5 +1,5 @@
 /**
- * @file Tests for scripts/repo/npm/publish-npm-packages-publish.mts with the npm
+ * @file Tests for scripts/npm/publish-npm-packages-publish.mts with the npm
  *   upload MOCKED — nothing here touches the network or a registry. The live
  *   run that prompted this passed an EMPTY dist-tag to every package and npm
  *   400'd each one with `Tag must be a non-empty string`; the old `?? 'latest'`
@@ -7,29 +7,36 @@
  */
 
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
-import type { PublishState } from '../../../scripts/repo/npm/publish-npm-packages-failures.mts'
+import type { PublishState } from '../../../scripts/npm/publish-npm-packages-failures.mts'
 
 const uploadNpmPackage = vi.fn()
 
-vi.mock(
-  import('../../../scripts/fleet/registry/npm/publish-command.mts'),
-  () => ({
-    uploadNpmPackage: (...args: unknown[]) => uploadNpmPackage(...args),
-  }),
-)
+vi.mock(import('../../../scripts/npm/publish-command.mts'), () => ({
+  uploadNpmPackage: (...args: unknown[]) => uploadNpmPackage(...args),
+}))
 
 const listStagedPackages = vi.fn()
 const isAlreadyPublished = vi.fn()
-const runInherit = vi.fn()
+const runCommand = vi.fn()
 const password = vi.fn()
-vi.mock(import('../../../scripts/fleet/registry/npm/shared.mts'), () => ({
+vi.mock(import('../../../scripts/npm/stage-list.mts'), () => ({
   listStagedPackages: (...args: unknown[]) => listStagedPackages(...args),
-}))
-vi.mock(import('../../../scripts/fleet/publish-shared.mts'), () => ({
   isAlreadyPublished: (...args: unknown[]) => isAlreadyPublished(...args),
-  runInherit: (...args: unknown[]) => runInherit(...args),
 }))
-vi.mock(import('@socketsecurity/lib/stdio/prompts'), () => ({
+vi.mock(import('../../../scripts/lib/run-command.mts'), () => ({
+  runCommand: (...args: unknown[]) => runCommand(...args),
+}))
+vi.mock(
+  import('../../../scripts/npm/check-trusted-packages-staged.mts'),
+  () => ({
+    readLocalNpmPackages: async () => [
+      { name: '@example/already-public', version: undefined },
+      { name: '@example/missing-version', version: undefined },
+      { name: '@example/eligible', version: undefined },
+    ],
+  }),
+)
+vi.mock(import('@socketsecurity/lib-stable/stdio/prompts'), () => ({
   password: (...args: unknown[]) => password(...args),
 }))
 
@@ -50,7 +57,7 @@ describe('stagePublish tag defaulting', () => {
 
   test('an empty tag never reaches npm', async () => {
     const { stagePublish } =
-      await import('../../../scripts/repo/npm/publish-npm-packages-publish.mts')
+      await import('../../../scripts/npm/publish-npm-packages-publish.mts')
     const state: PublishState = { fails: [], failures: [] }
     await stagePublish(
       { path: '/tmp/pkg', printName: '@socketregistry/own-keys', tag: '' },
@@ -64,7 +71,7 @@ describe('stagePublish tag defaulting', () => {
 
   test('an explicit prerelease tag is forwarded as-is', async () => {
     const { stagePublish } =
-      await import('../../../scripts/repo/npm/publish-npm-packages-publish.mts')
+      await import('../../../scripts/npm/publish-npm-packages-publish.mts')
     await stagePublish(
       { path: '/tmp/pkg', printName: '@socketregistry/own-keys', tag: 'beta' },
       { fails: [], failures: [] },
@@ -81,7 +88,7 @@ describe('stagePublish tag defaulting', () => {
       ran: true,
     })
     const { stagePublish } =
-      await import('../../../scripts/repo/npm/publish-npm-packages-publish.mts')
+      await import('../../../scripts/npm/publish-npm-packages-publish.mts')
     const state: PublishState = { fails: [], failures: [] }
     await stagePublish(
       { path: '/tmp/pkg', printName: '@socketregistry/own-keys' },
@@ -103,7 +110,7 @@ describe('stagePublish tag defaulting', () => {
       ran: true,
     })
     const { stagePublish } =
-      await import('../../../scripts/repo/npm/publish-npm-packages-publish.mts')
+      await import('../../../scripts/npm/publish-npm-packages-publish.mts')
     const state: PublishState = { fails: [], failures: [] }
     await stagePublish(
       { path: '/tmp/pkg', printName: '@socketregistry/own-keys' },
@@ -117,7 +124,7 @@ describe('stagePublish tag defaulting', () => {
 
   test('a dry run stages nothing at all', async () => {
     const { stagePublish } =
-      await import('../../../scripts/repo/npm/publish-npm-packages-publish.mts')
+      await import('../../../scripts/npm/publish-npm-packages-publish.mts')
     await stagePublish(
       { path: '/tmp/pkg', printName: '@socketregistry/own-keys', tag: '' },
       { fails: [], failures: [] },
@@ -131,7 +138,7 @@ describe('approval eligibility', () => {
   beforeEach(() => {
     listStagedPackages.mockReset()
     isAlreadyPublished.mockReset()
-    runInherit.mockReset()
+    runCommand.mockReset()
     password.mockReset()
     listStagedPackages.mockResolvedValue([
       {
@@ -145,16 +152,21 @@ describe('approval eligibility', () => {
         version: '1.0.0',
         stageId: 'eligible-stage',
       },
+      {
+        name: '@unrelated/package',
+        version: '1.0.0',
+        stageId: 'unrelated-stage',
+      },
     ])
     isAlreadyPublished.mockImplementation(
       async (name: string) => name === '@example/already-public',
     )
-    runInherit.mockResolvedValue(0)
+    runCommand.mockResolvedValue(0)
   })
 
   test('approves only complete unpublished entries with the supplied OTP', async () => {
     const { approveStagedPackages } =
-      await import('../../../scripts/repo/npm/publish-npm-packages-publish.mts')
+      await import('../../../scripts/npm/publish-npm-packages-publish.mts')
     const state: PublishState = { fails: [], failures: [] }
     await approveStagedPackages(state, {
       cwd: '/tmp/example-approval',
@@ -164,10 +176,10 @@ describe('approval eligibility', () => {
       ['@example/already-public', '1.0.0'],
       ['@example/eligible', '1.0.0'],
     ])
-    expect(runInherit).toHaveBeenCalledExactlyOnceWith(
+    expect(runCommand).toHaveBeenCalledExactlyOnceWith(
       'pnpm',
       ['stage', 'approve', 'eligible-stage', '--otp', '000000'],
-      '/tmp/example-approval',
+      { cwd: '/tmp/example-approval' },
     )
     expect(password).not.toHaveBeenCalled()
     expect(state.fails).toEqual([])
@@ -175,10 +187,10 @@ describe('approval eligibility', () => {
 
   test('previews eligible entries without prompting or promoting', async () => {
     const { approveStagedPackages } =
-      await import('../../../scripts/repo/npm/publish-npm-packages-publish.mts')
+      await import('../../../scripts/npm/publish-npm-packages-publish.mts')
     await approveStagedPackages({ fails: [] }, { dryRun: true })
     expect(isAlreadyPublished).toHaveBeenCalledTimes(2)
-    expect(runInherit).not.toHaveBeenCalled()
+    expect(runCommand).not.toHaveBeenCalled()
     expect(password).not.toHaveBeenCalled()
   })
 })

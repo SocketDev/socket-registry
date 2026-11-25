@@ -1,5 +1,5 @@
 /**
- * @file Tests for scripts/repo/npm/publish-npm-packages-commit.mts. The
+ * @file Tests for scripts/npm/publish-npm-packages-commit.mts. The
  *   publish-registry-last and --force-registry branches key off the registry
  *   package's identity; a hardcoded '@socketsecurity/registry-stable' literal
  *   never matched registry/package.json's actual name, so both branches were
@@ -17,16 +17,15 @@ import { describe, expect, test } from 'vitest'
 import {
   REGISTRY_PKG_PATH,
   ROOT_PATH,
-} from '../../../scripts/repo/constants/paths.mts'
+} from '../../../scripts/constants/paths.mts'
 import {
   packageData,
   requirePackageJson,
-} from '../../../scripts/repo/npm/publish-npm-packages-commit.mts'
+} from '../../../scripts/npm/publish-npm-packages-commit.mts'
 
 const COMMIT_MODULE_PATH = path.join(
   ROOT_PATH,
   'scripts',
-  'repo',
   'npm',
   'publish-npm-packages-commit.mts',
 )

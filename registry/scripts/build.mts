@@ -20,7 +20,8 @@ import { printHeader } from '@socketsecurity/lib-stable/stdio/header'
 import { buildConfig } from '../.config/rolldown.config.mts'
 import { normalizeRegistryDeclarations } from './declarations.mts'
 import { parseArgs } from 'node:util'
-import { runSequence } from '../../scripts/fleet/util/run-command.mts'
+import { isMainModule } from '../../scripts/lib/cli.mts'
+import { runSequence } from '../../scripts/lib/run-command.mts'
 import process from 'node:process'
 
 const logger = getDefaultLogger()
@@ -47,7 +48,7 @@ interface BuildOptions {
 }
 
 /**
- * Build source code with esbuild. Returns { exitCode, buildTime, result } for
+ * Build source code with Rolldown. Returns { exitCode, buildTime, result } for
  * external logging.
  */
 export async function buildSource(options: BuildOptions = {}) {
@@ -477,4 +478,6 @@ async function main() {
   }
 }
 
-main().catch(console.error)
+if (isMainModule(import.meta.url)) {
+  void main()
+}

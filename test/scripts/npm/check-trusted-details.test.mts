@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest'
-import { collectPackageTrustDetails } from '../../../scripts/repo/npm/check-trusted-details.mts'
+import { collectPackageTrustDetails } from '../../../scripts/npm/check-trusted-details.mts'
 
 it('requires every maintainer and retains repository and provenance failures', () => {
   const issues = ['existing staged failure']

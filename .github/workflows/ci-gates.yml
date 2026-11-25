@@ -1,20 +1,12 @@
-# socket-registry CI — self-contained, repo-owned. Runs check + test via the
-# LOCAL composite actions under .github/actions/fleet/ (cascade-updated),
-# referenced by ./ path — no cross-repo reusable workflow, no first-party
-# `uses:@sha`. Repo-specific jobs (test-npm-packages) live alongside the fleet
-# check/test shape under `jobs:`.
 name: 'ci: gates'
 run-name: 'ci: gates'
 
-# PUSH, never pull_request. The fleet takes no outside contributions and
-# lands on main directly, so a pull_request trigger adds no coverage a push
-# trigger does not already give — and it is the fragile half: GitHub has
-# narrowed pull_request defaults for security, and a silently non-firing
-# trigger reads as a green repo with no CI at all.
 on:
   push:
     branches: [main]
     tags: ['*']
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -24,194 +16,54 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  LINT_MARKDOWN: '1'
-
 jobs:
-  # First step of every job is an inline git-fetch bootstrap (no third-party
-  # actions/checkout) — a job's FIRST step can't call the local
-  # `./.github/actions/fleet/checkout` composite, since nothing is checked out
-  # yet for GitHub to resolve `./.github/actions/*` from. It shallow-fetches the
-  # workspace so those composites resolve; setup-and-install then re-runs the
-  # checkout composite — full history (fetch-depth 0) in the check job, since
-  # the commit-history checks it runs (AI-attribution, release-boundary) read
-  # the default branch's history and refuse a shallow clone rather than
-  # false-green; the test matrix stays at the default depth and runs the
-  # zizmor Actions audit.
   check:
     name: Check
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
-    steps:
-      - name: Bootstrap checkout
-        shell: bash
-        env:
-          # Route context through env (no ${{ }} in the shell body —
-          # zizmor expression-injection). Token authorizes the fetch inline and
-          # is never persisted to .git/config.
-          GITHUB_TOKEN: ${{ github.token }}
-          SERVER_URL: ${{ github.server_url }}
-          REPOSITORY: ${{ github.repository }}
-          TRIGGER_REF: ${{ github.sha }}
-        run: |
-          set -euo pipefail
-          git init -q
-          git config --local advice.detachedHead false
-          git remote remove origin 2>/dev/null || true
-          git remote add origin "${SERVER_URL}/${REPOSITORY}"
-          FETCH_ARGS=(--no-tags --prune --depth 1 origin "${TRIGGER_REF}")
-          if [ -n "${GITHUB_TOKEN}" ]; then
-            AUTH_B64="$(printf 'x-access-token:%s' "${GITHUB_TOKEN}" | base64 | tr -d '\n')"
-            git -c "http.${SERVER_URL}/.extraheader=AUTHORIZATION: basic ${AUTH_B64}" fetch "${FETCH_ARGS[@]}"
-          else
-            git fetch "${FETCH_ARGS[@]}"
-          fi
-          git checkout -q --detach FETCH_HEAD
-      - name: Set up and install
-        uses: ./.github/actions/fleet/setup-and-install
-        with:
-          # Full history: the commit-history checks (AI-attribution,
-          # release-boundary) read the default branch's history and refuse a
-          # shallow clone rather than false-green.
-          checkout-fetch-depth: '0'
-          payload-token-client-id: ${{ secrets.SOCKET_RELEASE_CLIENT_ID || vars.SOCKET_RELEASE_CLIENT_ID }}
-          payload-token-private-key: ${{ secrets.SOCKET_RELEASE_APP_PRIVATE_KEY }}
-          socket-api-token: ${{ secrets.SOCKET_API_TOKEN_FOR_CLI_AND_SFW }}
-      - name: Run validation
-        uses: ./.github/actions/fleet/run-script
-        with:
-          main-script: pnpm run check --all
-
-  test:
-    name: Test
-    strategy:
-      fail-fast: false
-      max-parallel: 4
-      matrix:
-        # JS/TS tests only need a fast Linux run; cross-platform behavior is
-        # covered by unit tests, not the CI matrix.
-        os: [ubuntu-24.04]
-    runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     steps:
-      - name: Bootstrap checkout
+      - &checkout
+        name: Check out the workflow revision
         shell: bash
         env:
-          GITHUB_TOKEN: ${{ github.token }}
-          SERVER_URL: ${{ github.server_url }}
-          REPOSITORY: ${{ github.repository }}
-          TRIGGER_REF: ${{ github.sha }}
+          CHECKOUT_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          git init -q
-          git config --local advice.detachedHead false
-          git remote remove origin 2>/dev/null || true
-          git remote add origin "${SERVER_URL}/${REPOSITORY}"
-          FETCH_ARGS=(--no-tags --prune --depth 1 origin "${TRIGGER_REF}")
-          if [ -n "${GITHUB_TOKEN}" ]; then
-            AUTH_B64="$(printf 'x-access-token:%s' "${GITHUB_TOKEN}" | base64 | tr -d '\n')"
-            git -c "http.${SERVER_URL}/.extraheader=AUTHORIZATION: basic ${AUTH_B64}" fetch "${FETCH_ARGS[@]}"
-          else
-            git fetch "${FETCH_ARGS[@]}"
-          fi
-          git checkout -q --detach FETCH_HEAD
-      - name: Set up and install
-        uses: ./.github/actions/fleet/setup-and-install
-        with:
-          node-version: 24
-          payload-token-client-id: ${{ secrets.SOCKET_RELEASE_CLIENT_ID || vars.SOCKET_RELEASE_CLIENT_ID }}
-          payload-token-private-key: ${{ secrets.SOCKET_RELEASE_APP_PRIVATE_KEY }}
-          socket-api-token: ${{ secrets.SOCKET_API_TOKEN_FOR_CLI_AND_SFW }}
-      - name: Run validation
-        uses: ./.github/actions/fleet/run-script
-        env:
-          GH_TOKEN: ${{ github.token }}
-        with:
-          setup-script: pnpm run build
-          main-script: pnpm test --ci
+          git init --quiet
+          git remote add origin "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git"
+          auth="$(printf 'x-access-token:%s' "$CHECKOUT_TOKEN" | base64 -w0)"
+          echo "::add-mask::$auth"
+          GIT_CONFIG_COUNT=1 \
+            GIT_CONFIG_KEY_0="http.$GITHUB_SERVER_URL/.extraheader" \
+            GIT_CONFIG_VALUE_0="AUTHORIZATION: basic $auth" \
+            git fetch --quiet --tags origin "$GITHUB_SHA"
+          git checkout --quiet --detach FETCH_HEAD
+      - name: Check repository
+        run: bash scripts/ci/with-toolchain.sh pnpm run check
 
-  # Repo-owned: exercises the published-package build + npm-package test suite.
+  test:
+    name: Test (ubuntu-24.04)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - *checkout
+      - name: Build and run tests
+        run: bash scripts/ci/with-toolchain.sh bash -e -c 'pnpm run build && pnpm test'
+
   test-npm-packages:
     name: Test npm packages
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
-      - name: Bootstrap checkout
-        shell: bash
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-          SERVER_URL: ${{ github.server_url }}
-          REPOSITORY: ${{ github.repository }}
-          TRIGGER_REF: ${{ github.sha }}
-        run: |
-          set -euo pipefail
-          git init -q
-          git config --local advice.detachedHead false
-          git remote remove origin 2>/dev/null || true
-          git remote add origin "${SERVER_URL}/${REPOSITORY}"
-          FETCH_ARGS=(--no-tags --prune --depth 1 origin "${TRIGGER_REF}")
-          if [ -n "${GITHUB_TOKEN}" ]; then
-            AUTH_B64="$(printf 'x-access-token:%s' "${GITHUB_TOKEN}" | base64 | tr -d '\n')"
-            git -c "http.${SERVER_URL}/.extraheader=AUTHORIZATION: basic ${AUTH_B64}" fetch "${FETCH_ARGS[@]}"
-          else
-            git fetch "${FETCH_ARGS[@]}"
-          fi
-          git checkout -q --detach FETCH_HEAD
-      - name: Set up and install
-        uses: ./.github/actions/fleet/setup-and-install
-        with:
-          node-version: 24
-          payload-token-client-id: ${{ secrets.SOCKET_RELEASE_CLIENT_ID || vars.SOCKET_RELEASE_CLIENT_ID }}
-          payload-token-private-key: ${{ secrets.SOCKET_RELEASE_APP_PRIVATE_KEY }}
-          socket-api-token: ${{ secrets.SOCKET_API_TOKEN_FOR_CLI_AND_SFW }}
-      - name: Run validation
-        uses: ./.github/actions/fleet/run-script
-        env:
-          GH_TOKEN: ${{ github.token }}
-        with:
-          setup-script: pnpm run build
-          main-script: pnpm run test:npm
+      - *checkout
+      - name: Build and test npm packages
+        run: bash scripts/ci/with-toolchain.sh bash -e -c 'pnpm run build && pnpm run test:npm'
 
-  # Repo-owned: every override declares `engines.node: >=24`, but the jobs
-  # above run a newer current-line Node — nothing executes the FLOOR, so a
-  # too-new syntax/API in an override stays green here and only breaks in a
-  # consumer pinned to the floor. This job side-installs the exact floor
-  # release (sha256-verified against nodejs.org's published SHASUMS256 before
-  # extraction) and dynamic-imports every override's node entry under it.
   floor-node-smoke:
     name: Floor node smoke
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
-      - name: Bootstrap checkout
-        shell: bash
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-          SERVER_URL: ${{ github.server_url }}
-          REPOSITORY: ${{ github.repository }}
-          TRIGGER_REF: ${{ github.sha }}
-        run: |
-          set -euo pipefail
-          git init -q
-          git config --local advice.detachedHead false
-          git remote remove origin 2>/dev/null || true
-          git remote add origin "${SERVER_URL}/${REPOSITORY}"
-          FETCH_ARGS=(--no-tags --prune --depth 1 origin "${TRIGGER_REF}")
-          if [ -n "${GITHUB_TOKEN}" ]; then
-            AUTH_B64="$(printf 'x-access-token:%s' "${GITHUB_TOKEN}" | base64 | tr -d '\n')"
-            git -c "http.${SERVER_URL}/.extraheader=AUTHORIZATION: basic ${AUTH_B64}" fetch "${FETCH_ARGS[@]}"
-          else
-            git fetch "${FETCH_ARGS[@]}"
-          fi
-          git checkout -q --detach FETCH_HEAD
-      - name: Set up and install
-        uses: ./.github/actions/fleet/setup-and-install
-        with:
-          node-version: 24
-          payload-token-client-id: ${{ secrets.SOCKET_RELEASE_CLIENT_ID || vars.SOCKET_RELEASE_CLIENT_ID }}
-          payload-token-private-key: ${{ secrets.SOCKET_RELEASE_APP_PRIVATE_KEY }}
-          socket-api-token: ${{ secrets.SOCKET_API_TOKEN_FOR_CLI_AND_SFW }}
-      - name: Run validation
-        uses: ./.github/actions/fleet/run-script
-        with:
-          main-script: pnpm run test:npm:floor
+      - *checkout
+      - name: Run npm packages on the minimum Node.js version
+        run: bash scripts/ci/with-toolchain.sh pnpm run test:npm:floor

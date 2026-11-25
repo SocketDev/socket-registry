@@ -62,7 +62,7 @@ Use the version and alias form documented for the selected package. The root REA
 
 Each directory in `packages/npm/` is an override package. Its `package.json`, source files, tests, and README describe that package's actual API and compatibility details. Consult those files for package-specific guidance; the catalog does not replace the individual package documentation.
 
-The published catalog is a generated package under `registry/`. Read its README for the consumer lookup examples. The override package inventory and detailed ranking evidence are in [`docs/repo/agents.md/npm-high-impact-rankings.md`](./repo/agents.md/npm-high-impact-rankings.md).
+The published catalog is a generated package under `registry/`. Read its README for the consumer lookup examples. The override package inventory and detailed ranking evidence are in [`docs/npm-high-impact-rankings.md`](./npm-high-impact-rankings.md).
 
 ## Related references
 
